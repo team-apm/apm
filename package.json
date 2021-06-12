@@ -46,7 +46,8 @@
     "forge": {
       "packagerConfig": {
         "name": "AviUtl-Package-Manager",
-        "executableName": "apm"
+        "executableName": "apm",
+        "asar": true
       },
       "makers": [
         {
