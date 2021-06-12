@@ -1,0 +1,18 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+  "plugins": ["jsdoc"],
+  "extends": [
+    "eslint:recommended",
+    "google",
+    "plugin:jsdoc/recommended",
+    "prettier"
+  ],
+  "rules": {
+    "prefer-arrow-callback": "error"
+  }
+}
