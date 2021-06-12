@@ -2,7 +2,7 @@
   "name": "apm",
   "version": "0.1.0",
   "description": "A plugin manager for AviUtl",
-  "main": "main.js",
+  "main": "./src/main.js",
   "repository": "https://github.com/hal-shu-sato/apm.git",
   "author": "ato lash <hal-shu-sato@users.noreply.github.com>",
   "license": "MIT",
