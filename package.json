@@ -1,5 +1,6 @@
 {
   "name": "apm",
+  "productName": "AviUtl Plugin Manager",
   "version": "0.1.0",
   "description": "A plugin manager for AviUtl",
   "main": "./src/main.js",
