@@ -45,6 +45,10 @@ const template = [
         },
       },
       {
+        role: 'toggleDevTools',
+        visible: false,
+      },
+      {
         label: '終了',
         click: () => {
           app.quit();
