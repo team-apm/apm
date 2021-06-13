@@ -19,6 +19,7 @@
     "cm": "npx cz"
   },
   "dependencies": {
+    "bootstrap": "^5.0.1",
     "electron-squirrel-startup": "^1.0.0"
   },
   "devDependencies": {

@@ -12,21 +12,27 @@
 			content="default-src 'self'; script-src 'self'"
 		/>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>AviUtl Plugin Manager</title>
+		<title>About</title>
 		<link
 			rel="stylesheet"
 			href="../node_modules/bootstrap/dist/css/bootstrap.min.css"
 		/>
 		<link rel="stylesheet" href="main.css" />
 	</head>
-	<body class="bg-light">
+	<body class="my-2 bg-dark text-white">
 		<div class="container-fluid">
-			<div class="row">
-				<div class="col">
-					<h1>AviUtl Plugin Manager</h1>
-					<div id="table"></div>
-				</div>
+			<h1>
+				apm<br />
+				<span class="lead">AviUtl Plugin Manager</span>
+			</h1>
+			<div>
+				Developer: ato lash<br />
+				Version: <span id="app-version"></span><br />
+				Node.js: <span id="node-version"></span><br />
+				Chromium: <span id="chrome-version"></span><br />
+				Electron: <span id="electron-version"></span>
 			</div>
+			<small class="text-white-50">クリックして閉じる</small>
 		</div>
 		<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	</body>
