@@ -22,11 +22,50 @@
 	<body class="bg-light">
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col">
-					<h1>AviUtl Plugin Manager</h1>
-					<div id="table"></div>
+				<div class="col px-0">
+					<nav>
+						<div class="nav nav-tabs" id="nav-tab" role="tablist">
+							<button
+								class="nav-link active"
+								id="aviutl-tab"
+								data-bs-toggle="tab"
+								data-bs-target="#aviutl"
+								type="button"
+								role="tab"
+								aria-controls="aviutl"
+								aria-selected="true"
+							>
+								AviUtl
+							</button>
+							<button
+								class="nav-link"
+								id="plugins-tab"
+								data-bs-toggle="tab"
+								data-bs-target="#plugins"
+								type="button"
+								role="tab"
+								aria-controls="plugins"
+								aria-selected="false"
+							>
+								Plugins
+							</button>
+							<button
+								class="nav-link"
+								id="scripts-tab"
+								data-bs-toggle="tab"
+								data-bs-target="#scripts"
+								type="button"
+								role="tab"
+								aria-controls="scripts"
+								aria-selected="false"
+							>
+								Scripts
+							</button>
+						</div>
+					</nav>
 				</div>
 			</div>
+			<main></main>
 		</div>
 		<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	</body>
