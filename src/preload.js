@@ -17,31 +17,13 @@ function replaceText(selector, text) {
 
 /**
  * @function
- * @param {object} coreVersionData - The object of version data. If it is not provided, replace with 'Not acquired'
- */
-function replaceCoreVersion(coreVersionData) {
-  if (coreVersionData) {
-    for (const program of ['aviutl', 'exedit']) {
-      replaceText(
-        `${program}-latest-version`,
-        coreVersionData.core[program].latestVersion
-      );
-    }
-  } else {
-    for (const program of ['aviutl', 'exedit']) {
-      replaceText(`${program}-latest-version`, '未取得');
-    }
-  }
-}
-
-/**
- * @function
  */
 async function setCoreVersions() {
   const coreFile = await ipcRenderer.invoke(
     'exists-temp-file',
     'Core/core.xml'
   );
+
   const aviutlVersionSelect = document.getElementById('aviutl-version-select');
   const exeditVersionSelect = document.getElementById('exedit-version-select');
   while (aviutlVersionSelect.childElementCount > 1) {
@@ -50,9 +32,11 @@ async function setCoreVersions() {
   while (exeditVersionSelect.childElementCount > 1) {
     exeditVersionSelect.removeChild(exeditVersionSelect.lastChild);
   }
+
   if (coreFile.exists) {
     const xmlData = fs.readFileSync(coreFile.path, 'utf-8');
     const parser = new xml2js.Parser({ explicitArray: false });
+
     let object = {};
     parser.parseString(xmlData, (err, result) => {
       if (err) {
@@ -61,7 +45,13 @@ async function setCoreVersions() {
         object = result;
       }
     });
+
     for (const program of ['aviutl', 'exedit']) {
+      replaceText(
+        `${program}-latest-version`,
+        object.core[program].latestVersion
+      );
+
       for (const release of object.core[program].releases.fileURL) {
         const option = document.createElement('option');
         option.setAttribute('value', release.$.version);
@@ -73,7 +63,46 @@ async function setCoreVersions() {
         }
       }
     }
+  } else {
+    for (const program of ['aviutl', 'exedit']) {
+      replaceText(`${program}-latest-version`, '未取得');
+    }
   }
+}
+
+const coreXmlUrl =
+  'http://halshusato.starfree.jp/ato_lash/aviutl/data/core.xml';
+
+/**
+ *
+ * @param {HTMLElement} btn - A HTMLElement of button element.
+ */
+async function getlatestVersion(btn) {
+  btn.setAttribute('disabled', '');
+  const beforeHTML = btn.innerHTML;
+  btn.innerHTML =
+    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
+    '<span class="visually-hidden">Loading...</span>';
+
+  await ipcRenderer.invoke('download', coreXmlUrl, true, 'Core');
+  setCoreVersions();
+
+  btn.removeAttribute('disabled');
+  btn.innerHTML = beforeHTML;
+}
+
+/**
+ *
+ * @param {HTMLElement} input - A HTMLElement of input.
+ */
+async function selectInstallationPath(input) {
+  const selectedPath = await ipcRenderer.invoke(
+    'open-dir-dialog',
+    'インストール先フォルダを選択',
+    input.innerText
+  );
+  store.set('installationPath', selectedPath);
+  input.setAttribute('value', selectedPath);
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -84,71 +113,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     );
   }
 
-  const coreFile = await ipcRenderer.invoke(
-    'exists-temp-file',
-    'Core/core.xml'
-  );
-  if (coreFile.exists) {
-    const xmlData = fs.readFileSync(coreFile.path, 'utf-8');
-    const parser = new xml2js.Parser({ explicitArray: false });
-    let object = {};
-    parser.parseString(xmlData, (err, result) => {
-      if (err) {
-        throw err;
-      } else {
-        object = result;
-      }
-    });
-    replaceCoreVersion(object);
-  } else {
-    replaceCoreVersion();
-  }
+  setCoreVersions();
 
   const installationPath = document.getElementById('installation-path');
   installationPath.setAttribute('value', store.get('installationPath', ''));
-
-  setCoreVersions();
 });
-
-/**
- * Downloads xml and return object
- *
- * @function
- * @param {url} url - The url of the file to download.
- * @returns {Promise<object>} - An object of parsed xml.
- */
-async function getXmlObject(url) {
-  const filePath = await ipcRenderer.invoke('download', url, true, 'Core');
-  const xmlData = fs.readFileSync(filePath, 'utf-8');
-  const parser = new xml2js.Parser({ explicitArray: false });
-  let object = {};
-  parser.parseString(xmlData, (err, result) => {
-    if (err) {
-      throw err;
-    } else {
-      object = result;
-    }
-  });
-  return object;
-}
 
 window.addEventListener('load', () => {
   const aviutlVersionBtn = document.getElementById('aviutl-check-version');
-  const coreXmlUrl =
-    'http://halshusato.starfree.jp/ato_lash/aviutl/data/core.xml';
-
   aviutlVersionBtn.addEventListener('click', async (event) => {
-    aviutlVersionBtn.setAttribute('disabled', '');
-    const beforeHTML = aviutlVersionBtn.innerHTML;
-    aviutlVersionBtn.innerHTML =
-      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
-      '<span class="visually-hidden">Loading...</span>';
-
-    const coreVersionData = await getXmlObject(coreXmlUrl);
-    replaceCoreVersion(coreVersionData);
-
-    aviutlVersionBtn.removeAttribute('disabled');
-    aviutlVersionBtn.innerHTML = beforeHTML;
+    getlatestVersion(aviutlVersionBtn);
   });
 
   const selectInstallationPathBtn = document.getElementById(
@@ -156,12 +130,6 @@ window.addEventListener('load', () => {
   );
   const installationPath = document.getElementById('installation-path');
   selectInstallationPathBtn.addEventListener('click', async (event) => {
-    const selectedPath = await ipcRenderer.invoke(
-      'open-dir-dialog',
-      'インストール先フォルダを選択',
-      installationPath.innerText
-    );
-    store.set('installationPath', selectedPath);
-    installationPath.setAttribute('value', selectedPath);
+    selectInstallationPath(installationPath);
   });
 });
