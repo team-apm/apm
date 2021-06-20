@@ -17,14 +17,20 @@ function replaceText(selector, text) {
 
 /**
  * @function
- * @param {object} coreVersionData - The object of version data.
+ * @param {object} coreVersionData - The object of version data. If it is not provided, replace with 'Not acquired'
  */
 function replaceCoreVersion(coreVersionData) {
-  for (const program of ['aviutl', 'exedit']) {
-    replaceText(
-      `${program}-latest-version`,
-      coreVersionData.core[program].latestVersion
-    );
+  if (coreVersionData) {
+    for (const program of ['aviutl', 'exedit']) {
+      replaceText(
+        `${program}-latest-version`,
+        coreVersionData.core[program].latestVersion
+      );
+    }
+  } else {
+    for (const program of ['aviutl', 'exedit']) {
+      replaceText(`${program}-latest-version`, '未取得');
+    }
   }
 }
 
@@ -48,6 +54,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
     });
     replaceCoreVersion(object);
+  } else {
+    replaceCoreVersion();
   }
 });
 
