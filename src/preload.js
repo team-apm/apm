@@ -41,6 +41,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       store.get('installedVersion[program]', '未インストール')
     );
   }
+
   const coreFile = await ipcRenderer.invoke(
     'exists-temp-file',
     'Core/core.xml'
@@ -60,6 +61,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   } else {
     replaceCoreVersion();
   }
+
+  const installationPath = document.getElementById('installation-path');
+  installationPath.setAttribute('value', store.get('installationPath', ''));
 });
 
 /**
@@ -101,5 +105,19 @@ window.addEventListener('load', () => {
 
     aviutlVersionBtn.removeAttribute('disabled');
     aviutlVersionBtn.innerHTML = beforeHTML;
+  });
+
+  const selectInstallationPathBtn = document.getElementById(
+    'select-installation-path'
+  );
+  const installationPath = document.getElementById('installation-path');
+  selectInstallationPathBtn.addEventListener('click', async (event) => {
+    const selectedPath = await ipcRenderer.invoke(
+      'open-dir-dialog',
+      'インストール先フォルダを選択',
+      installationPath.innerText
+    );
+    store.set('installationPath', selectedPath);
+    installationPath.setAttribute('value', selectedPath);
   });
 });

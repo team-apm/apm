@@ -1,7 +1,10 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron');
 const { download } = require('electron-dl');
+const Store = require('electron-store');
 const fs = require('fs');
 const path = require('path');
+
+Store.initRenderer();
 
 let mainWindow;
 
@@ -46,6 +49,15 @@ ipcMain.handle(
     return item.getSavePath();
   }
 );
+
+ipcMain.handle('open-dir-dialog', async (event, title, defaultPath) => {
+  const dir = await dialog.showOpenDialog({
+    title: title,
+    defaultPath: defaultPath,
+    properties: ['openDirectory'],
+  });
+  return dir.filePaths;
+});
 
 const template = [
   {
