@@ -24,6 +24,11 @@ ipcMain.on('get-app-version', (event) => {
   event.sender.send('got-app-version', app.getVersion());
 });
 
+ipcMain.handle('exists-temp-file', (event, basename) => {
+  const filePath = path.join(app.getPath('userData'), 'Data/', basename);
+  return { exists: fs.existsSync(filePath), path: filePath };
+});
+
 ipcMain.handle('download', async (event, url, isTempData = false) => {
   const win = BrowserWindow.getFocusedWindow();
   const opt = {};
