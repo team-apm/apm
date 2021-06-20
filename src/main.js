@@ -24,25 +24,28 @@ ipcMain.on('get-app-version', (event) => {
   event.sender.send('got-app-version', app.getVersion());
 });
 
-ipcMain.handle('exists-temp-file', (event, basename) => {
-  const filePath = path.join(app.getPath('userData'), 'Data/', basename);
+ipcMain.handle('exists-temp-file', (event, relativePath) => {
+  const filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
   return { exists: fs.existsSync(filePath), path: filePath };
 });
 
-ipcMain.handle('download', async (event, url, isTempData = false) => {
-  const win = BrowserWindow.getFocusedWindow();
-  const opt = {};
-  if (isTempData) {
-    const directory = path.join(app.getPath('userData'), 'Data/');
-    opt.directory = directory;
-    const filePath = path.join(directory, path.basename(url));
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+ipcMain.handle(
+  'download',
+  async (event, url, isTempData = false, tempSubDir = '') => {
+    const win = BrowserWindow.getFocusedWindow();
+    const opt = {};
+    if (isTempData) {
+      const directory = path.join(app.getPath('userData'), 'Data/', tempSubDir);
+      opt.directory = directory;
+      const filePath = path.join(directory, path.basename(url));
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
     }
+    const item = await download(win, url, opt);
+    return item.getSavePath();
   }
-  const item = await download(win, url, opt);
-  return item.getSavePath();
-});
+);
 
 const template = [
   {

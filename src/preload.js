@@ -41,7 +41,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       store.get('installedVersion[program]', '未インストール')
     );
   }
-  const coreFile = await ipcRenderer.invoke('exists-temp-file', 'core.xml');
+  const coreFile = await ipcRenderer.invoke(
+    'exists-temp-file',
+    'Core/core.xml'
+  );
   if (coreFile.exists) {
     const xmlData = fs.readFileSync(coreFile.path, 'utf-8');
     const parser = new xml2js.Parser({ explicitArray: false });
@@ -67,7 +70,7 @@ window.addEventListener('DOMContentLoaded', async () => {
  * @returns {Promise<object>} - An object of parsed xml.
  */
 async function getXmlObject(url) {
-  const filePath = await ipcRenderer.invoke('download', url, true);
+  const filePath = await ipcRenderer.invoke('download', url, true, 'Core');
   const xmlData = fs.readFileSync(filePath, 'utf-8');
   const parser = new xml2js.Parser({ explicitArray: false });
   let object = {};
