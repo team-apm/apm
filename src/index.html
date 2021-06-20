@@ -5,11 +5,11 @@
 		<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
 		<meta
 			http-equiv="Content-Security-Policy"
-			content="default-src 'self'; script-src 'self'"
+			content="default-src 'self'; script-src 'self'; connect-src http://halshusato.starfree.jp/ 'self'"
 		/>
 		<meta
 			http-equiv="X-Content-Security-Policy"
-			content="default-src 'self'; script-src 'self'"
+			content="default-src 'self'; script-src 'self'; connect-src http://halshusato.starfree.jp/ 'self'"
 		/>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>AviUtl Plugin Manager</title>
@@ -85,8 +85,25 @@
 					</div>
 					<div class="row">
 						<div class="col">
-							AviUtl: <span id="aviutl-version"></span><br />
-							拡張編集: <span id="exedit-version"></span>
+							<h2>インストール済みのバージョン</h2>
+							<p>
+								AviUtl:
+								<span id="aviutl-installed-version"></span
+								><br />
+								拡張編集:
+								<span id="exedit-installed-version"></span>
+							</p>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<h2>最新バージョン</h2>
+							<p>
+								AviUtl: <span id="aviutl-latest-version"></span
+								><br />
+								拡張編集:
+								<span id="exedit-latest-version"></span>
+							</p>
 						</div>
 					</div>
 				</section>

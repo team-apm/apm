@@ -21,8 +21,10 @@
   },
   "dependencies": {
     "bootstrap": "^5.0.1",
+    "electron-dl": "^3.2.1",
     "electron-squirrel-startup": "^1.0.0",
-    "electron-store": "^8.0.0"
+    "electron-store": "^8.0.0",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.57",

@@ -1,4 +1,6 @@
 const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { download } = require('electron-dl');
+const fs = require('fs');
 const path = require('path');
 
 let mainWindow;
@@ -21,6 +23,22 @@ function createWindow() {
 ipcMain.on('get-app-version', (event) => {
   event.sender.send('got-app-version', app.getVersion());
 });
+
+ipcMain.handle('download', async (event, url, toUserData = false) => {
+  const win = BrowserWindow.getFocusedWindow();
+  const opt = {};
+  if (toUserData) {
+    const directory = path.join(app.getPath('userData'), 'data/');
+    opt.directory = directory;
+    const filePath = path.join(directory, path.basename(url));
+    if (fs.existsSync(filePath) === true) {
+      fs.unlinkSync(filePath);
+    }
+  }
+  const item = await download(win, url, opt);
+  return item.getSavePath();
+});
+
 const template = [
   {
     label: 'apm',
