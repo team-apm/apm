@@ -38,7 +38,7 @@
 								AviUtl
 							</button>
 							<button
-								class="nav-link"
+								class="nav-link disabled"
 								id="plugins-tab"
 								data-bs-toggle="tab"
 								data-bs-target="#plugins"
@@ -50,7 +50,7 @@
 								Plugins
 							</button>
 							<button
-								class="nav-link"
+								class="nav-link disabled"
 								id="scripts-tab"
 								data-bs-toggle="tab"
 								data-bs-target="#scripts"
@@ -65,7 +65,32 @@
 					</nav>
 				</div>
 			</div>
-			<main></main>
+			<main class="tab-content" id="nav-tabContent">
+				<section
+					class="tab-pane fade show active"
+					id="aviutl"
+					role="tabpanel"
+					aria-labelledby="aviutl"
+				>
+					<div class="row">
+						<div class="col py-2">
+							<button
+								type="button"
+								class="btn btn-primary"
+								id="aviutl-check-version"
+							>
+								最新バージョンを確認
+							</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							AviUtl: <span id="aviutl-version"></span><br />
+							拡張編集: <span id="exedit-version"></span>
+						</div>
+					</div>
+				</section>
+			</main>
 		</div>
 		<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	</body>
