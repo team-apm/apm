@@ -34,6 +34,48 @@ function replaceCoreVersion(coreVersionData) {
   }
 }
 
+/**
+ * @function
+ */
+async function setCoreVersions() {
+  const coreFile = await ipcRenderer.invoke(
+    'exists-temp-file',
+    'Core/core.xml'
+  );
+  const aviutlVersionSelect = document.getElementById('aviutl-version-select');
+  const exeditVersionSelect = document.getElementById('exedit-version-select');
+  while (aviutlVersionSelect.childElementCount > 1) {
+    aviutlVersionSelect.removeChild(aviutlVersionSelect.lastChild);
+  }
+  while (exeditVersionSelect.childElementCount > 1) {
+    exeditVersionSelect.removeChild(exeditVersionSelect.lastChild);
+  }
+  if (coreFile.exists) {
+    const xmlData = fs.readFileSync(coreFile.path, 'utf-8');
+    const parser = new xml2js.Parser({ explicitArray: false });
+    let object = {};
+    parser.parseString(xmlData, (err, result) => {
+      if (err) {
+        throw err;
+      } else {
+        object = result;
+      }
+    });
+    for (const program of ['aviutl', 'exedit']) {
+      for (const release of object.core[program].releases.fileURL) {
+        const option = document.createElement('option');
+        option.setAttribute('value', release.$.version);
+        option.innerHTML = release.$.version;
+        if (program === 'aviutl') {
+          aviutlVersionSelect.appendChild(option);
+        } else if (program === 'exedit') {
+          exeditVersionSelect.appendChild(option);
+        }
+      }
+    }
+  }
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   for (const program of ['aviutl', 'exedit']) {
     replaceText(
@@ -64,6 +106,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const installationPath = document.getElementById('installation-path');
   installationPath.setAttribute('value', store.get('installationPath', ''));
+
+  setCoreVersions();
 });
 
 /**
