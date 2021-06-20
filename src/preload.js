@@ -79,7 +79,16 @@ window.addEventListener('load', () => {
     'http://halshusato.starfree.jp/ato_lash/aviutl/data/core.xml';
 
   aviutlVersionBtn.addEventListener('click', async (event) => {
+    aviutlVersionBtn.setAttribute('disabled', '');
+    const beforeHTML = aviutlVersionBtn.innerHTML;
+    aviutlVersionBtn.innerHTML =
+      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
+      '<span class="visually-hidden">Loading...</span>';
+
     const coreVersionData = await getXmlObject(coreXmlUrl);
     replaceCoreVersion(coreVersionData);
+
+    aviutlVersionBtn.removeAttribute('disabled');
+    aviutlVersionBtn.innerHTML = beforeHTML;
   });
 });
