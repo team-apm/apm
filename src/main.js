@@ -31,7 +31,7 @@ ipcMain.handle('download', async (event, url, isTempData = false) => {
     const directory = path.join(app.getPath('userData'), 'Data/');
     opt.directory = directory;
     const filePath = path.join(directory, path.basename(url));
-    if (fs.existsSync(filePath) === true) {
+    if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
   }
