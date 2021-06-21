@@ -18,7 +18,8 @@
     "fix:eslint": "yarn run lint:eslint",
     "fix:prettier": "yarn run lint:prettier",
     "prepare": "husky install",
-    "cm": "npx cz"
+    "cm": "npx cz",
+    "release": "standard-version"
   },
   "dependencies": {
     "adm-zip": "^0.5.5",
@@ -46,7 +47,8 @@
     "husky": "^6.0.0",
     "lint-staged": "^11.0.0",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.3.1"
+    "prettier": "^2.3.1",
+    "standard-version": "^9.3.0"
   },
   "optionalDependencies": {
     "cz-conventional-changelog-ja": "^0.0.2"
