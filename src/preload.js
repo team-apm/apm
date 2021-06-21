@@ -178,7 +178,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   for (const program of ['aviutl', 'exedit']) {
     replaceText(
       `${program}-installed-version`,
-      store.get('installedVersion[program]', '未インストール')
+      store.get('installedVersion.' + program, '未インストール')
     );
   }
 
