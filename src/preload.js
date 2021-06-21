@@ -95,8 +95,7 @@ async function setCoreVersions() {
   }
 }
 
-const coreXmlUrl =
-  'http://halshusato.starfree.jp/ato_lash/aviutl/data/core.xml';
+const coreXmlUrl = 'http://halshusato.starfree.jp/ato_lash/apm/data/core.xml';
 
 /**
  *
