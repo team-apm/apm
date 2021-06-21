@@ -31,6 +31,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.0",
     "fs-extra": "^10.0.0",
+    "update-electron-app": "^2.0.1",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {

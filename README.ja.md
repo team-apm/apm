@@ -28,6 +28,8 @@ AviUtlが使用できる環境
 
 **ZIP版の利用を推奨します！！**
 
+ただし、Windowsで自動アップデート機能を使いたければ、`AviUtl-Package-Manager-*.*.*.Setup.exe`を使用してください。
+
 1. [リリースページ](https://github.com/hal-shu-sato/apm/releases)から最新版をダウンロード
 1. 任意の場所に展開
 1. 「apm.exe」を実行
