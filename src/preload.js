@@ -18,7 +18,7 @@ function replaceText(selector, text) {
 
 /**
  *
- * @returns {object}
+ * @returns {object} - An object parsed from core.xml.
  */
 async function getCoreInfo() {
   const coreFile = await ipcRenderer.invoke(
@@ -68,6 +68,7 @@ async function setCoreVersions() {
         const option = document.createElement('option');
         option.setAttribute('value', release.$.version);
         option.innerHTML = release.$.version;
+
         if (program === 'aviutl') {
           aviutlVersionSelect.appendChild(option);
         } else if (program === 'exedit') {
@@ -119,10 +120,10 @@ async function selectInstallationPath(input) {
 
 /**
  *
- * @param {HTMLElement} btn
- * @param {string} program
- * @param {string} version
- * @param instPath
+ * @param {HTMLElement} btn - A HTMLElement of clicked button.
+ * @param {string} program - A program name to install.
+ * @param {string} version - A version to install.
+ * @param {string} instPath - An installation path.
  */
 async function installProgram(btn, program, version, instPath) {
   btn.setAttribute('disabled', '');
