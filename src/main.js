@@ -11,6 +11,27 @@ require('update-electron-app')();
 
 Store.initRenderer();
 
+let splashWindow;
+
+/**
+ * @function createSplash
+ */
+function createSplash() {
+  splashWindow = new BrowserWindow({
+    width: 640,
+    height: 360,
+    center: true,
+    frame: false,
+    show: false,
+  });
+
+  splashWindow.loadFile(path.join(__dirname, 'splash.html'));
+
+  splashWindow.once('ready-to-show', () => {
+    splashWindow.show();
+  });
+}
+
 let mainWindow;
 
 /**
@@ -20,6 +41,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -152,7 +174,17 @@ const template = [
 app.whenReady().then(() => {
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
+
+  createSplash();
   createWindow();
+
+  mainWindow.once('ready-to-show', () => {
+    setTimeout(() => {
+      splashWindow.hide();
+      mainWindow.show();
+      splashWindow.destroy();
+    }, 2000);
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
