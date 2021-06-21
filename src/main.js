@@ -5,6 +5,8 @@ const fs = require('fs-extra');
 const path = require('path');
 const AdmZip = require('adm-zip');
 
+if (require('electron-squirrel-startup')) app.quit();
+
 require('update-electron-app')();
 
 Store.initRenderer();
