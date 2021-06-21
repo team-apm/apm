@@ -165,9 +165,17 @@ async function installProgram(btn, program, version, instPath) {
 
   if (filesCount === existCount) {
     store.set('installedVersion.' + program, version);
+    btn.innerHTML = 'インストール完了';
+  } else {
+    if (btn.classList.contains('btn-primary')) {
+      btn.classList.replace('btn-primary', 'btn-danger');
+      setTimeout(() => {
+        btn.classList.replace('btn-danger', 'btn-primary');
+      }, 3000);
+    }
+    btn.innerHTML = 'エラーが発生しました。';
   }
 
-  btn.innerHTML = 'インストール完了';
   setTimeout(() => {
     btn.removeAttribute('disabled');
     btn.innerHTML = beforeHTML;
