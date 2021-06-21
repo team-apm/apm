@@ -144,6 +144,36 @@ async function installProgram(btn, program, version, instPath) {
     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
     '<span class="visually-hidden">Loading...</span>';
 
+  if (!instPath) {
+    if (btn.classList.contains('btn-primary')) {
+      btn.classList.replace('btn-primary', 'btn-danger');
+      setTimeout(() => {
+        btn.classList.replace('btn-danger', 'btn-primary');
+      }, 3000);
+    }
+    btn.innerHTML = 'インストール先フォルダを指定してください。';
+    setTimeout(() => {
+      btn.removeAttribute('disabled');
+      btn.innerHTML = beforeHTML;
+    }, 3000);
+    throw new Error('An installation path is not selected.');
+  }
+
+  if (!version) {
+    if (btn.classList.contains('btn-primary')) {
+      btn.classList.replace('btn-primary', 'btn-danger');
+      setTimeout(() => {
+        btn.classList.replace('btn-danger', 'btn-primary');
+      }, 3000);
+    }
+    btn.innerHTML = 'バージョンを指定してください。';
+    setTimeout(() => {
+      btn.removeAttribute('disabled');
+      btn.innerHTML = beforeHTML;
+    }, 3000);
+    throw new Error('A version is not selected.');
+  }
+
   const coreInfo = await getCoreInfo();
   const getUrl = () => {
     const progInfo = coreInfo.core[program];
