@@ -38,6 +38,8 @@ Yet, if you want to use auto updating on Windows, you should use `AviUtl-Package
 
 To be added in the future
 
+All I can say right now is that I'm Japanese, so any pull requests related to English or i18n are most welcome!
+
 ## Languages & Framework
 
 - Electron
