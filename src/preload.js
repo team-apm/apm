@@ -18,6 +18,18 @@ function replaceText(selector, text) {
 
 /**
  *
+ */
+function showInstalledVersion() {
+  for (const program of ['aviutl', 'exedit']) {
+    replaceText(
+      `${program}-installed-version`,
+      store.get('installedVersion.' + program, '未インストール')
+    );
+  }
+}
+
+/**
+ *
  * @returns {object} - An object parsed from core.xml.
  */
 async function getCoreInfo() {
@@ -165,6 +177,7 @@ async function installProgram(btn, program, version, instPath) {
 
   if (filesCount === existCount) {
     store.set('installedVersion.' + program, version);
+    showInstalledVersion();
     btn.innerHTML = 'インストール完了';
   } else {
     if (btn.classList.contains('btn-primary')) {
@@ -183,13 +196,7 @@ async function installProgram(btn, program, version, instPath) {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-  for (const program of ['aviutl', 'exedit']) {
-    replaceText(
-      `${program}-installed-version`,
-      store.get('installedVersion.' + program, '未インストール')
-    );
-  }
-
+  showInstalledVersion();
   setCoreVersions();
 
   const installationPath = document.getElementById('installation-path');
