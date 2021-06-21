@@ -61,7 +61,7 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "name": "AviUtl-Package-Manager",
+        "name": "AviUtl-Plugin-Manager",
         "executableName": "apm",
         "asar": true
       },
