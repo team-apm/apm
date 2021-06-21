@@ -19,7 +19,10 @@
     "fix:prettier": "yarn run lint:prettier",
     "prepare": "husky install",
     "cm": "npx cz",
-    "release": "standard-version"
+    "release": "standard-version",
+    "release:patch": "standard-version --release-as patch",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major"
   },
   "dependencies": {
     "adm-zip": "^0.5.5",
