@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/hal-shu-sato/apm/compare/v0.1.1...v0.1.2) (2021-06-21)
+
+### Features
+
+- add auto updating ([de14c86](https://github.com/hal-shu-sato/apm/commit/de14c86520fd0fb5e62b129355acf27733b2f00c)), closes [#6](https://github.com/hal-shu-sato/apm/issues/6)
+
 ### [0.1.1](https://github.com/hal-shu-sato/apm/compare/v0.1.0...v0.1.1) (2021-06-21)
 
 ## 0.1.0 (2021-06-21)
