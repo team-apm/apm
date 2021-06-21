@@ -5,11 +5,11 @@
 		<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
 		<meta
 			http-equiv="Content-Security-Policy"
-			content="default-src 'self'; script-src 'self'"
+			content="default-src 'self'; script-src 'self'; connect-src 'self' http://halshusato.starfree.jp/; img-src 'self' data:"
 		/>
 		<meta
 			http-equiv="X-Content-Security-Policy"
-			content="default-src 'self'; script-src 'self'"
+			content="default-src 'self'; script-src 'self'; connect-src 'self' http://halshusato.starfree.jp/; img-src 'self' data:"
 		/>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>AviUtl Plugin Manager</title>
@@ -19,54 +19,165 @@
 		/>
 		<link rel="stylesheet" href="main.css" />
 	</head>
+
 	<body class="bg-light">
-		<div class="container-fluid">
-			<div class="row">
-				<div class="col px-0">
-					<nav>
-						<div class="nav nav-tabs" id="nav-tab" role="tablist">
+		<nav>
+			<div class="nav nav-tabs" id="nav-tab" role="tablist">
+				<button
+					class="nav-link active"
+					id="aviutl-tab"
+					data-bs-toggle="tab"
+					data-bs-target="#aviutl"
+					type="button"
+					role="tab"
+					aria-controls="aviutl"
+					aria-selected="true"
+				>
+					AviUtl
+				</button>
+				<button
+					class="nav-link disabled"
+					id="plugins-tab"
+					data-bs-toggle="tab"
+					data-bs-target="#plugins"
+					type="button"
+					role="tab"
+					aria-controls="plugins"
+					aria-selected="false"
+				>
+					Plugins
+				</button>
+				<button
+					class="nav-link disabled"
+					id="scripts-tab"
+					data-bs-toggle="tab"
+					data-bs-target="#scripts"
+					type="button"
+					role="tab"
+					aria-controls="scripts"
+					aria-selected="false"
+				>
+					Scripts
+				</button>
+			</div>
+		</nav>
+
+		<main class="tab-content" id="nav-tabContent">
+			<section
+				class="tab-pane fade show active"
+				id="aviutl"
+				role="tabpanel"
+				aria-labelledby="aviutl"
+			>
+				<div class="container-fluid py-2">
+					<div class="row">
+						<div class="col">
+							<h2>インストール済みのバージョン</h2>
+							<p>
+								AviUtl:
+								<span id="aviutl-installed-version"></span
+								><br />
+								拡張編集:
+								<span id="exedit-installed-version"></span>
+							</p>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col">
+							<h2>最新バージョン</h2>
+							<p>
+								AviUtl: <span id="aviutl-latest-version"></span
+								><br />
+								拡張編集:
+								<span id="exedit-latest-version"></span>
+							</p>
+						</div>
+					</div>
+
+					<div class="row my-2">
+						<div class="col">
 							<button
-								class="nav-link active"
-								id="aviutl-tab"
-								data-bs-toggle="tab"
-								data-bs-target="#aviutl"
 								type="button"
-								role="tab"
-								aria-controls="aviutl"
-								aria-selected="true"
+								class="btn btn-primary"
+								id="aviutl-check-version"
 							>
-								AviUtl
-							</button>
-							<button
-								class="nav-link"
-								id="plugins-tab"
-								data-bs-toggle="tab"
-								data-bs-target="#plugins"
-								type="button"
-								role="tab"
-								aria-controls="plugins"
-								aria-selected="false"
-							>
-								Plugins
-							</button>
-							<button
-								class="nav-link"
-								id="scripts-tab"
-								data-bs-toggle="tab"
-								data-bs-target="#scripts"
-								type="button"
-								role="tab"
-								aria-controls="scripts"
-								aria-selected="false"
-							>
-								Scripts
+								最新バージョンを確認
 							</button>
 						</div>
-					</nav>
+					</div>
+
+					<div class="row my-2">
+						<div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+							<input
+								class="form-control"
+								id="installation-path"
+								type="text"
+								placeholder="インストール先フォルダ"
+								aria-label="Installation path"
+								readonly
+							/>
+						</div>
+						<div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+							<button
+								type="button"
+								class="btn btn-primary w-100"
+								id="select-installation-path"
+							>
+								インストール先フォルダを選択
+							</button>
+						</div>
+					</div>
+
+					<div class="row my-2">
+						<div class="col-12 col-sm-7 col-md-8 col-lg-9">
+							<select
+								class="form-select"
+								id="aviutl-version-select"
+								aria-label="AviUtl version select"
+							>
+								<option value="" selected>
+									AviUtlバージョンを選択
+								</option>
+							</select>
+						</div>
+						<div class="col-12 col-sm-5 col-md-4 col-lg-3">
+							<button
+								type="button"
+								class="btn btn-primary w-100"
+								id="aviutl-install"
+							>
+								AviUtlをインストール
+							</button>
+						</div>
+					</div>
+
+					<div class="row my-2">
+						<div class="col-12 col-sm-7 col-md-8 col-lg-9">
+							<select
+								class="form-select"
+								id="exedit-version-select"
+								aria-label="Exedit version select"
+							>
+								<option value="" selected>
+									拡張編集バージョンを選択
+								</option>
+							</select>
+						</div>
+						<div class="col-12 col-sm-5 col-md-4 col-lg-3">
+							<button
+								type="button"
+								class="btn btn-primary w-100"
+								id="exedit-install"
+							>
+								拡張編集をインストール
+							</button>
+						</div>
+					</div>
 				</div>
-			</div>
-			<main></main>
-		</div>
+			</section>
+		</main>
+
 		<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	</body>
 </html>
