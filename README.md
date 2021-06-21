@@ -28,6 +28,8 @@ To be added in the future
 
 **ZIP version is recommended!!**
 
+Yet, if you want to use auto updating on Windows, you should use `AviUtl-Package-Manager-*.*.*.Setup.exe`.
+
 1. Download the latest version from the [release page](https://github.com/hal-shu-sato/apm/releases).
 1. Extract to any location.
 1. Run "apm.exe".

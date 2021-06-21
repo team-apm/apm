@@ -5,6 +5,8 @@ const fs = require('fs-extra');
 const path = require('path');
 const AdmZip = require('adm-zip');
 
+require('update-electron-app')();
+
 Store.initRenderer();
 
 let mainWindow;
