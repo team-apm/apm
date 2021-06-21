@@ -87,7 +87,8 @@ ipcMain.handle('unzip', async (event, zipPath) => {
 });
 
 ipcMain.handle('open-dir-dialog', async (event, title, defaultPath) => {
-  const dir = await dialog.showOpenDialog({
+  const win = BrowserWindow.getFocusedWindow();
+  const dir = await dialog.showOpenDialog(win, {
     title: title,
     defaultPath: defaultPath,
     properties: ['openDirectory'],
