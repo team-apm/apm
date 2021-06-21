@@ -1,5 +1,6 @@
 const { ipcRenderer } = require('electron');
-const fs = require('fs');
+const fs = require('fs-extra');
+const path = require('path');
 const Store = require('electron-store');
 const store = new Store();
 const xml2js = require('xml2js');
@@ -16,14 +17,36 @@ function replaceText(selector, text) {
 }
 
 /**
- * @function
+ *
+ * @returns {object}
  */
-async function setCoreVersions() {
+async function getCoreInfo() {
   const coreFile = await ipcRenderer.invoke(
     'exists-temp-file',
     'Core/core.xml'
   );
+  if (coreFile.exists) {
+    const xmlData = fs.readFileSync(coreFile.path, 'utf-8');
+    const parser = new xml2js.Parser({ explicitArray: false });
 
+    let coreInfo = {};
+    parser.parseString(xmlData, (err, result) => {
+      if (err) {
+        throw err;
+      } else {
+        coreInfo = result;
+      }
+    });
+    return coreInfo;
+  } else {
+    throw new Error('The version file does not exist.');
+  }
+}
+
+/**
+ * @function
+ */
+async function setCoreVersions() {
   const aviutlVersionSelect = document.getElementById('aviutl-version-select');
   const exeditVersionSelect = document.getElementById('exedit-version-select');
   while (aviutlVersionSelect.childElementCount > 1) {
@@ -33,26 +56,15 @@ async function setCoreVersions() {
     exeditVersionSelect.removeChild(exeditVersionSelect.lastChild);
   }
 
-  if (coreFile.exists) {
-    const xmlData = fs.readFileSync(coreFile.path, 'utf-8');
-    const parser = new xml2js.Parser({ explicitArray: false });
-
-    let object = {};
-    parser.parseString(xmlData, (err, result) => {
-      if (err) {
-        throw err;
-      } else {
-        object = result;
-      }
-    });
-
+  const coreInfo = await getCoreInfo();
+  if (coreInfo) {
     for (const program of ['aviutl', 'exedit']) {
       replaceText(
         `${program}-latest-version`,
-        object.core[program].latestVersion
+        coreInfo.core[program].latestVersion
       );
 
-      for (const release of object.core[program].releases.fileURL) {
+      for (const release of coreInfo.core[program].releases.fileURL) {
         const option = document.createElement('option');
         option.setAttribute('value', release.$.version);
         option.innerHTML = release.$.version;
@@ -77,7 +89,7 @@ const coreXmlUrl =
  *
  * @param {HTMLElement} btn - A HTMLElement of button element.
  */
-async function getlatestVersion(btn) {
+async function getLatestVersion(btn) {
   btn.setAttribute('disabled', '');
   const beforeHTML = btn.innerHTML;
   btn.innerHTML =
@@ -105,6 +117,62 @@ async function selectInstallationPath(input) {
   input.setAttribute('value', selectedPath);
 }
 
+/**
+ *
+ * @param {HTMLElement} btn
+ * @param {string} program
+ * @param {string} version
+ * @param instPath
+ */
+async function installProgram(btn, program, version, instPath) {
+  btn.setAttribute('disabled', '');
+  const beforeHTML = btn.innerHTML;
+  btn.innerHTML =
+    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
+    '<span class="visually-hidden">Loading...</span>';
+
+  const coreInfo = await getCoreInfo();
+  const getUrl = () => {
+    const progInfo = coreInfo.core[program];
+    const prefix = progInfo.releases.$.prefix;
+    const fileUrl = Array.from(progInfo.releases.fileURL).find(
+      (element) => element.$.version === version
+    );
+
+    if (prefix) {
+      return path.join(prefix, fileUrl._);
+    } else {
+      return fileUrl._;
+    }
+  };
+
+  const url = getUrl();
+  const archivePath = await ipcRenderer.invoke('download', url, true, 'Core');
+  const unzippedPath = await ipcRenderer.invoke('unzip', archivePath);
+  fs.copySync(unzippedPath, instPath);
+
+  let filesCount = 0;
+  let existCount = 0;
+  for (const file of coreInfo.core[program].files.file) {
+    if (typeof file === 'string') {
+      filesCount++;
+      if (fs.existsSync(path.join(instPath, file))) {
+        existCount++;
+      }
+    }
+  }
+
+  if (filesCount === existCount) {
+    store.set('installedVersion.' + program, version);
+  }
+
+  btn.innerHTML = 'インストール完了';
+  setTimeout(() => {
+    btn.removeAttribute('disabled');
+    btn.innerHTML = beforeHTML;
+  }, 3000);
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   for (const program of ['aviutl', 'exedit']) {
     replaceText(
@@ -122,7 +190,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 window.addEventListener('load', () => {
   const aviutlVersionBtn = document.getElementById('aviutl-check-version');
   aviutlVersionBtn.addEventListener('click', async (event) => {
-    getlatestVersion(aviutlVersionBtn);
+    getLatestVersion(aviutlVersionBtn);
   });
 
   const selectInstallationPathBtn = document.getElementById(
@@ -131,5 +199,27 @@ window.addEventListener('load', () => {
   const installationPath = document.getElementById('installation-path');
   selectInstallationPathBtn.addEventListener('click', async (event) => {
     selectInstallationPath(installationPath);
+  });
+
+  const aviutlInstallBtn = document.getElementById('aviutl-install');
+  const aviutlVersionSelect = document.getElementById('aviutl-version-select');
+  aviutlInstallBtn.addEventListener('click', async (event) => {
+    installProgram(
+      aviutlInstallBtn,
+      'aviutl',
+      aviutlVersionSelect.value,
+      installationPath.value
+    );
+  });
+
+  const exeditInstallBtn = document.getElementById('exedit-install');
+  const exeditVersionSelect = document.getElementById('exedit-version-select');
+  exeditInstallBtn.addEventListener('click', async (event) => {
+    installProgram(
+      exeditInstallBtn,
+      'exedit',
+      exeditVersionSelect.value,
+      installationPath.value
+    );
   });
 });

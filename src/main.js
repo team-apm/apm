@@ -1,8 +1,9 @@
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron');
 const { download } = require('electron-dl');
 const Store = require('electron-store');
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
+const AdmZip = require('adm-zip');
 
 Store.initRenderer();
 
@@ -35,20 +36,55 @@ ipcMain.handle('exists-temp-file', (event, relativePath) => {
 ipcMain.handle(
   'download',
   async (event, url, isTempData = false, tempSubDir = '') => {
+    const ext = isTempData && path.extname(url);
     const win = BrowserWindow.getFocusedWindow();
+
     const opt = {};
     if (isTempData) {
       const directory = path.join(app.getPath('userData'), 'Data/', tempSubDir);
-      opt.directory = directory;
-      const filePath = path.join(directory, path.basename(url));
+
+      if (ext === '.zip') {
+        opt.directory = path.join(directory, 'archive');
+      } else {
+        opt.directory = directory;
+      }
+
+      const filePath = path.join(opt.directory, path.basename(url));
+
       if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+        if (ext === '.xml') {
+          fs.unlinkSync(filePath);
+        } else {
+          return filePath;
+        }
       }
     }
+
     const item = await download(win, url, opt);
     return item.getSavePath();
   }
 );
+
+ipcMain.handle('unzip', async (event, zipPath) => {
+  const zip = new AdmZip(zipPath);
+  const getTargetPath = () => {
+    if (path.resolve(path.dirname(zipPath), '../../').endsWith('Data')) {
+      return path.resolve(
+        path.dirname(zipPath),
+        '../',
+        path.basename(zipPath, '.zip')
+      );
+    } else {
+      return path.resolve(
+        path.dirname(zipPath),
+        path.basename(zipPath, '.zip')
+      );
+    }
+  };
+  const targetPath = getTargetPath();
+  zip.extractAllTo(targetPath, true);
+  return targetPath;
+});
 
 ipcMain.handle('open-dir-dialog', async (event, title, defaultPath) => {
   const dir = await dialog.showOpenDialog({
