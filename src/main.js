@@ -96,6 +96,15 @@ ipcMain.handle('open-dir-dialog', async (event, title, defaultPath) => {
   return dir.filePaths;
 });
 
+ipcMain.handle('open-err-dialog', async (event, title, message) => {
+  const win = BrowserWindow.getFocusedWindow();
+  await dialog.showMessageBox(win, {
+    title: title,
+    message: message,
+    type: 'error',
+  });
+});
+
 const template = [
   {
     label: 'apm',

@@ -126,8 +126,16 @@ async function selectInstallationPath(input) {
     'インストール先フォルダを選択',
     input.innerText
   );
-  store.set('installationPath', selectedPath);
-  input.setAttribute('value', selectedPath);
+  if (!selectedPath || selectedPath.length === 0) {
+    await ipcRenderer.invoke(
+      'open-err-dialog',
+      'エラー',
+      'インストール先フォルダを選択してください。'
+    );
+  } else {
+    store.set('installationPath', selectedPath[0]);
+    input.setAttribute('value', selectedPath[0]);
+  }
 }
 
 /**
