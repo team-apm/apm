@@ -11,13 +11,39 @@ module.exports = {
 
   /**
    * Displays installed version.
+   *
+   * @param {string} instPath - An installation path.
    */
-  displayInstalledVersion: function () {
+  displayInstalledVersion: async function (instPath) {
+    const coreInfo = await this.getCoreInfo();
+
     for (const program of ['aviutl', 'exedit']) {
-      replaceText(
-        `${program}-installed-version`,
-        store.get('installedVersion.' + program, '未インストール')
-      );
+      if (instPath) {
+        let filesCount = 0;
+        let existCount = 0;
+        for (const file of coreInfo.core[0][program][0].files[0].file) {
+          if (typeof file === 'string') {
+            filesCount++;
+            if (fs.existsSync(path.join(instPath, file))) {
+              existCount++;
+            }
+          }
+        }
+
+        if (filesCount === existCount) {
+          replaceText(
+            `${program}-installed-version`,
+            store.get('installedVersion.' + program, '未インストール')
+          );
+        } else {
+          replaceText(
+            `${program}-installed-version`,
+            '未インストール（ファイルの存在が確認できませんでした。）'
+          );
+        }
+      } else {
+        replaceText(`${program}-installed-version`, '未インストール');
+      }
     }
   },
 
@@ -130,6 +156,7 @@ module.exports = {
    * @param {HTMLElement} input - A HTMLElement of input.
    */
   selectInstallationPath: async function (input) {
+    const originalPath = input.value;
     const selectedPath = await ipcRenderer.invoke(
       'open-dir-dialog',
       'インストール先フォルダを選択',
@@ -141,8 +168,9 @@ module.exports = {
         'エラー',
         'インストール先フォルダを選択してください。'
       );
-    } else {
+    } else if (selectedPath[0] != originalPath) {
       store.set('installationPath', selectedPath[0]);
+      this.displayInstalledVersion(selectedPath[0]);
       input.setAttribute('value', selectedPath[0]);
     }
   },
@@ -225,7 +253,7 @@ module.exports = {
 
     if (filesCount === existCount) {
       store.set('installedVersion.' + program, version);
-      this.displayInstalledVersion();
+      this.displayInstalledVersion(instPath);
       btn.innerHTML = 'インストール完了';
     } else {
       if (btn.classList.contains('btn-primary')) {
