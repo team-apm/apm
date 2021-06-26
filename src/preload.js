@@ -3,11 +3,11 @@ const store = new Store();
 const core = require('./core/core');
 
 window.addEventListener('DOMContentLoaded', () => {
-  core.displayInstalledVersion();
-  core.setCoreVersions();
-
   const installationPath = document.getElementById('installation-path');
   installationPath.setAttribute('value', store.get('installationPath', ''));
+
+  core.displayInstalledVersion(installationPath.value);
+  core.setCoreVersions();
 });
 
 window.addEventListener('load', () => {
