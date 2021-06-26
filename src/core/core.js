@@ -214,7 +214,7 @@ module.exports = {
 
     let filesCount = 0;
     let existCount = 0;
-    for (const file of coreInfo.core[program].files.file) {
+    for (const file of coreInfo.core[0][program][0].files[0].file) {
       if (typeof file === 'string') {
         filesCount++;
         if (fs.existsSync(path.join(instPath, file))) {
