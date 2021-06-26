@@ -3,7 +3,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const Store = require('electron-store');
 const store = new Store();
-const xml2js = require('xml2js');
+const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
 
 module.exports = {
@@ -33,16 +33,30 @@ module.exports = {
     );
     if (coreFile.exists) {
       const xmlData = fs.readFileSync(coreFile.path, 'utf-8');
-      const parser = new xml2js.Parser({ explicitArray: false });
-
       let coreInfo = {};
-      parser.parseString(xmlData, (err, result) => {
-        if (err) {
-          throw err;
-        } else {
-          coreInfo = result;
-        }
-      });
+      const valid = parser.validate(xmlData);
+      if (valid === true) {
+        const options = {
+          attributeNamePrefix: '$',
+          // attrNodeName: 'attr', // default is 'false'
+          textNodeName: '_',
+          ignoreAttributes: false,
+          // ignoreNameSpace: false,
+          // allowBooleanAttributes: false,
+          parseNodeValue: false,
+          parseAttributeValue: false,
+          trimValues: true,
+          // cdataTagName: '__cdata', // default is 'false'
+          // cdataPositionChar: '\\c',
+          // parseTrueNumberOnly: false,
+          arrayMode: true, // "strict"
+          // stopNodes: ['parse-me-as-string'],
+        };
+        // optional (it'll return an object in case it's not valid)
+        coreInfo = parser.parse(xmlData, options);
+      } else {
+        throw valid;
+      }
       return coreInfo;
     } else {
       throw new Error('The version file does not exist.');
@@ -69,15 +83,13 @@ module.exports = {
     const coreInfo = await this.getCoreInfo();
     if (coreInfo) {
       for (const program of ['aviutl', 'exedit']) {
-        replaceText(
-          `${program}-latest-version`,
-          coreInfo.core[program].latestVersion
-        );
+        const progInfo = coreInfo.core[0][program][0];
+        replaceText(`${program}-latest-version`, progInfo.latestVersion);
 
-        for (const release of coreInfo.core[program].releases.fileURL) {
+        for (const release of progInfo.releases[0].fileURL) {
           const option = document.createElement('option');
-          option.setAttribute('value', release.$.version);
-          option.innerHTML = release.$.version;
+          option.setAttribute('value', release.$version);
+          option.innerHTML = release.$version;
 
           if (program === 'aviutl') {
             aviutlVersionSelect.appendChild(option);
@@ -182,10 +194,10 @@ module.exports = {
 
     const coreInfo = await this.getCoreInfo();
     const getUrl = () => {
-      const progInfo = coreInfo.core[program];
-      const prefix = progInfo.releases.$.prefix;
-      const fileUrl = Array.from(progInfo.releases.fileURL).find(
-        (element) => element.$.version === version
+      const progInfo = coreInfo.core[0][program][0];
+      const prefix = progInfo.releases[0].$prefix;
+      const fileUrl = Array.from(progInfo.releases[0].fileURL).find(
+        (element) => element.$version === version
       );
 
       if (prefix) {
