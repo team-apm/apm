@@ -50,6 +50,40 @@ function createWindow() {
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 }
 
+let browserWindow;
+
+/**
+ * @function createBrowser
+ * @param {string} url - A URL to open.
+ * @param {string} type - A type to download.
+ */
+function createBrowser(url, type) {
+  browserWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    sandbox: true,
+  });
+
+  browserWindow.loadURL(url);
+
+  browserWindow.webContents.session.on(
+    'will-download',
+    (event, item, webContents) => {
+      const ext = path.extname(item.getFilename());
+      const dir = path.join(app.getPath('userData'), 'Data');
+      if (ext === '.zip') {
+        item.setSavePath(path.join(dir, type, 'archive/', item.getFilename()));
+      } else {
+        item.setSavePath(path.join(dir, type, item.getFilename()));
+      }
+
+      item.once('done', (e, state) => {
+        webContents.send('downloaded-in-browser', item.getSavePath());
+      });
+    }
+  );
+}
+
 ipcMain.on('get-app-version', (event) => {
   event.sender.send('got-app-version', app.getVersion());
 });
@@ -129,6 +163,10 @@ ipcMain.handle('open-err-dialog', async (event, title, message) => {
     message: message,
     type: 'error',
   });
+});
+
+ipcMain.handle('open-browser', async (event, url, type) => {
+  createBrowser(url, type);
 });
 
 const template = [
