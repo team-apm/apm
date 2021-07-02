@@ -18,6 +18,7 @@
 			href="../node_modules/bootstrap/dist/css/bootstrap.min.css"
 		/>
 		<link rel="stylesheet" href="main.css" />
+		<link rel="stylesheet" href="index.css" />
 	</head>
 
 	<body class="bg-light">
@@ -36,7 +37,7 @@
 					AviUtl
 				</button>
 				<button
-					class="nav-link disabled"
+					class="nav-link"
 					id="plugins-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#plugins"
@@ -172,6 +173,73 @@
 							>
 								拡張編集をインストール
 							</button>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section
+				class="tab-pane fade"
+				id="plugins"
+				role="tabpanel"
+				aria-labelledby="plugins"
+			>
+				<div class="container-fluid d-flex flex-column py-2">
+					<div class="row mb-2">
+						<div class="col">
+							<button
+								type="button"
+								class="btn btn-primary"
+								id="check-plugins-list"
+							>
+								最新のプラグイン一覧を確認
+							</button>
+						</div>
+					</div>
+
+					<div class="row flex-grow-1 plugins-table">
+						<div class="col">
+							<table
+								class="table table-bordered table-hover"
+								id="plugins-table"
+							>
+								<thead>
+									<tr>
+										<th scope="col">名前</th>
+										<th scope="col">概要</th>
+										<th scope="col">開発者</th>
+										<th scope="col">タイプ</th>
+										<th scope="col">バージョン</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+							<div
+								class="
+									d-flex
+									justify-content-center
+									align-items-center
+									fade
+								"
+								id="plugins-table-overlay"
+							>
+								<div class="spinner-border" role="status">
+									<span class="visually-hidden"
+										>Loading...</span
+									>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row plugins-detail">
+						<div class="col">
+							名前: <span id="plugin-name"></span><br />
+							概要: <span id="plugin-overview"></span><br />
+							説明: <span id="plugin-description"></span><br />
+							開発者: <span id="plugin-developer"></span><br />
+							タイプ: <span id="plugin-type"></span><br />
+							バージョン: <span id="plugin-version"></span><br />
+							サイト: <span id="plugin-page"></span><br />
 						</div>
 					</div>
 				</div>

@@ -1,6 +1,7 @@
 const Store = require('electron-store');
 const store = new Store();
 const core = require('./core/core');
+const plugin = require('./plugin/plugin');
 
 window.addEventListener('DOMContentLoaded', () => {
   const installationPath = document.getElementById('installation-path');
@@ -8,6 +9,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   core.displayInstalledVersion(installationPath.value);
   core.setCoreVersions();
+  plugin.setPluginsList();
 });
 
 window.addEventListener('load', () => {
@@ -44,5 +46,11 @@ window.addEventListener('load', () => {
       exeditVersionSelect.value,
       installationPath.value
     );
+  });
+
+  const checkPluginsListBtn = document.getElementById('check-plugins-list');
+  const pluginsTableOverlay = document.getElementById('plugins-table-overlay');
+  checkPluginsListBtn.addEventListener('click', (event) => {
+    plugin.checkPluginsList(checkPluginsListBtn, pluginsTableOverlay);
   });
 });
