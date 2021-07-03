@@ -9,30 +9,30 @@ const replaceText = require('../lib/replaceText');
  */
 function parsePluginType(pluginType) {
   const typeArray = pluginType.split(' ');
-  let result = '';
+  const result = [];
   for (const type of typeArray) {
     switch (type) {
       case 'input':
-        result += '入力';
+        result.push('入力');
         break;
       case 'output':
-        result += '出力';
+        result.push('出力');
         break;
       case 'filter':
-        result += 'フィルター';
+        result.push('フィルター');
         break;
       case 'color':
-        result += '色変換';
+        result.push('色変換');
         break;
       case 'language':
-        result += '言語';
+        result.push('言語');
         break;
       default:
-        result += '不明';
+        result.push('不明');
         break;
     }
   }
-  return result;
+  return result.toString();
 }
 
 /**
