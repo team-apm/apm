@@ -293,6 +293,7 @@ module.exports = {
         'installedVersion.' + selectedPlugin.id,
         selectedPlugin.latestVersion
       );
+      this.setPluginsList(instPath);
       btn.innerHTML = 'インストール完了';
     } else {
       if (btn.classList.contains('btn-primary')) {
