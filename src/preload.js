@@ -9,7 +9,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   core.displayInstalledVersion(installationPath.value);
   core.setCoreVersions();
-  plugin.setPluginsList();
+  plugin.setPluginsList(installationPath.value);
 });
 
 window.addEventListener('load', () => {
@@ -51,7 +51,11 @@ window.addEventListener('load', () => {
   const checkPluginsListBtn = document.getElementById('check-plugins-list');
   const pluginsTableOverlay = document.getElementById('plugins-table-overlay');
   checkPluginsListBtn.addEventListener('click', (event) => {
-    plugin.checkPluginsList(checkPluginsListBtn, pluginsTableOverlay);
+    plugin.checkPluginsList(
+      checkPluginsListBtn,
+      pluginsTableOverlay,
+      installationPath.value
+    );
   });
 
   const installPluginBtn = document.getElementById('install-plugin');

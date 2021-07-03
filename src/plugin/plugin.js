@@ -50,7 +50,7 @@ function showPluginDetail(pluginData) {
     replaceText('plugin-' + detail, pluginData[detail]);
   }
   replaceText('plugin-type', parsePluginType(pluginData.type));
-  replaceText('plugin-version', pluginData.latestVersion);
+  replaceText('plugin-latest-version', pluginData.latestVersion);
 
   const a = document.createElement('a');
   a.innerText = pluginData.pageURL;
@@ -110,8 +110,10 @@ module.exports = {
 
   /**
    * Sets versions of each program in selects.
+   *
+   * @param {string} instPath - An installation path.
    */
-  setPluginsList: async function () {
+  setPluginsList: async function (instPath) {
     const pluginsTable = document.getElementById('plugins-table');
     const tbody = pluginsTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
@@ -124,7 +126,8 @@ module.exports = {
         const overview = document.createElement('td');
         const developer = document.createElement('td');
         const type = document.createElement('td');
-        const version = document.createElement('td');
+        const latestVersion = document.createElement('td');
+        const installedVersion = document.createElement('td');
 
         tr.classList.add('plugin-tr');
         tr.addEventListener('click', (event) => {
@@ -135,9 +138,42 @@ module.exports = {
         overview.innerHTML = plugin.overview;
         developer.innerHTML = plugin.developer;
         type.innerHTML = parsePluginType(plugin.type);
-        version.innerHTML = plugin.latestVersion;
+        latestVersion.innerHTML = plugin.latestVersion;
 
-        for (const td of [name, overview, developer, type, version]) {
+        if (store.has('installedVersion.' + plugin.id)) {
+          let filesCount = 0;
+          let existCount = 0;
+          for (const file of plugin.files[0].file) {
+            console.log(file);
+            if (typeof file === 'string') {
+              filesCount++;
+              if (fs.existsSync(path.join(instPath, file))) {
+                existCount++;
+              }
+            }
+          }
+
+          if (filesCount === existCount) {
+            installedVersion.innerHTML = store.get(
+              'installedVersion.' + plugin.id,
+              '未インストール'
+            );
+          } else {
+            installedVersion.innerHTML =
+              '未インストール（ファイルの存在が確認できませんでした。）';
+          }
+        } else {
+          installedVersion.innerHTML = '未インストール';
+        }
+
+        for (const td of [
+          name,
+          overview,
+          developer,
+          type,
+          latestVersion,
+          installedVersion,
+        ]) {
           tr.appendChild(td);
         }
         tbody.appendChild(tr);
@@ -150,8 +186,9 @@ module.exports = {
    *
    * @param {HTMLElement} btn - A HTMLElement of button element.
    * @param {HTMLElement} overlay - A overlay of plugins list.
+   * @param {string} instPath - An installation path.
    */
-  checkPluginsList: async function (btn, overlay) {
+  checkPluginsList: async function (btn, overlay, instPath) {
     btn.setAttribute('disabled', '');
     const beforeHTML = btn.innerHTML;
     btn.innerHTML =
@@ -167,7 +204,7 @@ module.exports = {
       true,
       'plugin'
     );
-    this.setPluginsList();
+    this.setPluginsList(instPath);
 
     btn.removeAttribute('disabled');
     btn.innerHTML = beforeHTML;
