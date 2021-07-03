@@ -254,10 +254,28 @@ module.exports = {
     const archivePath = await ipcRenderer.invoke('open-browser', url, 'plugin');
     const unzippedPath = await ipcRenderer.invoke('unzip', archivePath);
 
-    for (const file of selectedPlugin.files[0].file) {
-      const fileName = path.basename(file);
-      fs.copySync(path.join(unzippedPath, fileName), path.join(instPath, file));
-    }
+    const copyFiles = (dirName) => {
+      const dirents = fs.readdirSync(dirName, {
+        withFileTypes: true,
+      });
+      for (const dirent of dirents) {
+        if (dirent.isDirectory()) {
+          copyFiles(path.join(dirName, dirent.name));
+        } else {
+          for (const file of selectedPlugin.files[0].file) {
+            const fileName = path.basename(file);
+            if (dirent.name === fileName) {
+              fs.copySync(
+                path.join(dirName, fileName),
+                path.join(instPath, file)
+              );
+              break;
+            }
+          }
+        }
+      }
+    };
+    copyFiles(unzippedPath);
 
     let filesCount = 0;
     let existCount = 0;
