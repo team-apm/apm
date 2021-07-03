@@ -1,4 +1,11 @@
-const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  Menu,
+  dialog,
+  ipcMain,
+  shell,
+} = require('electron');
 const { download } = require('electron-dl');
 const Store = require('electron-store');
 const fs = require('fs-extra');
@@ -45,6 +52,19 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
+  });
+
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (url.match(/^http/)) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
+  mainWindow.webContents.setWindowOpenHandler((details) => {
+    if (details.url.match(/^http/)) {
+      shell.openExternal(details.url);
+    }
+    return { action: 'deny' };
   });
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));

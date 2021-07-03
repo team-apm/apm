@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron');
 const fs = require('fs-extra');
 const parser = require('fast-xml-parser');
+const replaceText = require('../lib/replaceText');
 
 /**
  * @param {string} pluginType - A list of plugin types.
@@ -32,6 +33,28 @@ function parsePluginType(pluginType) {
     }
   }
   return result;
+}
+
+/**
+ * Show plugin's details.
+ *
+ * @param {object} pluginData - An object of plugin's details.
+ */
+function showPluginDetail(pluginData) {
+  for (const detail of ['name', 'overview', 'description', 'developer']) {
+    replaceText('plugin-' + detail, pluginData[detail]);
+  }
+  replaceText('plugin-type', parsePluginType(pluginData.type));
+  replaceText('plugin-version', pluginData.latestVersion);
+
+  const a = document.createElement('a');
+  a.innerText = pluginData.pageURL;
+  a.href = pluginData.pageURL;
+  const pageSpan = document.getElementById('plugin-page');
+  while (pageSpan.firstChild) {
+    pageSpan.removeChild(pageSpan.firstChild);
+  }
+  pageSpan.appendChild(a);
 }
 
 module.exports = {
@@ -98,6 +121,10 @@ module.exports = {
         const type = document.createElement('td');
         const version = document.createElement('td');
 
+        tr.classList.add('plugin-tr');
+        tr.addEventListener('click', (event) => {
+          showPluginDetail(plugin);
+        });
         name.innerHTML = plugin.name;
         overview.innerHTML = plugin.overview;
         developer.innerHTML = plugin.developer;
