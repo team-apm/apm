@@ -1,7 +1,12 @@
 const { ipcRenderer } = require('electron');
 const fs = require('fs-extra');
+const path = require('path');
+const Store = require('electron-store');
+const store = new Store();
 const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
+
+let selectedPlugin;
 
 /**
  * @param {string} pluginType - A list of plugin types.
@@ -124,6 +129,7 @@ module.exports = {
         tr.classList.add('plugin-tr');
         tr.addEventListener('click', (event) => {
           showPluginDetail(plugin);
+          selectedPlugin = plugin;
         });
         name.innerHTML = plugin.name;
         overview.innerHTML = plugin.overview;
@@ -168,5 +174,84 @@ module.exports = {
 
     overlay.classList.remove('show');
     overlay.style.zIndex = -1;
+  },
+
+  installPlugin: async function (btn, instPath) {
+    btn.setAttribute('disabled', '');
+    const beforeHTML = btn.innerHTML;
+    btn.innerHTML =
+      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
+      '<span class="visually-hidden">Loading...</span>';
+
+    if (!instPath) {
+      if (btn.classList.contains('btn-primary')) {
+        btn.classList.replace('btn-primary', 'btn-danger');
+        setTimeout(() => {
+          btn.classList.replace('btn-danger', 'btn-primary');
+        }, 3000);
+      }
+      btn.innerHTML = 'インストール先フォルダを指定してください。';
+      setTimeout(() => {
+        btn.removeAttribute('disabled');
+        btn.innerHTML = beforeHTML;
+      }, 3000);
+      throw new Error('An installation path is not selected.');
+    }
+
+    if (!selectedPlugin) {
+      if (btn.classList.contains('btn-primary')) {
+        btn.classList.replace('btn-primary', 'btn-danger');
+        setTimeout(() => {
+          btn.classList.replace('btn-danger', 'btn-primary');
+        }, 3000);
+      }
+      btn.innerHTML = 'プラグインを選択してください。';
+      setTimeout(() => {
+        btn.removeAttribute('disabled');
+        btn.innerHTML = beforeHTML;
+      }, 3000);
+      throw new Error('A plugin to install is not selected.');
+    }
+
+    const url = selectedPlugin.downloadURL;
+    const archivePath = await ipcRenderer.invoke('open-browser', url, 'plugin');
+    const unzippedPath = await ipcRenderer.invoke('unzip', archivePath);
+
+    for (const file of selectedPlugin.files[0].file) {
+      const fileName = path.basename(file);
+      fs.copySync(path.join(unzippedPath, fileName), path.join(instPath, file));
+    }
+
+    let filesCount = 0;
+    let existCount = 0;
+    for (const file of selectedPlugin.files[0].file) {
+      if (typeof file === 'string') {
+        filesCount++;
+        if (fs.existsSync(path.join(instPath, file))) {
+          existCount++;
+        }
+      }
+    }
+
+    if (filesCount === existCount) {
+      store.set(
+        'installedVersion.' + selectedPlugin.id,
+        selectedPlugin.latestVersion
+      );
+      btn.innerHTML = 'インストール完了';
+    } else {
+      if (btn.classList.contains('btn-primary')) {
+        btn.classList.replace('btn-primary', 'btn-danger');
+        setTimeout(() => {
+          btn.classList.replace('btn-danger', 'btn-primary');
+        }, 3000);
+      }
+      btn.innerHTML = 'エラーが発生しました。';
+    }
+
+    setTimeout(() => {
+      btn.removeAttribute('disabled');
+      btn.innerHTML = beforeHTML;
+    }, 3000);
   },
 };

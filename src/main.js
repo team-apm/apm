@@ -75,33 +75,17 @@ let browserWindow;
 /**
  * @function createBrowser
  * @param {string} url - A URL to open.
- * @param {string} type - A type to download.
  */
-function createBrowser(url, type) {
+function createBrowser(url) {
   browserWindow = new BrowserWindow({
     width: 800,
     height: 600,
     sandbox: true,
+    parent: mainWindow,
+    modal: true,
   });
 
   browserWindow.loadURL(url);
-
-  browserWindow.webContents.session.on(
-    'will-download',
-    (event, item, webContents) => {
-      const ext = path.extname(item.getFilename());
-      const dir = path.join(app.getPath('userData'), 'Data');
-      if (ext === '.zip') {
-        item.setSavePath(path.join(dir, type, 'archive/', item.getFilename()));
-      } else {
-        item.setSavePath(path.join(dir, type, item.getFilename()));
-      }
-
-      item.once('done', (e, state) => {
-        webContents.send('downloaded-in-browser', item.getSavePath());
-      });
-    }
-  );
 }
 
 ipcMain.on('get-app-version', (event) => {
@@ -186,7 +170,30 @@ ipcMain.handle('open-err-dialog', async (event, title, message) => {
 });
 
 ipcMain.handle('open-browser', async (event, url, type) => {
-  createBrowser(url, type);
+  createBrowser(url);
+
+  return await new Promise((resolve) => {
+    browserWindow.webContents.session.on(
+      'will-download',
+      (event, item, webContents) => {
+        const ext = path.extname(item.getFilename());
+        const dir = path.join(app.getPath('userData'), 'Data');
+        if (ext === '.zip') {
+          item.setSavePath(
+            path.join(dir, type, 'archive/', item.getFilename())
+          );
+        } else {
+          item.setSavePath(path.join(dir, type, item.getFilename()));
+        }
+
+        item.once('done', (e, state) => {
+          resolve(item.getSavePath());
+          browserWindow.close();
+        });
+        browserWindow.hide();
+      }
+    );
+  });
 });
 
 const template = [

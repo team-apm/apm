@@ -53,4 +53,9 @@ window.addEventListener('load', () => {
   checkPluginsListBtn.addEventListener('click', (event) => {
     plugin.checkPluginsList(checkPluginsListBtn, pluginsTableOverlay);
   });
+
+  const installPluginBtn = document.getElementById('install-plugin');
+  installPluginBtn.addEventListener('click', (event) => {
+    plugin.installPlugin(installPluginBtn, installationPath.value);
+  });
 });
