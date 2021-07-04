@@ -258,7 +258,6 @@ module.exports = {
 
     const url = selectedPlugin.downloadURL;
     const archivePath = await ipcRenderer.invoke('open-browser', url, 'plugin');
-    const unzippedPath = unzip(archivePath);
 
     const copyFiles = (dirName) => {
       const dirents = fs.readdirSync(dirName, {
@@ -281,7 +280,19 @@ module.exports = {
         }
       }
     };
-    copyFiles(unzippedPath);
+
+    try {
+      const unzippedPath = unzip(archivePath);
+      copyFiles(unzippedPath);
+    } catch {
+      if (btn.classList.contains('btn-primary')) {
+        btn.classList.replace('btn-primary', 'btn-danger');
+        setTimeout(() => {
+          btn.classList.replace('btn-danger', 'btn-primary');
+        }, 3000);
+      }
+      btn.innerHTML = 'エラーが発生しました。';
+    }
 
     let filesCount = 0;
     let existCount = 0;
