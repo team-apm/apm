@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/hal-shu-sato/apm/compare/v0.2.0...v0.3.0) (2021-07-04)
+
+### Features
+
+- add a feature to manage scripts ([c0d9e12](https://github.com/hal-shu-sato/apm/commit/c0d9e124166bc7b9ca47f9e8f4b0be603c6ee227)), closes [#3](https://github.com/hal-shu-sato/apm/issues/3)
+
+### Bug Fixes
+
+- change to destory the browser window when the main window is closed ([84e34f9](https://github.com/hal-shu-sato/apm/commit/84e34f99f3a31fc4006da0f2b9ee390bcc1688ea))
+
 ## [0.2.0](https://github.com/hal-shu-sato/apm/compare/v0.1.2...v0.2.0) (2021-07-04)
 
 ### Features
