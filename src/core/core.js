@@ -5,6 +5,7 @@ const Store = require('electron-store');
 const store = new Store();
 const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
+const unzip = require('../lib/unzip');
 
 module.exports = {
   coreXmlUrl: 'http://halshusato.starfree.jp/ato_lash/apm/data/core.xml',
@@ -134,7 +135,7 @@ module.exports = {
   /**
    * Checks the latest versionof programs.
    *
-   * @param {HTMLElement} btn - A HTMLElement of button element.
+   * @param {HTMLButtonElement} btn - A HTMLElement of button element.
    */
   checkLatestVersion: async function (btn) {
     btn.setAttribute('disabled', '');
@@ -153,7 +154,7 @@ module.exports = {
   /**
    * Shows a dialog to select installation path and set it.
    *
-   * @param {HTMLElement} input - A HTMLElement of input.
+   * @param {HTMLInputElement} input - A HTMLElement of input.
    */
   selectInstallationPath: async function (input) {
     const originalPath = input.value;
@@ -178,7 +179,7 @@ module.exports = {
   /**
    * Installs a program to installation path.
    *
-   * @param {HTMLElement} btn - A HTMLElement of clicked button.
+   * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
    * @param {string} program - A program name to install.
    * @param {string} version - A version to install.
    * @param {string} instPath - An installation path.
@@ -237,7 +238,7 @@ module.exports = {
 
     const url = getUrl();
     const archivePath = await ipcRenderer.invoke('download', url, true, 'Core');
-    const unzippedPath = await ipcRenderer.invoke('unzip', archivePath);
+    const unzippedPath = await unzip(archivePath);
     fs.copySync(unzippedPath, instPath);
 
     let filesCount = 0;
