@@ -142,7 +142,7 @@ module.exports = {
         type.innerHTML = parseScriptType(script.type);
         latestVersion.innerHTML = script.latestVersion;
 
-        if (store.has('installedVersion.' + script.id)) {
+        if (store.has('installedVersion.script.' + script.id)) {
           let filesCount = 0;
           let existCount = 0;
           for (const file of script.files[0].file) {
@@ -156,7 +156,7 @@ module.exports = {
 
           if (filesCount === existCount) {
             installedVersion.innerHTML = store.get(
-              'installedVersion.' + script.id,
+              'installedVersion.script.' + script.id,
               '未インストール'
             );
           } else {
@@ -346,7 +346,7 @@ module.exports = {
 
     if (filesCount === existCount) {
       store.set(
-        'installedVersion.' + selectedScript.id,
+        'installedVersion.script.' + selectedScript.id,
         selectedScript.latestVersion
       );
       this.setScriptsList(instPath);
@@ -434,7 +434,7 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      store.delete('installedVersion.' + selectedScript.id);
+      store.delete('installedVersion.script.' + selectedScript.id);
       this.setScriptsList(instPath);
       btn.innerHTML = 'アンインストール完了';
     } else {

@@ -34,7 +34,7 @@ module.exports = {
         if (filesCount === existCount) {
           replaceText(
             `${program}-installed-version`,
-            store.get('installedVersion.' + program, '未インストール')
+            store.get('installedVersion.core.' + program, '未インストール')
           );
         } else {
           replaceText(
@@ -253,7 +253,7 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      store.set('installedVersion.' + program, version);
+      store.set('installedVersion.core.' + program, version);
       this.displayInstalledVersion(instPath);
       btn.innerHTML = 'インストール完了';
     } else {

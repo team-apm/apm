@@ -142,7 +142,7 @@ module.exports = {
         type.innerHTML = parsePluginType(plugin.type);
         latestVersion.innerHTML = plugin.latestVersion;
 
-        if (store.has('installedVersion.' + plugin.id)) {
+        if (store.has('installedVersion.plugin.' + plugin.id)) {
           let filesCount = 0;
           let existCount = 0;
           for (const file of plugin.files[0].file) {
@@ -156,7 +156,7 @@ module.exports = {
 
           if (filesCount === existCount) {
             installedVersion.innerHTML = store.get(
-              'installedVersion.' + plugin.id,
+              'installedVersion.plugin.' + plugin.id,
               '未インストール'
             );
           } else {
@@ -335,7 +335,7 @@ module.exports = {
 
     if (filesCount === existCount) {
       store.set(
-        'installedVersion.' + selectedPlugin.id,
+        'installedVersion.plugin.' + selectedPlugin.id,
         selectedPlugin.latestVersion
       );
       this.setPluginsList(instPath);
@@ -423,7 +423,7 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      store.delete('installedVersion.' + selectedPlugin.id);
+      store.delete('installedVersion.plugin.' + selectedPlugin.id);
       this.setPluginsList(instPath);
       btn.innerHTML = 'アンインストール完了';
     } else {
