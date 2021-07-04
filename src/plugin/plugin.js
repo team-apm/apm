@@ -282,7 +282,7 @@ module.exports = {
     };
 
     try {
-      const unzippedPath = unzip(archivePath);
+      const unzippedPath = await unzip(archivePath);
       copyFiles(unzippedPath);
     } catch {
       if (btn.classList.contains('btn-primary')) {

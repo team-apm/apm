@@ -238,7 +238,7 @@ module.exports = {
 
     const url = getUrl();
     const archivePath = await ipcRenderer.invoke('download', url, true, 'Core');
-    const unzippedPath = unzip(archivePath);
+    const unzippedPath = await unzip(archivePath);
     fs.copySync(unzippedPath, instPath);
 
     let filesCount = 0;
