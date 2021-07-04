@@ -10,7 +10,6 @@ const { download } = require('electron-dl');
 const Store = require('electron-store');
 const fs = require('fs-extra');
 const path = require('path');
-const AdmZip = require('adm-zip');
 
 if (require('electron-squirrel-startup')) app.quit();
 
@@ -128,27 +127,6 @@ ipcMain.handle(
     return item.getSavePath();
   }
 );
-
-ipcMain.handle('unzip', async (event, zipPath) => {
-  const zip = new AdmZip(zipPath);
-  const getTargetPath = () => {
-    if (path.resolve(path.dirname(zipPath), '../../').endsWith('Data')) {
-      return path.resolve(
-        path.dirname(zipPath),
-        '../',
-        path.basename(zipPath, '.zip')
-      );
-    } else {
-      return path.resolve(
-        path.dirname(zipPath),
-        path.basename(zipPath, '.zip')
-      );
-    }
-  };
-  const targetPath = getTargetPath();
-  zip.extractAllTo(targetPath, true);
-  return targetPath;
-});
 
 ipcMain.handle('open-dir-dialog', async (event, title, defaultPath) => {
   const win = BrowserWindow.getFocusedWindow();

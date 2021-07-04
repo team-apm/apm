@@ -5,6 +5,7 @@ const Store = require('electron-store');
 const store = new Store();
 const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
+const unzip = require('../lib/unzip');
 
 module.exports = {
   coreXmlUrl: 'http://halshusato.starfree.jp/ato_lash/apm/data/core.xml',
@@ -237,7 +238,7 @@ module.exports = {
 
     const url = getUrl();
     const archivePath = await ipcRenderer.invoke('download', url, true, 'Core');
-    const unzippedPath = await ipcRenderer.invoke('unzip', archivePath);
+    const unzippedPath = unzip(archivePath);
     fs.copySync(unzippedPath, instPath);
 
     let filesCount = 0;

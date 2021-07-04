@@ -5,6 +5,7 @@ const Store = require('electron-store');
 const store = new Store();
 const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
+const unzip = require('../lib/unzip');
 
 let selectedPlugin;
 
@@ -257,7 +258,7 @@ module.exports = {
 
     const url = selectedPlugin.downloadURL;
     const archivePath = await ipcRenderer.invoke('open-browser', url, 'plugin');
-    const unzippedPath = await ipcRenderer.invoke('unzip', archivePath);
+    const unzippedPath = unzip(archivePath);
 
     const copyFiles = (dirName) => {
       const dirents = fs.readdirSync(dirName, {
