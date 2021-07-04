@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/hal-shu-sato/apm/compare/v0.3.0...v0.3.1) (2021-07-04)
+
+### Bug Fixes
+
+- change not to destory the browser window when it does not exist ([0b4e30a](https://github.com/hal-shu-sato/apm/commit/0b4e30adb273109e4bdc5d24d959dda3efe2fad5))
+
 ## [0.3.0](https://github.com/hal-shu-sato/apm/compare/v0.2.0...v0.3.0) (2021-07-04)
 
 ### Features
