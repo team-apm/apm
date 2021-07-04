@@ -67,6 +67,10 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
+
+  mainWindow.on('closed', (event) => {
+    browserWindow.destroy();
+  });
 }
 
 let browserWindow;
