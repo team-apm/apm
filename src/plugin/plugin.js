@@ -184,8 +184,8 @@ module.exports = {
   /**
    * Checks the plugins list.
    *
-   * @param {HTMLElement} btn - A HTMLElement of button element.
-   * @param {HTMLElement} overlay - A overlay of plugins list.
+   * @param {HTMLButtonElement} btn - A HTMLElement of button element.
+   * @param {HTMLDivElement} overlay - A overlay of plugins list.
    * @param {string} instPath - An installation path.
    */
   checkPluginsList: async function (btn, overlay, instPath) {
@@ -213,6 +213,12 @@ module.exports = {
     overlay.style.zIndex = -1;
   },
 
+  /**
+   * Installs a plugin to installation path.
+   *
+   * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
+   * @param {string} instPath - An installation path.
+   */
   installPlugin: async function (btn, instPath) {
     btn.setAttribute('disabled', '');
     const beforeHTML = btn.innerHTML;
