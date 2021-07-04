@@ -2,6 +2,7 @@ const Store = require('electron-store');
 const store = new Store();
 const core = require('./core/core');
 const plugin = require('./plugin/plugin');
+const script = require('./script/script');
 
 window.addEventListener('DOMContentLoaded', () => {
   const installationPath = document.getElementById('installation-path');
@@ -10,6 +11,7 @@ window.addEventListener('DOMContentLoaded', () => {
   core.displayInstalledVersion(installationPath.value);
   core.setCoreVersions();
   plugin.setPluginsList(installationPath.value);
+  script.setScriptsList(installationPath.value);
 });
 
 window.addEventListener('load', () => {
@@ -66,5 +68,25 @@ window.addEventListener('load', () => {
   const uninstallPluginBtn = document.getElementById('uninstall-plugin');
   uninstallPluginBtn.addEventListener('click', (event) => {
     plugin.uninstallPlugin(uninstallPluginBtn, installationPath.value);
+  });
+
+  const checkScriptsListBtn = document.getElementById('check-scripts-list');
+  const scriptsTableOverlay = document.getElementById('scripts-table-overlay');
+  checkScriptsListBtn.addEventListener('click', (event) => {
+    script.checkScriptsList(
+      checkScriptsListBtn,
+      scriptsTableOverlay,
+      installationPath.value
+    );
+  });
+
+  const installScriptBtn = document.getElementById('install-script');
+  installScriptBtn.addEventListener('click', (event) => {
+    script.installScript(installScriptBtn, installationPath.value);
+  });
+
+  const uninstallScriptBtn = document.getElementById('uninstall-script');
+  uninstallScriptBtn.addEventListener('click', (event) => {
+    script.uninstallScript(uninstallScriptBtn, installationPath.value);
   });
 });
