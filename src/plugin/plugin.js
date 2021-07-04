@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
+const { execSync } = require('child_process');
 const Store = require('electron-store');
 const store = new Store();
 const parser = require('fast-xml-parser');
@@ -259,32 +260,65 @@ module.exports = {
     const url = selectedPlugin.downloadURL;
     const archivePath = await ipcRenderer.invoke('open-browser', url, 'plugin');
 
-    const copyFiles = (dirName) => {
+    const searchFiles = (dirName) => {
+      let result = [];
       const dirents = fs.readdirSync(dirName, {
         withFileTypes: true,
       });
       for (const dirent of dirents) {
         if (dirent.isDirectory()) {
-          copyFiles(path.join(dirName, dirent.name));
+          const childResult = searchFiles(path.join(dirName, dirent.name));
+          result = result.concat(childResult);
         } else {
-          for (const file of selectedPlugin.files[0].file) {
-            const fileName = path.basename(file);
-            if (dirent.name === fileName) {
-              fs.copySync(
-                path.join(dirName, fileName),
-                path.join(instPath, file)
-              );
+          if (selectedPlugin.installer) {
+            if (dirent.name === selectedPlugin.installer) {
+              result.push([path.join(dirName, dirent.name)]);
               break;
+            }
+          } else {
+            for (const file of selectedPlugin.files[0].file) {
+              if (typeof file === 'string') {
+                if (dirent.name === path.basename(file)) {
+                  result.push([
+                    path.join(dirName, dirent.name),
+                    path.join(instPath, file),
+                  ]);
+                  break;
+                }
+              } else if (Array.isArray(file)) {
+                if (dirent.name === path.basename(file._)) {
+                  result.push([
+                    path.join(dirName, dirent.name),
+                    path.join(instPath, file._),
+                  ]);
+                  break;
+                }
+              }
             }
           }
         }
       }
+      return result;
     };
 
     try {
       const unzippedPath = await unzip(archivePath);
-      copyFiles(unzippedPath);
-    } catch {
+
+      if (selectedPlugin.installer) {
+        const exePath = searchFiles(unzippedPath);
+        const command =
+          '"' +
+          exePath[0][0] +
+          '" ' +
+          selectedPlugin.installArg.replace('$instpath', '"' + instPath + '"');
+        execSync(command);
+      } else {
+        const searchedFiles = searchFiles(unzippedPath);
+        for (const filePath of searchedFiles) {
+          fs.copySync(filePath[0], filePath[1]);
+        }
+      }
+    } catch (e) {
       if (btn.classList.contains('btn-primary')) {
         btn.classList.replace('btn-primary', 'btn-danger');
         setTimeout(() => {
