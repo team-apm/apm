@@ -285,14 +285,8 @@ module.exports = {
                   ]);
                   break;
                 }
-              } else if (Array.isArray(file)) {
-                if (dirent.name === path.basename(file._)) {
-                  result.push([
-                    path.join(dirName, dirent.name),
-                    path.join(instPath, file._),
-                  ]);
-                  break;
-                }
+              } else if (file.$optional === 'true') {
+                break;
               }
             }
           }
@@ -408,7 +402,11 @@ module.exports = {
     for (const file of selectedPlugin.files[0].file) {
       if (typeof file === 'string') {
         fs.removeSync(path.join(instPath, file));
-      } else if (Array.isArray(file)) {
+      } else if (
+        file !== null &&
+        typeof file === 'object' &&
+        !Array.isArray(file)
+      ) {
         fs.removeSync(path.join(instPath, file._));
       }
     }
