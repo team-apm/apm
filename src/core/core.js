@@ -56,7 +56,7 @@ module.exports = {
   getCoreInfo: async function () {
     const coreFile = await ipcRenderer.invoke(
       'exists-temp-file',
-      'Core/core.xml'
+      'core/core.xml'
     );
     if (coreFile.exists) {
       const xmlData = fs.readFileSync(coreFile.path, 'utf-8');
@@ -144,7 +144,7 @@ module.exports = {
       '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
       '<span class="visually-hidden">Loading...</span>';
 
-    await ipcRenderer.invoke('download', this.coreXmlUrl, true, 'Core');
+    await ipcRenderer.invoke('download', this.coreXmlUrl, true, 'core');
     this.setCoreVersions();
 
     btn.removeAttribute('disabled');
@@ -237,7 +237,7 @@ module.exports = {
     };
 
     const url = getUrl();
-    const archivePath = await ipcRenderer.invoke('download', url, true, 'Core');
+    const archivePath = await ipcRenderer.invoke('download', url, true, 'core');
     const unzippedPath = await unzip(archivePath);
     fs.copySync(unzippedPath, instPath);
 
