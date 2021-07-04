@@ -25,13 +25,14 @@
     "release:major": "standard-version --release-as major"
   },
   "dependencies": {
-    "adm-zip": "^0.5.5",
+    "7zip-bin": "^5.1.1",
     "bootstrap": "^5.0.1",
     "electron-dl": "^3.2.1",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.0",
     "fast-xml-parser": "^3.19.0",
     "fs-extra": "^10.0.0",
+    "node-7z": "^2.1.2",
     "update-electron-app": "^2.0.1"
   },
   "devDependencies": {
@@ -62,7 +63,9 @@
     "forge": {
       "packagerConfig": {
         "executableName": "apm",
-        "asar": true
+        "asar": {
+          "unpackDir": "node_modules/7zip-bin"
+        }
       },
       "makers": [
         {

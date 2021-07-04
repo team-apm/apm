@@ -1,14 +1,17 @@
 const path = require('path');
-const AdmZip = require('adm-zip');
+const sevenBin = require('7zip-bin');
+const { extractFull } = require('node-7z');
+
+const pathTo7zip = sevenBin.path7za.replace('app.asar', 'app.asar.unpacked');
 
 /**
  * Unzips zip archive.
  *
  * @param {string} zipPath - A path to zip archive.
- * @returns {string} A path to unzipped directory.
+ * @param {string} encode - An encode of zip archive.
+ * @returns {Promise<string>} A path to unzipped directory.
  */
-module.exports = function (zipPath) {
-  const zip = new AdmZip(zipPath);
+module.exports = async function (zipPath, encode = 'utf8') {
   const getTargetPath = () => {
     if (path.resolve(path.dirname(zipPath), '../../').endsWith('Data')) {
       return path.resolve(
@@ -24,6 +27,13 @@ module.exports = function (zipPath) {
     }
   };
   const targetPath = getTargetPath();
-  zip.extractAllTo(targetPath, true);
-  return targetPath;
+  const zipStream = extractFull(zipPath, targetPath, {
+    $bin: pathTo7zip,
+    overwrite: 'a',
+  });
+  return new Promise((resolve) => {
+    zipStream.once('end', () => {
+      resolve(targetPath);
+    });
+  });
 };
