@@ -144,7 +144,6 @@ module.exports = {
           let filesCount = 0;
           let existCount = 0;
           for (const file of plugin.files[0].file) {
-            console.log(file);
             if (typeof file === 'string') {
               filesCount++;
               if (fs.existsSync(path.join(instPath, file))) {
@@ -301,6 +300,88 @@ module.exports = {
       );
       this.setPluginsList(instPath);
       btn.innerHTML = 'インストール完了';
+    } else {
+      if (btn.classList.contains('btn-primary')) {
+        btn.classList.replace('btn-primary', 'btn-danger');
+        setTimeout(() => {
+          btn.classList.replace('btn-danger', 'btn-primary');
+        }, 3000);
+      }
+      btn.innerHTML = 'エラーが発生しました。';
+    }
+
+    setTimeout(() => {
+      btn.removeAttribute('disabled');
+      btn.innerHTML = beforeHTML;
+    }, 3000);
+  },
+
+  /**
+   * Uninstalls a plugin to installation path.
+   *
+   * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
+   * @param {string} instPath - An installation path.
+   */
+  uninstallPlugin: async function (btn, instPath) {
+    btn.setAttribute('disabled', '');
+    const beforeHTML = btn.innerHTML;
+    btn.innerHTML =
+      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
+      '<span class="visually-hidden">Loading...</span>';
+
+    if (!instPath) {
+      if (btn.classList.contains('btn-primary')) {
+        btn.classList.replace('btn-primary', 'btn-danger');
+        setTimeout(() => {
+          btn.classList.replace('btn-danger', 'btn-primary');
+        }, 3000);
+      }
+      btn.innerHTML = 'インストール先フォルダを指定してください。';
+      setTimeout(() => {
+        btn.removeAttribute('disabled');
+        btn.innerHTML = beforeHTML;
+      }, 3000);
+      throw new Error('An installation path is not selected.');
+    }
+
+    if (!selectedPlugin) {
+      if (btn.classList.contains('btn-primary')) {
+        btn.classList.replace('btn-primary', 'btn-danger');
+        setTimeout(() => {
+          btn.classList.replace('btn-danger', 'btn-primary');
+        }, 3000);
+      }
+      btn.innerHTML = 'プラグインを選択してください。';
+      setTimeout(() => {
+        btn.removeAttribute('disabled');
+        btn.innerHTML = beforeHTML;
+      }, 3000);
+      throw new Error('A plugin to install is not selected.');
+    }
+
+    for (const file of selectedPlugin.files[0].file) {
+      if (typeof file === 'string') {
+        fs.removeSync(path.join(instPath, file));
+      } else if (Array.isArray(file)) {
+        fs.removeSync(path.join(instPath, file._));
+      }
+    }
+
+    let filesCount = 0;
+    let existCount = 0;
+    for (const file of selectedPlugin.files[0].file) {
+      if (typeof file === 'string') {
+        filesCount++;
+        if (!fs.existsSync(path.join(instPath, file))) {
+          existCount++;
+        }
+      }
+    }
+
+    if (filesCount === existCount) {
+      store.delete('installedVersion.' + selectedPlugin.id);
+      this.setPluginsList(instPath);
+      btn.innerHTML = 'アンインストール完了';
     } else {
       if (btn.classList.contains('btn-primary')) {
         btn.classList.replace('btn-primary', 'btn-danger');

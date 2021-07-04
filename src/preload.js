@@ -62,4 +62,9 @@ window.addEventListener('load', () => {
   installPluginBtn.addEventListener('click', (event) => {
     plugin.installPlugin(installPluginBtn, installationPath.value);
   });
+
+  const uninstallPluginBtn = document.getElementById('uninstall-plugin');
+  uninstallPluginBtn.addEventListener('click', (event) => {
+    plugin.uninstallPlugin(uninstallPluginBtn, installationPath.value);
+  });
 });
