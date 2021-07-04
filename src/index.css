@@ -11,6 +11,9 @@ main {
 .plugins-table {
   position: relative;
   min-height: 6rem;
+}
+.plugins-table .col {
+  height: 100%;
   overflow-y: auto;
 }
 div#plugins-table-overlay {
