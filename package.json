@@ -60,55 +60,7 @@
     "cz-conventional-changelog-ja": "^0.0.2"
   },
   "config": {
-    "forge": {
-      "packagerConfig": {
-        "executableName": "apm",
-        "asar": {
-          "unpackDir": "node_modules/7zip-bin"
-        }
-      },
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "apm",
-            "exe": "apm.exe"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "win32",
-            "darwin",
-            "linux"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ],
-      "publishers": [
-        {
-          "name": "@electron-forge/publisher-github",
-          "platforms": [
-            "darwin",
-            "linux"
-          ],
-          "config": {
-            "repository": {
-              "owner": "hal-shu-sato",
-              "name": "apm"
-            },
-            "draft": true
-          }
-        }
-      ]
-    },
+    "forge": "./forge.config.js",
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
