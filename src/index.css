@@ -1,22 +1,26 @@
 html,
 body,
 section,
-section#plugins .container-fluid {
+section#plugins .container-fluid,
+section#scripts .container-fluid {
   height: 100%;
 }
 main {
   height: calc(100% - 2.625rem);
   overflow-y: auto;
 }
-.plugins-table {
+.plugins-table,
+.scripts-table {
   position: relative;
   min-height: 6rem;
 }
-.plugins-table .col {
+.plugins-table .col,
+.scripts-table .col {
   height: 100%;
   overflow-y: auto;
 }
-div#plugins-table-overlay {
+div#plugins-table-overlay,
+div#scripts-table-overlay {
   z-index: -1;
   position: absolute;
   top: 0;

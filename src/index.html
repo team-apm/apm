@@ -49,7 +49,7 @@
 					Plugins
 				</button>
 				<button
-					class="nav-link disabled"
+					class="nav-link"
 					id="scripts-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#scripts"
@@ -177,6 +177,7 @@
 					</div>
 				</div>
 			</section>
+
 			<section
 				class="tab-pane fade"
 				id="plugins"
@@ -255,6 +256,89 @@
 							最新バージョン:
 							<span id="plugin-latest-version"></span><br />
 							サイト: <span id="plugin-page"></span>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section
+				class="tab-pane fade"
+				id="scripts"
+				role="tabpanel"
+				aria-labelledby="scripts"
+			>
+				<div class="container-fluid d-flex flex-column py-2">
+					<div class="row border-bottom">
+						<div class="col">
+							<button
+								type="button"
+								class="btn btn-primary mb-2"
+								id="check-scripts-list"
+							>
+								最新のスクリプト一覧を確認
+							</button>
+							<button
+								type="button"
+								class="btn btn-primary mb-2"
+								id="install-script"
+							>
+								選択したスクリプトをインストール
+							</button>
+							<button
+								type="button"
+								class="btn btn-primary mb-2"
+								id="uninstall-script"
+							>
+								選択したスクリプトをアンインストール
+							</button>
+						</div>
+					</div>
+
+					<div class="row flex-grow-1 scripts-table">
+						<div class="col">
+							<table
+								class="table table-bordered table-hover my-2"
+								id="scripts-table"
+							>
+								<thead>
+									<tr>
+										<th scope="col">名前</th>
+										<th scope="col">概要</th>
+										<th scope="col">開発者</th>
+										<th scope="col">タイプ</th>
+										<th scope="col">最新バージョン</th>
+										<th scope="col">現在バージョン</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+						</div>
+						<div
+							class="
+								d-flex
+								justify-content-center
+								align-items-center
+								fade
+							"
+							id="scripts-table-overlay"
+						>
+							<div class="spinner-border" role="status">
+								<span class="visually-hidden">Loading...</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="row border-top pt-2 scripts-detail">
+						<div class="col">
+							名前: <span id="script-name"></span><br />
+							概要: <span id="script-overview"></span><br />
+							説明:<br />
+							<span id="script-description"></span><br />
+							開発者: <span id="script-developer"></span><br />
+							タイプ: <span id="script-type"></span><br />
+							最新バージョン:
+							<span id="script-latest-version"></span><br />
+							サイト: <span id="script-page"></span>
 						</div>
 					</div>
 				</div>
