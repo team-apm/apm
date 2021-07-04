@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/hal-shu-sato/apm/compare/v0.1.2...v0.2.0) (2021-07-04)
+
+### Features
+
+- add a browser system to download plugins ([0d1033c](https://github.com/hal-shu-sato/apm/commit/0d1033c93513679ae95657df253cc0204904c548)), closes [#16](https://github.com/hal-shu-sato/apm/issues/16)
+- add a feature to uninstall a plugin ([1e47bff](https://github.com/hal-shu-sato/apm/commit/1e47bffbf0ee750cd28a7b0df8945b16f08b9b03)), closes [#2](https://github.com/hal-shu-sato/apm/issues/2)
+- add automatic search for files in an archive ([fff1907](https://github.com/hal-shu-sato/apm/commit/fff19079208633f15d6d2b94a3cd977804925418)), closes [#2](https://github.com/hal-shu-sato/apm/issues/2)
+- add borders on the plugin panel ([45bb128](https://github.com/hal-shu-sato/apm/commit/45bb128aaacffc7d5a976a15f1ce4a5078717af2))
+- add showing a list of plugins ([31a7eb7](https://github.com/hal-shu-sato/apm/commit/31a7eb78383667ee343a3dd73b389e59c3bf1e0f)), closes [#2](https://github.com/hal-shu-sato/apm/issues/2)
+- add showing installed plugin versions ([a44e26b](https://github.com/hal-shu-sato/apm/commit/a44e26bf071063a6f9d1864009f45e2c93a5d8c6)), closes [#2](https://github.com/hal-shu-sato/apm/issues/2)
+- add showing installed version after installing ([83b2d86](https://github.com/hal-shu-sato/apm/commit/83b2d8690d1e36dbe064013f0be181b59dba3b60)), closes [#2](https://github.com/hal-shu-sato/apm/issues/2)
+- add splash screen in launching ([c85d0c8](https://github.com/hal-shu-sato/apm/commit/c85d0c8eea20a8e2fa729afdd388a0cd0e8279c9)), closes [#4](https://github.com/hal-shu-sato/apm/issues/4)
+- add the feature to display the details of plugins ([9e23817](https://github.com/hal-shu-sato/apm/commit/9e2381754b21326c83b7d794dddcd6459f5792ca)), closes [#2](https://github.com/hal-shu-sato/apm/issues/2)
+- add the feature to install a plugin ([0cc8757](https://github.com/hal-shu-sato/apm/commit/0cc875731985ac5ff1140fa5ca0e7e04ccddbdf1)), closes [#2](https://github.com/hal-shu-sato/apm/issues/2)
+- check whether a program is installed on launching and on changing installation path ([9ea80a6](https://github.com/hal-shu-sato/apm/commit/9ea80a634e1598027dfe77ec5b0a3c2d6db635b1)), closes [#12](https://github.com/hal-shu-sato/apm/issues/12)
+- separate plugin types with a comma ([cb95701](https://github.com/hal-shu-sato/apm/commit/cb957015f9607d3a65ff7873ee45419ae7f7972e)), closes [#2](https://github.com/hal-shu-sato/apm/issues/2)
+- support installation using an installer ([f2b9e7c](https://github.com/hal-shu-sato/apm/commit/f2b9e7c8b48d04571d7835fbb8e80f4923c1a102)), closes [#2](https://github.com/hal-shu-sato/apm/issues/2)
+
+### Bug Fixes
+
+- fix a bug that cause an error when checking for the latest version after downloading a file ([5f391e8](https://github.com/hal-shu-sato/apm/commit/5f391e8c96a77f46a69219835a6cf25db0ad064d))
+- fix a bug that prevented the uninstallation of optional files ([46861a5](https://github.com/hal-shu-sato/apm/commit/46861a52860fcefa5d9176b1474cca0c2226c8f0))
+- fix installing core ([a212860](https://github.com/hal-shu-sato/apm/commit/a2128600914063ca56092c3a0e273b0068ebb317))
+- fix the bug that the process stops when unzip fails ([3b73f1d](https://github.com/hal-shu-sato/apm/commit/3b73f1d941290f62678d71254f264f60675c95c2))
+
 ### [0.1.2](https://github.com/hal-shu-sato/apm/compare/v0.1.1...v0.1.2) (2021-06-21)
 
 ### Features
