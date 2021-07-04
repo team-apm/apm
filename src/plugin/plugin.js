@@ -111,7 +111,7 @@ module.exports = {
   },
 
   /**
-   * Sets versions of each program in selects.
+   * Sets rows of each plugin in the table.
    *
    * @param {string} instPath - An installation path.
    */
