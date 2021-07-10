@@ -10,9 +10,6 @@
 
 - Download and update AviUtl
 - Download and update Exedit Plugin
-
-### To be added in the future
-
 - Download/update/delete plugins
 - Download/update/delete scripts
 
@@ -26,13 +23,9 @@ To be added in the future
 
 ## Install
 
-**ZIP version is recommended!!**
-
-Yet, if you want to use auto updating on Windows, you should use `AviUtl-Package-Manager-*.*.*.Setup.exe`.
-
 1. Download the latest version from the [release page](https://github.com/hal-shu-sato/apm/releases).
-1. Extract to any location.
-1. Run "apm.exe".
+2. Install or extract to any location.
+3. Run "apm.exe".
 
 ## Contribution
 
