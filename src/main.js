@@ -93,8 +93,8 @@ function createBrowser(url) {
   browserWindow.loadURL(url);
 }
 
-ipcMain.on('get-app-version', (event) => {
-  event.sender.send('got-app-version', app.getVersion());
+ipcMain.handle('get-app-version', (event) => {
+  return app.getVersion();
 });
 
 ipcMain.handle('exists-temp-file', (event, relativePath) => {
