@@ -29,3 +29,8 @@ div#scripts-table-overlay {
   height: 100%;
   background-color: rgba(127, 127, 127, 0.5);
 }
+.plugin-detail .row,
+.script-detail .row {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
