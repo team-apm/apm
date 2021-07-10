@@ -156,8 +156,8 @@ module.exports = {
     await ipcRenderer.invoke('download', this.getCoreXmlUrl(), true, 'core');
     this.setCoreVersions();
 
-    btn.removeAttribute('disabled');
     btn.innerHTML = beforeHTML;
+    btn.removeAttribute('disabled');
   },
 
   /**
@@ -209,8 +209,8 @@ module.exports = {
       }
       btn.innerHTML = 'インストール先フォルダを指定してください。';
       setTimeout(() => {
-        btn.removeAttribute('disabled');
         btn.innerHTML = beforeHTML;
+        btn.removeAttribute('disabled');
       }, 3000);
       throw new Error('An installation path is not selected.');
     }
@@ -224,8 +224,8 @@ module.exports = {
       }
       btn.innerHTML = 'バージョンを指定してください。';
       setTimeout(() => {
-        btn.removeAttribute('disabled');
         btn.innerHTML = beforeHTML;
+        btn.removeAttribute('disabled');
       }, 3000);
       throw new Error('A version is not selected.');
     }
@@ -264,6 +264,13 @@ module.exports = {
     if (filesCount === existCount) {
       store.set('installedVersion.core.' + program, version);
       this.displayInstalledVersion(instPath);
+
+      if (btn.classList.contains('btn-primary')) {
+        btn.classList.replace('btn-primary', 'btn-success');
+        setTimeout(() => {
+          btn.classList.replace('btn-success', 'btn-primary');
+        }, 3000);
+      }
       btn.innerHTML = 'インストール完了';
     } else {
       if (btn.classList.contains('btn-primary')) {
@@ -276,8 +283,8 @@ module.exports = {
     }
 
     setTimeout(() => {
-      btn.removeAttribute('disabled');
       btn.innerHTML = beforeHTML;
+      btn.removeAttribute('disabled');
     }, 3000);
   },
 };

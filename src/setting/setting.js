@@ -39,6 +39,7 @@ module.exports = {
       );
     } else {
       store.set('dataURL', dataUrl);
+
       if (btn.classList.contains('btn-primary')) {
         btn.classList.replace('btn-primary', 'btn-success');
         setTimeout(() => {
@@ -46,9 +47,10 @@ module.exports = {
         }, 3000);
       }
       btn.innerHTML = '設定完了';
+
       setTimeout(() => {
-        btn.removeAttribute('disabled');
         btn.innerHTML = beforeHTML;
+        btn.removeAttribute('disabled');
       }, 3000);
     }
   },
