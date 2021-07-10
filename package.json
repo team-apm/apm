@@ -20,9 +20,9 @@
     "prepare": "husky install",
     "cm": "npx cz",
     "release": "standard-version && conventional-github-releaser -p angular --draft",
-    "release:patch": "standard-version --release-as patch",
-    "release:minor": "standard-version --release-as minor",
-    "release:major": "standard-version --release-as major"
+    "release:patch": "standard-version --release-as patch && conventional-github-releaser -p angular --draft",
+    "release:minor": "standard-version --release-as minor && conventional-github-releaser -p angular --draft",
+    "release:major": "standard-version --release-as major && conventional-github-releaser -p angular --draft"
   },
   "dependencies": {
     "7zip-bin": "^5.1.1",
