@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/hal-shu-sato/apm/compare/v0.3.1...v0.3.2) (2021-07-10)
+
+### Features
+
+- add support for changing the URL to get the data files ([0ef18e4](https://github.com/hal-shu-sato/apm/commit/0ef18e48eaf7b3a4478305b9c2a6fb39882d62c5)), closes [#19](https://github.com/hal-shu-sato/apm/issues/19)
+
 ### [0.3.1](https://github.com/hal-shu-sato/apm/compare/v0.3.0...v0.3.1) (2021-07-04)
 
 ### Bug Fixes
