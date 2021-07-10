@@ -47,6 +47,7 @@
     "commitizen": "^4.2.4",
     "conventional-github-releaser": "^3.1.5",
     "cz-conventional-changelog": "3.3.0",
+    "cz-conventional-changelog-ja": "^0.0.2",
     "electron": "^13.1.1",
     "eslint": "^7.28.0",
     "eslint-config-google": "^0.14.0",
@@ -58,9 +59,6 @@
     "prettier": "^2.3.1",
     "prettier-plugin-md-nocjsp": "^1.1.1",
     "standard-version": "^9.3.0"
-  },
-  "optionalDependencies": {
-    "cz-conventional-changelog-ja": "^0.0.2"
   },
   "config": {
     "forge": "./forge.config.js",
