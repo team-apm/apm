@@ -16,6 +16,7 @@ module.exports = {
       '(?!node_modules)/CODE_OF_CONDUCT\\.md$',
       '(?!node_modules)/README\\.md$',
       '(?!node_modules)/README\\.ja\\.md$',
+      '(?!node_modules)/commitlint\\.config\\.js$',
       '(?!node_modules)/forge\\.config\\.js$',
     ],
   },
