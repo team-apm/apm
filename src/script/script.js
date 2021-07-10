@@ -215,11 +215,11 @@ module.exports = {
     );
     this.setScriptsList(instPath);
 
-    btn.removeAttribute('disabled');
-    btn.innerHTML = beforeHTML;
-
     overlay.classList.remove('show');
     overlay.style.zIndex = -1;
+
+    btn.innerHTML = beforeHTML;
+    btn.removeAttribute('disabled');
   },
 
   /**
@@ -244,8 +244,8 @@ module.exports = {
       }
       btn.innerHTML = 'インストール先フォルダを指定してください。';
       setTimeout(() => {
-        btn.removeAttribute('disabled');
         btn.innerHTML = beforeHTML;
+        btn.removeAttribute('disabled');
       }, 3000);
       throw new Error('An installation path is not selected.');
     }
@@ -259,8 +259,8 @@ module.exports = {
       }
       btn.innerHTML = 'プラグインを選択してください。';
       setTimeout(() => {
-        btn.removeAttribute('disabled');
         btn.innerHTML = beforeHTML;
+        btn.removeAttribute('disabled');
       }, 3000);
       throw new Error('A script to install is not selected.');
     }
@@ -358,6 +358,13 @@ module.exports = {
         selectedScript.latestVersion
       );
       this.setScriptsList(instPath);
+
+      if (btn.classList.contains('btn-primary')) {
+        btn.classList.replace('btn-primary', 'btn-success');
+        setTimeout(() => {
+          btn.classList.replace('btn-success', 'btn-primary');
+        }, 3000);
+      }
       btn.innerHTML = 'インストール完了';
     } else {
       if (btn.classList.contains('btn-primary')) {
@@ -370,8 +377,8 @@ module.exports = {
     }
 
     setTimeout(() => {
-      btn.removeAttribute('disabled');
       btn.innerHTML = beforeHTML;
+      btn.removeAttribute('disabled');
     }, 3000);
   },
 
@@ -397,8 +404,8 @@ module.exports = {
       }
       btn.innerHTML = 'インストール先フォルダを指定してください。';
       setTimeout(() => {
-        btn.removeAttribute('disabled');
         btn.innerHTML = beforeHTML;
+        btn.removeAttribute('disabled');
       }, 3000);
       throw new Error('An installation path is not selected.');
     }
@@ -412,8 +419,8 @@ module.exports = {
       }
       btn.innerHTML = 'プラグインを選択してください。';
       setTimeout(() => {
-        btn.removeAttribute('disabled');
         btn.innerHTML = beforeHTML;
+        btn.removeAttribute('disabled');
       }, 3000);
       throw new Error('A script to install is not selected.');
     }
@@ -444,6 +451,13 @@ module.exports = {
     if (filesCount === existCount) {
       store.delete('installedVersion.script.' + selectedScript.id);
       this.setScriptsList(instPath);
+
+      if (btn.classList.contains('btn-primary')) {
+        btn.classList.replace('btn-primary', 'btn-success');
+        setTimeout(() => {
+          btn.classList.replace('btn-success', 'btn-primary');
+        }, 3000);
+      }
       btn.innerHTML = 'アンインストール完了';
     } else {
       if (btn.classList.contains('btn-primary')) {
@@ -456,8 +470,8 @@ module.exports = {
     }
 
     setTimeout(() => {
-      btn.removeAttribute('disabled');
       btn.innerHTML = beforeHTML;
+      btn.removeAttribute('disabled');
     }, 3000);
   },
 };
