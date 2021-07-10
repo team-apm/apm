@@ -60,6 +60,18 @@
 				>
 					Scripts
 				</button>
+				<button
+					class="nav-link"
+					id="settings-tab"
+					data-bs-toggle="tab"
+					data-bs-target="#settings"
+					type="button"
+					role="tab"
+					aria-controls="settings"
+					aria-selected="false"
+				>
+					Settings
+				</button>
 			</div>
 		</nav>
 
@@ -339,6 +351,36 @@
 							最新バージョン:
 							<span id="script-latest-version"></span><br />
 							サイト: <span id="script-page"></span>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section
+				class="tab-pane fade"
+				id="settings"
+				role="tabpanel"
+				aria-labelledby="settings"
+			>
+				<div class="container-fluid py-2">
+					<div class="row my-2">
+						<div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+							<input
+								class="form-control"
+								id="data-url"
+								type="text"
+								placeholder="データファイル取得先"
+								aria-label="Data URL"
+							/>
+						</div>
+						<div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+							<button
+								type="button"
+								class="btn btn-primary w-100"
+								id="set-data-url"
+							>
+								データファイル取得先を設定
+							</button>
 						</div>
 					</div>
 				</div>

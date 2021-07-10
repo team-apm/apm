@@ -7,6 +7,7 @@ const store = new Store();
 const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
+const setting = require('../setting/setting');
 
 let selectedScript;
 
@@ -65,13 +66,20 @@ function showScriptDetail(scriptData) {
 }
 
 module.exports = {
-  scriptsListXmlUrl:
-    'http://halshusato.starfree.jp/ato_lash/apm/data/scripts_list.xml',
+  /**
+   * Returns a scripts list xml URL.
+   *
+   * @returns {string} - A plugins list xml URL.
+   */
+  getScriptsListXmlUrl: function () {
+    const dataUrl = setting.getDataUrl();
+    return path.join(dataUrl, 'scripts_list.xml');
+  },
 
   /**
-   * Returns an object parsed from core.xml.
+   * Returns an object parsed from scripts_list.xml.
    *
-   * @returns {object} - An object parsed from core.xml.
+   * @returns {object} - An object parsed from scripts_list.xml.
    */
   getScriptsInfo: async function () {
     const scriptsListFile = await ipcRenderer.invoke(
@@ -201,7 +209,7 @@ module.exports = {
 
     await ipcRenderer.invoke(
       'download',
-      this.scriptsListXmlUrl,
+      this.getScriptsListXmlUrl(),
       true,
       'script'
     );

@@ -6,9 +6,18 @@ const store = new Store();
 const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
+const setting = require('../setting/setting');
 
 module.exports = {
-  coreXmlUrl: 'http://halshusato.starfree.jp/ato_lash/apm/data/core.xml',
+  /**
+   * Returns a core xml URL.
+   *
+   * @returns {string} - A core xml URL.
+   */
+  getCoreXmlUrl: function () {
+    const dataUrl = setting.getDataUrl();
+    return path.join(dataUrl, 'core.xml');
+  },
 
   /**
    * Displays installed version.
@@ -144,7 +153,7 @@ module.exports = {
       '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
       '<span class="visually-hidden">Loading...</span>';
 
-    await ipcRenderer.invoke('download', this.coreXmlUrl, true, 'core');
+    await ipcRenderer.invoke('download', this.getCoreXmlUrl(), true, 'core');
     this.setCoreVersions();
 
     btn.removeAttribute('disabled');

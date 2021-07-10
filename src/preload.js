@@ -3,10 +3,13 @@ const store = new Store();
 const core = require('./core/core');
 const plugin = require('./plugin/plugin');
 const script = require('./script/script');
+const setting = require('./setting/setting');
 
 window.addEventListener('DOMContentLoaded', () => {
   const installationPath = document.getElementById('installation-path');
   installationPath.setAttribute('value', store.get('installationPath', ''));
+  const dataURL = document.getElementById('data-url');
+  dataURL.setAttribute('value', setting.getDataUrl());
 
   core.displayInstalledVersion(installationPath.value);
   core.setCoreVersions();
@@ -88,5 +91,11 @@ window.addEventListener('load', () => {
   const uninstallScriptBtn = document.getElementById('uninstall-script');
   uninstallScriptBtn.addEventListener('click', (event) => {
     script.uninstallScript(uninstallScriptBtn, installationPath.value);
+  });
+
+  const setDataUrlBtn = document.getElementById('set-data-url');
+  const dataURL = document.getElementById('data-url');
+  setDataUrlBtn.addEventListener('click', (event) => {
+    setting.setDataUrl(setDataUrlBtn, dataURL.value);
   });
 });

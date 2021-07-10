@@ -7,6 +7,7 @@ const store = new Store();
 const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
+const setting = require('../setting/setting');
 
 let selectedPlugin;
 
@@ -65,13 +66,20 @@ function showPluginDetail(pluginData) {
 }
 
 module.exports = {
-  pluginsListXmlUrl:
-    'http://halshusato.starfree.jp/ato_lash/apm/data/plugins_list.xml',
+  /**
+   * Returns a plugins list xml URL.
+   *
+   * @returns {string} - A plugins list xml URL.
+   */
+  getPluginsListXmlUrl: function () {
+    const dataUrl = setting.getDataUrl();
+    return path.join(dataUrl, 'plugins_list.xml');
+  },
 
   /**
-   * Returns an object parsed from core.xml.
+   * Returns an object parsed from plugins_list.xml.
    *
-   * @returns {object} - An object parsed from core.xml.
+   * @returns {object} - An object parsed from plugins_list.xml.
    */
   getPluginsInfo: async function () {
     const pluginsListFile = await ipcRenderer.invoke(
@@ -201,7 +209,7 @@ module.exports = {
 
     await ipcRenderer.invoke(
       'download',
-      this.pluginsListXmlUrl,
+      this.getPluginsListXmlUrl(),
       true,
       'plugin'
     );
