@@ -1,5 +1,11 @@
 # AviUtl Plugin Manager
 
+[![Build](https://github.com/hal-shu-sato/apm/actions/workflows/build.yml/badge.svg)](https://github.com/hal-shu-sato/apm/actions/workflows/build.yml)
+[![GitHub issues](https://img.shields.io/github/issues/hal-shu-sato/apm)](https://github.com/hal-shu-sato/apm/issues)
+[![GitHub license](https://img.shields.io/github/license/hal-shu-sato/apm)](https://github.com/hal-shu-sato/apm/blob/main/LICENSE)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/hal-shu-sato/apm)
+![GitHub all releases](https://img.shields.io/github/downloads/hal-shu-sato/apm/total)
+
 AviUtlやプラグイン・スクリプトのダウンロードや導入を補助するソフトウェアです。
 
 [English Version](./README.md)

@@ -1,5 +1,11 @@
 # AviUtl Plugin Manager
 
+[![Build](https://github.com/hal-shu-sato/apm/actions/workflows/build.yml/badge.svg)](https://github.com/hal-shu-sato/apm/actions/workflows/build.yml)
+[![GitHub issues](https://img.shields.io/github/issues/hal-shu-sato/apm)](https://github.com/hal-shu-sato/apm/issues)
+[![GitHub license](https://img.shields.io/github/license/hal-shu-sato/apm)](https://github.com/hal-shu-sato/apm/blob/main/LICENSE)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/hal-shu-sato/apm)
+![GitHub all releases](https://img.shields.io/github/downloads/hal-shu-sato/apm/total)
+
 "apm" assists you in downloading and installing AviUtl and plugins/scripts.
 
 [日本語版](./README.ja.md)
@@ -51,3 +57,7 @@ All I can say right now is that I'm Japanese, so any pull requests related to En
 - [GitHub](https://github.com/hal-shu-sato)
 - [Homepage](http://halshusato.starfree.jp/)
 - [Twitter](https://twitter.com/hal_shu_sato)
+
+## Thanks
+
+Many English documents have been translated with www.DeepL.com/Translator (free version)
