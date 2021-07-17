@@ -8,6 +8,7 @@ const {
 } = require('electron');
 const { download } = require('electron-dl');
 const Store = require('electron-store');
+const log = require('electron-log');
 const fs = require('fs-extra');
 const path = require('path');
 
@@ -16,6 +17,8 @@ if (require('electron-squirrel-startup')) app.quit();
 require('update-electron-app')();
 
 Store.initRenderer();
+
+log.debug(process.versions);
 
 let splashWindow;
 

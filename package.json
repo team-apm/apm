@@ -28,6 +28,7 @@
     "7zip-bin": "^5.1.1",
     "bootstrap": "^5.0.1",
     "electron-dl": "^3.2.1",
+    "electron-log": "^4.3.5",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.0",
     "fast-xml-parser": "^3.19.0",
