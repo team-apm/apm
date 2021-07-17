@@ -35,7 +35,44 @@ AviUtlが使用できる環境
 
 ## コントリビューション
 
-今後追記予定
+### 前提条件
+
+- [Git](https://git-scm.com/)
+- [Node.js](https://nodejs.org/) LTSバージョン（現在14.x.x）
+- [Yarn 1](https://classic.yarnpkg.com/)
+
+### クローン
+
+任意の場所で以下のコマンドを実行します。
+
+```bash
+git clone https://github.com/hal-shu-sato/apm.git
+```
+
+あるいは、リポジトリをフォークした後、以下のコマンドを実行します。
+
+```bash
+git clone https://github.com/${ユーザー名}/apm.git
+```
+
+### 環境構築
+
+クローンしたディレクトリに移動した後、パッケージをインストールします。
+
+```bash
+cd apm
+yarn
+```
+
+### 実行
+
+アプリを起動します。
+
+```bash
+yarn start
+```
+
+詳しくは、[CONTRIBUTING.ja.md](./CONTRIBUTING.ja.md)を参照してください。
 
 英語やi18nに関するプルリクエストは大歓迎です！
 

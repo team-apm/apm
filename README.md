@@ -35,7 +35,44 @@ To be added in the future
 
 ## Contribution
 
-To be added in the future
+### Prerequisites
+
+- [Git](https://git-scm.com/)
+- [Node.js](https://nodejs.org/) LTS Version（Current: 14.x.x）
+- [Yarn 1](https://classic.yarnpkg.com/)
+
+### Clone
+
+Run the following command at a location of your choice
+
+```bash
+git clone https://github.com/hal-shu-sato/apm.git
+```
+
+Or, after forking the repository, run the following command
+
+```bash
+git clone https://github.com/${username}/apm.git
+```
+
+### Build
+
+After navigating to your cloned directory, install the package
+
+```bash
+cd apm
+yarn
+```
+
+### Run
+
+Start the application.
+
+```bash
+yarn start
+```
+
+See CONTRIBUTING.md for details.
 
 All I can say right now is that I'm Japanese, so any pull requests related to English or i18n are most welcome!
 
