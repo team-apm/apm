@@ -72,7 +72,7 @@ Start the application.
 yarn start
 ```
 
-See CONTRIBUTING.md for details.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 
 All I can say right now is that I'm Japanese, so any pull requests related to English or i18n are most welcome!
 
