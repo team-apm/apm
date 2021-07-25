@@ -1,6 +1,6 @@
 # Contribution
 
-[English](./CONTRIBUTING.md)
+[日本語](./CONTRIBUTING.ja.md)
 
 Thank you for your interest in contributing to the AviUtl Plugin Manager!
 
@@ -49,7 +49,7 @@ Submissions containing content that violates the [CODE OF CONDUCT](./CODE_OF_CON
 
 There are two ways to check your modifications.
 
-## Launch from the Console
+### Launch from the Console
 
 By starting from the console, you can easily check your modifications.
 
@@ -90,11 +90,11 @@ We are using Conventional Changelog, which is based on Angular's Commit Message 
 
 The commit message is automatically checked by [commitlint](https://commitlint.js.org/) at commit time, and the commit will fail if it does not follow the conventions.
 
-Since [standard-version](https://github.com/conventional-changelog/standard-version) is used to output the changelog, commits that contain new features or bug fixes should especially follow this convention.
+Since [Standard Version](https://github.com/conventional-changelog/standard-version) is used to output the changelog, commits that contain new features or bug fixes should especially follow this convention.
 
 ### How to Commit
 
-To simplify the generation of commit messages, [commitizen](https://commitizen.github.io/cz-cli/) has been introduced.
+To simplify the generation of commit messages, [Commitizen](https://commitizen.github.io/cz-cli/) has been introduced.
 
 Use `yarn cm` when committing.
 
