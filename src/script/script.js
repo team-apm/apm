@@ -32,8 +32,8 @@ function parseScriptType(scriptType) {
       case 'camera':
         result.push('カメラ制御');
         break;
-      case 'tracking':
-        result.push('トラッキングバー');
+      case 'track':
+        result.push('トラックバー');
         break;
       default:
         result.push('不明');
