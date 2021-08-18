@@ -312,7 +312,9 @@ module.exports = {
           '"' +
           exePath[0][0] +
           '" ' +
-          selectedPlugin.installArg.replace('$instpath', '"' + instPath + '"');
+          selectedPlugin.installArg
+            .replace('"$instpath"', '$instpath')
+            .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
         execSync(command);
       } else {
         const searchedFiles = searchFiles(unzippedPath);
