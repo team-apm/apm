@@ -231,8 +231,8 @@ app.whenReady().then(() => {
 
   mainWindow.once('ready-to-show', () => {
     setTimeout(() => {
-      splashWindow.hide();
       mainWindow.show();
+      splashWindow.hide();
       splashWindow.destroy();
     }, 2000);
   });
