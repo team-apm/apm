@@ -10,6 +10,7 @@ const { download } = require('electron-dl');
 const log = require('electron-log');
 const fs = require('fs-extra');
 const path = require('path');
+const getHash = require('./lib/getHash');
 
 if (require('electron-squirrel-startup')) app.quit();
 
@@ -103,14 +104,29 @@ ipcMain.handle('get-app-version', (event) => {
   return app.getVersion();
 });
 
-ipcMain.handle('exists-temp-file', (event, relativePath) => {
-  const filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
-  return { exists: fs.existsSync(filePath), path: filePath };
-});
+ipcMain.handle(
+  'exists-temp-file',
+  (event, relativePath, repositoryURI = '') => {
+    let filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
+    if (repositoryURI !== '') {
+      filePath = path.join(
+        path.dirname(filePath),
+        getHash(repositoryURI) + path.basename(filePath)
+      );
+    }
+    return { exists: fs.existsSync(filePath), path: filePath };
+  }
+);
 
 ipcMain.handle(
   'download',
-  async (event, url, isTempData = false, tempSubDir = '') => {
+  async (
+    event,
+    url,
+    isTempData = false,
+    tempSubDir = '',
+    repositoryURI = ''
+  ) => {
     const ext = isTempData && path.extname(url);
     const win = BrowserWindow.getFocusedWindow();
 
@@ -136,7 +152,17 @@ ipcMain.handle(
     }
 
     const item = await download(win, url, opt);
-    return item.getSavePath();
+
+    if (repositoryURI === '') {
+      return item.getSavePath();
+    } else {
+      const renamedPath = path.join(
+        path.dirname(item.getSavePath()),
+        getHash(repositoryURI) + path.basename(item.getSavePath())
+      );
+      fs.renameSync(item.getSavePath(), renamedPath);
+      return renamedPath;
+    }
   }
 );
 
