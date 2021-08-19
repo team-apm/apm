@@ -38,7 +38,7 @@ To be added in the future
 ### Prerequisites
 
 - [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/) LTS Version（Current: 14.x.x）
+- [Node.js](https://nodejs.org/) LTS Version (Current: 14.x.x)
 - [Yarn 1](https://classic.yarnpkg.com/)
 
 ### Clone
