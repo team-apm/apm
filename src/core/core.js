@@ -28,7 +28,7 @@ module.exports = {
     const coreInfo = await this.getCoreInfo();
 
     for (const program of ['aviutl', 'exedit']) {
-      if (instPath) {
+      if (instPath && store.has('installedVersion.core.' + program)) {
         let filesCount = 0;
         let existCount = 0;
         for (const file of coreInfo.core[0][program][0].files[0].file) {
