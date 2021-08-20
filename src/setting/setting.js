@@ -1,4 +1,5 @@
 const { ipcRenderer } = require('electron');
+const fs = require('fs-extra');
 const Store = require('electron-store');
 const store = new Store();
 
@@ -31,11 +32,11 @@ module.exports = {
         'エラー',
         'データファイル取得先を入力してください。'
       );
-    } else if (!dataUrl.startsWith('http')) {
+    } else if (!dataUrl.startsWith('http') && !fs.existsSync(dataUrl)) {
       ipcRenderer.invoke(
         'open-err-dialog',
         'エラー',
-        '有効なURLを入力してください。'
+        '有効なURLまたは場所を入力してください。'
       );
     } else {
       store.set('dataURL', dataUrl);

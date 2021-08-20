@@ -151,16 +151,23 @@ ipcMain.handle(
       }
     }
 
-    const item = await download(win, url, opt);
+    let savePath;
+    if (url.startsWith('http')) {
+      savePath = (await download(win, url, opt)).getSavePath();
+    } else {
+      savePath = path.join(opt.directory, path.basename(url));
+      fs.mkdir(path.dirname(savePath), { recursive: true });
+      fs.copyFileSync(url, savePath);
+    }
 
     if (repositoryURI === '') {
-      return item.getSavePath();
+      return savePath;
     } else {
       const renamedPath = path.join(
-        path.dirname(item.getSavePath()),
-        getHash(repositoryURI) + path.basename(item.getSavePath())
+        path.dirname(savePath),
+        getHash(repositoryURI) + path.basename(savePath)
       );
-      fs.renameSync(item.getSavePath(), renamedPath);
+      fs.renameSync(savePath, renamedPath);
       return renamedPath;
     }
   }
