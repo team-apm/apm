@@ -8,6 +8,8 @@ const setting = require('./setting/setting');
 window.addEventListener('DOMContentLoaded', () => {
   // init data
   setting.initSettings();
+  plugin.initPlugin();
+  script.initScript();
 
   // load data
   const installationPath = document.getElementById('installation-path');
@@ -15,7 +17,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const dataURL = document.getElementById('data-url');
   dataURL.setAttribute('value', setting.getDataUrl());
   const extraDataURL = document.getElementById('extra-data-url');
-  extraDataURL.setAttribute('value', setting.getExtraDataUrl());
+  extraDataURL.value = setting.getExtraDataUrl();
 
   core.displayInstalledVersion(installationPath.value);
   core.setCoreVersions();

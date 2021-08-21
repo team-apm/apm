@@ -67,12 +67,20 @@ function showScriptDetail(scriptData) {
 
 module.exports = {
   /**
+   * Initializes script
+   */
+  initScript: function () {
+    if (!store.has('installedVersion.script'))
+      store.set('installedVersion.script', []);
+  },
+
+  /**
    * Returns an object parsed from scripts_list.xml.
    *
-   * @returns {Promise.<Array.<object>>} - A list of object parsed from scripts_list.xml.
+   * @returns {Promise.<object>} - A list of object parsed from scripts_list.xml.
    */
   getScriptsInfo: async function () {
-    const xmlList = [];
+    const xmlList = {};
 
     for (const scriptRepo of setting.getScriptsDataUrl()) {
       const scriptsListFile = await ipcRenderer.invoke(
@@ -111,7 +119,7 @@ module.exports = {
         } else {
           throw valid;
         }
-        xmlList.push(scriptsInfo);
+        xmlList[scriptRepo] = scriptsInfo;
       }
     }
     return xmlList;
@@ -127,65 +135,114 @@ module.exports = {
     const tbody = scriptsTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
 
-    const scriptsInfoList = await this.getScriptsInfo();
-    for (const scriptsInfo of scriptsInfoList) {
+    const scripts = [];
+    for (const [scriptsRepo, scriptsInfo] of Object.entries(
+      await this.getScriptsInfo()
+    )) {
       for (const script of scriptsInfo.scripts[0].script) {
-        const tr = document.createElement('tr');
-        const name = document.createElement('td');
-        const overview = document.createElement('td');
-        const developer = document.createElement('td');
-        const type = document.createElement('td');
-        const latestVersion = document.createElement('td');
-        const installedVersion = document.createElement('td');
+        script.repo = scriptsRepo;
+        scripts.push(script);
+      }
+    }
 
-        tr.classList.add('script-tr');
-        tr.addEventListener('click', (event) => {
-          showScriptDetail(script);
-          selectedScript = script;
-        });
-        name.innerHTML = script.name;
-        overview.innerHTML = script.overview;
-        developer.innerHTML = script.developer;
-        type.innerHTML = parseScriptType(script.type);
-        latestVersion.innerHTML = script.latestVersion;
+    const relationList = [];
+    for (let i = 0; i < scripts.length; i++) {
+      const setA = [];
+      for (const file of scripts[i].files[0].file) {
+        if (typeof file === 'string') {
+          setA.push(file);
+        }
+      }
+      for (let j = i + 1; j < scripts.length; j++) {
+        const setB = [];
+        for (const file of scripts[j].files[0].file) {
+          if (typeof file === 'string') {
+            setB.push(file);
+          }
+        }
 
-        if (store.has('installedVersion.script.' + script.id)) {
-          let filesCount = 0;
-          let existCount = 0;
-          for (const file of script.files[0].file) {
-            if (typeof file === 'string') {
-              filesCount++;
-              if (fs.existsSync(path.join(instPath, file))) {
-                existCount++;
-              }
+        if (setA.some((e) => setB.includes(e))) {
+          relationList.push([i, j]);
+        }
+      }
+    }
+
+    const installedScripts = store.get('installedVersion.script');
+    for (const [i, script] of scripts.entries()) {
+      const tr = document.createElement('tr');
+      const name = document.createElement('td');
+      const overview = document.createElement('td');
+      const developer = document.createElement('td');
+      const type = document.createElement('td');
+      const latestVersion = document.createElement('td');
+      const installedVersion = document.createElement('td');
+
+      tr.classList.add('script-tr');
+      tr.addEventListener('click', (event) => {
+        showScriptDetail(script);
+        selectedScript = script;
+      });
+      name.innerHTML = script.name;
+      overview.innerHTML = script.overview;
+      developer.innerHTML = script.developer;
+      type.innerHTML = parseScriptType(script.type);
+      latestVersion.innerHTML = script.latestVersion;
+
+      if (
+        installedScripts.some(
+          (i) => i.repo === script.repo && i.id === script.id
+        )
+      ) {
+        let filesCount = 0;
+        let existCount = 0;
+        for (const file of script.files[0].file) {
+          if (typeof file === 'string') {
+            filesCount++;
+            if (fs.existsSync(path.join(instPath, file))) {
+              existCount++;
             }
           }
+        }
 
-          if (filesCount === existCount) {
-            installedVersion.innerHTML = store.get(
-              'installedVersion.script.' + script.id,
-              '未インストール'
-            );
-          } else {
-            installedVersion.innerHTML =
-              '未インストール（ファイルの存在が確認できませんでした。）';
-          }
+        if (filesCount === existCount) {
+          installedVersion.innerHTML = installedScripts.find(
+            (i) => i.repo === script.repo && i.id === script.id
+          ).version;
         } else {
-          installedVersion.innerHTML = '未インストール';
+          installedVersion.innerHTML =
+            '未インストール（ファイルの存在が確認できませんでした。）';
         }
-
-        for (const td of [
-          name,
-          overview,
-          developer,
-          type,
-          latestVersion,
-          installedVersion,
-        ]) {
-          tr.appendChild(td);
+      } else {
+        let otherVersion = false;
+        for (const rel of relationList) {
+          if (rel.includes(i)) {
+            const j = rel.filter((e) => e !== i)[0];
+            if (
+              installedScripts.some(
+                (i) => i.repo === scripts[j].repo && i.id === scripts[j].id
+              )
+            ) {
+              otherVersion = true;
+              break;
+            }
+          }
         }
-        tbody.appendChild(tr);
+        installedVersion.innerHTML = otherVersion
+          ? '他バージョンがインストール済み'
+          : '未インストール';
       }
+
+      for (const td of [
+        name,
+        overview,
+        developer,
+        type,
+        latestVersion,
+        installedVersion,
+      ]) {
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
     }
   },
 
@@ -355,10 +412,13 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      store.set(
-        'installedVersion.script.' + selectedScript.id,
-        selectedScript.latestVersion
-      );
+      const installedScripts = store.get('installedVersion.script');
+      installedScripts.push({
+        id: selectedScript.id,
+        repo: selectedScript.repo,
+        version: selectedScript.latestVersion,
+      });
+      store.set('installedVersion.script', installedScripts);
       this.setScriptsList(instPath);
 
       if (btn.classList.contains('btn-primary')) {
@@ -451,7 +511,13 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      store.delete('installedVersion.script.' + selectedScript.id);
+      const installedScripts = store.get('installedVersion.script');
+      store.set(
+        'installedVersion.script',
+        installedScripts.filter(
+          (i) => !(i.repo === selectedScript.repo && i.id === selectedScript.id)
+        )
+      );
       this.setScriptsList(instPath);
 
       if (btn.classList.contains('btn-primary')) {
