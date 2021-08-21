@@ -6,10 +6,16 @@ const script = require('./script/script');
 const setting = require('./setting/setting');
 
 window.addEventListener('DOMContentLoaded', () => {
+  // init data
+  setting.initSettings();
+
+  // load data
   const installationPath = document.getElementById('installation-path');
   installationPath.setAttribute('value', store.get('installationPath', ''));
   const dataURL = document.getElementById('data-url');
   dataURL.setAttribute('value', setting.getDataUrl());
+  const extraDataURL = document.getElementById('extra-data-url');
+  extraDataURL.setAttribute('value', setting.getExtraDataUrl());
 
   core.displayInstalledVersion(installationPath.value);
   core.setCoreVersions();
@@ -21,6 +27,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('load', () => {
+  // core
   const checkCoreVersionBtn = document.getElementById('check-core-version');
   checkCoreVersionBtn.addEventListener('click', (event) => {
     core.checkLatestVersion(checkCoreVersionBtn);
@@ -56,6 +63,7 @@ window.addEventListener('load', () => {
     );
   });
 
+  // plugins
   const checkPluginsListBtn = document.getElementById('check-plugins-list');
   const pluginsTableOverlay = document.getElementById('plugins-table-overlay');
   checkPluginsListBtn.addEventListener('click', (event) => {
@@ -76,6 +84,7 @@ window.addEventListener('load', () => {
     plugin.uninstallPlugin(uninstallPluginBtn, installationPath.value);
   });
 
+  // scripts
   const checkScriptsListBtn = document.getElementById('check-scripts-list');
   const scriptsTableOverlay = document.getElementById('scripts-table-overlay');
   checkScriptsListBtn.addEventListener('click', (event) => {
@@ -96,10 +105,17 @@ window.addEventListener('load', () => {
     script.uninstallScript(uninstallScriptBtn, installationPath.value);
   });
 
+  // settings
   const setDataUrlBtn = document.getElementById('set-data-url');
   const dataURL = document.getElementById('data-url');
   setDataUrlBtn.addEventListener('click', (event) => {
     setting.setDataUrl(setDataUrlBtn, dataURL.value);
+  });
+
+  const setExtraDataUrlBtn = document.getElementById('set-extra-data-url');
+  const extraDataURL = document.getElementById('extra-data-url');
+  setExtraDataUrlBtn.addEventListener('click', (event) => {
+    setting.setExtraDataUrl(setExtraDataUrlBtn, extraDataURL.value);
   });
 
   const zoomFactorSelect = document.getElementById('zoom-factor-select');

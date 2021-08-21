@@ -67,60 +67,54 @@ function showPluginDetail(pluginData) {
 
 module.exports = {
   /**
-   * Returns a plugins list xml URL.
-   *
-   * @returns {string} - A plugins list xml URL.
-   */
-  getPluginsListXmlUrl: function () {
-    const dataUrl = setting.getDataUrl();
-    return path.join(dataUrl, 'plugins_list.xml');
-  },
-
-  /**
    * Returns an object parsed from plugins_list.xml.
    *
-   * @returns {object} - An object parsed from plugins_list.xml.
+   * @returns {Promise.<Array.<object>>} - A list of object parsed from plugins_list.xml.
    */
   getPluginsInfo: async function () {
-    const pluginsListFile = await ipcRenderer.invoke(
-      'exists-temp-file',
-      'plugin/plugins_list.xml'
-    );
-    if (pluginsListFile.exists) {
-      const xmlData = fs.readFileSync(pluginsListFile.path, 'utf-8');
-      let pluginsInfo = {};
-      const valid = parser.validate(xmlData);
-      if (valid === true) {
-        const options = {
-          attributeNamePrefix: '$',
-          // attrNodeName: 'attr', // default is 'false'
-          textNodeName: '_',
-          ignoreAttributes: false,
-          // ignoreNameSpace: false,
-          // allowBooleanAttributes: false,
-          parseNodeValue: false,
-          parseAttributeValue: false,
-          trimValues: true,
-          // cdataTagName: '__cdata', // default is 'false'
-          // cdataPositionChar: '\\c',
-          // parseTrueNumberOnly: false,
-          arrayMode: true, // "strict"
-          // stopNodes: ['parse-me-as-string'],
-        };
-        // optional (it'll return an object in case it's not valid)
-        pluginsInfo = parser.parse(xmlData, options);
-        for (const plugin of pluginsInfo.plugins[0].plugin) {
-          if (typeof plugin.files[0].file === 'string') {
-            plugin.files[0].file = [plugin.files[0].file];
+    const xmlList = [];
+
+    for (const pluginRepo of setting.getPluginsDataUrl()) {
+      const pluginsListFile = await ipcRenderer.invoke(
+        'exists-temp-file',
+        'plugin/plugins_list.xml',
+        pluginRepo
+      );
+      if (pluginsListFile.exists) {
+        const xmlData = fs.readFileSync(pluginsListFile.path, 'utf-8');
+        let pluginsInfo = {};
+        const valid = parser.validate(xmlData);
+        if (valid === true) {
+          const options = {
+            attributeNamePrefix: '$',
+            // attrNodeName: 'attr', // default is 'false'
+            textNodeName: '_',
+            ignoreAttributes: false,
+            // ignoreNameSpace: false,
+            // allowBooleanAttributes: false,
+            parseNodeValue: false,
+            parseAttributeValue: false,
+            trimValues: true,
+            // cdataTagName: '__cdata', // default is 'false'
+            // cdataPositionChar: '\\c',
+            // parseTrueNumberOnly: false,
+            arrayMode: true, // "strict"
+            // stopNodes: ['parse-me-as-string'],
+          };
+          // optional (it'll return an object in case it's not valid)
+          pluginsInfo = parser.parse(xmlData, options);
+          for (const plugin of pluginsInfo.plugins[0].plugin) {
+            if (typeof plugin.files[0].file === 'string') {
+              plugin.files[0].file = [plugin.files[0].file];
+            }
           }
+        } else {
+          throw valid;
         }
-      } else {
-        throw valid;
+        xmlList.push(pluginsInfo);
       }
-      return pluginsInfo;
-    } else {
-      throw new Error('The version file does not exist.');
     }
+    return xmlList;
   },
 
   /**
@@ -133,8 +127,9 @@ module.exports = {
     const tbody = pluginsTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
 
-    const pluginsInfo = await this.getPluginsInfo();
-    if (pluginsInfo) {
+    // temporary show all plugin without removing duplicate
+    const pluginsInfoList = await this.getPluginsInfo();
+    for (const pluginsInfo of pluginsInfoList) {
       for (const plugin of pluginsInfo.plugins[0].plugin) {
         const tr = document.createElement('tr');
         const name = document.createElement('td');
@@ -212,12 +207,15 @@ module.exports = {
     overlay.style.zIndex = 1000;
     overlay.classList.add('show');
 
-    await ipcRenderer.invoke(
-      'download',
-      this.getPluginsListXmlUrl(),
-      true,
-      'plugin'
-    );
+    for (const pluginRepo of setting.getPluginsDataUrl()) {
+      await ipcRenderer.invoke(
+        'download',
+        pluginRepo,
+        true,
+        'plugin',
+        pluginRepo
+      );
+    }
     this.setPluginsList(instPath);
 
     overlay.classList.remove('show');

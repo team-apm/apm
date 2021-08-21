@@ -67,60 +67,54 @@ function showScriptDetail(scriptData) {
 
 module.exports = {
   /**
-   * Returns a scripts list xml URL.
-   *
-   * @returns {string} - A plugins list xml URL.
-   */
-  getScriptsListXmlUrl: function () {
-    const dataUrl = setting.getDataUrl();
-    return path.join(dataUrl, 'scripts_list.xml');
-  },
-
-  /**
    * Returns an object parsed from scripts_list.xml.
    *
-   * @returns {object} - An object parsed from scripts_list.xml.
+   * @returns {Promise.<Array.<object>>} - A list of object parsed from scripts_list.xml.
    */
   getScriptsInfo: async function () {
-    const scriptsListFile = await ipcRenderer.invoke(
-      'exists-temp-file',
-      'script/scripts_list.xml'
-    );
-    if (scriptsListFile.exists) {
-      const xmlData = fs.readFileSync(scriptsListFile.path, 'utf-8');
-      let scriptsInfo = {};
-      const valid = parser.validate(xmlData);
-      if (valid === true) {
-        const options = {
-          attributeNamePrefix: '$',
-          // attrNodeName: 'attr', // default is 'false'
-          textNodeName: '_',
-          ignoreAttributes: false,
-          // ignoreNameSpace: false,
-          // allowBooleanAttributes: false,
-          parseNodeValue: false,
-          parseAttributeValue: false,
-          trimValues: true,
-          // cdataTagName: '__cdata', // default is 'false'
-          // cdataPositionChar: '\\c',
-          // parseTrueNumberOnly: false,
-          arrayMode: true, // "strict"
-          // stopNodes: ['parse-me-as-string'],
-        };
-        // optional (it'll return an object in case it's not valid)
-        scriptsInfo = parser.parse(xmlData, options);
-        for (const script of scriptsInfo.scripts[0].script) {
-          if (typeof script.files[0].file === 'string') {
-            script.files[0].file = [script.files[0].file];
+    const xmlList = [];
+
+    for (const scriptRepo of setting.getScriptsDataUrl()) {
+      const scriptsListFile = await ipcRenderer.invoke(
+        'exists-temp-file',
+        'script/scripts_list.xml',
+        scriptRepo
+      );
+      if (scriptsListFile.exists) {
+        const xmlData = fs.readFileSync(scriptsListFile.path, 'utf-8');
+        let scriptsInfo = {};
+        const valid = parser.validate(xmlData);
+        if (valid === true) {
+          const options = {
+            attributeNamePrefix: '$',
+            // attrNodeName: 'attr', // default is 'false'
+            textNodeName: '_',
+            ignoreAttributes: false,
+            // ignoreNameSpace: false,
+            // allowBooleanAttributes: false,
+            parseNodeValue: false,
+            parseAttributeValue: false,
+            trimValues: true,
+            // cdataTagName: '__cdata', // default is 'false'
+            // cdataPositionChar: '\\c',
+            // parseTrueNumberOnly: false,
+            arrayMode: true, // "strict"
+            // stopNodes: ['parse-me-as-string'],
+          };
+          // optional (it'll return an object in case it's not valid)
+          scriptsInfo = parser.parse(xmlData, options);
+          for (const script of scriptsInfo.scripts[0].script) {
+            if (typeof script.files[0].file === 'string') {
+              script.files[0].file = [script.files[0].file];
+            }
           }
+        } else {
+          throw valid;
         }
-      } else {
-        throw valid;
+        xmlList.push(scriptsInfo);
       }
-      return scriptsInfo;
-    } else {
-      throw new Error('The version file does not exist.');
     }
+    return xmlList;
   },
 
   /**
@@ -133,8 +127,8 @@ module.exports = {
     const tbody = scriptsTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
 
-    const scriptsInfo = await this.getScriptsInfo();
-    if (scriptsInfo) {
+    const scriptsInfoList = await this.getScriptsInfo();
+    for (const scriptsInfo of scriptsInfoList) {
       for (const script of scriptsInfo.scripts[0].script) {
         const tr = document.createElement('tr');
         const name = document.createElement('td');
@@ -212,12 +206,15 @@ module.exports = {
     overlay.style.zIndex = 1000;
     overlay.classList.add('show');
 
-    await ipcRenderer.invoke(
-      'download',
-      this.getScriptsListXmlUrl(),
-      true,
-      'script'
-    );
+    for (const scriptRepo of setting.getScriptsDataUrl()) {
+      await ipcRenderer.invoke(
+        'download',
+        scriptRepo,
+        true,
+        'script',
+        scriptRepo
+      );
+    }
     this.setScriptsList(instPath);
 
     overlay.classList.remove('show');
