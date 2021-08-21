@@ -109,6 +109,11 @@ module.exports = {
         };
         // optional (it'll return an object in case it's not valid)
         pluginsInfo = parser.parse(xmlData, options);
+        for (const plugin of pluginsInfo.plugins[0].plugin) {
+          if (typeof plugin.files[0].file === 'string') {
+            plugin.files[0].file = [plugin.files[0].file];
+          }
+        }
       } else {
         throw valid;
       }

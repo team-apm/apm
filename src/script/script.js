@@ -109,6 +109,11 @@ module.exports = {
         };
         // optional (it'll return an object in case it's not valid)
         scriptsInfo = parser.parse(xmlData, options);
+        for (const script of scriptsInfo.scripts[0].script) {
+          if (typeof script.files[0].file === 'string') {
+            script.files[0].file = [script.files[0].file];
+          }
+        }
       } else {
         throw valid;
       }
