@@ -8,6 +8,7 @@ const {
 } = require('electron');
 const { download } = require('electron-dl');
 const log = require('electron-log');
+const debug = require('electron-debug');
 const fs = require('fs-extra');
 const path = require('path');
 
@@ -17,6 +18,7 @@ require('update-electron-app')();
 
 const isDevEnv = process.env.NODE_ENV === 'development';
 if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Dev');
+if (isDevEnv) debug({ isEnabled: true, showDevTools: false }); // Press F12 to open DevTools
 
 const Store = require('electron-store');
 Store.initRenderer();
