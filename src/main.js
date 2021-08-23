@@ -182,6 +182,10 @@ ipcMain.handle('open-browser', async (event, url, type) => {
   });
 });
 
+ipcMain.handle('change-main-zoom-factor', (event, zoomFactor) => {
+  mainWindow.webContents.setZoomFactor(zoomFactor);
+});
+
 const template = [
   {
     label: 'apm',
