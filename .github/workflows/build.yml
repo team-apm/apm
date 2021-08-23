@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 14
           cache: 'yarn'
-      - name: install dependencies
+      - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - name: build
+      - name: Build
         run: yarn run make

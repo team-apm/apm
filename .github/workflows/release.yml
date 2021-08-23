@@ -18,9 +18,9 @@ jobs:
         with:
           node-version: 14
           cache: 'yarn'
-      - name: install dependencies
+      - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - name: publish
+      - name: Publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: yarn run publish
