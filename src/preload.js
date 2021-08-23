@@ -15,6 +15,9 @@ window.addEventListener('DOMContentLoaded', () => {
   core.setCoreVersions();
   plugin.setPluginsList(installationPath.value);
   script.setScriptsList(installationPath.value);
+
+  const zoomFactorSelect = document.getElementById('zoom-factor-select');
+  setting.setZoomFactor(zoomFactorSelect);
 });
 
 window.addEventListener('load', () => {
@@ -97,5 +100,10 @@ window.addEventListener('load', () => {
   const dataURL = document.getElementById('data-url');
   setDataUrlBtn.addEventListener('click', (event) => {
     setting.setDataUrl(setDataUrlBtn, dataURL.value);
+  });
+
+  const zoomFactorSelect = document.getElementById('zoom-factor-select');
+  zoomFactorSelect.addEventListener('input', (event) => {
+    setting.changeZoomFactor(zoomFactorSelect.value);
   });
 });

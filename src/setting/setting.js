@@ -54,4 +54,29 @@ module.exports = {
       }, 3000);
     }
   },
+
+  /**
+   * Sets a zoom factor.
+   *
+   * @param {HTMLSelectElement} zoomFactorSelect - A zoom factor select to change value.
+   */
+  setZoomFactor: function (zoomFactorSelect) {
+    const zoomFactor = store.get('zoomFactor');
+    for (const optionElement of zoomFactorSelect.options) {
+      if (optionElement.getAttribute('value') === zoomFactor) {
+        optionElement.selected = true;
+        break;
+      }
+    }
+  },
+
+  /**
+   * Changes a zoom factor.
+   *
+   * @param {string} zoomFactor - A zoom factor to change.
+   */
+  changeZoomFactor: function (zoomFactor) {
+    store.set('zoomFactor', zoomFactor);
+    ipcRenderer.invoke('change-main-zoom-factor', parseInt(zoomFactor) / 100);
+  },
 };
