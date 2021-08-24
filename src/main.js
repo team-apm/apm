@@ -16,7 +16,7 @@ if (require('electron-squirrel-startup')) app.quit();
 require('update-electron-app')();
 
 const isDevEnv = process.env.NODE_ENV === 'development';
-if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Debug');
+if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Dev');
 
 const Store = require('electron-store');
 Store.initRenderer();
