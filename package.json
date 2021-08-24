@@ -8,7 +8,7 @@
   "author": "ato lash <hal-shu-sato@users.noreply.github.com>",
   "license": "MIT",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "cross-env NODE_ENV=development electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
@@ -47,6 +47,7 @@
     "@electron-forge/publisher-github": "^6.0.0-beta.57",
     "commitizen": "^4.2.4",
     "conventional-github-releaser": "^3.1.5",
+    "cross-env": "^7.0.3",
     "cz-conventional-changelog": "3.3.0",
     "cz-conventional-changelog-ja": "^0.0.2",
     "electron": "^13.1.1",

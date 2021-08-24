@@ -7,7 +7,6 @@ const {
   shell,
 } = require('electron');
 const { download } = require('electron-dl');
-const Store = require('electron-store');
 const log = require('electron-log');
 const fs = require('fs-extra');
 const path = require('path');
@@ -16,6 +15,10 @@ if (require('electron-squirrel-startup')) app.quit();
 
 require('update-electron-app')();
 
+const isDevEnv = process.env.NODE_ENV === 'development';
+if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Dev');
+
+const Store = require('electron-store');
 Store.initRenderer();
 
 log.debug(process.versions);
