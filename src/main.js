@@ -18,7 +18,7 @@ require('update-electron-app')();
 
 const isDevEnv = process.env.NODE_ENV === 'development';
 if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Dev');
-if (isDevEnv) debug({ isEnabled: true, showDevTools: false }); // Press F12 to open DevTools
+debug({ showDevTools: false }); // Press F12 to open DevTools
 
 const Store = require('electron-store');
 Store.initRenderer();
