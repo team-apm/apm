@@ -111,7 +111,7 @@ ipcMain.handle(
     if (repositoryURI !== '') {
       filePath = path.join(
         path.dirname(filePath),
-        getHash(repositoryURI) + path.basename(filePath)
+        getHash(repositoryURI) + '_' + path.basename(filePath)
       );
     }
     return { exists: fs.existsSync(filePath), path: filePath };
@@ -165,7 +165,7 @@ ipcMain.handle(
     } else {
       const renamedPath = path.join(
         path.dirname(savePath),
-        getHash(repositoryURI) + path.basename(savePath)
+        getHash(repositoryURI) + '_' + path.basename(savePath)
       );
       fs.renameSync(savePath, renamedPath);
       return renamedPath;
