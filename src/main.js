@@ -11,6 +11,7 @@ const log = require('electron-log');
 const debug = require('electron-debug');
 const fs = require('fs-extra');
 const path = require('path');
+const getHash = require('./lib/getHash');
 
 if (require('electron-squirrel-startup')) app.quit();
 
@@ -105,14 +106,29 @@ ipcMain.handle('get-app-version', (event) => {
   return app.getVersion();
 });
 
-ipcMain.handle('exists-temp-file', (event, relativePath) => {
-  const filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
-  return { exists: fs.existsSync(filePath), path: filePath };
-});
+ipcMain.handle(
+  'exists-temp-file',
+  (event, relativePath, repositoryURI = '') => {
+    let filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
+    if (repositoryURI !== '') {
+      filePath = path.join(
+        path.dirname(filePath),
+        getHash(repositoryURI) + '_' + path.basename(filePath)
+      );
+    }
+    return { exists: fs.existsSync(filePath), path: filePath };
+  }
+);
 
 ipcMain.handle(
   'download',
-  async (event, url, isTempData = false, tempSubDir = '') => {
+  async (
+    event,
+    url,
+    isTempData = false,
+    tempSubDir = '',
+    repositoryURI = ''
+  ) => {
     const ext = isTempData && path.extname(url);
     const win = BrowserWindow.getFocusedWindow();
 
@@ -137,8 +153,25 @@ ipcMain.handle(
       }
     }
 
-    const item = await download(win, url, opt);
-    return item.getSavePath();
+    let savePath;
+    if (url.startsWith('http')) {
+      savePath = (await download(win, url, opt)).getSavePath();
+    } else {
+      savePath = path.join(opt.directory, path.basename(url));
+      fs.mkdir(path.dirname(savePath), { recursive: true });
+      fs.copyFileSync(url, savePath);
+    }
+
+    if (repositoryURI === '') {
+      return savePath;
+    } else {
+      const renamedPath = path.join(
+        path.dirname(savePath),
+        getHash(repositoryURI) + '_' + path.basename(savePath)
+      );
+      fs.renameSync(savePath, renamedPath);
+      return renamedPath;
+    }
   }
 );
 

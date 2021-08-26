@@ -67,60 +67,62 @@ function showScriptDetail(scriptData) {
 
 module.exports = {
   /**
-   * Returns a scripts list xml URL.
-   *
-   * @returns {string} - A plugins list xml URL.
+   * Initializes script
    */
-  getScriptsListXmlUrl: function () {
-    const dataUrl = setting.getDataUrl();
-    return path.join(dataUrl, 'scripts_list.xml');
+  initScript: function () {
+    if (!store.has('installedVersion.script'))
+      store.set('installedVersion.script', []);
   },
 
   /**
    * Returns an object parsed from scripts_list.xml.
    *
-   * @returns {object} - An object parsed from scripts_list.xml.
+   * @returns {Promise.<object>} - A list of object parsed from scripts_list.xml.
    */
   getScriptsInfo: async function () {
-    const scriptsListFile = await ipcRenderer.invoke(
-      'exists-temp-file',
-      'script/scripts_list.xml'
-    );
-    if (scriptsListFile.exists) {
-      const xmlData = fs.readFileSync(scriptsListFile.path, 'utf-8');
-      let scriptsInfo = {};
-      const valid = parser.validate(xmlData);
-      if (valid === true) {
-        const options = {
-          attributeNamePrefix: '$',
-          // attrNodeName: 'attr', // default is 'false'
-          textNodeName: '_',
-          ignoreAttributes: false,
-          // ignoreNameSpace: false,
-          // allowBooleanAttributes: false,
-          parseNodeValue: false,
-          parseAttributeValue: false,
-          trimValues: true,
-          // cdataTagName: '__cdata', // default is 'false'
-          // cdataPositionChar: '\\c',
-          // parseTrueNumberOnly: false,
-          arrayMode: true, // "strict"
-          // stopNodes: ['parse-me-as-string'],
-        };
-        // optional (it'll return an object in case it's not valid)
-        scriptsInfo = parser.parse(xmlData, options);
-        for (const script of scriptsInfo.scripts[0].script) {
-          if (typeof script.files[0].file === 'string') {
-            script.files[0].file = [script.files[0].file];
+    const xmlList = {};
+
+    for (const scriptRepo of setting.getScriptsDataUrl()) {
+      const scriptsListFile = await ipcRenderer.invoke(
+        'exists-temp-file',
+        'script/scripts_list.xml',
+        scriptRepo
+      );
+      if (scriptsListFile.exists) {
+        const xmlData = fs.readFileSync(scriptsListFile.path, 'utf-8');
+        let scriptsInfo = {};
+        const valid = parser.validate(xmlData);
+        if (valid === true) {
+          const options = {
+            attributeNamePrefix: '$',
+            // attrNodeName: 'attr', // default is 'false'
+            textNodeName: '_',
+            ignoreAttributes: false,
+            // ignoreNameSpace: false,
+            // allowBooleanAttributes: false,
+            parseNodeValue: false,
+            parseAttributeValue: false,
+            trimValues: true,
+            // cdataTagName: '__cdata', // default is 'false'
+            // cdataPositionChar: '\\c',
+            // parseTrueNumberOnly: false,
+            arrayMode: true, // "strict"
+            // stopNodes: ['parse-me-as-string'],
+          };
+          // optional (it'll return an object in case it's not valid)
+          scriptsInfo = parser.parse(xmlData, options);
+          for (const script of scriptsInfo.scripts[0].script) {
+            if (typeof script.files[0].file === 'string') {
+              script.files[0].file = [script.files[0].file];
+            }
           }
+        } else {
+          throw valid;
         }
-      } else {
-        throw valid;
+        xmlList[scriptRepo] = scriptsInfo;
       }
-      return scriptsInfo;
-    } else {
-      throw new Error('The version file does not exist.');
     }
+    return xmlList;
   },
 
   /**
@@ -133,65 +135,114 @@ module.exports = {
     const tbody = scriptsTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
 
-    const scriptsInfo = await this.getScriptsInfo();
-    if (scriptsInfo) {
+    const scripts = [];
+    for (const [scriptsRepo, scriptsInfo] of Object.entries(
+      await this.getScriptsInfo()
+    )) {
       for (const script of scriptsInfo.scripts[0].script) {
-        const tr = document.createElement('tr');
-        const name = document.createElement('td');
-        const overview = document.createElement('td');
-        const developer = document.createElement('td');
-        const type = document.createElement('td');
-        const latestVersion = document.createElement('td');
-        const installedVersion = document.createElement('td');
+        script.repo = scriptsRepo;
+        scripts.push(script);
+      }
+    }
 
-        tr.classList.add('script-tr');
-        tr.addEventListener('click', (event) => {
-          showScriptDetail(script);
-          selectedScript = script;
-        });
-        name.innerHTML = script.name;
-        overview.innerHTML = script.overview;
-        developer.innerHTML = script.developer;
-        type.innerHTML = parseScriptType(script.type);
-        latestVersion.innerHTML = script.latestVersion;
+    const relationList = [];
+    for (let i = 0; i < scripts.length; i++) {
+      const setA = [];
+      for (const file of scripts[i].files[0].file) {
+        if (typeof file === 'string') {
+          setA.push(file);
+        }
+      }
+      for (let j = i + 1; j < scripts.length; j++) {
+        const setB = [];
+        for (const file of scripts[j].files[0].file) {
+          if (typeof file === 'string') {
+            setB.push(file);
+          }
+        }
 
-        if (store.has('installedVersion.script.' + script.id)) {
-          let filesCount = 0;
-          let existCount = 0;
-          for (const file of script.files[0].file) {
-            if (typeof file === 'string') {
-              filesCount++;
-              if (fs.existsSync(path.join(instPath, file))) {
-                existCount++;
-              }
+        if (setA.some((e) => setB.includes(e))) {
+          relationList.push([i, j]);
+        }
+      }
+    }
+
+    const installedScripts = store.get('installedVersion.script');
+    for (const [i, script] of scripts.entries()) {
+      const tr = document.createElement('tr');
+      const name = document.createElement('td');
+      const overview = document.createElement('td');
+      const developer = document.createElement('td');
+      const type = document.createElement('td');
+      const latestVersion = document.createElement('td');
+      const installedVersion = document.createElement('td');
+
+      tr.classList.add('script-tr');
+      tr.addEventListener('click', (event) => {
+        showScriptDetail(script);
+        selectedScript = script;
+      });
+      name.innerHTML = script.name;
+      overview.innerHTML = script.overview;
+      developer.innerHTML = script.developer;
+      type.innerHTML = parseScriptType(script.type);
+      latestVersion.innerHTML = script.latestVersion;
+
+      if (
+        installedScripts.some(
+          (i) => i.repo === script.repo && i.id === script.id
+        )
+      ) {
+        let filesCount = 0;
+        let existCount = 0;
+        for (const file of script.files[0].file) {
+          if (typeof file === 'string') {
+            filesCount++;
+            if (fs.existsSync(path.join(instPath, file))) {
+              existCount++;
             }
           }
+        }
 
-          if (filesCount === existCount) {
-            installedVersion.innerHTML = store.get(
-              'installedVersion.script.' + script.id,
-              '未インストール'
-            );
-          } else {
-            installedVersion.innerHTML =
-              '未インストール（ファイルの存在が確認できませんでした。）';
-          }
+        if (filesCount === existCount) {
+          installedVersion.innerHTML = installedScripts.find(
+            (i) => i.repo === script.repo && i.id === script.id
+          ).version;
         } else {
-          installedVersion.innerHTML = '未インストール';
+          installedVersion.innerHTML =
+            '未インストール（ファイルの存在が確認できませんでした。）';
         }
-
-        for (const td of [
-          name,
-          overview,
-          developer,
-          type,
-          latestVersion,
-          installedVersion,
-        ]) {
-          tr.appendChild(td);
+      } else {
+        let otherVersion = false;
+        for (const rel of relationList) {
+          if (rel.includes(i)) {
+            const j = rel.filter((e) => e !== i)[0];
+            if (
+              installedScripts.some(
+                (i) => i.repo === scripts[j].repo && i.id === scripts[j].id
+              )
+            ) {
+              otherVersion = true;
+              break;
+            }
+          }
         }
-        tbody.appendChild(tr);
+        installedVersion.innerHTML = otherVersion
+          ? '他バージョンがインストール済み'
+          : '未インストール';
       }
+
+      for (const td of [
+        name,
+        overview,
+        developer,
+        type,
+        latestVersion,
+        installedVersion,
+      ]) {
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
     }
   },
 
@@ -212,12 +263,15 @@ module.exports = {
     overlay.style.zIndex = 1000;
     overlay.classList.add('show');
 
-    await ipcRenderer.invoke(
-      'download',
-      this.getScriptsListXmlUrl(),
-      true,
-      'script'
-    );
+    for (const scriptRepo of setting.getScriptsDataUrl()) {
+      await ipcRenderer.invoke(
+        'download',
+        scriptRepo,
+        true,
+        'script',
+        scriptRepo
+      );
+    }
     this.setScriptsList(instPath);
 
     overlay.classList.remove('show');
@@ -358,10 +412,13 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      store.set(
-        'installedVersion.script.' + selectedScript.id,
-        selectedScript.latestVersion
-      );
+      const installedScripts = store.get('installedVersion.script');
+      installedScripts.push({
+        id: selectedScript.id,
+        repo: selectedScript.repo,
+        version: selectedScript.latestVersion,
+      });
+      store.set('installedVersion.script', installedScripts);
       this.setScriptsList(instPath);
 
       if (btn.classList.contains('btn-primary')) {
@@ -454,7 +511,13 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      store.delete('installedVersion.script.' + selectedScript.id);
+      const installedScripts = store.get('installedVersion.script');
+      store.set(
+        'installedVersion.script',
+        installedScripts.filter(
+          (i) => !(i.repo === selectedScript.repo && i.id === selectedScript.id)
+        )
+      );
       this.setScriptsList(instPath);
 
       if (btn.classList.contains('btn-primary')) {

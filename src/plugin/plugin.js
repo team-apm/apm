@@ -67,60 +67,62 @@ function showPluginDetail(pluginData) {
 
 module.exports = {
   /**
-   * Returns a plugins list xml URL.
-   *
-   * @returns {string} - A plugins list xml URL.
+   * Initializes plugin
    */
-  getPluginsListXmlUrl: function () {
-    const dataUrl = setting.getDataUrl();
-    return path.join(dataUrl, 'plugins_list.xml');
+  initPlugin: function () {
+    if (!store.has('installedVersion.plugin'))
+      store.set('installedVersion.plugin', []);
   },
 
   /**
    * Returns an object parsed from plugins_list.xml.
    *
-   * @returns {object} - An object parsed from plugins_list.xml.
+   * @returns {Promise.<object>} - A list of object parsed from plugins_list.xml.
    */
   getPluginsInfo: async function () {
-    const pluginsListFile = await ipcRenderer.invoke(
-      'exists-temp-file',
-      'plugin/plugins_list.xml'
-    );
-    if (pluginsListFile.exists) {
-      const xmlData = fs.readFileSync(pluginsListFile.path, 'utf-8');
-      let pluginsInfo = {};
-      const valid = parser.validate(xmlData);
-      if (valid === true) {
-        const options = {
-          attributeNamePrefix: '$',
-          // attrNodeName: 'attr', // default is 'false'
-          textNodeName: '_',
-          ignoreAttributes: false,
-          // ignoreNameSpace: false,
-          // allowBooleanAttributes: false,
-          parseNodeValue: false,
-          parseAttributeValue: false,
-          trimValues: true,
-          // cdataTagName: '__cdata', // default is 'false'
-          // cdataPositionChar: '\\c',
-          // parseTrueNumberOnly: false,
-          arrayMode: true, // "strict"
-          // stopNodes: ['parse-me-as-string'],
-        };
-        // optional (it'll return an object in case it's not valid)
-        pluginsInfo = parser.parse(xmlData, options);
-        for (const plugin of pluginsInfo.plugins[0].plugin) {
-          if (typeof plugin.files[0].file === 'string') {
-            plugin.files[0].file = [plugin.files[0].file];
+    const xmlList = {};
+
+    for (const pluginRepo of setting.getPluginsDataUrl()) {
+      const pluginsListFile = await ipcRenderer.invoke(
+        'exists-temp-file',
+        'plugin/plugins_list.xml',
+        pluginRepo
+      );
+      if (pluginsListFile.exists) {
+        const xmlData = fs.readFileSync(pluginsListFile.path, 'utf-8');
+        let pluginsInfo = {};
+        const valid = parser.validate(xmlData);
+        if (valid === true) {
+          const options = {
+            attributeNamePrefix: '$',
+            // attrNodeName: 'attr', // default is 'false'
+            textNodeName: '_',
+            ignoreAttributes: false,
+            // ignoreNameSpace: false,
+            // allowBooleanAttributes: false,
+            parseNodeValue: false,
+            parseAttributeValue: false,
+            trimValues: true,
+            // cdataTagName: '__cdata', // default is 'false'
+            // cdataPositionChar: '\\c',
+            // parseTrueNumberOnly: false,
+            arrayMode: true, // "strict"
+            // stopNodes: ['parse-me-as-string'],
+          };
+          // optional (it'll return an object in case it's not valid)
+          pluginsInfo = parser.parse(xmlData, options);
+          for (const plugin of pluginsInfo.plugins[0].plugin) {
+            if (typeof plugin.files[0].file === 'string') {
+              plugin.files[0].file = [plugin.files[0].file];
+            }
           }
+        } else {
+          throw valid;
         }
-      } else {
-        throw valid;
+        xmlList[pluginRepo] = pluginsInfo;
       }
-      return pluginsInfo;
-    } else {
-      throw new Error('The version file does not exist.');
     }
+    return xmlList;
   },
 
   /**
@@ -133,65 +135,114 @@ module.exports = {
     const tbody = pluginsTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
 
-    const pluginsInfo = await this.getPluginsInfo();
-    if (pluginsInfo) {
+    const plugins = [];
+    for (const [pluginsRepo, pluginsInfo] of Object.entries(
+      await this.getPluginsInfo()
+    )) {
       for (const plugin of pluginsInfo.plugins[0].plugin) {
-        const tr = document.createElement('tr');
-        const name = document.createElement('td');
-        const overview = document.createElement('td');
-        const developer = document.createElement('td');
-        const type = document.createElement('td');
-        const latestVersion = document.createElement('td');
-        const installedVersion = document.createElement('td');
+        plugin.repo = pluginsRepo;
+        plugins.push(plugin);
+      }
+    }
 
-        tr.classList.add('plugin-tr');
-        tr.addEventListener('click', (event) => {
-          showPluginDetail(plugin);
-          selectedPlugin = plugin;
-        });
-        name.innerHTML = plugin.name;
-        overview.innerHTML = plugin.overview;
-        developer.innerHTML = plugin.developer;
-        type.innerHTML = parsePluginType(plugin.type);
-        latestVersion.innerHTML = plugin.latestVersion;
+    const relationList = [];
+    for (let i = 0; i < plugins.length; i++) {
+      const setA = [];
+      for (const file of plugins[i].files[0].file) {
+        if (typeof file === 'string') {
+          setA.push(file);
+        }
+      }
+      for (let j = i + 1; j < plugins.length; j++) {
+        const setB = [];
+        for (const file of plugins[j].files[0].file) {
+          if (typeof file === 'string') {
+            setB.push(file);
+          }
+        }
 
-        if (store.has('installedVersion.plugin.' + plugin.id)) {
-          let filesCount = 0;
-          let existCount = 0;
-          for (const file of plugin.files[0].file) {
-            if (typeof file === 'string') {
-              filesCount++;
-              if (fs.existsSync(path.join(instPath, file))) {
-                existCount++;
-              }
+        if (setA.some((e) => setB.includes(e))) {
+          relationList.push([i, j]);
+        }
+      }
+    }
+
+    const installedPlugins = store.get('installedVersion.plugin');
+    for (const [i, plugin] of plugins.entries()) {
+      const tr = document.createElement('tr');
+      const name = document.createElement('td');
+      const overview = document.createElement('td');
+      const developer = document.createElement('td');
+      const type = document.createElement('td');
+      const latestVersion = document.createElement('td');
+      const installedVersion = document.createElement('td');
+
+      tr.classList.add('plugin-tr');
+      tr.addEventListener('click', (event) => {
+        showPluginDetail(plugin);
+        selectedPlugin = plugin;
+      });
+      name.innerHTML = plugin.name;
+      overview.innerHTML = plugin.overview;
+      developer.innerHTML = plugin.developer;
+      type.innerHTML = parsePluginType(plugin.type);
+      latestVersion.innerHTML = plugin.latestVersion;
+
+      if (
+        installedPlugins.some(
+          (i) => i.repo === plugin.repo && i.id === plugin.id
+        )
+      ) {
+        let filesCount = 0;
+        let existCount = 0;
+        for (const file of plugin.files[0].file) {
+          if (typeof file === 'string') {
+            filesCount++;
+            if (fs.existsSync(path.join(instPath, file))) {
+              existCount++;
             }
           }
+        }
 
-          if (filesCount === existCount) {
-            installedVersion.innerHTML = store.get(
-              'installedVersion.plugin.' + plugin.id,
-              '未インストール'
-            );
-          } else {
-            installedVersion.innerHTML =
-              '未インストール（ファイルの存在が確認できませんでした。）';
-          }
+        if (filesCount === existCount) {
+          installedVersion.innerHTML = installedPlugins.find(
+            (i) => i.repo === plugin.repo && i.id === plugin.id
+          ).version;
         } else {
-          installedVersion.innerHTML = '未インストール';
+          installedVersion.innerHTML =
+            '未インストール（ファイルの存在が確認できませんでした。）';
         }
-
-        for (const td of [
-          name,
-          overview,
-          developer,
-          type,
-          latestVersion,
-          installedVersion,
-        ]) {
-          tr.appendChild(td);
+      } else {
+        let otherVersion = false;
+        for (const rel of relationList) {
+          if (rel.includes(i)) {
+            const j = rel.filter((e) => e !== i)[0];
+            if (
+              installedPlugins.some(
+                (i) => i.repo === plugins[j].repo && i.id === plugins[j].id
+              )
+            ) {
+              otherVersion = true;
+              break;
+            }
+          }
         }
-        tbody.appendChild(tr);
+        installedVersion.innerHTML = otherVersion
+          ? '他バージョンがインストール済み'
+          : '未インストール';
       }
+
+      for (const td of [
+        name,
+        overview,
+        developer,
+        type,
+        latestVersion,
+        installedVersion,
+      ]) {
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
     }
   },
 
@@ -212,12 +263,15 @@ module.exports = {
     overlay.style.zIndex = 1000;
     overlay.classList.add('show');
 
-    await ipcRenderer.invoke(
-      'download',
-      this.getPluginsListXmlUrl(),
-      true,
-      'plugin'
-    );
+    for (const pluginRepo of setting.getPluginsDataUrl()) {
+      await ipcRenderer.invoke(
+        'download',
+        pluginRepo,
+        true,
+        'plugin',
+        pluginRepo
+      );
+    }
     this.setPluginsList(instPath);
 
     overlay.classList.remove('show');
@@ -349,10 +403,13 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      store.set(
-        'installedVersion.plugin.' + selectedPlugin.id,
-        selectedPlugin.latestVersion
-      );
+      const installedPlugins = store.get('installedVersion.plugin');
+      installedPlugins.push({
+        id: selectedPlugin.id,
+        repo: selectedPlugin.repo,
+        version: selectedPlugin.latestVersion,
+      });
+      store.set('installedVersion.plugin', installedPlugins);
       this.setPluginsList(instPath);
 
       if (btn.classList.contains('btn-primary')) {
@@ -445,7 +502,13 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      store.delete('installedVersion.plugin.' + selectedPlugin.id);
+      const installedPlugins = store.get('installedVersion.plugin');
+      store.set(
+        'installedVersion.plugin',
+        installedPlugins.filter(
+          (i) => !(i.repo === selectedPlugin.repo && i.id === selectedPlugin.id)
+        )
+      );
       this.setPluginsList(instPath);
 
       if (btn.classList.contains('btn-primary')) {
