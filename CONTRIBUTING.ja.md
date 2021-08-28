@@ -43,6 +43,8 @@ Pull Requestも大歓迎です。
 
 Pull Requestがマージされた時点で、あなたの貢献が[Contributorsリスト](https://github.com/hal-shu-sato/apm/graphs/contributors)に追加され、コードの内容には[MIT License](./LICENSE)が適用されます。
 
+その後、もしよろしければ、[クレジット](./src/about.html)に自分の名前を加えて、プルリクエストを送ってください。
+
 [CODE OF CONDUCT](./CODE_OF_CONDUCT.md)に反する内容を含むものは受け付けません。
 
 ## 修正の確認

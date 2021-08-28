@@ -233,8 +233,8 @@ const template = [
         click: () => {
           const aboutPath = path.join(__dirname, 'about.html');
           let aboutWindow = new BrowserWindow({
-            width: 360,
-            height: 240,
+            width: 480,
+            height: 360,
             frame: false,
             resizable: false,
             modal: true,

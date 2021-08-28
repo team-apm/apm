@@ -43,6 +43,8 @@ If you have a question about a new feature, improvement, or fix, or if the impac
 
 When the pull request is merged, your contribution will be added to the [Contributors list](https://github.com/hal-shu-sato/apm/graphs/contributors), and the [MIT License](./LICENSE) will be applied to the code content.
 
+And after that, if you don't mind, add your name to [credits](./src/about.html) and send a pull request.
+
 Submissions containing content that violates the [CODE OF CONDUCT](./CODE_OF_CONDUCT.md) will not be accepted.
 
 ## Confirmation of Modifications
