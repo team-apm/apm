@@ -135,7 +135,6 @@ module.exports = {
   setPluginsList: async function (instPath) {
     const pluginsTable = document.getElementById('plugins-table');
     const thead = pluginsTable.getElementsByTagName('thead')[0];
-    thead.innerHTML = null;
     const tbody = pluginsTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
 
@@ -157,16 +156,18 @@ module.exports = {
     ];
 
     // table header
-    const headerTr = document.createElement('tr');
-    for (const [i, columnName] of columns.entries()) {
-      const th = document.createElement('th');
-      th.classList.add('sort');
-      th.setAttribute('data-sort', columnName);
-      th.setAttribute('scope', 'col');
-      th.innerText = columnsDisp[i];
-      headerTr.appendChild(th);
+    if (!thead.hasChildNodes()) {
+      const headerTr = document.createElement('tr');
+      for (const [i, columnName] of columns.entries()) {
+        const th = document.createElement('th');
+        th.classList.add('sort');
+        th.setAttribute('data-sort', columnName);
+        th.setAttribute('scope', 'col');
+        th.innerText = columnsDisp[i];
+        headerTr.appendChild(th);
+      }
+      thead.appendChild(headerTr);
     }
-    thead.appendChild(headerTr);
 
     // table body
     const plugins = [];

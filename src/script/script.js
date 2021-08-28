@@ -135,7 +135,6 @@ module.exports = {
   setScriptsList: async function (instPath) {
     const scriptsTable = document.getElementById('scripts-table');
     const thead = scriptsTable.getElementsByTagName('thead')[0];
-    thead.innerHTML = null;
     const tbody = scriptsTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
 
@@ -157,16 +156,18 @@ module.exports = {
     ];
 
     // table header
-    const headerTr = document.createElement('tr');
-    for (const [i, columnName] of columns.entries()) {
-      const th = document.createElement('th');
-      th.classList.add('sort');
-      th.setAttribute('data-sort', columnName);
-      th.setAttribute('scope', 'col');
-      th.innerText = columnsDisp[i];
-      headerTr.appendChild(th);
+    if (!thead.hasChildNodes()) {
+      const headerTr = document.createElement('tr');
+      for (const [i, columnName] of columns.entries()) {
+        const th = document.createElement('th');
+        th.classList.add('sort');
+        th.setAttribute('data-sort', columnName);
+        th.setAttribute('scope', 'col');
+        th.innerText = columnsDisp[i];
+        headerTr.appendChild(th);
+      }
+      thead.appendChild(headerTr);
     }
-    thead.appendChild(headerTr);
 
     // table body
     const scripts = [];
