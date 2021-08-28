@@ -18,21 +18,37 @@
 			href="../node_modules/bootstrap/dist/css/bootstrap.min.css"
 		/>
 		<link rel="stylesheet" href="main.css" />
+		<link rel="stylesheet" href="about.css" />
 	</head>
-	<body class="my-2 bg-dark text-white">
-		<div class="container-fluid">
-			<h1>
-				apm<br />
-				<span class="lead">AviUtl Plugin Manager</span>
-			</h1>
-			<div>
-				Developer: ato lash<br />
-				Version: <span id="app-version"></span><br />
-				Node.js: <span id="node-version"></span><br />
-				Chromium: <span id="chrome-version"></span><br />
-				Electron: <span id="electron-version"></span>
+	<body class="py-2 bg-dark text-white">
+		<div class="container-fluid d-flex flex-column">
+			<div class="row">
+				<div class="col">
+					<h1>
+						apm<br />
+						<span class="lead">AviUtl Plugin Manager</span>
+					</h1>
+				</div>
 			</div>
-			<small class="text-white-50">クリックして閉じる</small>
+			<div class="row flex-grow-1" id="detail">
+				<div class="col bg-secondary mx-3 pt-1">
+					<p>
+						Version: <span id="app-version"></span><br />
+						Node.js: <span id="node-version"></span><br />
+						Chromium: <span id="chrome-version"></span><br />
+						Electron: <span id="electron-version"></span>
+					</p>
+					<p>Copyright (c) 2021 ato lash</p>
+					<p>
+						サードパーティーライセンスについては、apmインストールフォルダのresources/ThirdPartyNotices.txtをご覧ください。
+					</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<small class="text-white-50">クリックして閉じる</small>
+				</div>
+			</div>
 		</div>
 		<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	</body>

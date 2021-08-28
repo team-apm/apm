@@ -17,8 +17,10 @@ module.exports = {
       /^(?!.*node_modules).*\/CODE_OF_CONDUCT\.md$/,
       /^(?!.*node_modules).*\/CONTRIBUTING(?!.*\/).*\.md$/,
       /^(?!.*node_modules).*\/README(?!.*\/).*\.md$/,
+      /^(?!.*node_modules).*\/ThirdPartyNotices\.txt$/,
       /^(?!.*node_modules).*\/(?!.*\/).*config\.js$/,
     ],
+    extraResource: 'ThirdPartyNotices.txt',
   },
   makers: [
     {
