@@ -38,3 +38,19 @@ div#scripts-table-overlay {
   margin-top: 2px;
   margin-bottom: 2px;
 }
+.sort.desc:after {
+  content: '';
+  float: right;
+  margin-top: 0.4em;
+  border-width: 0 0.4em 0.7em;
+  border-style: solid;
+  border-color: #505050 transparent;
+}
+.sort.asc:after {
+  content: '';
+  float: right;
+  margin-top: 0.4em;
+  border-width: 0.7em 0.4em 0;
+  border-style: solid;
+  border-color: #505050 transparent;
+}
