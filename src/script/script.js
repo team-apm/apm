@@ -137,6 +137,8 @@ module.exports = {
     const thead = scriptsTable.getElementsByTagName('thead')[0];
     const tbody = scriptsTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
+    const bottomTbody = scriptsTable.getElementsByTagName('tbody')[1];
+    bottomTbody.innerHTML = null;
 
     const columns = [
       'name',
@@ -203,21 +205,48 @@ module.exports = {
     }
 
     const installedScripts = store.get('installedVersion.script');
-    for (const [i, script] of scripts.entries()) {
-      const tr = document.createElement('tr');
-      const name = document.createElement('td');
-      name.classList.add('name');
-      const overview = document.createElement('td');
-      overview.classList.add('overview');
-      const developer = document.createElement('td');
-      developer.classList.add('developer');
-      const type = document.createElement('td');
-      type.classList.add('type');
-      const latestVersion = document.createElement('td');
-      latestVersion.classList.add('latestVersion');
-      const installedVersion = document.createElement('td');
-      installedVersion.classList.add('installedVersion');
 
+    const getExistingFiles = () => {
+      const regex = /^(?!exedit).*\.(anm|obj|cam|tra|scn)$/;
+      const readdir = (dir) =>
+        fs
+          .readdirSync(dir, { withFileTypes: true })
+          .filter((i) => i.isFile() && regex.test(i.name))
+          .map((i) => i.name);
+      return readdir(instPath).concat(
+        readdir(path.join(instPath, 'script')).map((i) => 'script/' + i),
+        fs
+          .readdirSync(path.join(instPath, 'script'), { withFileTypes: true })
+          .filter((i) => i.isDirectory())
+          .map((i) => 'script/' + i.name)
+          .flatMap((i) =>
+            readdir(path.join(instPath, i)).map((j) => i + '/' + j)
+          )
+      );
+    };
+    let existingFiles = getExistingFiles();
+
+    const makeTrFromArray = (tdList) => {
+      const tr = document.createElement('tr');
+      const tds = tdList.map((tdName) => {
+        const td = document.createElement('td');
+        td.classList.add(tdName);
+        tr.appendChild(td);
+        return td;
+      });
+      return [tr].concat(tds);
+    };
+
+    for (const [i, script] of scripts.entries()) {
+      const [
+        tr,
+        name,
+        overview,
+        developer,
+        type,
+        latestVersion,
+        installedVersion,
+      ] = makeTrFromArray(columns);
       tr.classList.add('script-tr');
       tr.addEventListener('click', (event) => {
         showScriptDetail(script);
@@ -241,7 +270,15 @@ module.exports = {
             filesCount++;
             if (fs.existsSync(path.join(instPath, file))) {
               existCount++;
+              if (existingFiles.includes(file)) {
+                existingFiles = existingFiles.filter((ef) => ef !== file);
+              }
             }
+          }
+          if (file.$optional !== 'true' && file.$directory === 'true') {
+            existingFiles = existingFiles.filter(
+              (ef) => !ef.startsWith(file._)
+            );
           }
         }
 
@@ -273,17 +310,29 @@ module.exports = {
           : '未インストール';
       }
 
-      for (const td of [
+      tbody.appendChild(tr);
+    }
+
+    // list manually added scripts
+    for (const ef of existingFiles) {
+      const [
+        tr,
         name,
         overview,
         developer,
         type,
         latestVersion,
         installedVersion,
-      ]) {
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
+      ] = makeTrFromArray(columns);
+      tr.classList.add('script-tr');
+      tr.classList.add('table-secondary');
+      name.innerHTML = ef;
+      overview.innerHTML = '手動で追加されたスクリプト';
+      developer.innerHTML = '';
+      type.innerHTML = '';
+      latestVersion.innerHTML = '';
+      installedVersion.innerHTML = 'インストール済';
+      bottomTbody.appendChild(tr);
     }
 
     // sorting and filtering
