@@ -1,0 +1,12 @@
+html,
+body,
+div.container-fluid {
+  height: 100%;
+}
+#detail {
+  min-height: 2rem;
+}
+#detail .col {
+  height: 100%;
+  overflow-y: auto;
+}
