@@ -4,12 +4,14 @@ const path = require('path');
 const { execSync } = require('child_process');
 const Store = require('electron-store');
 const store = new Store();
+const List = require('list.js');
 const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const setting = require('../setting/setting');
 
 let selectedScript;
+let listJS;
 
 /**
  * @param {string} scriptType - A list of script types.
@@ -132,9 +134,42 @@ module.exports = {
    */
   setScriptsList: async function (instPath) {
     const scriptsTable = document.getElementById('scripts-table');
+    const thead = scriptsTable.getElementsByTagName('thead')[0];
     const tbody = scriptsTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
 
+    const columns = [
+      'name',
+      'overview',
+      'developer',
+      'type',
+      'latestVersion',
+      'installedVersion',
+    ];
+    const columnsDisp = [
+      '名前',
+      '概要',
+      '開発者',
+      'タイプ',
+      '最新バージョン',
+      '現在バージョン',
+    ];
+
+    // table header
+    if (!thead.hasChildNodes()) {
+      const headerTr = document.createElement('tr');
+      for (const [i, columnName] of columns.entries()) {
+        const th = document.createElement('th');
+        th.classList.add('sort');
+        th.setAttribute('data-sort', columnName);
+        th.setAttribute('scope', 'col');
+        th.innerText = columnsDisp[i];
+        headerTr.appendChild(th);
+      }
+      thead.appendChild(headerTr);
+    }
+
+    // table body
     const scripts = [];
     for (const [scriptsRepo, scriptsInfo] of Object.entries(
       await this.getScriptsInfo()
@@ -171,11 +206,17 @@ module.exports = {
     for (const [i, script] of scripts.entries()) {
       const tr = document.createElement('tr');
       const name = document.createElement('td');
+      name.classList.add('name');
       const overview = document.createElement('td');
+      overview.classList.add('overview');
       const developer = document.createElement('td');
+      developer.classList.add('developer');
       const type = document.createElement('td');
+      type.classList.add('type');
       const latestVersion = document.createElement('td');
+      latestVersion.classList.add('latestVersion');
       const installedVersion = document.createElement('td');
+      installedVersion.classList.add('installedVersion');
 
       tr.classList.add('script-tr');
       tr.addEventListener('click', (event) => {
@@ -243,6 +284,13 @@ module.exports = {
         tr.appendChild(td);
       }
       tbody.appendChild(tr);
+    }
+
+    // sorting and filtering
+    if (typeof listJS === 'undefined') {
+      listJS = new List('scripts', { valueNames: columns });
+    } else {
+      listJS.reIndex();
     }
   },
 
