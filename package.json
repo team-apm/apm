@@ -12,6 +12,9 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
+    "prepackage": "yarn run notices",
+    "premake": "yarn run notices",
+    "prepublish": "yarn run notices",
     "lint:eslint": "eslint --fix .",
     "lint:prettier": "prettier --write .",
     "fix": "run-s fix:prettier fix:eslint",
@@ -22,7 +25,8 @@
     "release": "standard-version && conventional-github-releaser -p angular --draft",
     "release:patch": "standard-version --release-as patch && conventional-github-releaser -p angular --draft",
     "release:minor": "standard-version --release-as minor && conventional-github-releaser -p angular --draft",
-    "release:major": "standard-version --release-as major && conventional-github-releaser -p angular --draft"
+    "release:major": "standard-version --release-as major && conventional-github-releaser -p angular --draft",
+    "notices": "yarn licenses generate-disclaimer --frozen-lockfile --prod --ignore-platform --ignore-engines --ignore-optional > ThirdPartyNotices.txt"
   },
   "dependencies": {
     "7zip-bin": "^5.1.1",
