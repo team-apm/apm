@@ -311,7 +311,6 @@ module.exports = {
         installedVersion,
       ] = makeTrFromArray(columns);
       tr.classList.add('script-tr');
-      tr.classList.add('table-secondary');
       name.innerHTML = ef;
       overview.innerHTML = '手動で追加されたスクリプト';
       developer.innerHTML = '';
