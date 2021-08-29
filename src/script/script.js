@@ -222,6 +222,10 @@ module.exports = {
       tr.addEventListener('click', (event) => {
         showScriptDetail(script);
         selectedScript = script;
+        for (const tmptr of tbody.getElementsByTagName('tr')) {
+          tmptr.classList.remove('table-secondary');
+        }
+        tr.classList.add('table-secondary');
       });
       name.innerHTML = script.name;
       overview.innerHTML = script.overview;
