@@ -137,6 +137,8 @@ module.exports = {
     const thead = pluginsTable.getElementsByTagName('thead')[0];
     const tbody = pluginsTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
+    const bottomTbody = pluginsTable.getElementsByTagName('tbody')[1];
+    bottomTbody.innerHTML = null;
 
     const columns = [
       'name',
@@ -180,44 +182,59 @@ module.exports = {
       }
     }
 
-    const relationList = [];
-    for (let i = 0; i < plugins.length; i++) {
-      const setA = [];
-      for (const file of plugins[i].files[0].file) {
-        if (typeof file === 'string') {
-          setA.push(file);
-        }
-      }
-      for (let j = i + 1; j < plugins.length; j++) {
-        const setB = [];
-        for (const file of plugins[j].files[0].file) {
-          if (typeof file === 'string') {
-            setB.push(file);
-          }
-        }
+    const installedPlugins = store.get('installedVersion.plugin');
 
-        if (setA.some((e) => setB.includes(e))) {
-          relationList.push([i, j]);
+    const getExistingFiles = () => {
+      const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul)$/;
+      const readdir = (dir) =>
+        fs
+          .readdirSync(dir, { withFileTypes: true })
+          .filter((i) => i.isFile() && regex.test(i.name))
+          .map((i) => i.name);
+      return readdir(instPath).concat(
+        readdir(path.join(instPath, 'plugins')).map((i) => 'plugins/' + i)
+      );
+    };
+    const existingFiles = getExistingFiles();
+
+    let manualFiles = [...existingFiles];
+    for (const plugin of plugins) {
+      if (
+        installedPlugins.some(
+          (i) => i.repo === plugin.repo && i.id === plugin.id
+        )
+      ) {
+        for (const file of plugin.files[0].file) {
+          if (typeof file === 'string') {
+            if (manualFiles.includes(file)) {
+              manualFiles = manualFiles.filter((ef) => ef !== file);
+            }
+          }
         }
       }
     }
 
-    const installedPlugins = store.get('installedVersion.plugin');
-    for (const [i, plugin] of plugins.entries()) {
+    const makeTrFromArray = (tdList) => {
       const tr = document.createElement('tr');
-      const name = document.createElement('td');
-      name.classList.add('name');
-      const overview = document.createElement('td');
-      overview.classList.add('overview');
-      const developer = document.createElement('td');
-      developer.classList.add('developer');
-      const type = document.createElement('td');
-      type.classList.add('type');
-      const latestVersion = document.createElement('td');
-      latestVersion.classList.add('latestVersion');
-      const installedVersion = document.createElement('td');
-      installedVersion.classList.add('installedVersion');
+      const tds = tdList.map((tdName) => {
+        const td = document.createElement('td');
+        td.classList.add(tdName);
+        tr.appendChild(td);
+        return td;
+      });
+      return [tr].concat(tds);
+    };
 
+    for (const plugin of plugins) {
+      const [
+        tr,
+        name,
+        overview,
+        developer,
+        type,
+        latestVersion,
+        installedVersion,
+      ] = makeTrFromArray(columns);
       tr.classList.add('plugin-tr');
       tr.addEventListener('click', (event) => {
         showPluginDetail(plugin);
@@ -259,35 +276,42 @@ module.exports = {
         }
       } else {
         let otherVersion = false;
-        for (const rel of relationList) {
-          if (rel.includes(i)) {
-            const j = rel.filter((e) => e !== i)[0];
-            if (
-              installedPlugins.some(
-                (i) => i.repo === plugins[j].repo && i.id === plugins[j].id
-              )
-            ) {
-              otherVersion = true;
-              break;
-            }
+        let otherManualVersion = false;
+        for (const file of plugin.files[0].file) {
+          if (typeof file === 'string') {
+            if (existingFiles.includes(file)) otherVersion = true;
+            if (manualFiles.includes(file)) otherManualVersion = true;
           }
         }
-        installedVersion.innerHTML = otherVersion
+        installedVersion.innerHTML = otherManualVersion
+          ? '手動インストール済み'
+          : otherVersion
           ? '他バージョンがインストール済み'
           : '未インストール';
       }
 
-      for (const td of [
+      tbody.appendChild(tr);
+    }
+
+    // list manually added plugins
+    for (const ef of manualFiles) {
+      const [
+        tr,
         name,
         overview,
         developer,
         type,
         latestVersion,
         installedVersion,
-      ]) {
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
+      ] = makeTrFromArray(columns);
+      tr.classList.add('plugin-tr');
+      name.innerHTML = ef;
+      overview.innerHTML = '手動で追加されたプラグイン';
+      developer.innerHTML = '';
+      type.innerHTML = '';
+      latestVersion.innerHTML = '';
+      installedVersion.innerHTML = '';
+      bottomTbody.appendChild(tr);
     }
 
     // sorting and filtering
