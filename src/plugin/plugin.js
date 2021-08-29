@@ -222,6 +222,10 @@ module.exports = {
       tr.addEventListener('click', (event) => {
         showPluginDetail(plugin);
         selectedPlugin = plugin;
+        for (const tmptr of tbody.getElementsByTagName('tr')) {
+          tmptr.classList.remove('table-secondary');
+        }
+        tr.classList.add('table-secondary');
       });
       name.innerHTML = plugin.name;
       overview.innerHTML = plugin.overview;

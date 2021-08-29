@@ -19,6 +19,25 @@ main {
   height: 100%;
   overflow-y: auto;
 }
+.plugins-table thead th,
+.scripts-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+.plugins-table thead th::before,
+.scripts-table thead th::before {
+  content: '';
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  border-bottom: #000 solid 1px;
+}
+.table > :first-child > :last-child > * {
+  /* Prevent thead>th border from flickering */
+  border-bottom-color: transparent;
+}
 div#plugins-table-overlay,
 div#scripts-table-overlay {
   z-index: -1;
@@ -41,16 +60,16 @@ div#scripts-table-overlay {
 .sort.desc:after {
   content: '';
   float: right;
-  margin-top: 0.4em;
-  border-width: 0 0.4em 0.7em;
+  margin-top: 0.5em;
+  border-width: 0 0.3em 0.6em;
   border-style: solid;
   border-color: #505050 transparent;
 }
 .sort.asc:after {
   content: '';
   float: right;
-  margin-top: 0.4em;
-  border-width: 0.7em 0.4em 0;
+  margin-top: 0.5em;
+  border-width: 0.6em 0.3em 0;
   border-style: solid;
   border-color: #505050 transparent;
 }
