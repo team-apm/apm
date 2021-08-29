@@ -182,28 +182,6 @@ module.exports = {
       }
     }
 
-    const relationList = [];
-    for (let i = 0; i < plugins.length; i++) {
-      const setA = [];
-      for (const file of plugins[i].files[0].file) {
-        if (typeof file === 'string') {
-          setA.push(file);
-        }
-      }
-      for (let j = i + 1; j < plugins.length; j++) {
-        const setB = [];
-        for (const file of plugins[j].files[0].file) {
-          if (typeof file === 'string') {
-            setB.push(file);
-          }
-        }
-
-        if (setA.some((e) => setB.includes(e))) {
-          relationList.push([i, j]);
-        }
-      }
-    }
-
     const installedPlugins = store.get('installedVersion.plugin');
 
     const getExistingFiles = () => {
@@ -217,7 +195,24 @@ module.exports = {
         readdir(path.join(instPath, 'plugins')).map((i) => 'plugins/' + i)
       );
     };
-    let existingFiles = getExistingFiles();
+    const existingFiles = getExistingFiles();
+
+    let manualFiles = [...existingFiles];
+    for (const plugin of plugins) {
+      if (
+        installedPlugins.some(
+          (i) => i.repo === plugin.repo && i.id === plugin.id
+        )
+      ) {
+        for (const file of plugin.files[0].file) {
+          if (typeof file === 'string') {
+            if (manualFiles.includes(file)) {
+              manualFiles = manualFiles.filter((ef) => ef !== file);
+            }
+          }
+        }
+      }
+    }
 
     const makeTrFromArray = (tdList) => {
       const tr = document.createElement('tr');
@@ -230,7 +225,7 @@ module.exports = {
       return [tr].concat(tds);
     };
 
-    for (const [i, plugin] of plugins.entries()) {
+    for (const plugin of plugins) {
       const [
         tr,
         name,
@@ -263,9 +258,6 @@ module.exports = {
             filesCount++;
             if (fs.existsSync(path.join(instPath, file))) {
               existCount++;
-              if (existingFiles.includes(file)) {
-                existingFiles = existingFiles.filter((ef) => ef !== file);
-              }
             }
           }
         }
@@ -280,20 +272,16 @@ module.exports = {
         }
       } else {
         let otherVersion = false;
-        for (const rel of relationList) {
-          if (rel.includes(i)) {
-            const j = rel.filter((e) => e !== i)[0];
-            if (
-              installedPlugins.some(
-                (i) => i.repo === plugins[j].repo && i.id === plugins[j].id
-              )
-            ) {
-              otherVersion = true;
-              break;
-            }
+        let otherManualVersion = false;
+        for (const file of plugin.files[0].file) {
+          if (typeof file === 'string') {
+            if (existingFiles.includes(file)) otherVersion = true;
+            if (manualFiles.includes(file)) otherManualVersion = true;
           }
         }
-        installedVersion.innerHTML = otherVersion
+        installedVersion.innerHTML = otherManualVersion
+          ? '手動インストール済み'
+          : otherVersion
           ? '他バージョンがインストール済み'
           : '未インストール';
       }
@@ -302,7 +290,7 @@ module.exports = {
     }
 
     // list manually added plugins
-    for (const ef of existingFiles) {
+    for (const ef of manualFiles) {
       const [
         tr,
         name,
@@ -319,7 +307,7 @@ module.exports = {
       developer.innerHTML = '';
       type.innerHTML = '';
       latestVersion.innerHTML = '';
-      installedVersion.innerHTML = 'インストール済';
+      installedVersion.innerHTML = '';
       bottomTbody.appendChild(tr);
     }
 

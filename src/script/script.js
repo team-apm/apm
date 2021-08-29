@@ -182,28 +182,6 @@ module.exports = {
       }
     }
 
-    const relationList = [];
-    for (let i = 0; i < scripts.length; i++) {
-      const setA = [];
-      for (const file of scripts[i].files[0].file) {
-        if (typeof file === 'string') {
-          setA.push(file);
-        }
-      }
-      for (let j = i + 1; j < scripts.length; j++) {
-        const setB = [];
-        for (const file of scripts[j].files[0].file) {
-          if (typeof file === 'string') {
-            setB.push(file);
-          }
-        }
-
-        if (setA.some((e) => setB.includes(e))) {
-          relationList.push([i, j]);
-        }
-      }
-    }
-
     const installedScripts = store.get('installedVersion.script');
 
     const getExistingFiles = () => {
@@ -224,7 +202,27 @@ module.exports = {
           )
       );
     };
-    let existingFiles = getExistingFiles();
+    const existingFiles = getExistingFiles();
+
+    let manualFiles = [...existingFiles];
+    for (const script of scripts) {
+      if (
+        installedScripts.some(
+          (i) => i.repo === script.repo && i.id === script.id
+        )
+      ) {
+        for (const file of script.files[0].file) {
+          if (typeof file === 'string') {
+            if (manualFiles.includes(file)) {
+              manualFiles = manualFiles.filter((ef) => ef !== file);
+            }
+          }
+          if (file.$optional !== 'true' && file.$directory === 'true') {
+            manualFiles = manualFiles.filter((ef) => !ef.startsWith(file._));
+          }
+        }
+      }
+    }
 
     const makeTrFromArray = (tdList) => {
       const tr = document.createElement('tr');
@@ -237,7 +235,7 @@ module.exports = {
       return [tr].concat(tds);
     };
 
-    for (const [i, script] of scripts.entries()) {
+    for (const script of scripts) {
       const [
         tr,
         name,
@@ -270,15 +268,7 @@ module.exports = {
             filesCount++;
             if (fs.existsSync(path.join(instPath, file))) {
               existCount++;
-              if (existingFiles.includes(file)) {
-                existingFiles = existingFiles.filter((ef) => ef !== file);
-              }
             }
-          }
-          if (file.$optional !== 'true' && file.$directory === 'true') {
-            existingFiles = existingFiles.filter(
-              (ef) => !ef.startsWith(file._)
-            );
           }
         }
 
@@ -292,20 +282,16 @@ module.exports = {
         }
       } else {
         let otherVersion = false;
-        for (const rel of relationList) {
-          if (rel.includes(i)) {
-            const j = rel.filter((e) => e !== i)[0];
-            if (
-              installedScripts.some(
-                (i) => i.repo === scripts[j].repo && i.id === scripts[j].id
-              )
-            ) {
-              otherVersion = true;
-              break;
-            }
+        let otherManualVersion = false;
+        for (const file of script.files[0].file) {
+          if (typeof file === 'string') {
+            if (existingFiles.includes(file)) otherVersion = true;
+            if (manualFiles.includes(file)) otherManualVersion = true;
           }
         }
-        installedVersion.innerHTML = otherVersion
+        installedVersion.innerHTML = otherManualVersion
+          ? '手動インストール済み'
+          : otherVersion
           ? '他バージョンがインストール済み'
           : '未インストール';
       }
@@ -314,7 +300,7 @@ module.exports = {
     }
 
     // list manually added scripts
-    for (const ef of existingFiles) {
+    for (const ef of manualFiles) {
       const [
         tr,
         name,
@@ -331,7 +317,7 @@ module.exports = {
       developer.innerHTML = '';
       type.innerHTML = '';
       latestVersion.innerHTML = '';
-      installedVersion.innerHTML = 'インストール済';
+      installedVersion.innerHTML = '';
       bottomTbody.appendChild(tr);
     }
 
