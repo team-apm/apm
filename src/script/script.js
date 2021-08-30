@@ -9,6 +9,7 @@ const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const setting = require('../setting/setting');
+const buttonTransition = require('../lib/buttonTransition');
 
 let selectedScript;
 let listJS;
@@ -340,11 +341,7 @@ module.exports = {
    * @param {string} instPath - An installation path.
    */
   checkScriptsList: async function (btn, overlay, instPath) {
-    btn.setAttribute('disabled', '');
-    const beforeHTML = btn.innerHTML;
-    btn.innerHTML =
-      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
-      '<span class="visually-hidden">Loading...</span>';
+    const enableButton = buttonTransition.loading(btn);
 
     overlay.style.zIndex = 1000;
     overlay.classList.add('show');
@@ -363,8 +360,7 @@ module.exports = {
     overlay.classList.remove('show');
     overlay.style.zIndex = -1;
 
-    btn.innerHTML = beforeHTML;
-    btn.removeAttribute('disabled');
+    enableButton();
   },
 
   /**
@@ -374,38 +370,20 @@ module.exports = {
    * @param {string} instPath - An installation path.
    */
   installScript: async function (btn, instPath) {
-    btn.setAttribute('disabled', '');
-    const beforeHTML = btn.innerHTML;
-    btn.innerHTML =
-      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
-      '<span class="visually-hidden">Loading...</span>';
+    const enableButton = buttonTransition.loading(btn);
 
     if (!instPath) {
-      if (btn.classList.contains('btn-primary')) {
-        btn.classList.replace('btn-primary', 'btn-danger');
-        setTimeout(() => {
-          btn.classList.replace('btn-danger', 'btn-primary');
-        }, 3000);
-      }
-      btn.innerHTML = 'インストール先フォルダを指定してください。';
+      buttonTransition.error(btn, 'インストール先フォルダを指定してください。');
       setTimeout(() => {
-        btn.innerHTML = beforeHTML;
-        btn.removeAttribute('disabled');
+        enableButton();
       }, 3000);
       throw new Error('An installation path is not selected.');
     }
 
     if (!selectedScript) {
-      if (btn.classList.contains('btn-primary')) {
-        btn.classList.replace('btn-primary', 'btn-danger');
-        setTimeout(() => {
-          btn.classList.replace('btn-danger', 'btn-primary');
-        }, 3000);
-      }
-      btn.innerHTML = 'プラグインを選択してください。';
+      buttonTransition.error(btn, 'プラグインを選択してください。');
       setTimeout(() => {
-        btn.innerHTML = beforeHTML;
-        btn.removeAttribute('disabled');
+        enableButton();
       }, 3000);
       throw new Error('A script to install is not selected.');
     }
@@ -477,13 +455,7 @@ module.exports = {
         }
       }
     } catch (e) {
-      if (btn.classList.contains('btn-primary')) {
-        btn.classList.replace('btn-primary', 'btn-danger');
-        setTimeout(() => {
-          btn.classList.replace('btn-danger', 'btn-primary');
-        }, 3000);
-      }
-      btn.innerHTML = 'エラーが発生しました。';
+      buttonTransition.error(btn, 'エラーが発生しました。');
     }
 
     let filesCount = 0;
@@ -507,26 +479,13 @@ module.exports = {
       store.set('installedVersion.script', installedScripts);
       this.setScriptsList(instPath);
 
-      if (btn.classList.contains('btn-primary')) {
-        btn.classList.replace('btn-primary', 'btn-success');
-        setTimeout(() => {
-          btn.classList.replace('btn-success', 'btn-primary');
-        }, 3000);
-      }
-      btn.innerHTML = 'インストール完了';
+      buttonTransition.success(btn, 'インストール完了');
     } else {
-      if (btn.classList.contains('btn-primary')) {
-        btn.classList.replace('btn-primary', 'btn-danger');
-        setTimeout(() => {
-          btn.classList.replace('btn-danger', 'btn-primary');
-        }, 3000);
-      }
-      btn.innerHTML = 'エラーが発生しました。';
+      buttonTransition.error(btn, 'エラーが発生しました。');
     }
 
     setTimeout(() => {
-      btn.innerHTML = beforeHTML;
-      btn.removeAttribute('disabled');
+      enableButton();
     }, 3000);
   },
 
@@ -537,38 +496,20 @@ module.exports = {
    * @param {string} instPath - An installation path.
    */
   uninstallScript: async function (btn, instPath) {
-    btn.setAttribute('disabled', '');
-    const beforeHTML = btn.innerHTML;
-    btn.innerHTML =
-      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
-      '<span class="visually-hidden">Loading...</span>';
+    const enableButton = buttonTransition.loading(btn);
 
     if (!instPath) {
-      if (btn.classList.contains('btn-primary')) {
-        btn.classList.replace('btn-primary', 'btn-danger');
-        setTimeout(() => {
-          btn.classList.replace('btn-danger', 'btn-primary');
-        }, 3000);
-      }
-      btn.innerHTML = 'インストール先フォルダを指定してください。';
+      buttonTransition.error(btn, 'インストール先フォルダを指定してください。');
       setTimeout(() => {
-        btn.innerHTML = beforeHTML;
-        btn.removeAttribute('disabled');
+        enableButton();
       }, 3000);
       throw new Error('An installation path is not selected.');
     }
 
     if (!selectedScript) {
-      if (btn.classList.contains('btn-primary')) {
-        btn.classList.replace('btn-primary', 'btn-danger');
-        setTimeout(() => {
-          btn.classList.replace('btn-danger', 'btn-primary');
-        }, 3000);
-      }
-      btn.innerHTML = 'プラグインを選択してください。';
+      buttonTransition.error(btn, 'プラグインを選択してください。');
       setTimeout(() => {
-        btn.innerHTML = beforeHTML;
-        btn.removeAttribute('disabled');
+        enableButton();
       }, 3000);
       throw new Error('A script to install is not selected.');
     }
@@ -606,26 +547,13 @@ module.exports = {
       );
       this.setScriptsList(instPath);
 
-      if (btn.classList.contains('btn-primary')) {
-        btn.classList.replace('btn-primary', 'btn-success');
-        setTimeout(() => {
-          btn.classList.replace('btn-success', 'btn-primary');
-        }, 3000);
-      }
-      btn.innerHTML = 'アンインストール完了';
+      buttonTransition.success(btn, 'アンインストール完了');
     } else {
-      if (btn.classList.contains('btn-primary')) {
-        btn.classList.replace('btn-primary', 'btn-danger');
-        setTimeout(() => {
-          btn.classList.replace('btn-danger', 'btn-primary');
-        }, 3000);
-      }
-      btn.innerHTML = 'エラーが発生しました。';
+      buttonTransition.error(btn, 'エラーが発生しました。');
     }
 
     setTimeout(() => {
-      btn.innerHTML = beforeHTML;
-      btn.removeAttribute('disabled');
+      enableButton();
     }, 3000);
   },
 };
