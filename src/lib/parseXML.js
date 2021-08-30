@@ -142,7 +142,7 @@ class CoreList extends Object {
   /**
    *
    * @param {string} xmlPath - The path of the XML file.
-   * @returns {CoreList} A list of plugins.
+   * @returns {CoreList} A list of core programs.
    */
   constructor(xmlPath) {
     super();
@@ -220,14 +220,26 @@ class ScriptsList extends Object {
 }
 
 module.exports = {
-  core: async function (pluginsListPath) {
-    if (fs.existsSync(pluginsListPath)) {
-      return new CoreList(pluginsListPath);
+  /**
+   * Returns a list of core programs.
+   *
+   * @param {string} coreListPath - A path of xml file.
+   * @returns {CoreList} A list of core programs.
+   */
+  core: async function (coreListPath) {
+    if (fs.existsSync(coreListPath)) {
+      return new CoreList(coreListPath);
     } else {
       throw new Error('The version file does not exist.');
     }
   },
 
+  /**
+   * Returns a list of plugins.
+   *
+   * @param {string} pluginsListPath - A path of xml file.
+   * @returns {PluginsList} A list of plugins.
+   */
   plugin: async function (pluginsListPath) {
     if (fs.existsSync(pluginsListPath)) {
       return new PluginsList(pluginsListPath);
@@ -236,6 +248,12 @@ module.exports = {
     }
   },
 
+  /**
+   * Returns a list of scripts.
+   *
+   * @param {string} scriptsListPath - A path of xml file.
+   * @returns {ScriptsList} A list of scripts.
+   */
   script: async function (scriptsListPath) {
     if (fs.existsSync(scriptsListPath)) {
       return new ScriptsList(scriptsListPath);
