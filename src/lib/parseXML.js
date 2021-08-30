@@ -1,3 +1,4 @@
+const path = require('path');
 const fs = require('fs-extra');
 const parser = require('fast-xml-parser');
 
@@ -47,6 +48,34 @@ function parseFiles(parsedData) {
 /**
  *
  */
+class CoreInfo {
+  /**
+   * Returns the core program's information.
+   *
+   * @param {object} parsedCore - An object parsed from XML.
+   */
+  constructor(parsedCore) {
+    if (parsedCore.files) {
+      this.files = parseFiles(parsedCore);
+    }
+    if (parsedCore.latestVersion) {
+      if (typeof parsedCore.latestVersion[0] === 'string')
+        this.latestVersion = parsedCore.latestVersion[0];
+    }
+    if (parsedCore.releases) {
+      this.releases = {};
+      const prefix = parsedCore.releases[0].$prefix[0];
+      for (const fileURL of parsedCore.releases[0].fileURL) {
+        this.releases[fileURL.$version[0]] = path.join(prefix, fileURL._[0]);
+      }
+    }
+    Object.freeze(this);
+  }
+}
+
+/**
+ *
+ */
 class PluginInfo {
   /**
    * Returns the plugin's information.
@@ -75,6 +104,7 @@ class PluginInfo {
  */
 class ScriptInfo {
   /**
+   * Returns the script's information.
    *
    * @param {object} parsedScript - An object parsed from XML.
    */
@@ -104,6 +134,34 @@ const parseOptions = {
   trimValues: true,
   arrayMode: 'strict',
 };
+
+/**
+ * An object which contains core list.
+ */
+class CoreList extends Object {
+  /**
+   *
+   * @param {string} xmlPath - The path of the XML file.
+   * @returns {CoreList} A list of plugins.
+   */
+  constructor(xmlPath) {
+    super();
+    const xmlData = fs.readFileSync(xmlPath, 'utf-8');
+    const valid = parser.validate(xmlData);
+    if (valid === true) {
+      const coreInfo = parser.parse(xmlData, parseOptions);
+      if (coreInfo.core) {
+        for (const program of ['aviutl', 'exedit']) {
+          this[program] = new CoreInfo(coreInfo.core[0][program][0]);
+        }
+      } else {
+        throw new Error('The list is invalid.');
+      }
+    } else {
+      throw valid;
+    }
+  }
+}
 
 /**
  * An object which contains plugins list.
@@ -162,6 +220,14 @@ class ScriptsList extends Object {
 }
 
 module.exports = {
+  core: async function (pluginsListPath) {
+    if (fs.existsSync(pluginsListPath)) {
+      return new CoreList(pluginsListPath);
+    } else {
+      throw new Error('The version file does not exist.');
+    }
+  },
+
   plugin: async function (pluginsListPath) {
     if (fs.existsSync(pluginsListPath)) {
       return new PluginsList(pluginsListPath);
