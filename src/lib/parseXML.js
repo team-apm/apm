@@ -7,6 +7,7 @@ const defaultKeys = [
   'name',
   'overview',
   'description',
+  'developer',
   'type',
   'pageURL',
   'downloadURL',
@@ -208,7 +209,7 @@ class ScriptsList extends Object {
       const scriptsInfo = parser.parse(xmlData, parseOptions);
       if (scriptsInfo.scripts) {
         for (const script of scriptsInfo.scripts[0].script) {
-          this[script.id[0]._] = new ScriptInfo(script);
+          this[script.id[0]] = new ScriptInfo(script);
         }
       } else {
         throw new Error('The list is invalid.');
@@ -226,7 +227,7 @@ module.exports = {
    * @param {string} coreListPath - A path of xml file.
    * @returns {CoreList} A list of core programs.
    */
-  core: async function (coreListPath) {
+  core: function (coreListPath) {
     if (fs.existsSync(coreListPath)) {
       return new CoreList(coreListPath);
     } else {
@@ -240,7 +241,7 @@ module.exports = {
    * @param {string} pluginsListPath - A path of xml file.
    * @returns {PluginsList} A list of plugins.
    */
-  plugin: async function (pluginsListPath) {
+  plugin: function (pluginsListPath) {
     if (fs.existsSync(pluginsListPath)) {
       return new PluginsList(pluginsListPath);
     } else {
@@ -254,7 +255,7 @@ module.exports = {
    * @param {string} scriptsListPath - A path of xml file.
    * @returns {ScriptsList} A list of scripts.
    */
-  script: async function (scriptsListPath) {
+  script: function (scriptsListPath) {
     if (fs.existsSync(scriptsListPath)) {
       return new ScriptsList(scriptsListPath);
     } else {
