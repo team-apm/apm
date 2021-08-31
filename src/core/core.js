@@ -3,11 +3,11 @@ const fs = require('fs-extra');
 const path = require('path');
 const Store = require('electron-store');
 const store = new Store();
-const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const setting = require('../setting/setting');
 const buttonTransition = require('../lib/buttonTransition');
+const parseXML = require('../lib/parseXML');
 
 module.exports = {
   /**
@@ -32,10 +32,10 @@ module.exports = {
       if (instPath && store.has('installedVersion.core.' + program)) {
         let filesCount = 0;
         let existCount = 0;
-        for (const file of coreInfo.core[0][program][0].files[0].file) {
-          if (typeof file === 'string') {
+        for (const file of coreInfo[program].files) {
+          if (!file.isOptional) {
             filesCount++;
-            if (fs.existsSync(path.join(instPath, file))) {
+            if (fs.existsSync(path.join(instPath, file.filename))) {
               existCount++;
             }
           }
@@ -61,7 +61,7 @@ module.exports = {
   /**
    * Returns an object parsed from core.xml.
    *
-   * @returns {object} - An object parsed from core.xml.
+   * @returns {Promise<object>} - An object parsed from core.xml.
    */
   getCoreInfo: async function () {
     const coreFile = await ipcRenderer.invoke(
@@ -69,32 +69,7 @@ module.exports = {
       'core/core.xml'
     );
     if (coreFile.exists) {
-      const xmlData = fs.readFileSync(coreFile.path, 'utf-8');
-      let coreInfo = {};
-      const valid = parser.validate(xmlData);
-      if (valid === true) {
-        const options = {
-          attributeNamePrefix: '$',
-          // attrNodeName: 'attr', // default is 'false'
-          textNodeName: '_',
-          ignoreAttributes: false,
-          // ignoreNameSpace: false,
-          // allowBooleanAttributes: false,
-          parseNodeValue: false,
-          parseAttributeValue: false,
-          trimValues: true,
-          // cdataTagName: '__cdata', // default is 'false'
-          // cdataPositionChar: '\\c',
-          // parseTrueNumberOnly: false,
-          arrayMode: true, // "strict"
-          // stopNodes: ['parse-me-as-string'],
-        };
-        // optional (it'll return an object in case it's not valid)
-        coreInfo = parser.parse(xmlData, options);
-      } else {
-        throw valid;
-      }
-      return coreInfo;
+      return parseXML.core(coreFile.path);
     } else {
       throw new Error('The version file does not exist.');
     }
@@ -120,13 +95,13 @@ module.exports = {
     const coreInfo = await this.getCoreInfo();
     if (coreInfo) {
       for (const program of ['aviutl', 'exedit']) {
-        const progInfo = coreInfo.core[0][program][0];
+        const progInfo = coreInfo[program];
         replaceText(`${program}-latest-version`, progInfo.latestVersion);
 
-        for (const release of progInfo.releases[0].fileURL) {
+        for (const version of Object.keys(progInfo.releases)) {
           const option = document.createElement('option');
-          option.setAttribute('value', release.$version);
-          option.innerHTML = release.$version;
+          option.setAttribute('value', version);
+          option.innerHTML = version;
 
           if (program === 'aviutl') {
             aviutlVersionSelect.appendChild(option);
@@ -209,31 +184,17 @@ module.exports = {
     }
 
     const coreInfo = await this.getCoreInfo();
-    const getUrl = () => {
-      const progInfo = coreInfo.core[0][program][0];
-      const prefix = progInfo.releases[0].$prefix;
-      const fileUrl = Array.from(progInfo.releases[0].fileURL).find(
-        (element) => element.$version === version
-      );
-
-      if (prefix) {
-        return path.join(prefix, fileUrl._);
-      } else {
-        return fileUrl._;
-      }
-    };
-
-    const url = getUrl();
+    const url = coreInfo[program].releases[version];
     const archivePath = await ipcRenderer.invoke('download', url, true, 'core');
     const unzippedPath = await unzip(archivePath);
     fs.copySync(unzippedPath, instPath);
 
     let filesCount = 0;
     let existCount = 0;
-    for (const file of coreInfo.core[0][program][0].files[0].file) {
-      if (typeof file === 'string') {
+    for (const file of coreInfo[program].files) {
+      if (!file.isOptional) {
         filesCount++;
-        if (fs.existsSync(path.join(instPath, file))) {
+        if (fs.existsSync(path.join(instPath, file.filename))) {
           existCount++;
         }
       }

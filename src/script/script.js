@@ -5,11 +5,11 @@ const { execSync } = require('child_process');
 const Store = require('electron-store');
 const store = new Store();
 const List = require('list.js');
-const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const setting = require('../setting/setting');
 const buttonTransition = require('../lib/buttonTransition');
+const parseXML = require('../lib/parseXML');
 
 let selectedScript;
 let listJS;
@@ -19,9 +19,8 @@ let listJS;
  * @returns {string} Parsed script types.
  */
 function parseScriptType(scriptType) {
-  const typeArray = scriptType.split(' ');
   const result = [];
-  for (const type of typeArray) {
+  for (const type of scriptType) {
     switch (type) {
       case 'animation':
         result.push('アニメーション効果');
@@ -53,14 +52,14 @@ function parseScriptType(scriptType) {
  */
 function showScriptDetail(scriptData) {
   for (const detail of ['name', 'overview', 'description', 'developer']) {
-    replaceText('script-' + detail, scriptData[detail]);
+    replaceText('script-' + detail, scriptData.info[detail]);
   }
-  replaceText('script-type', parseScriptType(scriptData.type));
-  replaceText('script-latest-version', scriptData.latestVersion);
+  replaceText('script-type', parseScriptType(scriptData.info.type));
+  replaceText('script-latest-version', scriptData.info.latestVersion);
 
   const a = document.createElement('a');
-  a.innerText = scriptData.pageURL;
-  a.href = scriptData.pageURL;
+  a.innerText = scriptData.info.pageURL;
+  a.href = scriptData.info.pageURL;
   const pageSpan = document.getElementById('script-page');
   while (pageSpan.firstChild) {
     pageSpan.removeChild(pageSpan.firstChild);
@@ -80,7 +79,7 @@ module.exports = {
   /**
    * Returns an object parsed from scripts_list.xml.
    *
-   * @returns {Promise.<object>} - A list of object parsed from scripts_list.xml.
+   * @returns {Promise<object>} - A list of object parsed from scripts_list.xml.
    */
   getScriptsInfo: async function () {
     const xmlList = {};
@@ -92,39 +91,10 @@ module.exports = {
         scriptRepo
       );
       if (scriptsListFile.exists) {
-        const xmlData = fs.readFileSync(scriptsListFile.path, 'utf-8');
-        let scriptsInfo = {};
-        const valid = parser.validate(xmlData);
-        if (valid === true) {
-          const options = {
-            attributeNamePrefix: '$',
-            // attrNodeName: 'attr', // default is 'false'
-            textNodeName: '_',
-            ignoreAttributes: false,
-            // ignoreNameSpace: false,
-            // allowBooleanAttributes: false,
-            parseNodeValue: false,
-            parseAttributeValue: false,
-            trimValues: true,
-            // cdataTagName: '__cdata', // default is 'false'
-            // cdataPositionChar: '\\c',
-            // parseTrueNumberOnly: false,
-            arrayMode: true, // "strict"
-            // stopNodes: ['parse-me-as-string'],
-          };
-          // optional (it'll return an object in case it's not valid)
-          scriptsInfo = parser.parse(xmlData, options);
-          for (const script of scriptsInfo.scripts[0].script) {
-            if (typeof script.files[0].file === 'string') {
-              script.files[0].file = [script.files[0].file];
-            }
-          }
-        } else {
-          throw valid;
-        }
-        xmlList[scriptRepo] = scriptsInfo;
+        xmlList[scriptRepo] = parseXML.script(scriptsListFile.path);
       }
     }
+    console.log(xmlList);
     return xmlList;
   },
 
@@ -177,9 +147,8 @@ module.exports = {
     for (const [scriptsRepo, scriptsInfo] of Object.entries(
       await this.getScriptsInfo()
     )) {
-      for (const script of scriptsInfo.scripts[0].script) {
-        script.repo = scriptsRepo;
-        scripts.push(script);
+      for (const [id, scriptInfo] of Object.entries(scriptsInfo)) {
+        scripts.push({ repo: scriptsRepo, id: id, info: scriptInfo });
       }
     }
 
@@ -218,10 +187,10 @@ module.exports = {
           (i) => i.repo === script.repo && i.id === script.id
         )
       ) {
-        for (const file of script.files[0].file) {
-          if (typeof file === 'string') {
-            if (manualFiles.includes(file)) {
-              manualFiles = manualFiles.filter((ef) => ef !== file);
+        for (const file of script.info.files) {
+          if (!file.isOptional) {
+            if (manualFiles.includes(file.filename)) {
+              manualFiles = manualFiles.filter((ef) => ef !== file.filename);
             }
           }
           if (file.$optional !== 'true' && file.$directory === 'true') {
@@ -261,11 +230,11 @@ module.exports = {
         }
         tr.classList.add('table-secondary');
       });
-      name.innerHTML = script.name;
-      overview.innerHTML = script.overview;
-      developer.innerHTML = script.developer;
-      type.innerHTML = parseScriptType(script.type);
-      latestVersion.innerHTML = script.latestVersion;
+      name.innerHTML = script.info.name;
+      overview.innerHTML = script.info.overview;
+      developer.innerHTML = script.info.developer;
+      type.innerHTML = parseScriptType(script.info.type);
+      latestVersion.innerHTML = script.info.latestVersion;
 
       if (
         installedScripts.some(
@@ -274,10 +243,10 @@ module.exports = {
       ) {
         let filesCount = 0;
         let existCount = 0;
-        for (const file of script.files[0].file) {
-          if (typeof file === 'string') {
+        for (const file of script.info.files) {
+          if (!file.isOptional) {
             filesCount++;
-            if (fs.existsSync(path.join(instPath, file))) {
+            if (fs.existsSync(path.join(instPath, file.filename))) {
               existCount++;
             }
           }
@@ -294,10 +263,10 @@ module.exports = {
       } else {
         let otherVersion = false;
         let otherManualVersion = false;
-        for (const file of script.files[0].file) {
-          if (typeof file === 'string') {
-            if (existingFiles.includes(file)) otherVersion = true;
-            if (manualFiles.includes(file)) otherManualVersion = true;
+        for (const file of script.info.files) {
+          if (!file.isOptional) {
+            if (existingFiles.includes(file.filename)) otherVersion = true;
+            if (manualFiles.includes(file.filename)) otherManualVersion = true;
           }
         }
         installedVersion.innerHTML = otherManualVersion
@@ -394,7 +363,7 @@ module.exports = {
       throw new Error('A script to install is not selected.');
     }
 
-    const url = selectedScript.downloadURL;
+    const url = selectedScript.info.downloadURL;
     const archivePath = await ipcRenderer.invoke('open-browser', url, 'script');
 
     const searchFiles = (dirName) => {
@@ -404,12 +373,12 @@ module.exports = {
       });
       for (const dirent of dirents) {
         if (dirent.isDirectory()) {
-          for (const file of selectedScript.files[0].file) {
-            if (file.$optional !== 'true' && file.$directory === 'true') {
-              if (dirent.name === path.basename(file._)) {
+          for (const file of selectedScript.info.files) {
+            if (!file.isOptional && file.isDirectory) {
+              if (dirent.name === path.basename(file.filename)) {
                 result.push([
                   path.join(dirName, dirent.name),
-                  path.join(instPath, file._),
+                  path.join(instPath, file.filename),
                 ]);
                 break;
               }
@@ -418,18 +387,18 @@ module.exports = {
           const childResult = searchFiles(path.join(dirName, dirent.name));
           result = result.concat(childResult);
         } else {
-          if (selectedScript.installer) {
-            if (dirent.name === selectedScript.installer) {
+          if (selectedScript.info.installer) {
+            if (dirent.name === selectedScript.info.installer) {
               result.push([path.join(dirName, dirent.name)]);
               break;
             }
           } else {
-            for (const file of selectedScript.files[0].file) {
-              if (typeof file === 'string') {
-                if (dirent.name === path.basename(file)) {
+            for (const file of selectedScript.info.files) {
+              if (!file.isOptional) {
+                if (dirent.name === path.basename(file.filename)) {
                   result.push([
                     path.join(dirName, dirent.name),
-                    path.join(instPath, file),
+                    path.join(instPath, file.filename),
                   ]);
                   break;
                 }
@@ -446,13 +415,16 @@ module.exports = {
     try {
       const unzippedPath = await unzip(archivePath);
 
-      if (selectedScript.installer) {
+      if (selectedScript.info.installer) {
         const exePath = searchFiles(unzippedPath);
         const command =
           '"' +
           exePath[0][0] +
           '" ' +
-          selectedScript.installArg.replace('$instpath', '"' + instPath + '"');
+          selectedScript.info.installArg.replace(
+            '$instpath',
+            '"' + instPath + '"'
+          );
         execSync(command);
       } else {
         const searchedFiles = searchFiles(unzippedPath);
@@ -466,10 +438,10 @@ module.exports = {
 
     let filesCount = 0;
     let existCount = 0;
-    for (const file of selectedScript.files[0].file) {
-      if (typeof file === 'string') {
+    for (const file of selectedScript.info.files) {
+      if (!file.isOptional) {
         filesCount++;
-        if (fs.existsSync(path.join(instPath, file))) {
+        if (fs.existsSync(path.join(instPath, file.filename))) {
           existCount++;
         }
       }
@@ -480,7 +452,7 @@ module.exports = {
       installedScripts.push({
         id: selectedScript.id,
         repo: selectedScript.repo,
-        version: selectedScript.latestVersion,
+        version: selectedScript.info.latestVersion,
       });
       store.set('installedVersion.script', installedScripts);
       this.setScriptsList(instPath);
@@ -521,23 +493,15 @@ module.exports = {
     }
 
     for (const file of selectedScript.files[0].file) {
-      if (typeof file === 'string') {
-        fs.removeSync(path.join(instPath, file));
-      } else if (
-        file !== null &&
-        typeof file === 'object' &&
-        !Array.isArray(file)
-      ) {
-        fs.removeSync(path.join(instPath, file._));
-      }
+      fs.removeSync(path.join(instPath, file.filename));
     }
 
     let filesCount = 0;
     let existCount = 0;
-    for (const file of selectedScript.files[0].file) {
-      if (typeof file === 'string') {
+    for (const file of selectedScript.info.files) {
+      if (!file.isOptional) {
         filesCount++;
-        if (!fs.existsSync(path.join(instPath, file))) {
+        if (!fs.existsSync(path.join(instPath, file.filename))) {
           existCount++;
         }
       }
