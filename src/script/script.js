@@ -186,15 +186,21 @@ module.exports = {
 
     const getExistingFiles = () => {
       const regex = /^(?!exedit).*\.(anm|obj|cam|tra|scn)$/;
+      const safeReaddirSync = (path, option) => {
+        try {
+          return fs.readdirSync(path, option);
+        } catch (e) {
+          if (e.code === 'ENOENT') return [];
+          else throw e;
+        }
+      };
       const readdir = (dir) =>
-        fs
-          .readdirSync(dir, { withFileTypes: true })
+        safeReaddirSync(dir, { withFileTypes: true })
           .filter((i) => i.isFile() && regex.test(i.name))
           .map((i) => i.name);
       return readdir(instPath).concat(
         readdir(path.join(instPath, 'script')).map((i) => 'script/' + i),
-        fs
-          .readdirSync(path.join(instPath, 'script'), { withFileTypes: true })
+        safeReaddirSync(path.join(instPath, 'script'), { withFileTypes: true })
           .filter((i) => i.isDirectory())
           .map((i) => 'script/' + i.name)
           .flatMap((i) =>
