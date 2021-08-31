@@ -38,6 +38,20 @@ main {
   /* Prevent thead>th border from flickering */
   border-bottom-color: transparent;
 }
+
+.plugins-table th:first-child,
+.plugins-table td:first-child,
+.scripts-table th:first-child,
+.scripts-table td:first-child {
+  padding-left: 0.75rem;
+}
+.plugins-table th:last-child,
+.plugins-table td:last-child,
+.scripts-table th:last-child,
+.scripts-table td:last-child {
+  padding-right: 0.75rem;
+}
+
 div#plugins-table-overlay,
 div#scripts-table-overlay {
   z-index: -1;
