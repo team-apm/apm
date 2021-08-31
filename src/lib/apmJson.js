@@ -139,6 +139,7 @@ module.exports = {
   addPlugin: function (instPath, plugin) {
     const apmJson = getApmJson(instPath);
     apmJson.plugins[plugin.id] = {
+      id: plugin.id,
       repository: plugin.repo,
       version: plugin.latestVersion,
     };
@@ -166,6 +167,7 @@ module.exports = {
   addScript: function (instPath, script) {
     const apmJson = getApmJson(instPath);
     apmJson.scripts[script.id] = {
+      id: script.id,
       repository: script.repo,
       version: script.latestVersion,
     };
