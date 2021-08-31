@@ -187,9 +187,16 @@ module.exports = {
 
     const getExistingFiles = () => {
       const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul)$/;
+      const safeReaddirSync = (path, option) => {
+        try {
+          return fs.readdirSync(path, option);
+        } catch (e) {
+          if (e.code === 'ENOENT') return [];
+          else throw e;
+        }
+      };
       const readdir = (dir) =>
-        fs
-          .readdirSync(dir, { withFileTypes: true })
+        safeReaddirSync(dir, { withFileTypes: true })
           .filter((i) => i.isFile() && regex.test(i.name))
           .map((i) => i.name);
       return readdir(instPath).concat(
