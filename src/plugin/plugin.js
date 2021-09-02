@@ -427,6 +427,10 @@ module.exports = {
       }
     } catch (e) {
       buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      throw new Error('An error has occurred.');
     }
 
     let filesCount = 0;
