@@ -213,10 +213,15 @@ ipcMain.handle('open-browser', async (event, url, type) => {
 
         item.once('done', (e, state) => {
           resolve(item.getSavePath());
+          browserWindow.destroy();
         });
         browserWindow.hide();
       }
     );
+
+    browserWindow.on('close', (event) => {
+      resolve('close');
+    });
   });
 });
 

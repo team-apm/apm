@@ -369,6 +369,17 @@ module.exports = {
 
     const url = selectedScript.info.downloadURL;
     const archivePath = await ipcRenderer.invoke('open-browser', url, 'script');
+    if (archivePath === 'close') {
+      buttonTransition.message(
+        btn,
+        'インストールがキャンセルされました。',
+        'info'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      return;
+    }
 
     const searchFiles = (dirName) => {
       let result = [];
@@ -438,6 +449,10 @@ module.exports = {
       }
     } catch (e) {
       buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      throw new Error('An error has occurred.');
     }
 
     let filesCount = 0;
