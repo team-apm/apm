@@ -10,12 +10,9 @@ module.exports = {
    * Initializes settings
    */
   initSettings: function () {
+    if (!store.has('dataURL.extra')) store.set('dataURL.extra', '');
     if (!store.has('dataURL.main'))
-      store.set(
-        'dataURL.main',
-        'http://halshusato.starfree.jp/ato_lash/apm/data/'
-      );
-    if (!store.has('dataURL.extra')) this.setExtraDataUrl('');
+      this.setDataUrl(null, 'http://halshusato.starfree.jp/ato_lash/apm/data/');
   },
 
   /**
@@ -34,7 +31,9 @@ module.exports = {
    * @param {string} dataUrl - A data files URL to set.
    */
   setDataUrl: function (btn, dataUrl) {
-    const enableButton = buttonTransition.loading(btn);
+    let enableButton;
+    if (btn !== null) enableButton = buttonTransition.loading(btn);
+
     if (!dataUrl) {
       ipcRenderer.invoke(
         'open-err-dialog',
@@ -58,10 +57,12 @@ module.exports = {
       this.setExtraDataUrl(null, store.get('dataURL.extra'));
     }
 
-    buttonTransition.message(btn, '設定完了', 'success');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+    if (btn !== null) {
+      buttonTransition.message(btn, '設定完了', 'success');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
   },
 
   /**
