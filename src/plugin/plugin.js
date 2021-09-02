@@ -5,11 +5,11 @@ const { execSync } = require('child_process');
 const Store = require('electron-store');
 const store = new Store();
 const List = require('list.js');
-const parser = require('fast-xml-parser');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const setting = require('../setting/setting');
 const buttonTransition = require('../lib/buttonTransition');
+const parseXML = require('../lib/parseXML');
 
 let selectedPlugin;
 let listJS;
@@ -19,9 +19,8 @@ let listJS;
  * @returns {string} Parsed plugin types.
  */
 function parsePluginType(pluginType) {
-  const typeArray = pluginType.split(' ');
   const result = [];
-  for (const type of typeArray) {
+  for (const type of pluginType) {
     switch (type) {
       case 'input':
         result.push('入力');
@@ -53,14 +52,14 @@ function parsePluginType(pluginType) {
  */
 function showPluginDetail(pluginData) {
   for (const detail of ['name', 'overview', 'description', 'developer']) {
-    replaceText('plugin-' + detail, pluginData[detail]);
+    replaceText('plugin-' + detail, pluginData.info[detail]);
   }
-  replaceText('plugin-type', parsePluginType(pluginData.type));
-  replaceText('plugin-latest-version', pluginData.latestVersion);
+  replaceText('plugin-type', parsePluginType(pluginData.info.type));
+  replaceText('plugin-latest-version', pluginData.info.latestVersion);
 
   const a = document.createElement('a');
-  a.innerText = pluginData.pageURL;
-  a.href = pluginData.pageURL;
+  a.innerText = pluginData.info.pageURL;
+  a.href = pluginData.info.pageURL;
   const pageSpan = document.getElementById('plugin-page');
   while (pageSpan.firstChild) {
     pageSpan.removeChild(pageSpan.firstChild);
@@ -80,7 +79,7 @@ module.exports = {
   /**
    * Returns an object parsed from plugins_list.xml.
    *
-   * @returns {Promise.<object>} - A list of object parsed from plugins_list.xml.
+   * @returns {Promise<object>} - A list of object parsed from plugins_list.xml.
    */
   getPluginsInfo: async function () {
     const xmlList = {};
@@ -92,37 +91,7 @@ module.exports = {
         pluginRepo
       );
       if (pluginsListFile.exists) {
-        const xmlData = fs.readFileSync(pluginsListFile.path, 'utf-8');
-        let pluginsInfo = {};
-        const valid = parser.validate(xmlData);
-        if (valid === true) {
-          const options = {
-            attributeNamePrefix: '$',
-            // attrNodeName: 'attr', // default is 'false'
-            textNodeName: '_',
-            ignoreAttributes: false,
-            // ignoreNameSpace: false,
-            // allowBooleanAttributes: false,
-            parseNodeValue: false,
-            parseAttributeValue: false,
-            trimValues: true,
-            // cdataTagName: '__cdata', // default is 'false'
-            // cdataPositionChar: '\\c',
-            // parseTrueNumberOnly: false,
-            arrayMode: true, // "strict"
-            // stopNodes: ['parse-me-as-string'],
-          };
-          // optional (it'll return an object in case it's not valid)
-          pluginsInfo = parser.parse(xmlData, options);
-          for (const plugin of pluginsInfo.plugins[0].plugin) {
-            if (typeof plugin.files[0].file === 'string') {
-              plugin.files[0].file = [plugin.files[0].file];
-            }
-          }
-        } else {
-          throw valid;
-        }
-        xmlList[pluginRepo] = pluginsInfo;
+        xmlList[pluginRepo] = parseXML.plugin(pluginsListFile.path);
       }
     }
     return xmlList;
@@ -177,9 +146,8 @@ module.exports = {
     for (const [pluginsRepo, pluginsInfo] of Object.entries(
       await this.getPluginsInfo()
     )) {
-      for (const plugin of pluginsInfo.plugins[0].plugin) {
-        plugin.repo = pluginsRepo;
-        plugins.push(plugin);
+      for (const [id, pluginInfo] of Object.entries(pluginsInfo)) {
+        plugins.push({ repo: pluginsRepo, id: id, info: pluginInfo });
       }
     }
 
@@ -212,10 +180,10 @@ module.exports = {
           (i) => i.repo === plugin.repo && i.id === plugin.id
         )
       ) {
-        for (const file of plugin.files[0].file) {
-          if (typeof file === 'string') {
-            if (manualFiles.includes(file)) {
-              manualFiles = manualFiles.filter((ef) => ef !== file);
+        for (const file of plugin.info.files) {
+          if (!file.isOptional) {
+            if (manualFiles.includes(file.filename)) {
+              manualFiles = manualFiles.filter((ef) => ef !== file.filename);
             }
           }
         }
@@ -252,11 +220,11 @@ module.exports = {
         }
         tr.classList.add('table-secondary');
       });
-      name.innerHTML = plugin.name;
-      overview.innerHTML = plugin.overview;
-      developer.innerHTML = plugin.developer;
-      type.innerHTML = parsePluginType(plugin.type);
-      latestVersion.innerHTML = plugin.latestVersion;
+      name.innerHTML = plugin.info.name;
+      overview.innerHTML = plugin.info.overview;
+      developer.innerHTML = plugin.info.developer;
+      type.innerHTML = parsePluginType(plugin.info.type);
+      latestVersion.innerHTML = plugin.info.latestVersion;
 
       if (
         installedPlugins.some(
@@ -265,10 +233,10 @@ module.exports = {
       ) {
         let filesCount = 0;
         let existCount = 0;
-        for (const file of plugin.files[0].file) {
-          if (typeof file === 'string') {
+        for (const file of plugin.info.files) {
+          if (!file.isOptional) {
             filesCount++;
-            if (fs.existsSync(path.join(instPath, file))) {
+            if (fs.existsSync(path.join(instPath, file.filename))) {
               existCount++;
             }
           }
@@ -285,10 +253,10 @@ module.exports = {
       } else {
         let otherVersion = false;
         let otherManualVersion = false;
-        for (const file of plugin.files[0].file) {
-          if (typeof file === 'string') {
-            if (existingFiles.includes(file)) otherVersion = true;
-            if (manualFiles.includes(file)) otherManualVersion = true;
+        for (const file of plugin.info.files) {
+          if (!file.isOptional) {
+            if (existingFiles.includes(file.filename)) otherVersion = true;
+            if (manualFiles.includes(file.filename)) otherManualVersion = true;
           }
         }
         installedVersion.innerHTML = otherManualVersion
@@ -385,7 +353,7 @@ module.exports = {
       throw new Error('A plugin to install is not selected.');
     }
 
-    const url = selectedPlugin.downloadURL;
+    const url = selectedPlugin.info.downloadURL;
     const archivePath = await ipcRenderer.invoke('open-browser', url, 'plugin');
 
     const searchFiles = (dirName) => {
@@ -398,22 +366,22 @@ module.exports = {
           const childResult = searchFiles(path.join(dirName, dirent.name));
           result = result.concat(childResult);
         } else {
-          if (selectedPlugin.installer) {
-            if (dirent.name === selectedPlugin.installer) {
+          if (selectedPlugin.info.installer) {
+            if (dirent.name === selectedPlugin.info.installer) {
               result.push([path.join(dirName, dirent.name)]);
               break;
             }
           } else {
-            for (const file of selectedPlugin.files[0].file) {
-              if (typeof file === 'string') {
-                if (dirent.name === path.basename(file)) {
+            for (const file of selectedPlugin.info.files) {
+              if (!file.isOptional) {
+                if (dirent.name === path.basename(file.filename)) {
                   result.push([
                     path.join(dirName, dirent.name),
-                    path.join(instPath, file),
+                    path.join(instPath, file.filename),
                   ]);
                   break;
                 }
-              } else if (file.$optional === 'true') {
+              } else if (file.isOptional) {
                 break;
               }
             }
@@ -426,13 +394,13 @@ module.exports = {
     try {
       const unzippedPath = await unzip(archivePath);
 
-      if (selectedPlugin.installer) {
+      if (selectedPlugin.info.installer) {
         const exePath = searchFiles(unzippedPath);
         const command =
           '"' +
           exePath[0][0] +
           '" ' +
-          selectedPlugin.installArg
+          selectedPlugin.info.installArg
             .replace('"$instpath"', '$instpath')
             .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
         execSync(command);
@@ -448,10 +416,10 @@ module.exports = {
 
     let filesCount = 0;
     let existCount = 0;
-    for (const file of selectedPlugin.files[0].file) {
-      if (typeof file === 'string') {
+    for (const file of selectedPlugin.info.files) {
+      if (!file.isOptional) {
         filesCount++;
-        if (fs.existsSync(path.join(instPath, file))) {
+        if (fs.existsSync(path.join(instPath, file.filename))) {
           existCount++;
         }
       }
@@ -462,7 +430,7 @@ module.exports = {
       installedPlugins.push({
         id: selectedPlugin.id,
         repo: selectedPlugin.repo,
-        version: selectedPlugin.latestVersion,
+        version: selectedPlugin.info.latestVersion,
       });
       store.set('installedVersion.plugin', installedPlugins);
       this.setPluginsList(instPath);
@@ -502,24 +470,16 @@ module.exports = {
       throw new Error('A plugin to install is not selected.');
     }
 
-    for (const file of selectedPlugin.files[0].file) {
-      if (typeof file === 'string') {
-        fs.removeSync(path.join(instPath, file));
-      } else if (
-        file !== null &&
-        typeof file === 'object' &&
-        !Array.isArray(file)
-      ) {
-        fs.removeSync(path.join(instPath, file._));
-      }
+    for (const file of selectedPlugin.info.files) {
+      fs.removeSync(path.join(instPath, file.filename));
     }
 
     let filesCount = 0;
     let existCount = 0;
-    for (const file of selectedPlugin.files[0].file) {
-      if (typeof file === 'string') {
+    for (const file of selectedPlugin.info.files) {
+      if (!file.isOptional) {
         filesCount++;
-        if (!fs.existsSync(path.join(instPath, file))) {
+        if (!fs.existsSync(path.join(instPath, file.filename))) {
           existCount++;
         }
       }
