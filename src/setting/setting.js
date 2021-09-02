@@ -58,7 +58,7 @@ module.exports = {
       this.setExtraDataUrl(null, store.get('dataURL.extra'));
     }
 
-    buttonTransition.success(btn, '設定完了');
+    buttonTransition.message(btn, '設定完了', 'success');
     setTimeout(() => {
       enableButton();
     }, 3000);
@@ -135,7 +135,7 @@ module.exports = {
     store.set('dataURL.scripts', scripts);
 
     if (btn !== null) {
-      buttonTransition.success(btn, '設定完了');
+      buttonTransition.message(btn, '設定完了', 'success');
       setTimeout(() => {
         enableButton();
       }, 3000);

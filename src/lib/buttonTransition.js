@@ -31,55 +31,34 @@ module.exports = {
   },
 
   /**
-   * Show a success message in the button.
+   * Show a message in the button.
    *
-   * @param {HTMLButtonElement} btn - An element of the button to be
+   * @param {HTMLButtonElement} btn - An element of the button to be changed
    * @param {string} message - A message to be shown
+   * @param {string} type - A type of the button to be changed to
    */
-  success: function (btn, message) {
-    for (const type of buttonTypes) {
-      if (btn.classList.contains('btn-' + type)) {
-        btn.classList.replace('btn-' + type, 'btn-success');
-        setTimeout(() => {
-          btn.classList.replace('btn-success', 'btn-' + type);
-        }, 3000);
-        break;
-      }
+  message: function (btn, message, type = null) {
+    if (type != null) {
+      for (const originalType of buttonTypes) {
+        const btnOriginalType = 'btn-' + originalType;
+        const btnType = 'btn-' + type;
+        if (btn.classList.contains(btnOriginalType)) {
+          btn.classList.replace(btnOriginalType, btnType);
+          setTimeout(() => {
+            btn.classList.replace(btnType, btnOriginalType);
+          }, 3000);
+          break;
+        }
 
-      if (btn.classList.contains('btn-outline-' + type)) {
-        btn.classList.replace('btn-outline-' + type, 'btn-outline-success');
-        setTimeout(() => {
-          btn.classList.replace('btn-outline-success', 'btn-outline-' + type);
-        }, 3000);
-        break;
-      }
-    }
-
-    btn.innerHTML = message;
-  },
-
-  /**
-   * Show a error message in the button.
-   *
-   * @param {HTMLButtonElement} btn - An element of the button to be
-   * @param {string} message - A message to be shown
-   */
-  error: function (btn, message) {
-    for (const type of buttonTypes) {
-      if (btn.classList.contains('btn-' + type)) {
-        btn.classList.replace('btn-' + type, 'btn-danger');
-        setTimeout(() => {
-          btn.classList.replace('btn-danger', 'btn-' + type);
-        }, 3000);
-        break;
-      }
-
-      if (btn.classList.contains('btn-outline-' + type)) {
-        btn.classList.replace('btn-outline-' + type, 'btn-outline-danger');
-        setTimeout(() => {
-          btn.classList.replace('btn-outline-danger', 'btn-outline-' + type);
-        }, 3000);
-        break;
+        const outlineOriginalType = 'btn-outline-' + originalType;
+        const outlineType = 'btn-outline-' + type;
+        if (btn.classList.contains(outlineOriginalType)) {
+          btn.classList.replace(outlineOriginalType, outlineType);
+          setTimeout(() => {
+            btn.classList.replace(outlineType, outlineOriginalType);
+          }, 3000);
+          break;
+        }
       }
     }
 

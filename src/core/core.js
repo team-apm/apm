@@ -193,7 +193,11 @@ module.exports = {
     const enableButton = buttonTransition.loading(btn);
 
     if (!instPath) {
-      buttonTransition.error(btn, 'インストール先フォルダを指定してください。');
+      buttonTransition.message(
+        btn,
+        'インストール先フォルダを指定してください。',
+        'danger'
+      );
       setTimeout(() => {
         enableButton();
       }, 3000);
@@ -201,7 +205,7 @@ module.exports = {
     }
 
     if (!version) {
-      buttonTransition.error(btn, 'バージョンを指定してください。');
+      buttonTransition.message(btn, 'バージョンを指定してください。', 'danger');
       setTimeout(() => {
         enableButton();
       }, 3000);
@@ -243,9 +247,9 @@ module.exports = {
       store.set('installedVersion.core.' + program, version);
       this.displayInstalledVersion(instPath);
 
-      buttonTransition.success(btn, 'インストール完了');
+      buttonTransition.message(btn, 'インストール完了', 'success');
     } else {
-      buttonTransition.error(btn, 'エラーが発生しました。');
+      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     }
 
     setTimeout(() => {

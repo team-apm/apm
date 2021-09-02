@@ -379,7 +379,11 @@ module.exports = {
     const enableButton = buttonTransition.loading(btn);
 
     if (!instPath) {
-      buttonTransition.error(btn, 'インストール先フォルダを指定してください。');
+      buttonTransition.message(
+        btn,
+        'インストール先フォルダを指定してください。',
+        'danger'
+      );
       setTimeout(() => {
         enableButton();
       }, 3000);
@@ -387,7 +391,7 @@ module.exports = {
     }
 
     if (!selectedScript) {
-      buttonTransition.error(btn, 'プラグインを選択してください。');
+      buttonTransition.message(btn, 'プラグインを選択してください。', 'danger');
       setTimeout(() => {
         enableButton();
       }, 3000);
@@ -461,7 +465,7 @@ module.exports = {
         }
       }
     } catch (e) {
-      buttonTransition.error(btn, 'エラーが発生しました。');
+      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     }
 
     let filesCount = 0;
@@ -485,9 +489,9 @@ module.exports = {
       store.set('installedVersion.script', installedScripts);
       this.setScriptsList(instPath);
 
-      buttonTransition.success(btn, 'インストール完了');
+      buttonTransition.message(btn, 'インストール完了', 'success');
     } else {
-      buttonTransition.error(btn, 'エラーが発生しました。');
+      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     }
 
     setTimeout(() => {
@@ -505,7 +509,11 @@ module.exports = {
     const enableButton = buttonTransition.loading(btn);
 
     if (!instPath) {
-      buttonTransition.error(btn, 'インストール先フォルダを指定してください。');
+      buttonTransition.message(
+        btn,
+        'インストール先フォルダを指定してください。',
+        'danger'
+      );
       setTimeout(() => {
         enableButton();
       }, 3000);
@@ -513,7 +521,7 @@ module.exports = {
     }
 
     if (!selectedScript) {
-      buttonTransition.error(btn, 'プラグインを選択してください。');
+      buttonTransition.message(btn, 'プラグインを選択してください。', 'danger');
       setTimeout(() => {
         enableButton();
       }, 3000);
@@ -553,9 +561,9 @@ module.exports = {
       );
       this.setScriptsList(instPath);
 
-      buttonTransition.success(btn, 'アンインストール完了');
+      buttonTransition.message(btn, 'アンインストール完了', 'success');
     } else {
-      buttonTransition.error(btn, 'エラーが発生しました。');
+      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     }
 
     setTimeout(() => {
