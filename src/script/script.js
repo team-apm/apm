@@ -360,7 +360,7 @@ module.exports = {
     }
 
     if (!selectedScript) {
-      buttonTransition.message(btn, 'プラグインを選択してください。', 'danger');
+      buttonTransition.message(btn, 'スクリプトを選択してください。', 'danger');
       setTimeout(() => {
         enableButton();
       }, 3000);
@@ -508,7 +508,7 @@ module.exports = {
     }
 
     if (!selectedScript) {
-      buttonTransition.message(btn, 'プラグインを選択してください。', 'danger');
+      buttonTransition.message(btn, 'スクリプトを選択してください。', 'danger');
       setTimeout(() => {
         enableButton();
       }, 3000);
