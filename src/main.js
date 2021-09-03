@@ -201,6 +201,8 @@ ipcMain.handle('open-browser', async (event, url, type) => {
     browserWindow.webContents.session.on(
       'will-download',
       (event, item, webContents) => {
+        if (!browserWindow.isDestroyed()) browserWindow.hide();
+
         const ext = path.extname(item.getFilename());
         const dir = path.join(app.getPath('userData'), 'Data');
         if (ext === '.zip') {
@@ -215,7 +217,6 @@ ipcMain.handle('open-browser', async (event, url, type) => {
           resolve(item.getSavePath());
           browserWindow.destroy();
         });
-        browserWindow.hide();
       }
     );
 
