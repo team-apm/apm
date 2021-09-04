@@ -16,7 +16,7 @@ function getApmJson(instPath) {
       throw new Error('Invalid apm.json.');
     }
   } catch (error) {
-    return { core: { aviutl: null, exedit: null }, plugins: {}, scripts: {} };
+    return { core: {}, plugins: {}, scripts: {} };
   }
 }
 
