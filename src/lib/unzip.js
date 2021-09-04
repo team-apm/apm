@@ -2,7 +2,15 @@ const path = require('path');
 const sevenBin = require('7zip-bin');
 const { extractFull } = require('node-7z');
 
-const pathTo7zip = sevenBin.path7za.replace('app.asar', 'app.asar.unpacked');
+// https://github.com/puppeteer/puppeteer/issues/2134#issuecomment-408221446
+const pathTo7zipCross = sevenBin.path7za.replace(
+  'app.asar',
+  'app.asar.unpacked'
+);
+const pathTo7zipWin = require('win-7zip')['7z'].replace(
+  'app.asar',
+  'app.asar.unpacked'
+);
 
 /**
  * Unzips zip archive.
@@ -17,18 +25,18 @@ module.exports = async function (zipPath, encode = 'utf8') {
       return path.resolve(
         path.dirname(zipPath),
         '../',
-        path.basename(zipPath, '.zip')
+        path.basename(zipPath, path.extname(zipPath))
       );
     } else {
       return path.resolve(
         path.dirname(zipPath),
-        path.basename(zipPath, '.zip')
+        path.basename(zipPath, path.extname(zipPath))
       );
     }
   };
   const targetPath = getTargetPath();
   const zipStream = extractFull(zipPath, targetPath, {
-    $bin: pathTo7zip,
+    $bin: process.platform === 'win32' ? pathTo7zipWin : pathTo7zipCross,
     overwrite: 'a',
   });
   return new Promise((resolve) => {

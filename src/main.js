@@ -136,7 +136,7 @@ ipcMain.handle(
     if (isTempData) {
       const directory = path.join(app.getPath('userData'), 'Data/', tempSubDir);
 
-      if (ext === '.zip') {
+      if (['.zip', '.lzh'].includes(ext)) {
         opt.directory = path.join(directory, 'archive');
       } else {
         opt.directory = directory;
@@ -205,7 +205,7 @@ ipcMain.handle('open-browser', async (event, url, type) => {
 
         const ext = path.extname(item.getFilename());
         const dir = path.join(app.getPath('userData'), 'Data');
-        if (ext === '.zip') {
+        if (['.zip', '.lzh'].includes(ext)) {
           item.setSavePath(
             path.join(dir, type, 'archive/', item.getFilename())
           );

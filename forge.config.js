@@ -2,7 +2,7 @@ module.exports = {
   packagerConfig: {
     executableName: 'apm',
     asar: {
-      unpackDir: 'node_modules/7zip-bin',
+      unpackDir: '{node_modules/7zip-bin,node_modules/win-7zip}',
     },
     ignore: [
       /^(?!.*node_modules).*\/\.github$/,
