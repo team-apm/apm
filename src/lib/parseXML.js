@@ -100,32 +100,6 @@ class PluginInfo {
   }
 }
 
-/**
- *
- */
-class ScriptInfo {
-  /**
-   * Returns the script's information.
-   *
-   * @param {object} parsedScript - An object parsed from XML.
-   */
-  constructor(parsedScript) {
-    const keys = defaultKeys.slice();
-    for (const key of keys) {
-      if (parsedScript[key]) {
-        if (key === 'type') {
-          this.type = parsedScript.type[0].split(' ');
-        } else if (key === 'files') {
-          this.files = parseFiles(parsedScript);
-        } else {
-          this[key] = parsedScript[key][0];
-        }
-      }
-    }
-    Object.freeze(this);
-  }
-}
-
 const parseOptions = {
   attributeNamePrefix: '$',
   textNodeName: '_',
@@ -192,34 +166,6 @@ class PluginsList extends Object {
   }
 }
 
-/**
- * An object which contains scripts list.
- */
-class ScriptsList extends Object {
-  /**
-   *
-   * @param {string} xmlPath - The path of the XML file.
-   * @returns {ScriptsList} A list of scripts.
-   */
-  constructor(xmlPath) {
-    super();
-    const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-    const valid = parser.validate(xmlData);
-    if (valid === true) {
-      const scriptsInfo = parser.parse(xmlData, parseOptions);
-      if (scriptsInfo.scripts) {
-        for (const script of scriptsInfo.scripts[0].script) {
-          this[script.id[0]] = new ScriptInfo(script);
-        }
-      } else {
-        throw new Error('The list is invalid.');
-      }
-    } else {
-      throw valid;
-    }
-  }
-}
-
 module.exports = {
   /**
    * Returns a list of core programs.
@@ -244,20 +190,6 @@ module.exports = {
   plugin: function (pluginsListPath) {
     if (fs.existsSync(pluginsListPath)) {
       return new PluginsList(pluginsListPath);
-    } else {
-      throw new Error('The version file does not exist.');
-    }
-  },
-
-  /**
-   * Returns a list of scripts.
-   *
-   * @param {string} scriptsListPath - A path of xml file.
-   * @returns {ScriptsList} A list of scripts.
-   */
-  script: function (scriptsListPath) {
-    if (fs.existsSync(scriptsListPath)) {
-      return new ScriptsList(scriptsListPath);
     } else {
       throw new Error('The version file does not exist.');
     }

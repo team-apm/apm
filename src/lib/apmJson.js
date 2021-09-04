@@ -16,7 +16,7 @@ function getApmJson(instPath) {
       throw new Error('Invalid apm.json.');
     }
   } catch (error) {
-    return { core: {}, plugins: {}, scripts: {} };
+    return { core: {}, plugins: {} };
   }
 }
 
@@ -153,34 +153,6 @@ module.exports = {
   removePlugin: function (instPath, plugin) {
     const apmJson = getApmJson(instPath);
     delete apmJson.plugins[plugin.id];
-    setApmJson(instPath, apmJson);
-  },
-
-  /**
-   * Adds the information of the script to `apm.json`.
-   *
-   * @param {string} instPath - An installation path
-   * @param {object} script - An information of a script
-   */
-  addScript: function (instPath, script) {
-    const apmJson = getApmJson(instPath);
-    apmJson.scripts[script.id] = {
-      id: script.id,
-      repository: script.repo,
-      version: script.info.latestVersion,
-    };
-    setApmJson(instPath, apmJson);
-  },
-
-  /**
-   * Removes the information of the script from `apm.json`.
-   *
-   * @param {string} instPath - An installation path
-   * @param {object} script - An information of a script
-   */
-  removeScript: function (instPath, script) {
-    const apmJson = getApmJson(instPath);
-    delete apmJson.scripts[script.id];
     setApmJson(instPath, apmJson);
   },
 };

@@ -1,32 +1,27 @@
 html,
 body,
 section,
-section#plugins .container-fluid,
-section#scripts .container-fluid {
+section#plugins .container-fluid {
   height: 100%;
 }
 main {
   height: calc(100% - 2.625rem);
   overflow-y: auto;
 }
-.plugins-table,
-.scripts-table {
+.plugins-table {
   position: relative;
   min-height: 6rem;
 }
-.plugins-table .col,
-.scripts-table .col {
+.plugins-table .col {
   height: 100%;
   overflow-y: auto;
 }
-.plugins-table thead th,
-.scripts-table thead th {
+.plugins-table thead th {
   position: sticky;
   top: 0;
   z-index: 1020;
 }
-.plugins-table thead th::before,
-.scripts-table thead th::before {
+.plugins-table thead th::before {
   content: '';
   width: 100%;
   position: absolute;
@@ -40,20 +35,15 @@ main {
 }
 
 .plugins-table th:first-child,
-.plugins-table td:first-child,
-.scripts-table th:first-child,
-.scripts-table td:first-child {
+.plugins-table td:first-child {
   padding-left: 0.75rem;
 }
 .plugins-table th:last-child,
-.plugins-table td:last-child,
-.scripts-table th:last-child,
-.scripts-table td:last-child {
+.plugins-table td:last-child {
   padding-right: 0.75rem;
 }
 
-div#plugins-table-overlay,
-div#scripts-table-overlay {
+div#plugins-table-overlay {
   z-index: -1;
   position: absolute;
   top: 0;
@@ -62,12 +52,10 @@ div#scripts-table-overlay {
   height: 100%;
   background-color: rgba(127, 127, 127, 0.5);
 }
-.plugin-detail,
-.script-detail {
+.plugin-detail {
   overflow-x: auto;
 }
-.plugin-detail .row,
-.script-detail .row {
+.plugin-detail .row {
   margin-top: 2px;
   margin-bottom: 2px;
 }

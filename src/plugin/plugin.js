@@ -21,6 +21,7 @@ function parsePluginType(pluginType) {
   const result = [];
   for (const type of pluginType) {
     switch (type) {
+      // plugin
       case 'input':
         result.push('入力');
         break;
@@ -35,6 +36,22 @@ function parsePluginType(pluginType) {
         break;
       case 'language':
         result.push('言語');
+        break;
+      // script
+      case 'animation':
+        result.push('アニメーション効果');
+        break;
+      case 'object':
+        result.push('カスタムオブジェクト');
+        break;
+      case 'scene':
+        result.push('シーンチェンジ');
+        break;
+      case 'camera':
+        result.push('カメラ制御');
+        break;
+      case 'track':
+        result.push('トラックバー');
         break;
       default:
         result.push('不明');
@@ -70,7 +87,7 @@ module.exports = {
   /**
    * Initializes plugin
    *
-   * @param {string} instPath - A installation path
+   * @param {string} instPath - An installation path
    */
   initPlugin: function (instPath) {
     if (!apmJson.has(instPath, 'plugins')) apmJson.set(instPath, 'plugins', {});
@@ -154,7 +171,7 @@ module.exports = {
     const installedPlugins = apmJson.get(instPath, 'plugins');
 
     const getExistingFiles = () => {
-      const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul)$/;
+      const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn)$/;
       const safeReaddirSync = (path, option) => {
         try {
           return fs.readdirSync(path, option);
@@ -168,7 +185,14 @@ module.exports = {
           .filter((i) => i.isFile() && regex.test(i.name))
           .map((i) => i.name);
       return readdir(instPath).concat(
-        readdir(path.join(instPath, 'plugins')).map((i) => 'plugins/' + i)
+        readdir(path.join(instPath, 'plugins')).map((i) => 'plugins/' + i),
+        readdir(path.join(instPath, 'script')).map((i) => 'script/' + i),
+        safeReaddirSync(path.join(instPath, 'script'), { withFileTypes: true })
+          .filter((i) => i.isDirectory())
+          .map((i) => 'script/' + i.name)
+          .flatMap((i) =>
+            readdir(path.join(instPath, i)).map((j) => i + '/' + j)
+          )
       );
     };
     const existingFiles = getExistingFiles();
@@ -187,6 +211,11 @@ module.exports = {
               if (manualFiles.includes(file.filename)) {
                 manualFiles = manualFiles.filter((ef) => ef !== file.filename);
               }
+            }
+            if (!file.isOptional && file.isDirectory) {
+              manualFiles = manualFiles.filter(
+                (ef) => !ef.startsWith(file.filename)
+              );
             }
           }
         }
@@ -382,6 +411,17 @@ module.exports = {
       });
       for (const dirent of dirents) {
         if (dirent.isDirectory()) {
+          for (const file of selectedPlugin.info.files) {
+            if (!file.isOptional && file.isDirectory) {
+              if (dirent.name === path.basename(file.filename)) {
+                result.push([
+                  path.join(dirName, dirent.name),
+                  path.join(instPath, file.filename),
+                ]);
+                break;
+              }
+            }
+          }
           const childResult = searchFiles(path.join(dirName, dirent.name));
           result = result.concat(childResult);
         } else {
@@ -400,7 +440,7 @@ module.exports = {
                   ]);
                   break;
                 }
-              } else if (file.isOptional) {
+              } else {
                 break;
               }
             }

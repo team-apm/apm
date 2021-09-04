@@ -84,15 +84,6 @@ module.exports = {
   },
 
   /**
-   * Returns script data files URLs.
-   *
-   * @returns {Array.<string>} - Script data files URLs.
-   */
-  getScriptsDataUrl: function () {
-    return store.get('dataURL.scripts');
-  },
-
-  /**
    * Sets extra data files URLs.
    *
    * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
@@ -103,7 +94,6 @@ module.exports = {
     if (btn !== null) enableButton = buttonTransition.loading(btn);
 
     const plugins = [path.join(store.get('dataURL.main'), 'plugins_list.xml')];
-    const scripts = [path.join(store.get('dataURL.main'), 'scripts_list.xml')];
 
     for (const tmpDataUrl of dataUrls.split(/\r?\n/)) {
       const dataUrl = tmpDataUrl.trim();
@@ -116,10 +106,7 @@ module.exports = {
           `有効なURLまたは場所を入力してください。(${dataUrl})`
         );
       }
-      if (
-        !(path.basename(dataUrl) === 'plugins_list.xml') &&
-        !(path.basename(dataUrl) === 'scripts_list.xml')
-      ) {
+      if (!(path.basename(dataUrl) === 'plugins_list.xml')) {
         ipcRenderer.invoke(
           'open-err-dialog',
           'エラー',
@@ -128,12 +115,10 @@ module.exports = {
       }
 
       if (path.basename(dataUrl) === 'plugins_list.xml') plugins.push(dataUrl);
-      if (path.basename(dataUrl) === 'scripts_list.xml') scripts.push(dataUrl);
     }
 
     store.set('dataURL.extra', dataUrls);
     store.set('dataURL.plugins', plugins);
-    store.set('dataURL.scripts', scripts);
 
     if (btn !== null) {
       buttonTransition.message(btn, '設定完了', 'success');
