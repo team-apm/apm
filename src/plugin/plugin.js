@@ -324,7 +324,7 @@ module.exports = {
         pluginRepo
       );
     }
-    this.setPluginsList(instPath);
+    await this.setPluginsList(instPath);
 
     overlay.classList.remove('show');
     overlay.style.zIndex = -1;
@@ -450,7 +450,7 @@ module.exports = {
 
     if (filesCount === existCount) {
       apmJson.addPlugin(instPath, selectedPlugin);
-      this.setPluginsList(instPath);
+      await this.setPluginsList(instPath);
 
       buttonTransition.message(btn, 'インストール完了', 'success');
     } else {
@@ -508,7 +508,7 @@ module.exports = {
 
     if (filesCount === existCount) {
       apmJson.removePlugin(instPath, selectedPlugin);
-      this.setPluginsList(instPath);
+      await this.setPluginsList(instPath);
 
       buttonTransition.message(btn, 'アンインストール完了', 'success');
     } else {
