@@ -2,14 +2,13 @@ const { ipcRenderer } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
-const Store = require('electron-store');
-const store = new Store();
 const List = require('list.js');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const setting = require('../setting/setting');
 const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
+const apmJson = require('../lib/apmJson');
 
 let selectedPlugin;
 let listJS;
@@ -70,10 +69,11 @@ function showPluginDetail(pluginData) {
 module.exports = {
   /**
    * Initializes plugin
+   *
+   * @param {string} instPath - A installation path
    */
-  initPlugin: function () {
-    if (!store.has('installedVersion.plugin'))
-      store.set('installedVersion.plugin', []);
+  initPlugin: function (instPath) {
+    if (!apmJson.has(instPath, 'plugins')) apmJson.set(instPath, 'plugins', {});
   },
 
   /**
@@ -151,7 +151,7 @@ module.exports = {
       }
     }
 
-    const installedPlugins = store.get('installedVersion.plugin');
+    const installedPlugins = apmJson.get(instPath, 'plugins');
 
     const getExistingFiles = () => {
       const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul)$/;
@@ -175,15 +175,18 @@ module.exports = {
 
     let manualFiles = [...existingFiles];
     for (const plugin of plugins) {
-      if (
-        installedPlugins.some(
-          (i) => i.repo === plugin.repo && i.id === plugin.id
-        )
-      ) {
-        for (const file of plugin.info.files) {
-          if (!file.isOptional) {
-            if (manualFiles.includes(file.filename)) {
-              manualFiles = manualFiles.filter((ef) => ef !== file.filename);
+      for (const [installedId, installedPlugin] of Object.entries(
+        installedPlugins
+      )) {
+        if (
+          installedId === plugin.id &&
+          installedPlugin.repository === plugin.repo
+        ) {
+          for (const file of plugin.info.files) {
+            if (!file.isOptional) {
+              if (manualFiles.includes(file.filename)) {
+                manualFiles = manualFiles.filter((ef) => ef !== file.filename);
+              }
             }
           }
         }
@@ -226,44 +229,45 @@ module.exports = {
       type.innerHTML = parsePluginType(plugin.info.type);
       latestVersion.innerHTML = plugin.info.latestVersion;
 
-      if (
-        installedPlugins.some(
-          (i) => i.repo === plugin.repo && i.id === plugin.id
-        )
-      ) {
-        let filesCount = 0;
-        let existCount = 0;
-        for (const file of plugin.info.files) {
-          if (!file.isOptional) {
-            filesCount++;
-            if (fs.existsSync(path.join(instPath, file.filename))) {
-              existCount++;
+      let otherVersion = false;
+      let otherManualVersion = false;
+      for (const file of plugin.info.files) {
+        if (!file.isOptional) {
+          if (existingFiles.includes(file.filename)) otherVersion = true;
+          if (manualFiles.includes(file.filename)) otherManualVersion = true;
+        }
+      }
+      installedVersion.innerHTML = otherManualVersion
+        ? '手動インストール済み'
+        : otherVersion
+        ? '他バージョンがインストール済み'
+        : '未インストール';
+
+      for (const [installedId, installedPlugin] of Object.entries(
+        installedPlugins
+      )) {
+        if (
+          installedId === plugin.id &&
+          installedPlugin.repository === plugin.repo
+        ) {
+          let filesCount = 0;
+          let existCount = 0;
+          for (const file of plugin.info.files) {
+            if (!file.isOptional) {
+              filesCount++;
+              if (fs.existsSync(path.join(instPath, file.filename))) {
+                existCount++;
+              }
             }
           }
-        }
 
-        if (filesCount === existCount) {
-          installedVersion.innerHTML = installedPlugins.find(
-            (i) => i.repo === plugin.repo && i.id === plugin.id
-          ).version;
-        } else {
-          installedVersion.innerHTML =
-            '未インストール（ファイルの存在が確認できませんでした。）';
-        }
-      } else {
-        let otherVersion = false;
-        let otherManualVersion = false;
-        for (const file of plugin.info.files) {
-          if (!file.isOptional) {
-            if (existingFiles.includes(file.filename)) otherVersion = true;
-            if (manualFiles.includes(file.filename)) otherManualVersion = true;
+          if (filesCount === existCount) {
+            installedVersion.innerHTML = installedPlugin.version;
+          } else {
+            installedVersion.innerHTML =
+              '未インストール（ファイルの存在が確認できませんでした。）';
           }
         }
-        installedVersion.innerHTML = otherManualVersion
-          ? '手動インストール済み'
-          : otherVersion
-          ? '他バージョンがインストール済み'
-          : '未インストール';
       }
 
       tbody.appendChild(tr);
@@ -445,13 +449,7 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      const installedPlugins = store.get('installedVersion.plugin');
-      installedPlugins.push({
-        id: selectedPlugin.id,
-        repo: selectedPlugin.repo,
-        version: selectedPlugin.info.latestVersion,
-      });
-      store.set('installedVersion.plugin', installedPlugins);
+      apmJson.addPlugin(instPath, selectedPlugin);
       this.setPluginsList(instPath);
 
       buttonTransition.message(btn, 'インストール完了', 'success');
@@ -509,13 +507,7 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      const installedPlugins = store.get('installedVersion.plugin');
-      store.set(
-        'installedVersion.plugin',
-        installedPlugins.filter(
-          (i) => !(i.repo === selectedPlugin.repo && i.id === selectedPlugin.id)
-        )
-      );
+      apmJson.removePlugin(instPath, selectedPlugin);
       this.setPluginsList(instPath);
 
       buttonTransition.message(btn, 'アンインストール完了', 'success');

@@ -5,9 +5,12 @@ const Store = require('electron-store');
 const store = new Store();
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
+const plugin = require('../plugin/plugin');
+const script = require('../script/script');
 const setting = require('../setting/setting');
 const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
+const apmJson = require('../lib/apmJson');
 
 module.exports = {
   /**
@@ -27,9 +30,8 @@ module.exports = {
    */
   displayInstalledVersion: async function (instPath) {
     const coreInfo = await this.getCoreInfo();
-
     for (const program of ['aviutl', 'exedit']) {
-      if (instPath && store.has('installedVersion.core.' + program)) {
+      if (instPath && apmJson.has(instPath, 'core.' + program)) {
         let filesCount = 0;
         let existCount = 0;
         for (const file of coreInfo[program].files) {
@@ -44,7 +46,7 @@ module.exports = {
         if (filesCount === existCount) {
           replaceText(
             `${program}-installed-version`,
-            store.get('installedVersion.core.' + program, '未インストール')
+            apmJson.get(instPath, 'core.' + program, '未インストール')
           );
         } else {
           replaceText(
@@ -152,6 +154,8 @@ module.exports = {
     } else if (selectedPath[0] != originalPath) {
       store.set('installationPath', selectedPath[0]);
       this.displayInstalledVersion(selectedPath[0]);
+      plugin.setPluginsList(selectedPath[0]);
+      script.setScriptsList(selectedPath[0]);
       input.setAttribute('value', selectedPath[0]);
     }
   },
@@ -205,7 +209,7 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      store.set('installedVersion.core.' + program, version);
+      apmJson.setCore(instPath, program, version);
       this.displayInstalledVersion(instPath);
 
       buttonTransition.message(btn, 'インストール完了', 'success');

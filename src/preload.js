@@ -6,14 +6,15 @@ const script = require('./script/script');
 const setting = require('./setting/setting');
 
 window.addEventListener('DOMContentLoaded', () => {
-  // init data
-  setting.initSettings();
-  plugin.initPlugin();
-  script.initScript();
-
-  // load data
   const installationPath = document.getElementById('installation-path');
   installationPath.setAttribute('value', store.get('installationPath', ''));
+
+  // init data
+  setting.initSettings();
+  plugin.initPlugin(installationPath.value);
+  script.initScript(installationPath.value);
+
+  // load data
   const dataURL = document.getElementById('data-url');
   dataURL.setAttribute('value', setting.getDataUrl());
   const extraDataURL = document.getElementById('extra-data-url');

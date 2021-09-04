@@ -2,14 +2,13 @@ const { ipcRenderer } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
-const Store = require('electron-store');
-const store = new Store();
 const List = require('list.js');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const setting = require('../setting/setting');
 const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
+const apmJson = require('../lib/apmJson');
 
 let selectedScript;
 let listJS;
@@ -70,10 +69,11 @@ function showScriptDetail(scriptData) {
 module.exports = {
   /**
    * Initializes script
+   *
+   * @param {string} instPath - An installation path
    */
-  initScript: function () {
-    if (!store.has('installedVersion.script'))
-      store.set('installedVersion.script', []);
+  initScript: function (instPath) {
+    if (!apmJson.has(instPath, 'scripts')) apmJson.set(instPath, 'scripts', {});
   },
 
   /**
@@ -94,7 +94,6 @@ module.exports = {
         xmlList[scriptRepo] = parseXML.script(scriptsListFile.path);
       }
     }
-    console.log(xmlList);
     return xmlList;
   },
 
@@ -152,7 +151,7 @@ module.exports = {
       }
     }
 
-    const installedScripts = store.get('installedVersion.script');
+    const installedScripts = apmJson.get(instPath, 'scripts');
 
     const getExistingFiles = () => {
       const regex = /^(?!exedit).*\.(anm|obj|cam|tra|scn)$/;
@@ -182,19 +181,22 @@ module.exports = {
 
     let manualFiles = [...existingFiles];
     for (const script of scripts) {
-      if (
-        installedScripts.some(
-          (i) => i.repo === script.repo && i.id === script.id
-        )
-      ) {
-        for (const file of script.info.files) {
-          if (!file.isOptional) {
-            if (manualFiles.includes(file.filename)) {
-              manualFiles = manualFiles.filter((ef) => ef !== file.filename);
+      for (const [installedId, installedScript] of Object.entries(
+        installedScripts
+      )) {
+        if (
+          installedId === script.id &&
+          installedScript.repository === script.repo
+        ) {
+          for (const file of script.info.files) {
+            if (!file.isOptional) {
+              if (manualFiles.includes(file.filename)) {
+                manualFiles = manualFiles.filter((ef) => ef !== file.filename);
+              }
             }
-          }
-          if (file.$optional !== 'true' && file.$directory === 'true') {
-            manualFiles = manualFiles.filter((ef) => !ef.startsWith(file._));
+            if (file.$optional !== 'true' && file.$directory === 'true') {
+              manualFiles = manualFiles.filter((ef) => !ef.startsWith(file._));
+            }
           }
         }
       }
@@ -236,44 +238,47 @@ module.exports = {
       type.innerHTML = parseScriptType(script.info.type);
       latestVersion.innerHTML = script.info.latestVersion;
 
-      if (
-        installedScripts.some(
-          (i) => i.repo === script.repo && i.id === script.id
-        )
-      ) {
-        let filesCount = 0;
-        let existCount = 0;
-        for (const file of script.info.files) {
-          if (!file.isOptional) {
-            filesCount++;
-            if (fs.existsSync(path.join(instPath, file.filename))) {
-              existCount++;
+      let otherVersion = false;
+      let otherManualVersion = false;
+      for (const file of script.info.files) {
+        if (!file.isOptional) {
+          if (existingFiles.includes(file.filename)) otherVersion = true;
+          if (manualFiles.includes(file.filename)) otherManualVersion = true;
+        }
+      }
+      installedVersion.innerHTML = otherManualVersion
+        ? '手動インストール済み'
+        : otherVersion
+        ? '他バージョンがインストール済み'
+        : '未インストール';
+
+      if (Object.keys(installedScripts).length > 0) {
+        for (const [installedId, installedScript] of Object.entries(
+          installedScripts
+        )) {
+          if (
+            installedId === script.id &&
+            installedScript.repository === script.repo
+          ) {
+            let filesCount = 0;
+            let existCount = 0;
+            for (const file of script.info.files) {
+              if (!file.isOptional) {
+                filesCount++;
+                if (fs.existsSync(path.join(instPath, file.filename))) {
+                  existCount++;
+                }
+              }
+            }
+
+            if (filesCount === existCount) {
+              installedVersion.innerHTML = installedScript.version;
+            } else {
+              installedVersion.innerHTML =
+                '未インストール（ファイルの存在が確認できませんでした。）';
             }
           }
         }
-
-        if (filesCount === existCount) {
-          installedVersion.innerHTML = installedScripts.find(
-            (i) => i.repo === script.repo && i.id === script.id
-          ).version;
-        } else {
-          installedVersion.innerHTML =
-            '未インストール（ファイルの存在が確認できませんでした。）';
-        }
-      } else {
-        let otherVersion = false;
-        let otherManualVersion = false;
-        for (const file of script.info.files) {
-          if (!file.isOptional) {
-            if (existingFiles.includes(file.filename)) otherVersion = true;
-            if (manualFiles.includes(file.filename)) otherManualVersion = true;
-          }
-        }
-        installedVersion.innerHTML = otherManualVersion
-          ? '手動インストール済み'
-          : otherVersion
-          ? '他バージョンがインストール済み'
-          : '未インストール';
       }
 
       tbody.appendChild(tr);
@@ -467,13 +472,7 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      const installedScripts = store.get('installedVersion.script');
-      installedScripts.push({
-        id: selectedScript.id,
-        repo: selectedScript.repo,
-        version: selectedScript.info.latestVersion,
-      });
-      store.set('installedVersion.script', installedScripts);
+      apmJson.addScript(instPath, selectedScript);
       this.setScriptsList(instPath);
 
       buttonTransition.message(btn, 'インストール完了', 'success');
@@ -515,7 +514,7 @@ module.exports = {
       throw new Error('A script to install is not selected.');
     }
 
-    for (const file of selectedScript.files[0].file) {
+    for (const file of selectedScript.info.files) {
       fs.removeSync(path.join(instPath, file.filename));
     }
 
@@ -531,13 +530,7 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      const installedScripts = store.get('installedVersion.script');
-      store.set(
-        'installedVersion.script',
-        installedScripts.filter(
-          (i) => !(i.repo === selectedScript.repo && i.id === selectedScript.id)
-        )
-      );
+      apmJson.removeScript(instPath, selectedScript);
       this.setScriptsList(instPath);
 
       buttonTransition.message(btn, 'アンインストール完了', 'success');

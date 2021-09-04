@@ -8,18 +8,16 @@ const path = require('path');
  * @returns {object} An object like `package.json`
  */
 function getApmJson(instPath) {
-  return fs
-    .readJson(path.join(instPath, 'apm.json'))
-    .then((value) => {
-      if (typeof value === 'object') {
-        return value;
-      } else {
-        throw new Error('Invalid apm.json.');
-      }
-    })
-    .catch((reason) => {
-      return { core: { aviutl: null, exedit: null }, plugins: {}, scripts: {} };
-    });
+  try {
+    const value = fs.readJsonSync(path.join(instPath, 'apm.json'));
+    if (typeof value === 'object') {
+      return value;
+    } else {
+      throw new Error('Invalid apm.json.');
+    }
+  } catch (error) {
+    return { core: {}, plugins: {}, scripts: {} };
+  }
 }
 
 /**
@@ -141,7 +139,7 @@ module.exports = {
     apmJson.plugins[plugin.id] = {
       id: plugin.id,
       repository: plugin.repo,
-      version: plugin.latestVersion,
+      version: plugin.info.latestVersion,
     };
     setApmJson(instPath, apmJson);
   },
@@ -154,7 +152,7 @@ module.exports = {
    */
   removePlugin: function (instPath, plugin) {
     const apmJson = getApmJson(instPath);
-    delete apmJson.plugin[plugin.id];
+    delete apmJson.plugins[plugin.id];
     setApmJson(instPath, apmJson);
   },
 
@@ -169,7 +167,7 @@ module.exports = {
     apmJson.scripts[script.id] = {
       id: script.id,
       repository: script.repo,
-      version: script.latestVersion,
+      version: script.info.latestVersion,
     };
     setApmJson(instPath, apmJson);
   },
@@ -182,7 +180,7 @@ module.exports = {
    */
   removeScript: function (instPath, script) {
     const apmJson = getApmJson(instPath);
-    delete apmJson.script[script.id];
+    delete apmJson.scripts[script.id];
     setApmJson(instPath, apmJson);
   },
 };
