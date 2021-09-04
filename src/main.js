@@ -266,6 +266,37 @@ const template = [
   },
 ];
 
+const allowedHosts = [];
+
+app.on(
+  'certificate-error',
+  async (event, webContents, url, error, certificate, callback) => {
+    if (error === 'net::ERR_SSL_OBSOLETE_VERSION') {
+      event.preventDefault();
+      const host = new URL(url).hostname;
+      if (allowedHosts.includes(host)) {
+        callback(true);
+      } else {
+        const win = BrowserWindow.getFocusedWindow();
+        const response = await dialog.showMessageBox(win, {
+          title: '安全ではない接続',
+          message: `このサイトでは古いセキュリティ設定を使用しています。このサイトに情報を送信すると流出する恐れがあります。`,
+          detail: error,
+          type: 'warning',
+          buttons: ['戻る', `${host}にアクセスする（安全ではありません）`],
+          cancelId: 0,
+        });
+        if (response.response === 1) {
+          allowedHosts.push(host);
+          callback(true);
+        } else {
+          callback(false);
+        }
+      }
+    }
+  }
+);
+
 app.whenReady().then(() => {
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
