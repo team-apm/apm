@@ -17,6 +17,19 @@ const defaultKeys = [
   'files',
 ];
 
+const typeForExtention = {
+  '.auf': 'filter',
+  '.aui': 'input',
+  '.auo': 'output',
+  '.auc': 'color',
+  '.aul': 'language',
+  '.anm': 'animation',
+  '.obj': 'object',
+  '.cam': 'camera',
+  '.tra': 'track',
+  '.scn': 'scene',
+};
+
 /**
  * @param {object} parsedData - A object parsed from XML.
  * @returns {Array} An array of files.
@@ -87,15 +100,22 @@ class PackageInfo {
     const keys = defaultKeys.concat('installer', 'installArg');
     for (const key of keys) {
       if (parsedPackage[key]) {
-        if (key === 'type') {
-          this.type = parsedPackage.type[0].split(' ');
-        } else if (key === 'files') {
+        if (key === 'files') {
           this.files = parseFiles(parsedPackage);
         } else {
           this[key] = parsedPackage[key][0];
         }
       }
     }
+    const types = this.files.flatMap((f) => {
+      const extention = path.extname(f.filename);
+      if (extention in typeForExtention) {
+        return [typeForExtention[extention]];
+      } else {
+        return [];
+      }
+    });
+    this.type = [...new Set(types)];
     Object.freeze(this);
   }
 }
