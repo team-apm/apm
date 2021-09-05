@@ -1,7 +1,7 @@
 const Store = require('electron-store');
 const store = new Store();
 const core = require('./core/core');
-const plugin = require('./plugin/plugin');
+const package = require('./package/package');
 const setting = require('./setting/setting');
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -10,7 +10,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // init data
   setting.initSettings();
-  plugin.initPlugin(installationPath.value);
+  package.initPackage(installationPath.value);
 
   // load data
   const dataURL = document.getElementById('data-url');
@@ -20,7 +20,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   core.displayInstalledVersion(installationPath.value);
   core.setCoreVersions();
-  plugin.setPluginsList(installationPath.value);
+  package.setPackagesList(installationPath.value);
 
   const zoomFactorSelect = document.getElementById('zoom-factor-select');
   setting.setZoomFactor(zoomFactorSelect);
@@ -63,25 +63,27 @@ window.addEventListener('load', () => {
     );
   });
 
-  // plugins
-  const checkPluginsListBtn = document.getElementById('check-plugins-list');
-  const pluginsTableOverlay = document.getElementById('plugins-table-overlay');
-  checkPluginsListBtn.addEventListener('click', (event) => {
-    plugin.checkPluginsList(
-      checkPluginsListBtn,
-      pluginsTableOverlay,
+  // packages
+  const checkPackagesListBtn = document.getElementById('check-packages-list');
+  const packagesTableOverlay = document.getElementById(
+    'packages-table-overlay'
+  );
+  checkPackagesListBtn.addEventListener('click', (event) => {
+    package.checkPackagesList(
+      checkPackagesListBtn,
+      packagesTableOverlay,
       installationPath.value
     );
   });
 
-  const installPluginBtn = document.getElementById('install-plugin');
-  installPluginBtn.addEventListener('click', (event) => {
-    plugin.installPlugin(installPluginBtn, installationPath.value);
+  const installPackageBtn = document.getElementById('install-package');
+  installPackageBtn.addEventListener('click', (event) => {
+    package.installPackage(installPackageBtn, installationPath.value);
   });
 
-  const uninstallPluginBtn = document.getElementById('uninstall-plugin');
-  uninstallPluginBtn.addEventListener('click', (event) => {
-    plugin.uninstallPlugin(uninstallPluginBtn, installationPath.value);
+  const uninstallPackageBtn = document.getElementById('uninstall-package');
+  uninstallPackageBtn.addEventListener('click', (event) => {
+    package.uninstallPackage(uninstallPackageBtn, installationPath.value);
   });
 
   // settings

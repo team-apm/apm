@@ -10,16 +10,16 @@ const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 
-let selectedPlugin;
+let selectedPackage;
 let listJS;
 
 /**
- * @param {string} pluginType - A list of plugin types.
- * @returns {string} Parsed plugin types.
+ * @param {string} packageType - A list of package types.
+ * @returns {string} Parsed package types.
  */
-function parsePluginType(pluginType) {
+function parsePackageType(packageType) {
   const result = [];
-  for (const type of pluginType) {
+  for (const type of packageType) {
     switch (type) {
       // plugin
       case 'input':
@@ -62,21 +62,21 @@ function parsePluginType(pluginType) {
 }
 
 /**
- * Show plugin's details.
+ * Show package's details.
  *
- * @param {object} pluginData - An object of plugin's details.
+ * @param {object} packageData - An object of package's details.
  */
-function showPluginDetail(pluginData) {
+function showPackageDetail(packageData) {
   for (const detail of ['name', 'overview', 'description', 'developer']) {
-    replaceText('plugin-' + detail, pluginData.info[detail]);
+    replaceText('package-' + detail, packageData.info[detail]);
   }
-  replaceText('plugin-type', parsePluginType(pluginData.info.type));
-  replaceText('plugin-latest-version', pluginData.info.latestVersion);
+  replaceText('package-type', parsePackageType(packageData.info.type));
+  replaceText('package-latest-version', packageData.info.latestVersion);
 
   const a = document.createElement('a');
-  a.innerText = pluginData.info.pageURL;
-  a.href = pluginData.info.pageURL;
-  const pageSpan = document.getElementById('plugin-page');
+  a.innerText = packageData.info.pageURL;
+  a.href = packageData.info.pageURL;
+  const pageSpan = document.getElementById('package-page');
   while (pageSpan.firstChild) {
     pageSpan.removeChild(pageSpan.firstChild);
   }
@@ -85,46 +85,47 @@ function showPluginDetail(pluginData) {
 
 module.exports = {
   /**
-   * Initializes plugin
+   * Initializes package
    *
    * @param {string} instPath - An installation path
    */
-  initPlugin: function (instPath) {
-    if (!apmJson.has(instPath, 'plugins')) apmJson.set(instPath, 'plugins', {});
+  initPackage: function (instPath) {
+    if (!apmJson.has(instPath, 'packages'))
+      apmJson.set(instPath, 'packages', {});
   },
 
   /**
-   * Returns an object parsed from plugins_list.xml.
+   * Returns an object parsed from packages_list.xml.
    *
-   * @returns {Promise<object>} - A list of object parsed from plugins_list.xml.
+   * @returns {Promise<object>} - A list of object parsed from packages_list.xml.
    */
-  getPluginsInfo: async function () {
+  getPackagesInfo: async function () {
     const xmlList = {};
 
-    for (const pluginRepo of setting.getPluginsDataUrl()) {
-      const pluginsListFile = await ipcRenderer.invoke(
+    for (const packageRepo of setting.getPackagesDataUrl()) {
+      const packagesListFile = await ipcRenderer.invoke(
         'exists-temp-file',
-        'plugin/plugins_list.xml',
-        pluginRepo
+        'package/packages_list.xml',
+        packageRepo
       );
-      if (pluginsListFile.exists) {
-        xmlList[pluginRepo] = parseXML.plugin(pluginsListFile.path);
+      if (packagesListFile.exists) {
+        xmlList[packageRepo] = parseXML.package(packagesListFile.path);
       }
     }
     return xmlList;
   },
 
   /**
-   * Sets rows of each plugin in the table.
+   * Sets rows of each package in the table.
    *
    * @param {string} instPath - An installation path.
    */
-  setPluginsList: async function (instPath) {
-    const pluginsTable = document.getElementById('plugins-table');
-    const thead = pluginsTable.getElementsByTagName('thead')[0];
-    const tbody = pluginsTable.getElementsByTagName('tbody')[0];
+  setPackagesList: async function (instPath) {
+    const packagesTable = document.getElementById('packages-table');
+    const thead = packagesTable.getElementsByTagName('thead')[0];
+    const tbody = packagesTable.getElementsByTagName('tbody')[0];
     tbody.innerHTML = null;
-    const bottomTbody = pluginsTable.getElementsByTagName('tbody')[1];
+    const bottomTbody = packagesTable.getElementsByTagName('tbody')[1];
     bottomTbody.innerHTML = null;
 
     const columns = [
@@ -159,16 +160,16 @@ module.exports = {
     }
 
     // table body
-    const plugins = [];
-    for (const [pluginsRepo, pluginsInfo] of Object.entries(
-      await this.getPluginsInfo()
+    const packages = [];
+    for (const [packagesRepo, packagesInfo] of Object.entries(
+      await this.getPackagesInfo()
     )) {
-      for (const [id, pluginInfo] of Object.entries(pluginsInfo)) {
-        plugins.push({ repo: pluginsRepo, id: id, info: pluginInfo });
+      for (const [id, packageInfo] of Object.entries(packagesInfo)) {
+        packages.push({ repo: packagesRepo, id: id, info: packageInfo });
       }
     }
 
-    const installedPlugins = apmJson.get(instPath, 'plugins');
+    const installedPackages = apmJson.get(instPath, 'packages');
 
     const getExistingFiles = () => {
       const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn)$/;
@@ -185,7 +186,7 @@ module.exports = {
           .filter((i) => i.isFile() && regex.test(i.name))
           .map((i) => i.name);
       return readdir(instPath).concat(
-        readdir(path.join(instPath, 'plugins')).map((i) => 'plugins/' + i),
+        readdir(path.join(instPath, 'packages')).map((i) => 'packages/' + i),
         readdir(path.join(instPath, 'script')).map((i) => 'script/' + i),
         safeReaddirSync(path.join(instPath, 'script'), { withFileTypes: true })
           .filter((i) => i.isDirectory())
@@ -198,15 +199,15 @@ module.exports = {
     const existingFiles = getExistingFiles();
 
     let manualFiles = [...existingFiles];
-    for (const plugin of plugins) {
-      for (const [installedId, installedPlugin] of Object.entries(
-        installedPlugins
+    for (const package of packages) {
+      for (const [installedId, installedPackage] of Object.entries(
+        installedPackages
       )) {
         if (
-          installedId === plugin.id &&
-          installedPlugin.repository === plugin.repo
+          installedId === package.id &&
+          installedPackage.repository === package.repo
         ) {
-          for (const file of plugin.info.files) {
+          for (const file of package.info.files) {
             if (!file.isOptional) {
               if (manualFiles.includes(file.filename)) {
                 manualFiles = manualFiles.filter((ef) => ef !== file.filename);
@@ -233,7 +234,7 @@ module.exports = {
       return [tr].concat(tds);
     };
 
-    for (const plugin of plugins) {
+    for (const package of packages) {
       const [
         tr,
         name,
@@ -243,24 +244,24 @@ module.exports = {
         latestVersion,
         installedVersion,
       ] = makeTrFromArray(columns);
-      tr.classList.add('plugin-tr');
+      tr.classList.add('package-tr');
       tr.addEventListener('click', (event) => {
-        showPluginDetail(plugin);
-        selectedPlugin = plugin;
+        showPackageDetail(package);
+        selectedPackage = package;
         for (const tmptr of tbody.getElementsByTagName('tr')) {
           tmptr.classList.remove('table-secondary');
         }
         tr.classList.add('table-secondary');
       });
-      name.innerHTML = plugin.info.name;
-      overview.innerHTML = plugin.info.overview;
-      developer.innerHTML = plugin.info.developer;
-      type.innerHTML = parsePluginType(plugin.info.type);
-      latestVersion.innerHTML = plugin.info.latestVersion;
+      name.innerHTML = package.info.name;
+      overview.innerHTML = package.info.overview;
+      developer.innerHTML = package.info.developer;
+      type.innerHTML = parsePackageType(package.info.type);
+      latestVersion.innerHTML = package.info.latestVersion;
 
       let otherVersion = false;
       let otherManualVersion = false;
-      for (const file of plugin.info.files) {
+      for (const file of package.info.files) {
         if (!file.isOptional) {
           if (existingFiles.includes(file.filename)) otherVersion = true;
           if (manualFiles.includes(file.filename)) otherManualVersion = true;
@@ -272,16 +273,16 @@ module.exports = {
         ? '他バージョンがインストール済み'
         : '未インストール';
 
-      for (const [installedId, installedPlugin] of Object.entries(
-        installedPlugins
+      for (const [installedId, installedPackage] of Object.entries(
+        installedPackages
       )) {
         if (
-          installedId === plugin.id &&
-          installedPlugin.repository === plugin.repo
+          installedId === package.id &&
+          installedPackage.repository === package.repo
         ) {
           let filesCount = 0;
           let existCount = 0;
-          for (const file of plugin.info.files) {
+          for (const file of package.info.files) {
             if (!file.isOptional) {
               filesCount++;
               if (fs.existsSync(path.join(instPath, file.filename))) {
@@ -291,7 +292,7 @@ module.exports = {
           }
 
           if (filesCount === existCount) {
-            installedVersion.innerHTML = installedPlugin.version;
+            installedVersion.innerHTML = installedPackage.version;
           } else {
             installedVersion.innerHTML =
               '未インストール（ファイルの存在が確認できませんでした。）';
@@ -302,7 +303,7 @@ module.exports = {
       tbody.appendChild(tr);
     }
 
-    // list manually added plugins
+    // list manually added packages
     for (const ef of manualFiles) {
       const [
         tr,
@@ -313,9 +314,9 @@ module.exports = {
         latestVersion,
         installedVersion,
       ] = makeTrFromArray(columns);
-      tr.classList.add('plugin-tr');
+      tr.classList.add('package-tr');
       name.innerHTML = ef;
-      overview.innerHTML = '手動で追加されたプラグイン';
+      overview.innerHTML = '手動で追加されたファイル';
       developer.innerHTML = '';
       type.innerHTML = '';
       latestVersion.innerHTML = '';
@@ -325,35 +326,35 @@ module.exports = {
 
     // sorting and filtering
     if (typeof listJS === 'undefined') {
-      listJS = new List('plugins', { valueNames: columns });
+      listJS = new List('packages', { valueNames: columns });
     } else {
       listJS.reIndex();
     }
   },
 
   /**
-   * Checks the plugins list.
+   * Checks the packages list.
    *
    * @param {HTMLButtonElement} btn - A HTMLElement of button element.
-   * @param {HTMLDivElement} overlay - A overlay of plugins list.
+   * @param {HTMLDivElement} overlay - A overlay of packages list.
    * @param {string} instPath - An installation path.
    */
-  checkPluginsList: async function (btn, overlay, instPath) {
+  checkPackagesList: async function (btn, overlay, instPath) {
     const enableButton = buttonTransition.loading(btn);
 
     overlay.style.zIndex = 1000;
     overlay.classList.add('show');
 
-    for (const pluginRepo of setting.getPluginsDataUrl()) {
+    for (const packageRepo of setting.getPackagesDataUrl()) {
       await ipcRenderer.invoke(
         'download',
-        pluginRepo,
+        packageRepo,
         true,
-        'plugin',
-        pluginRepo
+        'package',
+        packageRepo
       );
     }
-    await this.setPluginsList(instPath);
+    await this.setPackagesList(instPath);
 
     overlay.classList.remove('show');
     overlay.style.zIndex = -1;
@@ -362,12 +363,12 @@ module.exports = {
   },
 
   /**
-   * Installs a plugin to installation path.
+   * Installs a package to installation path.
    *
    * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
    * @param {string} instPath - An installation path.
    */
-  installPlugin: async function (btn, instPath) {
+  installPackage: async function (btn, instPath) {
     const enableButton = buttonTransition.loading(btn);
 
     if (!instPath) {
@@ -382,16 +383,24 @@ module.exports = {
       throw new Error('An installation path is not selected.');
     }
 
-    if (!selectedPlugin) {
-      buttonTransition.message(btn, 'プラグインを選択してください。', 'danger');
+    if (!selectedPackage) {
+      buttonTransition.message(
+        btn,
+        'プラグインまたはスクリプトを選択してください。',
+        'danger'
+      );
       setTimeout(() => {
         enableButton();
       }, 3000);
-      throw new Error('A plugin to install is not selected.');
+      throw new Error('A package to install is not selected.');
     }
 
-    const url = selectedPlugin.info.downloadURL;
-    const archivePath = await ipcRenderer.invoke('open-browser', url, 'plugin');
+    const url = selectedPackage.info.downloadURL;
+    const archivePath = await ipcRenderer.invoke(
+      'open-browser',
+      url,
+      'package'
+    );
     if (archivePath === 'close') {
       buttonTransition.message(
         btn,
@@ -411,7 +420,7 @@ module.exports = {
       });
       for (const dirent of dirents) {
         if (dirent.isDirectory()) {
-          for (const file of selectedPlugin.info.files) {
+          for (const file of selectedPackage.info.files) {
             if (!file.isOptional && file.isDirectory) {
               if (dirent.name === path.basename(file.filename)) {
                 result.push([
@@ -425,13 +434,13 @@ module.exports = {
           const childResult = searchFiles(path.join(dirName, dirent.name));
           result = result.concat(childResult);
         } else {
-          if (selectedPlugin.info.installer) {
-            if (dirent.name === selectedPlugin.info.installer) {
+          if (selectedPackage.info.installer) {
+            if (dirent.name === selectedPackage.info.installer) {
               result.push([path.join(dirName, dirent.name)]);
               break;
             }
           } else {
-            for (const file of selectedPlugin.info.files) {
+            for (const file of selectedPackage.info.files) {
               if (!file.isOptional) {
                 if (dirent.name === path.basename(file.filename)) {
                   result.push([
@@ -453,13 +462,13 @@ module.exports = {
     try {
       const unzippedPath = await unzip(archivePath);
 
-      if (selectedPlugin.info.installer) {
+      if (selectedPackage.info.installer) {
         const exePath = searchFiles(unzippedPath);
         const command =
           '"' +
           exePath[0][0] +
           '" ' +
-          selectedPlugin.info.installArg
+          selectedPackage.info.installArg
             .replace('"$instpath"', '$instpath')
             .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
         execSync(command);
@@ -479,7 +488,7 @@ module.exports = {
 
     let filesCount = 0;
     let existCount = 0;
-    for (const file of selectedPlugin.info.files) {
+    for (const file of selectedPackage.info.files) {
       if (!file.isOptional) {
         filesCount++;
         if (fs.existsSync(path.join(instPath, file.filename))) {
@@ -489,8 +498,8 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      apmJson.addPlugin(instPath, selectedPlugin);
-      await this.setPluginsList(instPath);
+      apmJson.addPackage(instPath, selectedPackage);
+      await this.setPackagesList(instPath);
 
       buttonTransition.message(btn, 'インストール完了', 'success');
     } else {
@@ -503,12 +512,12 @@ module.exports = {
   },
 
   /**
-   * Uninstalls a plugin to installation path.
+   * Uninstalls a package to installation path.
    *
    * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
    * @param {string} instPath - An installation path.
    */
-  uninstallPlugin: async function (btn, instPath) {
+  uninstallPackage: async function (btn, instPath) {
     const enableButton = buttonTransition.loading(btn);
 
     if (!instPath) {
@@ -523,21 +532,25 @@ module.exports = {
       throw new Error('An installation path is not selected.');
     }
 
-    if (!selectedPlugin) {
-      buttonTransition.message(btn, 'プラグインを選択してください。', 'danger');
+    if (!selectedPackage) {
+      buttonTransition.message(
+        btn,
+        'プラグインまたはスクリプトを選択してください。',
+        'danger'
+      );
       setTimeout(() => {
         enableButton();
       }, 3000);
-      throw new Error('A plugin to install is not selected.');
+      throw new Error('A package to install is not selected.');
     }
 
-    for (const file of selectedPlugin.info.files) {
+    for (const file of selectedPackage.info.files) {
       fs.removeSync(path.join(instPath, file.filename));
     }
 
     let filesCount = 0;
     let existCount = 0;
-    for (const file of selectedPlugin.info.files) {
+    for (const file of selectedPackage.info.files) {
       if (!file.isOptional) {
         filesCount++;
         if (!fs.existsSync(path.join(instPath, file.filename))) {
@@ -547,8 +560,8 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      apmJson.removePlugin(instPath, selectedPlugin);
-      await this.setPluginsList(instPath);
+      apmJson.removePackage(instPath, selectedPackage);
+      await this.setPackagesList(instPath);
 
       buttonTransition.message(btn, 'アンインストール完了', 'success');
     } else {

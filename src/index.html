@@ -38,12 +38,12 @@
 				</button>
 				<button
 					class="nav-link"
-					id="plugins-tab"
+					id="packages-tab"
 					data-bs-toggle="tab"
-					data-bs-target="#plugins"
+					data-bs-target="#packages"
 					type="button"
 					role="tab"
-					aria-controls="plugins"
+					aria-controls="packages"
 					aria-selected="false"
 				>
 					Plugins&Scripts
@@ -180,9 +180,9 @@
 
 			<section
 				class="tab-pane fade"
-				id="plugins"
+				id="packages"
 				role="tabpanel"
-				aria-labelledby="plugins"
+				aria-labelledby="packages"
 			>
 				<div class="container-fluid d-flex flex-column pt-2">
 					<div class="row border-bottom">
@@ -190,21 +190,21 @@
 							<button
 								type="button"
 								class="btn btn-primary mb-2"
-								id="check-plugins-list"
+								id="check-packages-list"
 							>
 								更新を確認
 							</button>
 							<button
 								type="button"
 								class="btn btn-primary mb-2"
-								id="install-plugin"
+								id="install-package"
 							>
 								インストール
 							</button>
 							<button
 								type="button"
 								class="btn btn-primary mb-2"
-								id="uninstall-plugin"
+								id="uninstall-package"
 							>
 								アンインストール
 							</button>
@@ -233,9 +233,12 @@
 						</div>
 					</div>
 
-					<div class="row flex-grow-1 plugins-table">
+					<div class="row flex-grow-1 packages-table">
 						<div class="col g-0">
-							<table class="table table-hover" id="plugins-table">
+							<table
+								class="table table-hover"
+								id="packages-table"
+							>
 								<thead class="table-primary"></thead>
 								<tbody class="list"></tbody>
 								<tbody class="table-secondary"></tbody>
@@ -248,7 +251,7 @@
 								align-items-center
 								fade
 							"
-							id="plugins-table-overlay"
+							id="packages-table-overlay"
 						>
 							<div class="spinner-border" role="status">
 								<span class="visually-hidden">Loading...</span>
@@ -257,7 +260,7 @@
 					</div>
 
 					<div
-						class="row border-top pt-1 flex-shrink-0 plugin-detail"
+						class="row border-top pt-1 flex-shrink-0 package-detail"
 					>
 						<div class="col">
 							<div class="row">
@@ -266,7 +269,7 @@
 								</div>
 								<div
 									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="plugin-name"
+									id="package-name"
 								></div>
 							</div>
 							<div class="row">
@@ -275,7 +278,7 @@
 								</div>
 								<div
 									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="plugin-overview"
+									id="package-overview"
 								></div>
 							</div>
 							<div class="row">
@@ -284,7 +287,7 @@
 								</div>
 								<div
 									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="plugin-description"
+									id="package-description"
 								></div>
 							</div>
 							<div class="row">
@@ -293,7 +296,7 @@
 								</div>
 								<div
 									class="col col-sm-8 col-md-9 col-lg-10"
-									id="plugin-developer"
+									id="package-developer"
 								></div>
 							</div>
 							<div class="row">
@@ -302,7 +305,7 @@
 								</div>
 								<div
 									class="col col-sm-8 col-md-9 col-lg-10"
-									id="plugin-type"
+									id="package-type"
 								></div>
 							</div>
 							<div class="row">
@@ -311,7 +314,7 @@
 								</div>
 								<div
 									class="col col-sm-8 col-md-9 col-lg-10"
-									id="plugin-latest-version"
+									id="package-latest-version"
 								></div>
 							</div>
 							<div class="row">
@@ -320,7 +323,7 @@
 								</div>
 								<div
 									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="plugin-page"
+									id="package-page"
 								></div>
 							</div>
 						</div>

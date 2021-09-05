@@ -1,27 +1,27 @@
 html,
 body,
 section,
-section#plugins .container-fluid {
+section#packages .container-fluid {
   height: 100%;
 }
 main {
   height: calc(100% - 2.625rem);
   overflow-y: auto;
 }
-.plugins-table {
+.packages-table {
   position: relative;
   min-height: 6rem;
 }
-.plugins-table .col {
+.packages-table .col {
   height: 100%;
   overflow-y: auto;
 }
-.plugins-table thead th {
+.packages-table thead th {
   position: sticky;
   top: 0;
   z-index: 1020;
 }
-.plugins-table thead th::before {
+.packages-table thead th::before {
   content: '';
   width: 100%;
   position: absolute;
@@ -34,16 +34,16 @@ main {
   border-bottom-color: transparent;
 }
 
-.plugins-table th:first-child,
-.plugins-table td:first-child {
+.packages-table th:first-child,
+.packages-table td:first-child {
   padding-left: 0.75rem;
 }
-.plugins-table th:last-child,
-.plugins-table td:last-child {
+.packages-table th:last-child,
+.packages-table td:last-child {
   padding-right: 0.75rem;
 }
 
-div#plugins-table-overlay {
+div#packages-table-overlay {
   z-index: -1;
   position: absolute;
   top: 0;
@@ -52,10 +52,10 @@ div#plugins-table-overlay {
   height: 100%;
   background-color: rgba(127, 127, 127, 0.5);
 }
-.plugin-detail {
+.package-detail {
   overflow-x: auto;
 }
-.plugin-detail .row {
+.package-detail .row {
   margin-top: 2px;
   margin-bottom: 2px;
 }

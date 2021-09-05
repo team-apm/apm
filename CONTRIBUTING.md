@@ -73,10 +73,8 @@ Under `src`, place HTML, CSS, and preloaded JavaScript for each screen, and cut 
     │   └── core.js
     ├── lib
     │   └── someLibrary.js
-    ├── plugin
-    │   └── plugin.js
-    ├── script
-    │   └── script.js
+    ├── package
+    │   └── package.js
     ├── setting
     │   └── setting.js
     ├── some_window.html
