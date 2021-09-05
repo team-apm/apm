@@ -186,7 +186,7 @@ module.exports = {
           .filter((i) => i.isFile() && regex.test(i.name))
           .map((i) => i.name);
       return readdir(instPath).concat(
-        readdir(path.join(instPath, 'packages')).map((i) => 'packages/' + i),
+        readdir(path.join(instPath, 'plugins')).map((i) => 'plugins/' + i),
         readdir(path.join(instPath, 'script')).map((i) => 'script/' + i),
         safeReaddirSync(path.join(instPath, 'script'), { withFileTypes: true })
           .filter((i) => i.isDirectory())
