@@ -6389,6 +6389,11 @@ wide-align@^1.1.0:
   dependencies:
     string-width "^1.0.2 || 2"
 
+win-7zip@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/win-7zip/-/win-7zip-0.1.1.tgz#14553f6dc56003d9a172f1fb5c488c7f167ec7de"
+  integrity sha1-FFU/bcVgA9mhcvH7XEiMfxZ+x94=
+
 word-wrap@^1.0.3, word-wrap@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.3.tgz#610636f6b1f703891bd34771ccb17fb93b47079c"
