@@ -335,7 +335,7 @@ module.exports = {
         scriptRepo
       );
     }
-    this.setScriptsList(instPath);
+    await this.setScriptsList(instPath);
 
     overlay.classList.remove('show');
     overlay.style.zIndex = -1;
@@ -473,7 +473,7 @@ module.exports = {
 
     if (filesCount === existCount) {
       apmJson.addScript(instPath, selectedScript);
-      this.setScriptsList(instPath);
+      await this.setScriptsList(instPath);
 
       buttonTransition.message(btn, 'インストール完了', 'success');
     } else {
@@ -531,7 +531,7 @@ module.exports = {
 
     if (filesCount === existCount) {
       apmJson.removeScript(instPath, selectedScript);
-      this.setScriptsList(instPath);
+      await this.setScriptsList(instPath);
 
       buttonTransition.message(btn, 'アンインストール完了', 'success');
     } else {
