@@ -38,27 +38,15 @@
 				</button>
 				<button
 					class="nav-link"
-					id="plugins-tab"
+					id="packages-tab"
 					data-bs-toggle="tab"
-					data-bs-target="#plugins"
+					data-bs-target="#packages"
 					type="button"
 					role="tab"
-					aria-controls="plugins"
+					aria-controls="packages"
 					aria-selected="false"
 				>
-					Plugins
-				</button>
-				<button
-					class="nav-link"
-					id="scripts-tab"
-					data-bs-toggle="tab"
-					data-bs-target="#scripts"
-					type="button"
-					role="tab"
-					aria-controls="scripts"
-					aria-selected="false"
-				>
-					Scripts
+					Plugins&Scripts
 				</button>
 				<button
 					class="nav-link"
@@ -192,9 +180,9 @@
 
 			<section
 				class="tab-pane fade"
-				id="plugins"
+				id="packages"
 				role="tabpanel"
-				aria-labelledby="plugins"
+				aria-labelledby="packages"
 			>
 				<div class="container-fluid d-flex flex-column pt-2">
 					<div class="row border-bottom">
@@ -202,23 +190,23 @@
 							<button
 								type="button"
 								class="btn btn-primary mb-2"
-								id="check-plugins-list"
+								id="check-packages-list"
 							>
-								プラグインの更新を確認
+								更新を確認
 							</button>
 							<button
 								type="button"
 								class="btn btn-primary mb-2"
-								id="install-plugin"
+								id="install-package"
 							>
-								プラグインをインストール
+								インストール
 							</button>
 							<button
 								type="button"
 								class="btn btn-primary mb-2"
-								id="uninstall-plugin"
+								id="uninstall-package"
 							>
-								プラグインをアンインストール
+								アンインストール
 							</button>
 						</div>
 						<div class="input-group w-25 mb-2">
@@ -239,15 +227,18 @@
 							</span>
 							<input
 								class="fuzzy-search form-control"
-								placeholder="プラグインを検索"
-								aria-label="プラグインを検索"
+								placeholder="検索"
+								aria-label="検索"
 							/>
 						</div>
 					</div>
 
-					<div class="row flex-grow-1 plugins-table">
+					<div class="row flex-grow-1 packages-table">
 						<div class="col g-0">
-							<table class="table table-hover" id="plugins-table">
+							<table
+								class="table table-hover"
+								id="packages-table"
+							>
 								<thead class="table-primary"></thead>
 								<tbody class="list"></tbody>
 								<tbody class="table-secondary"></tbody>
@@ -260,7 +251,7 @@
 								align-items-center
 								fade
 							"
-							id="plugins-table-overlay"
+							id="packages-table-overlay"
 						>
 							<div class="spinner-border" role="status">
 								<span class="visually-hidden">Loading...</span>
@@ -269,7 +260,7 @@
 					</div>
 
 					<div
-						class="row border-top pt-1 flex-shrink-0 plugin-detail"
+						class="row border-top pt-1 flex-shrink-0 package-detail"
 					>
 						<div class="col">
 							<div class="row">
@@ -278,7 +269,7 @@
 								</div>
 								<div
 									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="plugin-name"
+									id="package-name"
 								></div>
 							</div>
 							<div class="row">
@@ -287,7 +278,7 @@
 								</div>
 								<div
 									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="plugin-overview"
+									id="package-overview"
 								></div>
 							</div>
 							<div class="row">
@@ -296,7 +287,7 @@
 								</div>
 								<div
 									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="plugin-description"
+									id="package-description"
 								></div>
 							</div>
 							<div class="row">
@@ -305,7 +296,7 @@
 								</div>
 								<div
 									class="col col-sm-8 col-md-9 col-lg-10"
-									id="plugin-developer"
+									id="package-developer"
 								></div>
 							</div>
 							<div class="row">
@@ -314,7 +305,7 @@
 								</div>
 								<div
 									class="col col-sm-8 col-md-9 col-lg-10"
-									id="plugin-type"
+									id="package-type"
 								></div>
 							</div>
 							<div class="row">
@@ -323,7 +314,7 @@
 								</div>
 								<div
 									class="col col-sm-8 col-md-9 col-lg-10"
-									id="plugin-latest-version"
+									id="package-latest-version"
 								></div>
 							</div>
 							<div class="row">
@@ -332,157 +323,7 @@
 								</div>
 								<div
 									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="plugin-page"
-								></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<section
-				class="tab-pane fade"
-				id="scripts"
-				role="tabpanel"
-				aria-labelledby="scripts"
-			>
-				<div class="container-fluid d-flex flex-column pt-2">
-					<div class="row border-bottom">
-						<div class="col">
-							<button
-								type="button"
-								class="btn btn-primary mb-2"
-								id="check-scripts-list"
-							>
-								スクリプトの更新を確認
-							</button>
-							<button
-								type="button"
-								class="btn btn-primary mb-2"
-								id="install-script"
-							>
-								スクリプトをインストール
-							</button>
-							<button
-								type="button"
-								class="btn btn-primary mb-2"
-								id="uninstall-script"
-							>
-								スクリプトをアンインストール
-							</button>
-						</div>
-						<div class="input-group w-25 mb-2">
-							<span class="input-group-text">
-								<!-- from Bootstrap Icons -->
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="16"
-									height="16"
-									fill="currentColor"
-									class="bi bi-search"
-									viewBox="0 0 16 16"
-								>
-									<path
-										d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
-									/>
-								</svg>
-							</span>
-							<input
-								class="fuzzy-search form-control"
-								placeholder="スクリプトを検索"
-								aria-label="スクリプトを検索"
-							/>
-						</div>
-					</div>
-
-					<div class="row flex-grow-1 scripts-table">
-						<div class="col g-0">
-							<table class="table table-hover" id="scripts-table">
-								<thead class="table-primary"></thead>
-								<tbody class="list"></tbody>
-								<tbody class="table-secondary"></tbody>
-							</table>
-						</div>
-						<div
-							class="
-								d-flex
-								justify-content-center
-								align-items-center
-								fade
-							"
-							id="scripts-table-overlay"
-						>
-							<div class="spinner-border" role="status">
-								<span class="visually-hidden">Loading...</span>
-							</div>
-						</div>
-					</div>
-
-					<div
-						class="row border-top pt-1 flex-shrink-0 script-detail"
-					>
-						<div class="col">
-							<div class="row">
-								<div class="col-12 col-sm-4 col-md-3 col-lg-2">
-									名前:
-								</div>
-								<div
-									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="script-name"
-								></div>
-							</div>
-							<div class="row">
-								<div class="col-12 col-sm-4 col-md-3 col-lg-2">
-									概要:
-								</div>
-								<div
-									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="script-overview"
-								></div>
-							</div>
-							<div class="row">
-								<div class="col-12 col-sm-4 col-md-3 col-lg-2">
-									説明:
-								</div>
-								<div
-									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="script-description"
-								></div>
-							</div>
-							<div class="row">
-								<div class="col col-sm-4 col-md-3 col-lg-2">
-									開発者:
-								</div>
-								<div
-									class="col col-sm-8 col-md-9 col-lg-10"
-									id="script-developer"
-								></div>
-							</div>
-							<div class="row">
-								<div class="col col-sm-4 col-md-3 col-lg-2">
-									タイプ:
-								</div>
-								<div
-									class="col col-sm-8 col-md-9 col-lg-10"
-									id="script-type"
-								></div>
-							</div>
-							<div class="row">
-								<div class="col col-sm-4 col-md-3 col-lg-2">
-									最新バージョン:
-								</div>
-								<div
-									class="col col-sm-8 col-md-9 col-lg-10"
-									id="script-latest-version"
-								></div>
-							</div>
-							<div class="row">
-								<div class="col-12 col-sm-4 col-md-3 col-lg-2">
-									サイト:
-								</div>
-								<div
-									class="col-12 col-sm-8 col-md-9 col-lg-10"
-									id="script-page"
+									id="package-page"
 								></div>
 							</div>
 						</div>

@@ -5,8 +5,7 @@ const Store = require('electron-store');
 const store = new Store();
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
-const plugin = require('../plugin/plugin');
-const script = require('../script/script');
+const package = require('../package/package');
 const setting = require('../setting/setting');
 const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
@@ -154,8 +153,7 @@ module.exports = {
     } else if (selectedPath[0] != originalPath) {
       store.set('installationPath', selectedPath[0]);
       this.displayInstalledVersion(selectedPath[0]);
-      plugin.setPluginsList(selectedPath[0]);
-      script.setScriptsList(selectedPath[0]);
+      package.setPackagesList(selectedPath[0]);
       input.setAttribute('value', selectedPath[0]);
     }
   },

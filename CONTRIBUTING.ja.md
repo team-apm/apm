@@ -73,10 +73,8 @@ Pull Requestがマージされた時点で、あなたの貢献が[Contributors�
     │   └── core.js
     ├── lib
     │   └── someLibrary.js
-    ├── plugin
-    │   └── plugin.js
-    ├── script
-    │   └── script.js
+    ├── package
+    │   └── package.js
     ├── setting
     │   └── setting.js
     ├── some_window.html

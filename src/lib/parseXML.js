@@ -77,48 +77,22 @@ class CoreInfo {
 /**
  *
  */
-class PluginInfo {
+class PackageInfo {
   /**
-   * Returns the plugin's information.
+   * Returns the package's information.
    *
-   * @param {object} parsedPlugin - An object parsed from XML.
+   * @param {object} parsedPackage - An object parsed from XML.
    */
-  constructor(parsedPlugin) {
+  constructor(parsedPackage) {
     const keys = defaultKeys.concat('installer', 'installArg');
     for (const key of keys) {
-      if (parsedPlugin[key]) {
+      if (parsedPackage[key]) {
         if (key === 'type') {
-          this.type = parsedPlugin.type[0].split(' ');
+          this.type = parsedPackage.type[0].split(' ');
         } else if (key === 'files') {
-          this.files = parseFiles(parsedPlugin);
+          this.files = parseFiles(parsedPackage);
         } else {
-          this[key] = parsedPlugin[key][0];
-        }
-      }
-    }
-    Object.freeze(this);
-  }
-}
-
-/**
- *
- */
-class ScriptInfo {
-  /**
-   * Returns the script's information.
-   *
-   * @param {object} parsedScript - An object parsed from XML.
-   */
-  constructor(parsedScript) {
-    const keys = defaultKeys.slice();
-    for (const key of keys) {
-      if (parsedScript[key]) {
-        if (key === 'type') {
-          this.type = parsedScript.type[0].split(' ');
-        } else if (key === 'files') {
-          this.files = parseFiles(parsedScript);
-        } else {
-          this[key] = parsedScript[key][0];
+          this[key] = parsedPackage[key][0];
         }
       }
     }
@@ -165,51 +139,23 @@ class CoreList extends Object {
 }
 
 /**
- * An object which contains plugins list.
+ * An object which contains packages list.
  */
-class PluginsList extends Object {
+class PackagesList extends Object {
   /**
    *
    * @param {string} xmlPath - The path of the XML file.
-   * @returns {PluginsList} A list of plugins.
+   * @returns {PackagesList} A list of packages.
    */
   constructor(xmlPath) {
     super();
     const xmlData = fs.readFileSync(xmlPath, 'utf-8');
     const valid = parser.validate(xmlData);
     if (valid === true) {
-      const pluginsInfo = parser.parse(xmlData, parseOptions);
-      if (pluginsInfo.plugins) {
-        for (const plugin of pluginsInfo.plugins[0].plugin) {
-          this[plugin.id[0]] = new PluginInfo(plugin);
-        }
-      } else {
-        throw new Error('The list is invalid.');
-      }
-    } else {
-      throw valid;
-    }
-  }
-}
-
-/**
- * An object which contains scripts list.
- */
-class ScriptsList extends Object {
-  /**
-   *
-   * @param {string} xmlPath - The path of the XML file.
-   * @returns {ScriptsList} A list of scripts.
-   */
-  constructor(xmlPath) {
-    super();
-    const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-    const valid = parser.validate(xmlData);
-    if (valid === true) {
-      const scriptsInfo = parser.parse(xmlData, parseOptions);
-      if (scriptsInfo.scripts) {
-        for (const script of scriptsInfo.scripts[0].script) {
-          this[script.id[0]] = new ScriptInfo(script);
+      const packagesInfo = parser.parse(xmlData, parseOptions);
+      if (packagesInfo.packages) {
+        for (const packageItem of packagesInfo.packages[0].package) {
+          this[packageItem.id[0]] = new PackageInfo(packageItem);
         }
       } else {
         throw new Error('The list is invalid.');
@@ -236,28 +182,14 @@ module.exports = {
   },
 
   /**
-   * Returns a list of plugins.
+   * Returns a list of packages.
    *
-   * @param {string} pluginsListPath - A path of xml file.
-   * @returns {PluginsList} A list of plugins.
+   * @param {string} packagesListPath - A path of xml file.
+   * @returns {PackagesList} A list of packages.
    */
-  plugin: function (pluginsListPath) {
-    if (fs.existsSync(pluginsListPath)) {
-      return new PluginsList(pluginsListPath);
-    } else {
-      throw new Error('The version file does not exist.');
-    }
-  },
-
-  /**
-   * Returns a list of scripts.
-   *
-   * @param {string} scriptsListPath - A path of xml file.
-   * @returns {ScriptsList} A list of scripts.
-   */
-  script: function (scriptsListPath) {
-    if (fs.existsSync(scriptsListPath)) {
-      return new ScriptsList(scriptsListPath);
+  package: function (packagesListPath) {
+    if (fs.existsSync(packagesListPath)) {
+      return new PackagesList(packagesListPath);
     } else {
       throw new Error('The version file does not exist.');
     }

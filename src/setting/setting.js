@@ -75,21 +75,12 @@ module.exports = {
   },
 
   /**
-   * Returns plugin data files URLs.
+   * Returns package data files URLs.
    *
-   * @returns {Array.<string>} -Plugin data files URLs.
+   * @returns {Array.<string>} -Package data files URLs.
    */
-  getPluginsDataUrl: function () {
-    return store.get('dataURL.plugins');
-  },
-
-  /**
-   * Returns script data files URLs.
-   *
-   * @returns {Array.<string>} - Script data files URLs.
-   */
-  getScriptsDataUrl: function () {
-    return store.get('dataURL.scripts');
+  getPackagesDataUrl: function () {
+    return store.get('dataURL.packages');
   },
 
   /**
@@ -102,8 +93,9 @@ module.exports = {
     let enableButton;
     if (btn !== null) enableButton = buttonTransition.loading(btn);
 
-    const plugins = [path.join(store.get('dataURL.main'), 'plugins_list.xml')];
-    const scripts = [path.join(store.get('dataURL.main'), 'scripts_list.xml')];
+    const packages = [
+      path.join(store.get('dataURL.main'), 'packages_list.xml'),
+    ];
 
     for (const tmpDataUrl of dataUrls.split(/\r?\n/)) {
       const dataUrl = tmpDataUrl.trim();
@@ -116,10 +108,7 @@ module.exports = {
           `有効なURLまたは場所を入力してください。(${dataUrl})`
         );
       }
-      if (
-        !(path.basename(dataUrl) === 'plugins_list.xml') &&
-        !(path.basename(dataUrl) === 'scripts_list.xml')
-      ) {
+      if (!(path.basename(dataUrl) === 'packages_list.xml')) {
         ipcRenderer.invoke(
           'open-err-dialog',
           'エラー',
@@ -127,13 +116,12 @@ module.exports = {
         );
       }
 
-      if (path.basename(dataUrl) === 'plugins_list.xml') plugins.push(dataUrl);
-      if (path.basename(dataUrl) === 'scripts_list.xml') scripts.push(dataUrl);
+      if (path.basename(dataUrl) === 'packages_list.xml')
+        packages.push(dataUrl);
     }
 
     store.set('dataURL.extra', dataUrls);
-    store.set('dataURL.plugins', plugins);
-    store.set('dataURL.scripts', scripts);
+    store.set('dataURL.packages', packages);
 
     if (btn !== null) {
       buttonTransition.message(btn, '設定完了', 'success');
