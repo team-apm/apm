@@ -27,7 +27,7 @@ function getApmJson(instPath) {
  * @param {object} object - An object to write
  */
 function setApmJson(instPath, object) {
-  fs.writeJson(path.join(instPath, 'apm.json'), object, { spaces: 2 });
+  fs.writeJsonSync(path.join(instPath, 'apm.json'), object, { spaces: 2 });
 }
 
 module.exports = {
