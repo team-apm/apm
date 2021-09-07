@@ -109,7 +109,18 @@ module.exports = {
         packageRepo
       );
       if (packagesListFile.exists) {
-        xmlList[packageRepo] = parseXML.package(packagesListFile.path);
+        try {
+          xmlList[packageRepo] = parseXML.package(packagesListFile.path);
+        } catch {
+          ipcRenderer.invoke(
+            'open-err-dialog',
+            'データ解析エラー',
+            '取得したデータの処理に失敗しました。' +
+              '\n' +
+              'URL: ' +
+              packageRepo
+          );
+        }
       }
     }
     return xmlList;
@@ -345,21 +356,29 @@ module.exports = {
     overlay.style.zIndex = 1000;
     overlay.classList.add('show');
 
-    for (const packageRepo of setting.getPackagesDataUrl()) {
-      await ipcRenderer.invoke(
-        'download',
-        packageRepo,
-        true,
-        'package',
-        packageRepo
-      );
+    try {
+      for (const packageRepo of setting.getPackagesDataUrl()) {
+        await ipcRenderer.invoke(
+          'download',
+          packageRepo,
+          true,
+          'package',
+          packageRepo
+        );
+      }
+      await this.setPackagesList(instPath);
+
+      buttonTransition.message(btn, '更新完了', 'success');
+    } catch {
+      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     }
-    await this.setPackagesList(instPath);
 
     overlay.classList.remove('show');
     overlay.style.zIndex = -1;
 
-    enableButton();
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
   },
 
   /**
