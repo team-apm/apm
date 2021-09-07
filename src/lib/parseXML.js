@@ -47,8 +47,8 @@ function parseFiles(parsedData) {
       tmpFile.filename = file;
     } else if (typeof file === 'object') {
       tmpFile.filename = file._[0];
-      tmpFile.isOptional = Boolean(file.$optional[0]);
-      tmpFile.isDirectory = Boolean(file.$directory[0]);
+      if (file.$optional) tmpFile.isOptional = Boolean(file.$optional[0]);
+      if (file.$directory) tmpFile.isDirectory = Boolean(file.$directory[0]);
       if (file.$archivePath) tmpFile.archivePath = file.$archivePath[0];
     } else {
       break;
