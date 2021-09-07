@@ -9,6 +9,7 @@ const {
 const { download } = require('electron-dl');
 const log = require('electron-log');
 const debug = require('electron-debug');
+const windowStateKeeper = require('electron-window-state');
 const fs = require('fs-extra');
 const path = require('path');
 const getHash = require('./lib/getHash');
@@ -53,9 +54,16 @@ let mainWindow;
  * @function createWindow
  */
 function createWindow() {
+  const mainWindowState = windowStateKeeper({
+    defaultWidth: 800,
+    defaultHeight: 600,
+  });
+
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -81,6 +89,10 @@ function createWindow() {
     if (browserWindow) {
       browserWindow.destroy();
     }
+  });
+
+  mainWindow.once('show', () => {
+    mainWindowState.manage(mainWindow);
   });
 }
 
