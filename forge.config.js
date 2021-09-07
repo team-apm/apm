@@ -56,7 +56,6 @@ module.exports = {
   publishers: [
     {
       name: '@electron-forge/publisher-github',
-      platforms: ['darwin', 'linux'],
       config: {
         repository: {
           owner: 'hal-shu-sato',
