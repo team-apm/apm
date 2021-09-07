@@ -413,56 +413,29 @@ module.exports = {
       return;
     }
 
-    const searchFiles = (dirName) => {
-      let result = [];
-      const dirents = fs.readdirSync(dirName, {
-        withFileTypes: true,
-      });
-      for (const dirent of dirents) {
-        if (dirent.isDirectory()) {
-          for (const file of selectedPackage.info.files) {
-            if (!file.isOptional && file.isDirectory) {
-              if (dirent.name === path.basename(file.filename)) {
-                result.push([
-                  path.join(dirName, dirent.name),
-                  path.join(instPath, file.filename),
-                ]);
-                break;
-              }
-            }
-          }
-          const childResult = searchFiles(path.join(dirName, dirent.name));
-          result = result.concat(childResult);
-        } else {
-          if (selectedPackage.info.installer) {
-            if (dirent.name === selectedPackage.info.installer) {
-              result.push([path.join(dirName, dirent.name)]);
-              break;
-            }
-          } else {
-            for (const file of selectedPackage.info.files) {
-              if (!file.isOptional) {
-                if (dirent.name === path.basename(file.filename)) {
-                  result.push([
-                    path.join(dirName, dirent.name),
-                    path.join(instPath, file.filename),
-                  ]);
-                  break;
-                }
-              } else {
-                break;
-              }
-            }
-          }
-        }
-      }
-      return result;
-    };
-
     try {
       const unzippedPath = await unzip(archivePath);
 
       if (selectedPackage.info.installer) {
+        const searchFiles = (dirName) => {
+          let result = [];
+          const dirents = fs.readdirSync(dirName, {
+            withFileTypes: true,
+          });
+          for (const dirent of dirents) {
+            if (dirent.isDirectory()) {
+              const childResult = searchFiles(path.join(dirName, dirent.name));
+              result = result.concat(childResult);
+            } else {
+              if (dirent.name === selectedPackage.info.installer) {
+                result.push([path.join(dirName, dirent.name)]);
+                break;
+              }
+            }
+          }
+          return result;
+        };
+
         const exePath = searchFiles(unzippedPath);
         const command =
           '"' +
@@ -473,8 +446,27 @@ module.exports = {
             .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
         execSync(command);
       } else {
-        const searchedFiles = searchFiles(unzippedPath);
-        for (const filePath of searchedFiles) {
+        const filesToCopy = [];
+        for (const file of selectedPackage.info.files) {
+          if (!file.isOptional) {
+            if (file.archivePath === null) {
+              filesToCopy.push([
+                path.join(unzippedPath, path.basename(file.filename)),
+                path.join(instPath, file.filename),
+              ]);
+            } else {
+              filesToCopy.push([
+                path.join(
+                  unzippedPath,
+                  file.archivePath,
+                  path.basename(file.filename)
+                ),
+                path.join(instPath, file.filename),
+              ]);
+            }
+          }
+        }
+        for (const filePath of filesToCopy) {
           fs.copySync(filePath[0], filePath[1]);
         }
       }
@@ -483,7 +475,7 @@ module.exports = {
       setTimeout(() => {
         enableButton();
       }, 3000);
-      throw new Error('An error has occurred.');
+      throw e;
     }
 
     let filesCount = 0;
