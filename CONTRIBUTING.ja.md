@@ -2,7 +2,7 @@
 
 [English](./CONTRIBUTING.md)
 
-AviUtl Plugin Managerへのコントリビュートに興味を持っていただきありがとうございます！！
+AviUtl Package Managerへのコントリビュートに興味を持っていただきありがとうございます！！
 
 コントリビュートの仕方についてガイドします。
 

@@ -1,8 +1,8 @@
 {
   "name": "apm",
-  "productName": "AviUtl Plugin Manager",
+  "productName": "AviUtl Package Manager",
   "version": "0.3.2",
-  "description": "A plugin manager for AviUtl",
+  "description": "A package manager for AviUtl",
   "main": "./src/main.js",
   "repository": "https://github.com/hal-shu-sato/apm.git",
   "author": "ato lash <hal-shu-sato@users.noreply.github.com>",

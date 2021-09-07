@@ -2,7 +2,7 @@
 
 [日本語](./CONTRIBUTING.ja.md)
 
-Thank you for your interest in contributing to the AviUtl Plugin Manager!
+Thank you for your interest in contributing to the AviUtl Package Manager!
 
 Here is a guide on how to contribute.
 
