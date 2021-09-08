@@ -60,10 +60,7 @@ module.exports = {
       }
     } else {
       for (const program of ['aviutl', 'exedit']) {
-        replaceText(
-          `${program}-installed-version`,
-          'バージョンデータが存在しません。'
-        );
+        replaceText(`${program}-installed-version`, '未取得');
       }
     }
   },
@@ -135,12 +132,13 @@ module.exports = {
    * Checks the latest versionof programs.
    *
    * @param {HTMLButtonElement} btn - A HTMLElement of button element.
+   * @param {string} instPath - An installation path.
    */
-  checkLatestVersion: async function (btn) {
+  checkLatestVersion: async function (btn, instPath) {
     const enableButton = buttonTransition.loading(btn);
 
     await ipcRenderer.invoke('download', this.getCoreXmlUrl(), true, 'core');
-    this.displayInstalledVersion();
+    this.displayInstalledVersion(instPath);
     this.setCoreVersions();
 
     enableButton();
