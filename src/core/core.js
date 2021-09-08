@@ -31,18 +31,18 @@ module.exports = {
     const coreInfo = await this.getCoreInfo();
     if (coreInfo) {
       for (const program of ['aviutl', 'exedit']) {
-        if (instPath && apmJson.has(instPath, 'core.' + program)) {
-          let filesCount = 0;
-          let existCount = 0;
-          for (const file of coreInfo[program].files) {
-            if (!file.isOptional) {
-              filesCount++;
-              if (fs.existsSync(path.join(instPath, file.filename))) {
-                existCount++;
-              }
+        let filesCount = 0;
+        let existCount = 0;
+        for (const file of coreInfo[program].files) {
+          if (!file.isOptional) {
+            filesCount++;
+            if (fs.existsSync(path.join(instPath, file.filename))) {
+              existCount++;
             }
           }
+        }
 
+        if (instPath && apmJson.has(instPath, 'core.' + program)) {
           if (filesCount === existCount) {
             replaceText(
               `${program}-installed-version`,
@@ -55,7 +55,11 @@ module.exports = {
             );
           }
         } else {
-          replaceText(`${program}-installed-version`, '未インストール');
+          if (filesCount === existCount) {
+            replaceText(`${program}-installed-version`, '手動インストール済み');
+          } else {
+            replaceText(`${program}-installed-version`, '未インストール');
+          }
         }
       }
     } else {
@@ -112,7 +116,10 @@ module.exports = {
         for (const version of Object.keys(progInfo.releases)) {
           const option = document.createElement('option');
           option.setAttribute('value', version);
-          option.innerHTML = version;
+          option.innerHTML =
+            version +
+            (version.includes('rc') ? '（テスト版）' : '') +
+            (version === progInfo.latestVersion ? '（最新版）' : '');
 
           if (program === 'aviutl') {
             aviutlVersionSelect.appendChild(option);
