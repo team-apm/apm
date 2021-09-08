@@ -32,7 +32,7 @@ window.addEventListener('load', () => {
   // core
   const checkCoreVersionBtn = document.getElementById('check-core-version');
   checkCoreVersionBtn.addEventListener('click', (event) => {
-    core.checkLatestVersion(checkCoreVersionBtn, installationPath);
+    core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
   });
 
   const selectInstallationPathBtn = document.getElementById(
