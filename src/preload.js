@@ -27,16 +27,17 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('load', () => {
+  const installationPath = document.getElementById('installation-path');
+
   // core
   const checkCoreVersionBtn = document.getElementById('check-core-version');
   checkCoreVersionBtn.addEventListener('click', (event) => {
-    core.checkLatestVersion(checkCoreVersionBtn);
+    core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
   });
 
   const selectInstallationPathBtn = document.getElementById(
     'select-installation-path'
   );
-  const installationPath = document.getElementById('installation-path');
   selectInstallationPathBtn.addEventListener('click', (event) => {
     core.selectInstallationPath(installationPath);
   });

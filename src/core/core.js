@@ -29,36 +29,42 @@ module.exports = {
    */
   displayInstalledVersion: async function (instPath) {
     const coreInfo = await this.getCoreInfo();
-    for (const program of ['aviutl', 'exedit']) {
-      let filesCount = 0;
-      let existCount = 0;
-      for (const file of coreInfo[program].files) {
-        if (!file.isOptional) {
-          filesCount++;
-          if (fs.existsSync(path.join(instPath, file.filename))) {
-            existCount++;
+    if (coreInfo) {
+      for (const program of ['aviutl', 'exedit']) {
+        let filesCount = 0;
+        let existCount = 0;
+        for (const file of coreInfo[program].files) {
+          if (!file.isOptional) {
+            filesCount++;
+            if (fs.existsSync(path.join(instPath, file.filename))) {
+              existCount++;
+            }
+          }
+        }
+
+        if (instPath && apmJson.has(instPath, 'core.' + program)) {
+          if (filesCount === existCount) {
+            replaceText(
+              `${program}-installed-version`,
+              apmJson.get(instPath, 'core.' + program, '未インストール')
+            );
+          } else {
+            replaceText(
+              `${program}-installed-version`,
+              '未インストール（ファイルの存在が確認できませんでした。）'
+            );
+          }
+        } else {
+          if (filesCount === existCount) {
+            replaceText(`${program}-installed-version`, '手動インストール済み');
+          } else {
+            replaceText(`${program}-installed-version`, '未インストール');
           }
         }
       }
-
-      if (instPath && apmJson.has(instPath, 'core.' + program)) {
-        if (filesCount === existCount) {
-          replaceText(
-            `${program}-installed-version`,
-            apmJson.get(instPath, 'core.' + program, '未インストール')
-          );
-        } else {
-          replaceText(
-            `${program}-installed-version`,
-            '未インストール（ファイルの存在が確認できませんでした。）'
-          );
-        }
-      } else {
-        if (filesCount === existCount) {
-          replaceText(`${program}-installed-version`, '手動インストール済み');
-        } else {
-          replaceText(`${program}-installed-version`, '未インストール');
-        }
+    } else {
+      for (const program of ['aviutl', 'exedit']) {
+        replaceText(`${program}-installed-version`, '未取得');
       }
     }
   },
@@ -74,9 +80,13 @@ module.exports = {
       'core/core.xml'
     );
     if (coreFile.exists) {
-      return parseXML.core(coreFile.path);
+      try {
+        return parseXML.core(coreFile.path);
+      } catch {
+        return null;
+      }
     } else {
-      throw new Error('The version file does not exist.');
+      return false;
     }
   },
 
@@ -129,11 +139,13 @@ module.exports = {
    * Checks the latest versionof programs.
    *
    * @param {HTMLButtonElement} btn - A HTMLElement of button element.
+   * @param {string} instPath - An installation path.
    */
-  checkLatestVersion: async function (btn) {
+  checkLatestVersion: async function (btn, instPath) {
     const enableButton = buttonTransition.loading(btn);
 
     await ipcRenderer.invoke('download', this.getCoreXmlUrl(), true, 'core');
+    this.displayInstalledVersion(instPath);
     this.setCoreVersions();
 
     enableButton();
@@ -197,29 +209,47 @@ module.exports = {
     }
 
     const coreInfo = await this.getCoreInfo();
-    const url = coreInfo[program].releases[version];
-    const archivePath = await ipcRenderer.invoke('download', url, true, 'core');
-    const unzippedPath = await unzip(archivePath);
-    fs.copySync(unzippedPath, instPath);
 
-    let filesCount = 0;
-    let existCount = 0;
-    for (const file of coreInfo[program].files) {
-      if (!file.isOptional) {
-        filesCount++;
-        if (fs.existsSync(path.join(instPath, file.filename))) {
-          existCount++;
+    if (coreInfo) {
+      try {
+        const url = coreInfo[program].releases[version];
+        const archivePath = await ipcRenderer.invoke(
+          'download',
+          url,
+          true,
+          'core'
+        );
+        const unzippedPath = await unzip(archivePath);
+        fs.copySync(unzippedPath, instPath);
+
+        let filesCount = 0;
+        let existCount = 0;
+        for (const file of coreInfo[program].files) {
+          if (!file.isOptional) {
+            filesCount++;
+            if (fs.existsSync(path.join(instPath, file.filename))) {
+              existCount++;
+            }
+          }
         }
+
+        if (filesCount === existCount) {
+          apmJson.setCore(instPath, program, version);
+          this.displayInstalledVersion(instPath);
+
+          buttonTransition.message(btn, 'インストール完了', 'success');
+        } else {
+          buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+        }
+      } catch {
+        buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
       }
-    }
-
-    if (filesCount === existCount) {
-      apmJson.setCore(instPath, program, version);
-      this.displayInstalledVersion(instPath);
-
-      buttonTransition.message(btn, 'インストール完了', 'success');
     } else {
-      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      buttonTransition.message(
+        btn,
+        'バージョンデータが存在しません。',
+        'danger'
+      );
     }
 
     setTimeout(() => {
