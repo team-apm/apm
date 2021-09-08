@@ -74,7 +74,7 @@ yarn start
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 
-All I can say right now is that I'm Japanese, so any pull requests related to English or i18n are most welcome!
+Also, I'm Japanese, so any pull requests related to English or i18n are most welcome!
 
 ## Languages & Framework
 
