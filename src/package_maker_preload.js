@@ -21,7 +21,6 @@ const searchFiles = (dirName, directory = false, ignoreExtention = []) => {
   const dirents = fs.readdirSync(dirName, {
     withFileTypes: true,
   });
-  console.log(ignoreExtention);
   return [].concat(
     directory
       ? [dirName]
