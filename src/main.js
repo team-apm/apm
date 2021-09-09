@@ -269,6 +269,26 @@ const template = [
         },
       },
       {
+        label: `インストール用データの作成`,
+        click: () => {
+          const packageMakerPath = path.join(__dirname, 'package_maker.html');
+          let packageMakerWindow = new BrowserWindow({
+            width: 480,
+            height: 360,
+            modal: true,
+            parent: mainWindow,
+            webPreferences: {
+              preload: path.join(__dirname, 'package_maker_preload.js'),
+            },
+          });
+          packageMakerWindow.on('close', () => {
+            packageMakerWindow = null;
+          });
+          packageMakerWindow.loadFile(packageMakerPath);
+          packageMakerWindow.show();
+        },
+      },
+      {
         label: '終了',
         click: () => {
           app.quit();
