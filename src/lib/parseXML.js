@@ -186,6 +186,34 @@ class PackagesList extends Object {
   }
 }
 
+/**
+ * An object which contains mod dates.
+ */
+class ModInfo extends Object {
+  /**
+   *
+   * @param {string} xmlPath - The path of the XML file.
+   * @returns {ModInfo} An object which contains mod dates.
+   */
+  constructor(xmlPath) {
+    super();
+    const xmlData = fs.readFileSync(xmlPath, 'utf-8');
+    const valid = parser.validate(xmlData);
+    if (valid === true) {
+      const modInfo = parser.parse(xmlData, parseOptions);
+      if (modInfo.mod) {
+        for (const filename of ['core', 'packages_list']) {
+          this[filename] = new Date(modInfo.mod[0][filename][0]);
+        }
+      } else {
+        throw new Error('The list is invalid.');
+      }
+    } else {
+      throw valid;
+    }
+  }
+}
+
 module.exports = {
   /**
    * Returns a list of core programs.
@@ -210,6 +238,20 @@ module.exports = {
   package: function (packagesListPath) {
     if (fs.existsSync(packagesListPath)) {
       return new PackagesList(packagesListPath);
+    } else {
+      throw new Error('The version file does not exist.');
+    }
+  },
+
+  /**
+   * Returns an object which contains mod dates.
+   *
+   * @param {string} packagesListPath - A path of xml file.
+   * @returns {ModInfo} An object which contains mod dates.
+   */
+  mod: function (packagesListPath) {
+    if (fs.existsSync(packagesListPath)) {
+      return new ModInfo(packagesListPath);
     } else {
       throw new Error('The version file does not exist.');
     }

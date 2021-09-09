@@ -75,12 +75,32 @@ module.exports = {
   },
 
   /**
+   * Returns a core data file URL.
+   *
+   * @returns {string} - A core data file URL.
+   */
+  getCoreDataUrl: function () {
+    const dataUrl = this.getDataUrl();
+    return path.join(dataUrl, 'core.xml');
+  },
+
+  /**
    * Returns package data files URLs.
    *
    * @returns {Array.<string>} -Package data files URLs.
    */
   getPackagesDataUrl: function () {
     return store.get('dataURL.packages');
+  },
+
+  /**
+   * Returns a mod data file URL.
+   *
+   * @returns {string} - A mod data file URL.
+   */
+  getModDataUrl: function () {
+    const dataUrl = this.getDataUrl();
+    return path.join(dataUrl, 'mod.xml');
   },
 
   /**
