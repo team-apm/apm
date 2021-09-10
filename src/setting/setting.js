@@ -12,7 +12,10 @@ module.exports = {
   initSettings: function () {
     if (!store.has('dataURL.extra')) store.set('dataURL.extra', '');
     if (!store.has('dataURL.main'))
-      this.setDataUrl(null, 'http://halshusato.starfree.jp/ato_lash/apm/data/');
+      this.setDataUrl(
+        null,
+        'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/'
+      );
   },
 
   /**
