@@ -414,7 +414,9 @@ module.exports = {
       throw new Error('A package to install is not selected.');
     }
 
-    const url = selectedPackage.info.downloadURL;
+    const installedPackage = { ...selectedPackage };
+
+    const url = installedPackage.info.downloadURL;
     const archivePath = await ipcRenderer.invoke(
       'open-browser',
       url,
@@ -435,7 +437,7 @@ module.exports = {
     try {
       const unzippedPath = await unzip(archivePath);
 
-      if (selectedPackage.info.installer) {
+      if (installedPackage.info.installer) {
         const searchFiles = (dirName) => {
           let result = [];
           const dirents = fs.readdirSync(dirName, {
@@ -446,7 +448,7 @@ module.exports = {
               const childResult = searchFiles(path.join(dirName, dirent.name));
               result = result.concat(childResult);
             } else {
-              if (dirent.name === selectedPackage.info.installer) {
+              if (dirent.name === installedPackage.info.installer) {
                 result.push([path.join(dirName, dirent.name)]);
                 break;
               }
@@ -460,13 +462,13 @@ module.exports = {
           '"' +
           exePath[0][0] +
           '" ' +
-          selectedPackage.info.installArg
+          installedPackage.info.installArg
             .replace('"$instpath"', '$instpath')
             .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
         execSync(command);
       } else {
         const filesToCopy = [];
-        for (const file of selectedPackage.info.files) {
+        for (const file of installedPackage.info.files) {
           if (!file.isOptional) {
             if (file.archivePath === null) {
               filesToCopy.push([
@@ -499,7 +501,7 @@ module.exports = {
 
     let filesCount = 0;
     let existCount = 0;
-    for (const file of selectedPackage.info.files) {
+    for (const file of installedPackage.info.files) {
       if (!file.isOptional) {
         filesCount++;
         if (fs.existsSync(path.join(instPath, file.filename))) {
@@ -509,7 +511,7 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      apmJson.addPackage(instPath, selectedPackage);
+      apmJson.addPackage(instPath, installedPackage);
       await this.setPackagesList(instPath);
 
       buttonTransition.message(btn, 'インストール完了', 'success');
@@ -555,13 +557,15 @@ module.exports = {
       throw new Error('A package to install is not selected.');
     }
 
-    for (const file of selectedPackage.info.files) {
+    const uninstalledPackage = { ...selectedPackage };
+
+    for (const file of uninstalledPackage.info.files) {
       fs.removeSync(path.join(instPath, file.filename));
     }
 
     let filesCount = 0;
     let existCount = 0;
-    for (const file of selectedPackage.info.files) {
+    for (const file of uninstalledPackage.info.files) {
       if (!file.isOptional) {
         filesCount++;
         if (!fs.existsSync(path.join(instPath, file.filename))) {
@@ -571,7 +575,7 @@ module.exports = {
     }
 
     if (filesCount === existCount) {
-      apmJson.removePackage(instPath, selectedPackage);
+      apmJson.removePackage(instPath, uninstalledPackage);
       await this.setPackagesList(instPath);
 
       buttonTransition.message(btn, 'アンインストール完了', 'success');
