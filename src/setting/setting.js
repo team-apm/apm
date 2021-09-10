@@ -14,7 +14,7 @@ module.exports = {
     if (!store.has('dataURL.main'))
       this.setDataUrl(
         null,
-        'https://raw.githubusercontent.com/hal-shu-sato/apm-data/main/data/'
+        'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/'
       );
   },
 
