@@ -13,6 +13,20 @@ const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
 
+/**
+ * Shows check date.
+ */
+function showCheckDate() {
+  if (document.getElementById('packages-check-date')) {
+    if (store.has('checkDate.packages')) {
+      const checkDate = new Date(store.get('checkDate.packages'));
+      replaceText('packages-check-date', checkDate.toLocaleString());
+    } else {
+      replaceText('packages-check-date', '未確認');
+    }
+  }
+}
+
 let selectedPackage;
 let listJS;
 
@@ -352,12 +366,7 @@ module.exports = {
       replaceText('packages-mod-date', '未取得');
     }
 
-    if (store.has('checkDate.packages')) {
-      const checkDate = new Date(store.get('checkDate.packages'));
-      replaceText('packages-check-date', checkDate.toLocaleString());
-    } else {
-      replaceText('packages-check-date', '未確認');
-    }
+    showCheckDate();
   },
 
   /**
@@ -397,6 +406,7 @@ module.exports = {
 
     setTimeout(() => {
       enableButton();
+      showCheckDate();
     }, 3000);
   },
 

@@ -92,7 +92,6 @@
 								><br />
 								拡張編集:
 								<span id="exedit-latest-version"></span><br />
-								リスト更新日時: <span id="core-mod-date"></span>
 							</p>
 						</div>
 					</div>
@@ -105,9 +104,14 @@
 								id="check-core-version"
 							>
 								最新バージョンを確認
+								<div class="d-inline-block">
+									（最終確認日時:
+									<span id="core-check-date"></span>）
+								</div>
 							</button>
-							最終確認日時:
-							<span id="core-check-date"></span>
+							<div class="d-inline-block align-middle">
+								リスト更新日時: <span id="core-mod-date"></span>
+							</div>
 						</div>
 					</div>
 
@@ -196,6 +200,10 @@
 								id="check-packages-list"
 							>
 								更新を確認
+								<div class="d-inline-block">
+									（最終確認日時:
+									<span id="packages-check-date"></span>）
+								</div>
 							</button>
 							<button
 								type="button"
@@ -211,9 +219,10 @@
 							>
 								アンインストール
 							</button>
-							リスト更新日時: <span id="packages-mod-date"></span>
-							最終確認日時:
-							<span id="packages-check-date"></span>
+							<div class="d-inline-block align-middle mb-2">
+								リスト更新日時:
+								<span id="packages-mod-date"></span>
+							</div>
 						</div>
 						<div class="input-group w-25 mb-2">
 							<span class="input-group-text">
