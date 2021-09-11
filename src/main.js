@@ -291,9 +291,7 @@ const template = [
       {
         label: 'フィードバックを送る（外部ブラウザが開きます）',
         click: () => {
-          shell.openExternal(
-            'https://github.com/hal-shu-sato/apm/issues/new/choose'
-          );
+          shell.openExternal('https://github.com/hal-shu-sato/apm/issues');
         },
       },
       {
