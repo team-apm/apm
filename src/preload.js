@@ -9,8 +9,23 @@ window.addEventListener('DOMContentLoaded', async () => {
   installationPath.setAttribute('value', store.get('installationPath', ''));
 
   // init data
+  const firstLaunch = !store.has('dataURL.main');
   setting.initSettings();
   package.initPackage(installationPath.value);
+  if (firstLaunch) {
+    const checkCoreVersionBtn = document.getElementById('check-core-version');
+    await core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
+
+    const checkPackagesListBtn = document.getElementById('check-packages-list');
+    const packagesTableOverlay = document.getElementById(
+      'packages-table-overlay'
+    );
+    await package.checkPackagesList(
+      checkPackagesListBtn,
+      packagesTableOverlay,
+      installationPath.value
+    );
+  }
 
   // load data
   const dataURL = document.getElementById('data-url');
