@@ -158,18 +158,29 @@ module.exports = {
   checkLatestVersion: async function (btn, instPath) {
     const enableButton = buttonTransition.loading(btn);
 
-    await ipcRenderer.invoke(
-      'download',
-      setting.getCoreDataUrl(),
-      true,
-      'core'
-    );
-    await mod.downloadData();
-    store.set('checkDate.core', Date.now());
-    this.displayInstalledVersion(instPath);
-    this.setCoreVersions();
+    try {
+      await ipcRenderer.invoke(
+        'download',
+        setting.getCoreDataUrl(),
+        true,
+        'core'
+      );
+      await mod.downloadData();
+      store.set('checkDate.core', Date.now());
+      this.displayInstalledVersion(instPath);
+      this.setCoreVersions();
+    } catch (e) {
+      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      throw e;
+    }
 
-    enableButton();
+    buttonTransition.message(btn, '更新完了', 'success');
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
     showCheckDate();
   },
 
