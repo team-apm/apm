@@ -5,7 +5,7 @@
 		<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
 		<meta
 			http-equiv="Content-Security-Policy"
-			content="default-src 'self'; script-src 'self';"
+			content="default-src 'self'; script-src 'self'; img-src 'self' data:;"
 		/>
 		<meta
 			http-equiv="X-Content-Security-Policy"
@@ -160,6 +160,55 @@
 						</button>
 					</div>
 				</div>
+				<div class="row my-2">
+					<div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+						<input
+							class="form-control"
+							id="xml-download-mirror-url"
+							type="text"
+							placeholder="ダウンロードページのミラーURL（任意）"
+							aria-label="Data URL"
+						/>
+					</div>
+				</div>
+				<div class="row my-2">
+					<div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+						<div class="form-check form-switch ms-2">
+							<input
+								class="form-check-input"
+								type="checkbox"
+								id="xml-installer-switch"
+							/>
+							<label
+								class="form-check-label"
+								for="xml-installer-switch"
+								>インストーラを使用する</label
+							>
+						</div>
+					</div>
+				</div>
+				<div class="row my-2">
+					<div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+						<input
+							class="form-control"
+							id="xml-installer"
+							type="text"
+							placeholder="インストーラのファイル名"
+							aria-label="Data URL"
+						/>
+					</div>
+				</div>
+				<div class="row my-2">
+					<div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+						<input
+							class="form-control"
+							id="xml-install-arg"
+							type="text"
+							placeholder="インストーラに与える引数"
+							aria-label="Data URL"
+						/>
+					</div>
+				</div>
 			</div>
 
 			<div class="d-flex my-2">
@@ -178,7 +227,7 @@
 						>
 							<div
 								class="
-									list-group-item list-group-item-secondary
+									list-group-item list-group-item-dark
 									ignore-elements
 								"
 								data-id="exclude"
@@ -191,7 +240,7 @@
 							</div>
 							<div
 								class="
-									list-group-item list-group-item-secondary
+									list-group-item list-group-item-dark
 									ignore-elements
 								"
 								data-id="exclude"
