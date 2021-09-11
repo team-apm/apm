@@ -53,6 +53,11 @@ window.addEventListener('load', () => {
   const xmlLatestVersion = document.getElementById('xml-latest-version');
   const xmlPageURL = document.getElementById('xml-page-url');
   const xmlDownloadURL = document.getElementById('xml-download-url');
+  const xmlDownloadMirrorURL = document.getElementById(
+    'xml-download-mirror-url'
+  );
+  const xmlInstaller = document.getElementById('xml-installer');
+  const xmlInstallArg = document.getElementById('xml-install-arg');
   const xmlTexts = [
     xmlId,
     xmlName,
@@ -62,14 +67,19 @@ window.addEventListener('load', () => {
     xmlLatestVersion,
     xmlPageURL,
     xmlDownloadURL,
+    xmlDownloadMirrorURL,
+    xmlInstaller,
+    xmlInstallArg,
   ];
 
-  const xlmIdValidate = document.getElementById('xml-id-validate');
-  const xlmNameValidate = document.getElementById('xml-name-validate');
-  const xlmOverviewValidate = document.getElementById('xml-overview-validate');
+  const xmlIdValidate = document.getElementById('xml-id-validate');
+  const xmlNameValidate = document.getElementById('xml-name-validate');
+  const xmlOverviewValidate = document.getElementById('xml-overview-validate');
 
   const xmlDownloadURLBtn = document.getElementById('xml-download-url-button');
   const clearTextBtn = document.getElementById('clear-text-button');
+
+  const xmlInstallerSwitch = document.getElementById('xml-installer-switch');
 
   const listDownload = document.getElementById('list-download');
   const listAviutl = document.getElementById('list-aviutl');
@@ -81,22 +91,38 @@ window.addEventListener('load', () => {
   const clearList = () => {
     listDownload.innerHTML = null;
     [...listAviutl.children]
-      .filter((e) => e.getAttribute('data-id') !== 'exclude')
+      .filter((e) => e.dataset.id !== 'exclude')
       .forEach((e) => e.parentNode.removeChild(e));
     listPlugins.innerHTML = null;
     listScript.innerHTML = null;
   };
 
+  const clearText = () => {
+    xmlTexts.forEach((e) => {
+      e.value = '';
+    });
+    xmlInstallArg.value = '"$instpath"';
+    clearList();
+  };
+
+  const collapseInstallerElement = () => {
+    [xmlInstaller, xmlInstallArg].forEach((e) => {
+      e.parentNode.parentNode.style.display = xmlInstallerSwitch.checked
+        ? ''
+        : 'none';
+    });
+  };
+
   const makeXML = () => {
-    xlmIdValidate.innerText = xmlId.value.match(/^[A-Za-z0-9]*$/)
+    xmlIdValidate.innerText = xmlId.value.match(/^[A-Za-z0-9]*$/)
       ? ''
       : 'idは半角英数字である必要があります';
-    xlmNameValidate.innerText =
+    xmlNameValidate.innerText =
       `${[...xmlName.value].length}/25文字` +
       ([...xmlName.value].length <= 25
         ? ''
         : ' 名前は25文字以内である必要があります');
-    xlmOverviewValidate.innerText =
+    xmlOverviewValidate.innerText =
       `${[...xmlOverview.value].length}/35文字` +
       ([...xmlOverview.value].length <= 35
         ? ''
@@ -130,30 +156,40 @@ window.addEventListener('load', () => {
         }
         const ret = { '#text': baseItem };
         ret['@_tmp'] = ''; // to avoid parser bugs
-        if (dirItem !== '.') ret['@_archivePath'] = dirItem;
+        if (dirItem !== '.' && !xmlInstallerSwitch.checked)
+          ret['@_archivePath'] = dirItem;
         if (isDirectory) ret['@_directory'] = true;
         return ret;
       });
     const parser = new Parser({ ignoreAttributes: false, format: true });
 
-    output.innerText = parser
-      .parse({
-        package: {
-          id: xmlId.value,
-          name: xmlName.value,
-          overview: xmlOverview.value,
-          description: xmlDescription.value,
-          developer: xmlDeveloper.value,
-          pageURL: xmlPageURL.value,
-          downloadURL: xmlDownloadURL.value,
-          latestVersion: xmlLatestVersion.value,
-          files: {
-            file: files,
-          },
+    const xmlObject = {
+      package: {
+        id: xmlId.value,
+        name: xmlName.value,
+        overview: xmlOverview.value,
+        description: xmlDescription.value,
+        developer: xmlDeveloper.value,
+        pageURL: xmlPageURL.value,
+        downloadURL: xmlDownloadURL.value,
+        downloadMirrorURL: xmlDownloadMirrorURL.value
+          ? xmlDownloadMirrorURL.value
+          : undefined,
+        latestVersion: xmlLatestVersion.value,
+        installer: xmlInstallerSwitch.checked ? xmlInstaller.value : undefined,
+        installArg: xmlInstallerSwitch.checked
+          ? xmlInstallArg.value
+          : undefined,
+        files: {
+          file: files,
         },
-      })
+      },
+    };
+    output.innerText = parser
+      .parse(xmlObject)
       .trim()
-      .replaceAll(' tmp=""', ''); // to avoid parser bugs
+      .replaceAll(' tmp=""', '') // to avoid parser bugs
+      .replaceAll(/^(\s+)/gm, (str) => '\t'.repeat(Math.floor(str.length / 2)));
   };
 
   // input event
@@ -161,21 +197,21 @@ window.addEventListener('load', () => {
     e.addEventListener('input', makeXML);
   });
 
+  xmlInstallerSwitch.addEventListener('change', (event) => {
+    collapseInstallerElement();
+    makeXML();
+  });
+
   // click event
   new ClipboardJS('.btn-copy');
 
   clearTextBtn.addEventListener('click', async (event) => {
-    xmlTexts.forEach((e) => {
-      e.value = '';
-    });
-    clearList();
+    clearText();
     makeXML();
   });
 
   xmlDownloadURLBtn.addEventListener('click', async (event) => {
     const enableButton = buttonTransition.loading(xmlDownloadURLBtn);
-
-    clearList();
 
     if (xmlDownloadURL.value === '') {
       buttonTransition.message(
@@ -222,6 +258,8 @@ window.addEventListener('load', () => {
       throw e;
     }
 
+    clearList();
+
     // folder
     searchFiles(unzippedPath, true)
       .filter((i) => i !== unzippedPath)
@@ -229,10 +267,10 @@ window.addEventListener('load', () => {
       .forEach((f) => {
         const entry = document.createElement('div');
         entry.innerText = f;
-        entry.setAttribute('data-id', f + '?');
+        entry.dataset.id = f + '?';
         entry.classList.add('list-group-item');
         if (['plugins', 'script'].includes(path.basename(f))) {
-          entry.classList.add('list-group-item-secondary');
+          entry.classList.add('list-group-item-dark');
           entry.classList.add('ignore-elements');
         } else {
           entry.classList.add('list-group-item-warning');
@@ -248,7 +286,7 @@ window.addEventListener('load', () => {
       .forEach((f) => {
         const entry = document.createElement('div');
         entry.innerText = f;
-        entry.setAttribute('data-id', f);
+        entry.dataset.id = f;
         entry.classList.add('list-group-item');
 
         listDownload.appendChild(entry);
@@ -260,6 +298,28 @@ window.addEventListener('load', () => {
   });
 
   // sortable list
+  const usedPath = new Set();
+
+  const updateMovableEntry = () => {
+    for (const node of listDownload.children) {
+      const nodePath = node.dataset.id.replace('?', '');
+      if (!['plugins', 'script'].includes(path.basename(nodePath))) {
+        node.classList.remove('list-group-item-dark');
+        node.classList.remove('ignore-elements');
+      }
+    }
+
+    for (const node of listDownload.children) {
+      const nodePath = node.dataset.id.replace('?', '');
+      usedPath.forEach((used) => {
+        if (pathRelated(nodePath, used)) {
+          node.classList.add('list-group-item-dark');
+          node.classList.add('ignore-elements');
+        }
+      });
+    }
+  };
+
   new Sortable(listDownload, {
     group: 'nested',
     animation: 150,
@@ -267,28 +327,14 @@ window.addEventListener('load', () => {
     fallbackOnBody: true,
     sort: false,
     onRemove: (event) => {
-      const item = event.item;
-      const itemPath = item.getAttribute('data-id').replace('?', '');
-      for (const node of listDownload.children) {
-        const nodePath = node.getAttribute('data-id').replace('?', '');
-        if (pathRelated(nodePath, itemPath)) {
-          node.classList.add('list-group-item-dark');
-          node.classList.add('ignore-elements');
-        }
-      }
+      const itemPath = event.item.dataset.id.replace('?', '');
+      usedPath.add(itemPath);
+      updateMovableEntry();
     },
     onAdd: (event) => {
-      const item = event.item;
-      const itemPath = item.getAttribute('data-id').replace('?', '');
-      for (const node of listDownload.children) {
-        const nodePath = node.getAttribute('data-id').replace('?', '');
-        if (pathRelated(nodePath, itemPath)) {
-          node.classList.remove('list-group-item-dark');
-          if (!['plugins', 'script'].includes(path.basename(nodePath))) {
-            node.classList.remove('ignore-elements');
-          }
-        }
-      }
+      const itemPath = event.item.dataset.id.replace('?', '');
+      usedPath.delete(itemPath);
+      updateMovableEntry();
     },
   });
 
@@ -311,5 +357,7 @@ window.addEventListener('load', () => {
   );
 
   // init
+  collapseInstallerElement();
+  clearText();
   makeXML();
 });
