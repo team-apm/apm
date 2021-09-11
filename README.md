@@ -6,95 +6,91 @@
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/hal-shu-sato/apm)
 ![GitHub all releases](https://img.shields.io/github/downloads/hal-shu-sato/apm/total)
 
-"apm" assists you in downloading and installing AviUtl and plugins/scripts.
+AviUtlやプラグイン・スクリプトのダウンロードや導入を補助するソフトウェアです。
 
-[日本語版](./README.ja.md)
+[English Version](./README.en.md)
 
-<!-- ## Description -->
+<!-- ## 説明 -->
 
-## Features
+## 機能
 
-- Download and update AviUtl
-- Download and update Exedit Plugin
-- Download/update/delete plugins
-- Download/update/delete scripts
+- AviUtlのダウンロード・アップデート
+- 拡張編集Pluginのダウンロード・アップデート
+- プラグインのダウンロード・アップデート・削除
+- スクリプトのダウンロード・アップデート・削除
 
-## Requirement
+## 必要環境
 
-Environment in which AviUtl can be used
+AviUtlが使用できる環境
 
-## Usage
+## 使用方法
 
-To be added in the future
+今後追記予定
 
-## Install
+## インストール
 
-1. Download the latest version from the [release page](https://github.com/hal-shu-sato/apm/releases).
-2. Install or extract to any location.
-3. Run "apm.exe".
+1. [リリースページ](https://github.com/hal-shu-sato/apm/releases)から最新版をダウンロード
+2. インストールするか、任意の場所に展開
+3. 「apm.exe」を実行
 
-## Contribution
+## コントリビューション
 
-### Prerequisites
+### 前提条件
 
 - [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/) LTS Version (Current: 14.x.x)
+- [Node.js](https://nodejs.org/) LTSバージョン（現在14.x.x）
 - [Yarn 1](https://classic.yarnpkg.com/)
 
-### Clone
+### クローン
 
-Run the following command at a location of your choice
+任意の場所で以下のコマンドを実行します。
 
 ```bash
 git clone https://github.com/hal-shu-sato/apm.git
 ```
 
-Or, after forking the repository, run the following command
+あるいは、リポジトリをフォークした後、以下のコマンドを実行します。
 
 ```bash
-git clone https://github.com/${username}/apm.git
+git clone https://github.com/${ユーザー名}/apm.git
 ```
 
-### Build
+### 環境構築
 
-After navigating to your cloned directory, install the package
+クローンしたディレクトリに移動した後、パッケージをインストールします。
 
 ```bash
 cd apm
 yarn
 ```
 
-### Run
+### 実行
 
-Start the application.
+アプリを起動します。
 
 ```bash
 yarn start
 ```
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
+詳しくは、[CONTRIBUTING.ja.md](./CONTRIBUTING.ja.md)を参照してください。
 
-Also, I'm Japanese, so any pull requests related to English or i18n are most welcome!
+英語やi18nに関するプルリクエストは大歓迎です！
 
-## Languages & Framework
+## 使用言語・フレームワーク
 
 - Electron
   - Node.js
   - HTML
   - CSS
 
-## License
+## ライセンス
 
 [MIT license](./LICENSE)
 
-## Developer
+## 開発者
 
 **ato lash**
 
 - [GitHub](https://github.com/hal-shu-sato)
 - [Homepage](http://halshusato.starfree.jp/)
 - [Twitter](https://twitter.com/hal_shu_sato)
-
-## Thanks
-
-Many English documents have been translated with www.DeepL.com/Translator (free version)
