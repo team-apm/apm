@@ -8,7 +8,7 @@
 
 "apm" assists you in downloading and installing AviUtl and plugins/scripts.
 
-[日本語版](./README.ja.md)
+[日本語版](./README.md)
 
 <!-- ## Description -->
 

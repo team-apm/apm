@@ -8,7 +8,7 @@
 
 AviUtlやプラグイン・スクリプトのダウンロードや導入を補助するソフトウェアです。
 
-[English Version](./README.md)
+[English Version](./README.en.md)
 
 <!-- ## 説明 -->
 
