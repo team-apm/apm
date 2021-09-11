@@ -91,7 +91,7 @@ window.addEventListener('load', () => {
   const clearList = () => {
     listDownload.innerHTML = null;
     [...listAviutl.children]
-      .filter((e) => e.getAttribute('data-id') !== 'exclude')
+      .filter((e) => e.dataset.id !== 'exclude')
       .forEach((e) => e.parentNode.removeChild(e));
     listPlugins.innerHTML = null;
     listScript.innerHTML = null;
@@ -267,7 +267,7 @@ window.addEventListener('load', () => {
       .forEach((f) => {
         const entry = document.createElement('div');
         entry.innerText = f;
-        entry.setAttribute('data-id', f + '?');
+        entry.dataset.id = f + '?';
         entry.classList.add('list-group-item');
         if (['plugins', 'script'].includes(path.basename(f))) {
           entry.classList.add('list-group-item-dark');
@@ -286,7 +286,7 @@ window.addEventListener('load', () => {
       .forEach((f) => {
         const entry = document.createElement('div');
         entry.innerText = f;
-        entry.setAttribute('data-id', f);
+        entry.dataset.id = f;
         entry.classList.add('list-group-item');
 
         listDownload.appendChild(entry);
@@ -302,7 +302,7 @@ window.addEventListener('load', () => {
 
   const updateMovableEntry = () => {
     for (const node of listDownload.children) {
-      const nodePath = node.getAttribute('data-id').replace('?', '');
+      const nodePath = node.dataset.id.replace('?', '');
       if (!['plugins', 'script'].includes(path.basename(nodePath))) {
         node.classList.remove('list-group-item-dark');
         node.classList.remove('ignore-elements');
@@ -310,7 +310,7 @@ window.addEventListener('load', () => {
     }
 
     for (const node of listDownload.children) {
-      const nodePath = node.getAttribute('data-id').replace('?', '');
+      const nodePath = node.dataset.id.replace('?', '');
       usedPath.forEach((used) => {
         if (pathRelated(nodePath, used)) {
           node.classList.add('list-group-item-dark');
@@ -327,12 +327,12 @@ window.addEventListener('load', () => {
     fallbackOnBody: true,
     sort: false,
     onRemove: (event) => {
-      const itemPath = event.item.getAttribute('data-id').replace('?', '');
+      const itemPath = event.item.dataset.id.replace('?', '');
       usedPath.add(itemPath);
       updateMovableEntry();
     },
     onAdd: (event) => {
-      const itemPath = event.item.getAttribute('data-id').replace('?', '');
+      const itemPath = event.item.dataset.id.replace('?', '');
       usedPath.delete(itemPath);
       updateMovableEntry();
     },
