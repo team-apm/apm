@@ -167,8 +167,8 @@ module.exports = {
       );
       await mod.downloadData();
       store.set('checkDate.core', Date.now());
-      this.displayInstalledVersion(instPath);
-      this.setCoreVersions();
+      await this.displayInstalledVersion(instPath);
+      await this.setCoreVersions();
     } catch (e) {
       buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
       setTimeout(() => {
@@ -204,8 +204,8 @@ module.exports = {
       );
     } else if (selectedPath[0] != originalPath) {
       store.set('installationPath', selectedPath[0]);
-      this.displayInstalledVersion(selectedPath[0]);
-      package.setPackagesList(selectedPath[0]);
+      await this.displayInstalledVersion(selectedPath[0]);
+      await package.setPackagesList(selectedPath[0]);
       input.setAttribute('value', selectedPath[0]);
     }
   },
@@ -268,7 +268,7 @@ module.exports = {
 
         if (filesCount === existCount) {
           apmJson.setCore(instPath, program, version);
-          this.displayInstalledVersion(instPath);
+          await this.displayInstalledVersion(instPath);
 
           buttonTransition.message(btn, 'インストール完了', 'success');
         } else {

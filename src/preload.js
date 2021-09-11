@@ -4,7 +4,7 @@ const core = require('./core/core');
 const package = require('./package/package');
 const setting = require('./setting/setting');
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   const installationPath = document.getElementById('installation-path');
   installationPath.setAttribute('value', store.get('installationPath', ''));
 
@@ -18,9 +18,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const extraDataURL = document.getElementById('extra-data-url');
   extraDataURL.value = setting.getExtraDataUrl();
 
-  core.displayInstalledVersion(installationPath.value);
-  core.setCoreVersions();
-  package.setPackagesList(installationPath.value);
+  await core.displayInstalledVersion(installationPath.value);
+  await core.setCoreVersions();
+  await package.setPackagesList(installationPath.value);
 
   const zoomFactorSelect = document.getElementById('zoom-factor-select');
   setting.setZoomFactor(zoomFactorSelect);
@@ -31,21 +31,21 @@ window.addEventListener('load', () => {
 
   // core
   const checkCoreVersionBtn = document.getElementById('check-core-version');
-  checkCoreVersionBtn.addEventListener('click', (event) => {
-    core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
+  checkCoreVersionBtn.addEventListener('click', async (event) => {
+    await core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
   });
 
   const selectInstallationPathBtn = document.getElementById(
     'select-installation-path'
   );
-  selectInstallationPathBtn.addEventListener('click', (event) => {
-    core.selectInstallationPath(installationPath);
+  selectInstallationPathBtn.addEventListener('click', async (event) => {
+    await core.selectInstallationPath(installationPath);
   });
 
   const installAviutlBtn = document.getElementById('install-aviutl');
   const aviutlVersionSelect = document.getElementById('aviutl-version-select');
-  installAviutlBtn.addEventListener('click', (event) => {
-    core.installProgram(
+  installAviutlBtn.addEventListener('click', async (event) => {
+    await core.installProgram(
       installAviutlBtn,
       'aviutl',
       aviutlVersionSelect.value,
@@ -55,8 +55,8 @@ window.addEventListener('load', () => {
 
   const installExeditBtn = document.getElementById('install-exedit');
   const exeditVersionSelect = document.getElementById('exedit-version-select');
-  installExeditBtn.addEventListener('click', (event) => {
-    core.installProgram(
+  installExeditBtn.addEventListener('click', async (event) => {
+    await core.installProgram(
       installExeditBtn,
       'exedit',
       exeditVersionSelect.value,
@@ -69,8 +69,8 @@ window.addEventListener('load', () => {
   const packagesTableOverlay = document.getElementById(
     'packages-table-overlay'
   );
-  checkPackagesListBtn.addEventListener('click', (event) => {
-    package.checkPackagesList(
+  checkPackagesListBtn.addEventListener('click', async (event) => {
+    await package.checkPackagesList(
       checkPackagesListBtn,
       packagesTableOverlay,
       installationPath.value
@@ -78,13 +78,13 @@ window.addEventListener('load', () => {
   });
 
   const installPackageBtn = document.getElementById('install-package');
-  installPackageBtn.addEventListener('click', (event) => {
-    package.installPackage(installPackageBtn, installationPath.value);
+  installPackageBtn.addEventListener('click', async (event) => {
+    await package.installPackage(installPackageBtn, installationPath.value);
   });
 
   const uninstallPackageBtn = document.getElementById('uninstall-package');
-  uninstallPackageBtn.addEventListener('click', (event) => {
-    package.uninstallPackage(uninstallPackageBtn, installationPath.value);
+  uninstallPackageBtn.addEventListener('click', async (event) => {
+    await package.uninstallPackage(uninstallPackageBtn, installationPath.value);
   });
 
   // settings
