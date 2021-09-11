@@ -1,4 +1,6 @@
 const { ipcRenderer } = require('electron');
+const Store = require('electron-store');
+const store = new Store();
 const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -9,6 +11,21 @@ const setting = require('../setting/setting');
 const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
+const mod = require('../lib/mod');
+
+/**
+ * Shows check date.
+ */
+function showCheckDate() {
+  if (document.getElementById('packages-check-date')) {
+    if (store.has('checkDate.packages')) {
+      const checkDate = new Date(store.get('checkDate.packages'));
+      replaceText('packages-check-date', checkDate.toLocaleString());
+    } else {
+      replaceText('packages-check-date', '未確認');
+    }
+  }
+}
 
 let selectedPackage;
 let listJS;
@@ -341,6 +358,15 @@ module.exports = {
     } else {
       listJS.reIndex();
     }
+
+    const modInfo = await mod.getInfo();
+    if (modInfo) {
+      replaceText('packages-mod-date', modInfo.packages_list.toLocaleString());
+    } else {
+      replaceText('packages-mod-date', '未取得');
+    }
+
+    showCheckDate();
   },
 
   /**
@@ -366,6 +392,8 @@ module.exports = {
           packageRepo
         );
       }
+      await mod.downloadData();
+      store.set('checkDate.packages', Date.now());
       await this.setPackagesList(instPath);
 
       buttonTransition.message(btn, '更新完了', 'success');
@@ -378,6 +406,7 @@ module.exports = {
 
     setTimeout(() => {
       enableButton();
+      showCheckDate();
     }, 3000);
   },
 

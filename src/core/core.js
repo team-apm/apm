@@ -10,18 +10,23 @@ const setting = require('../setting/setting');
 const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
+const mod = require('../lib/mod');
+
+/**
+ * Shows check date.
+ */
+function showCheckDate() {
+  if (document.getElementById('core-check-date')) {
+    if (store.has('checkDate.core')) {
+      const checkDate = new Date(store.get('checkDate.core'));
+      replaceText('core-check-date', checkDate.toLocaleString());
+    } else {
+      replaceText('core-check-date', '未確認');
+    }
+  }
+}
 
 module.exports = {
-  /**
-   * Returns a core xml URL.
-   *
-   * @returns {string} - A core xml URL.
-   */
-  getCoreXmlUrl: function () {
-    const dataUrl = setting.getDataUrl();
-    return path.join(dataUrl, 'core.xml');
-  },
-
   /**
    * Displays installed version.
    *
@@ -67,6 +72,15 @@ module.exports = {
         replaceText(`${program}-installed-version`, '未取得');
       }
     }
+
+    const modInfo = await mod.getInfo();
+    if (modInfo) {
+      replaceText('core-mod-date', modInfo.core.toLocaleString());
+    } else {
+      replaceText('core-mod-date', '未取得');
+    }
+
+    showCheckDate();
   },
 
   /**
@@ -144,11 +158,19 @@ module.exports = {
   checkLatestVersion: async function (btn, instPath) {
     const enableButton = buttonTransition.loading(btn);
 
-    await ipcRenderer.invoke('download', this.getCoreXmlUrl(), true, 'core');
+    await ipcRenderer.invoke(
+      'download',
+      setting.getCoreDataUrl(),
+      true,
+      'core'
+    );
+    await mod.downloadData();
+    store.set('checkDate.core', Date.now());
     this.displayInstalledVersion(instPath);
     this.setCoreVersions();
 
     enableButton();
+    showCheckDate();
   },
 
   /**
