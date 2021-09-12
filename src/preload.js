@@ -6,7 +6,7 @@ const setting = require('./setting/setting');
 
 window.addEventListener('DOMContentLoaded', () => {
   const installationPath = document.getElementById('installation-path');
-  installationPath.setAttribute('value', store.get('installationPath', ''));
+  installationPath.value = store.get('installationPath', '');
 
   // init data
   setting.initSettings();
@@ -14,7 +14,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // load data
   const dataURL = document.getElementById('data-url');
-  dataURL.setAttribute('value', setting.getDataUrl());
+  dataURL.value = setting.getDataUrl();
   const extraDataURL = document.getElementById('extra-data-url');
   extraDataURL.value = setting.getExtraDataUrl();
 

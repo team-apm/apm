@@ -129,7 +129,7 @@ module.exports = {
 
         for (const version of Object.keys(progInfo.releases)) {
           const option = document.createElement('option');
-          option.setAttribute('value', version);
+          option.value = version;
           option.innerHTML =
             version +
             (version.includes('rc') ? '（テスト版）' : '') +
@@ -194,7 +194,7 @@ module.exports = {
     const selectedPath = await ipcRenderer.invoke(
       'open-dir-dialog',
       'インストール先フォルダを選択',
-      input.innerText
+      originalPath
     );
     if (!selectedPath || selectedPath.length === 0) {
       await ipcRenderer.invoke(
@@ -206,7 +206,7 @@ module.exports = {
       store.set('installationPath', selectedPath[0]);
       this.displayInstalledVersion(selectedPath[0]);
       package.setPackagesList(selectedPath[0]);
-      input.setAttribute('value', selectedPath[0]);
+      input.value = selectedPath[0];
     }
   },
 

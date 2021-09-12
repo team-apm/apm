@@ -30,7 +30,7 @@ log.debug(process.versions);
 let splashWindow;
 
 /**
- * @function createSplash
+ * Creates the splash window.
  */
 function createSplash() {
   splashWindow = new BrowserWindow({
@@ -51,7 +51,7 @@ function createSplash() {
 let mainWindow;
 
 /**
- * @function createWindow
+ * Creates the main window.
  */
 function createWindow() {
   const mainWindowState = windowStateKeeper({
@@ -99,7 +99,8 @@ function createWindow() {
 let browserWindow;
 
 /**
- * @function createBrowser
+ * Creates the browser window.
+ *
  * @param {string} url - A URL to open.
  */
 function createBrowser(url) {
