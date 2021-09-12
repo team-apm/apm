@@ -138,7 +138,7 @@ module.exports = {
     const apmJson = getApmJson(instPath);
     apmJson.packages[package.id] = {
       id: package.id,
-      repository: package.repo,
+      repository: package.repository,
       version: package.info.latestVersion,
     };
     setApmJson(instPath, apmJson);
