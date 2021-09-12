@@ -62,6 +62,6 @@ module.exports = {
       }
     }
 
-    btn.innerHTML = message;
+    btn.innerText = message;
   },
 };

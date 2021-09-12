@@ -341,12 +341,12 @@ module.exports = {
           }
           tr.classList.add('table-secondary');
         });
-        name.innerHTML = package.info.name;
-        overview.innerHTML = package.info.overview;
-        developer.innerHTML = package.info.developer;
-        type.innerHTML = parsePackageType(package.info.type);
-        latestVersion.innerHTML = package.info.latestVersion;
-        installedVersion.innerHTML = getInstalledVersion(package);
+        name.innerText = package.info.name;
+        overview.innerText = package.info.overview;
+        developer.innerText = package.info.developer;
+        type.innerText = parsePackageType(package.info.type);
+        latestVersion.innerText = package.info.latestVersion;
+        installedVersion.innerText = getInstalledVersion(package);
 
         tbody.appendChild(tr);
       }
@@ -359,7 +359,7 @@ module.exports = {
             tr.dataset.repository === package.repository
           ) {
             installedVersion = tr.getElementsByClassName('installedVersion')[0];
-            installedVersion.innerHTML = getInstalledVersion(package);
+            installedVersion.innerText = getInstalledVersion(package);
           }
         }
       }
@@ -377,12 +377,12 @@ module.exports = {
         installedVersion,
       ] = makeTrFromArray(columns);
       tr.classList.add('package-tr');
-      name.innerHTML = ef;
-      overview.innerHTML = '手動で追加されたファイル';
-      developer.innerHTML = '';
-      type.innerHTML = '';
-      latestVersion.innerHTML = '';
-      installedVersion.innerHTML = '';
+      name.innerText = ef;
+      overview.innerText = '手動で追加されたファイル';
+      developer.innerText = '';
+      type.innerText = '';
+      latestVersion.innerText = '';
+      installedVersion.innerText = '';
       bottomTbody.appendChild(tr);
     }
 
