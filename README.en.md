@@ -34,7 +34,7 @@ If you want to use the zipped version that does not require installation, downlo
 
 1. Launch the AviUtl Package Manager
 2. Select the new folder where you want to install Aviutl from "インストール先フォルダを選択"
-3. Select the version of Aviutl and Exedit and click the Install button
+3. Select the version of Aviutl and Exedit and click the "インストール" button
 4. Confirm that the installed version is displayed in "インストール済みのバージョン"
 
 ### Install Plugins & Scripts
