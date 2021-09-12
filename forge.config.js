@@ -11,6 +11,7 @@ module.exports = {
       /^(?!.*node_modules).*\/\.github$/,
       /^(?!.*node_modules).*\/\.husky$/,
       /^(?!.*node_modules).*\/\.vscode$/,
+      /^(?!.*node_modules).*\/docs$/,
       /^(?!.*node_modules).*\/\.czrc$/,
       /^(?!.*node_modules).*\/\.editorconfig$/,
       /^(?!.*node_modules).*\/\.eslint/,
