@@ -12,10 +12,9 @@ module.exports = {
   initSettings: function () {
     if (!store.has('dataURL.extra')) store.set('dataURL.extra', '');
     if (!store.has('dataURL.main'))
-      this.setDataUrl(
-        null,
-        'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/'
-      );
+      this.setDataUrl(null, {
+        value: 'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/',
+      });
   },
 
   /**
