@@ -10,16 +10,16 @@ AviUtl本体やプラグイン・スクリプトの導入を補助するソフ�
 
 Read this in [English](./README.en.md).
 
-- AviUtl本体と拡張編集の自動ダウンロード・アップデート
-- プラグインとスクリプトの自動ダウンロード・アップデート・削除
+- AviUtl本体と拡張編集のダウンロード・アップデート
+- プラグインとスクリプトのダウンロード・アップデート・削除
 - 50を超えるプラグイン・スクリプトにデフォルトで対応
 - プラグイン・スクリプトの検索と紹介ページの確認
 
 ## インストール
 
-[apm/releases](https://github.com/hal-shu-sato/apm/releases)のAssets欄からダウンロードした`AviUtl.Plugin.Manager-{version}.Setup.exe`を実行してインストールを行います。
+[apm/releases](https://github.com/hal-shu-sato/apm/releases)のAssetsからダウンロードした`AviUtl.Package.Manager-{version}.Setup.exe`を実行してインストールを行います。
 
-インストール不要のzip版を利用する場合は`AviUtl.Plugin.Manager-{os}-{version}.zip`をダウンロードして任意の場所に展開します。
+インストール不要のzip版を利用する場合は`AviUtl.Package.Manager-{os}-{version}.zip`をダウンロードして任意の場所に展開します。
 
 ## 使用方法
 
@@ -28,7 +28,7 @@ Read this in [English](./README.en.md).
 1. AviUtl Package Managerを起動
 2. 「インストール先フォルダを選択」からAviutlがインストールされているフォルダを選択します
 3. 「インストール済みのバージョン」に「手動インストール」と表示されていることを確認します
-4. すでにプラグインを導入している場合、「Plugins&Scripts」タブを開き一番下までスクロールします。追加されたファイルの一覧が表示されていることを確認します
+4. すでにプラグインを導入している場合、「Plugins&Scripts」タブを開き一番下までスクロールして、追加されたファイルの一覧が表示されていることを確認します
 
 ### 新規インストールの場合
 
@@ -40,7 +40,8 @@ Read this in [English](./README.en.md).
 ### プラグイン・スクリプトの導入
 
 1. 「Plugins&Scripts」タブを開き、インストールしたいプラグインを選択します
-2. プラグインの情報が表示されます。URLをブラウザで開き利用規約や注意事項をよく確認してください
+2. プラグインの情報が表示されます
+   - URLをブラウザで開き利用規約や注意事項をよく確認してください
    - インストール後に必要な設定もチェックします
 3. 「インストール」ボタンを押します
 4. 表示された作者サイトから、リストに表示された「最新バージョン」と同じバージョンのファイルをダウンロードしてください
