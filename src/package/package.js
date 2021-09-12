@@ -119,15 +119,15 @@ module.exports = {
   getPackagesInfo: async function () {
     const xmlList = {};
 
-    for (const packageRepo of setting.getPackagesDataUrl()) {
+    for (const packageRepository of setting.getPackagesDataUrl()) {
       const packagesListFile = await ipcRenderer.invoke(
         'exists-temp-file',
         'package/packages_list.xml',
-        packageRepo
+        packageRepository
       );
       if (packagesListFile.exists) {
         try {
-          xmlList[packageRepo] = parseXML.package(packagesListFile.path);
+          xmlList[packageRepository] = parseXML.package(packagesListFile.path);
         } catch {
           ipcRenderer.invoke(
             'open-err-dialog',
@@ -135,7 +135,7 @@ module.exports = {
             '取得したデータの処理に失敗しました。' +
               '\n' +
               'URL: ' +
-              packageRepo
+              packageRepository
           );
         }
       }
@@ -189,17 +189,21 @@ module.exports = {
 
     // table body
     const packages = [];
-    for (const [packagesRepo, packagesInfo] of Object.entries(
+    for (const [packagesRepository, packagesInfo] of Object.entries(
       await this.getPackagesInfo()
     )) {
       for (const [id, packageInfo] of Object.entries(packagesInfo)) {
-        packages.push({ repo: packagesRepo, id: id, info: packageInfo });
+        packages.push({
+          repository: packagesRepository,
+          id: id,
+          info: packageInfo,
+        });
       }
     }
 
     const installedPackages = apmJson.get(instPath, 'packages');
 
-    const getExistingFiles = () => {
+    const getAddedFiles = () => {
       const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn)$/;
       const safeReaddirSync = (path, option) => {
         try {
@@ -224,46 +228,51 @@ module.exports = {
           )
       );
     };
-    const existingFiles = getExistingFiles();
+    const addedFiles = getAddedFiles();
 
-    let manualFiles = [...existingFiles];
-    for (const package of packages) {
-      for (const [installedId, installedPackage] of Object.entries(
-        installedPackages
-      )) {
-        if (
-          installedId === package.id &&
-          installedPackage.repository === package.repo
-        ) {
-          for (const file of package.info.files) {
-            if (!file.isOptional) {
-              if (manualFiles.includes(file.filename)) {
-                manualFiles = manualFiles.filter((ef) => ef !== file.filename);
+    const getManuallyAddedFiles = (files) => {
+      let retFiles = [...files];
+      for (const package of packages) {
+        for (const [installedId, installedPackage] of Object.entries(
+          installedPackages
+        )) {
+          if (
+            installedId === package.id &&
+            installedPackage.repository === package.repository
+          ) {
+            for (const file of package.info.files) {
+              if (!file.isOptional) {
+                if (retFiles.includes(file.filename)) {
+                  retFiles = retFiles.filter((ef) => ef !== file.filename);
+                }
               }
-            }
-            if (!file.isOptional && file.isDirectory) {
-              manualFiles = manualFiles.filter(
-                (ef) => !ef.startsWith(file.filename)
-              );
+              if (!file.isOptional && file.isDirectory) {
+                retFiles = retFiles.filter(
+                  (ef) => !ef.startsWith(file.filename)
+                );
+              }
             }
           }
         }
       }
-    }
+      return retFiles;
+    };
+    const manuallyAddedFiles = getManuallyAddedFiles(addedFiles);
 
     const getInstalledVersion = (package) => {
       let installedVersion;
-      let otherVersion = false;
-      let otherManualVersion = false;
+      let addedVersion = false;
+      let manuallyAddedVersion = false;
       for (const file of package.info.files) {
         if (!file.isOptional) {
-          if (existingFiles.includes(file.filename)) otherVersion = true;
-          if (manualFiles.includes(file.filename)) otherManualVersion = true;
+          if (addedFiles.includes(file.filename)) addedVersion = true;
+          if (manuallyAddedFiles.includes(file.filename))
+            manuallyAddedVersion = true;
         }
       }
-      installedVersion = otherManualVersion
+      installedVersion = manuallyAddedVersion
         ? '手動インストール済み'
-        : otherVersion
+        : addedVersion
         ? '他バージョンがインストール済み'
         : '未インストール';
 
@@ -272,7 +281,7 @@ module.exports = {
       )) {
         if (
           installedId === package.id &&
-          installedPackage.repository === package.repo
+          installedPackage.repository === package.repository
         ) {
           let filesCount = 0;
           let existCount = 0;
@@ -323,7 +332,7 @@ module.exports = {
         ] = makeTrFromArray(columns);
         tr.classList.add('package-tr');
         tr.dataset.id = package.id;
-        tr.dataset.repository = package.repo;
+        tr.dataset.repository = package.repository;
         tr.addEventListener('click', (event) => {
           showPackageDetail(package);
           selectedPackage = package;
@@ -347,7 +356,7 @@ module.exports = {
         for (const tr of tbody.getElementsByTagName('tr')) {
           if (
             tr.dataset.id === package.id &&
-            tr.dataset.repository === package.repo
+            tr.dataset.repository === package.repository
           ) {
             installedVersion = tr.getElementsByClassName('installedVersion')[0];
             installedVersion.innerHTML = getInstalledVersion(package);
@@ -357,7 +366,7 @@ module.exports = {
     }
 
     // list manually added packages
-    for (const ef of manualFiles) {
+    for (const ef of manuallyAddedFiles) {
       const [
         tr,
         name,
@@ -409,13 +418,13 @@ module.exports = {
     overlay.classList.add('show');
 
     try {
-      for (const packageRepo of setting.getPackagesDataUrl()) {
+      for (const packageRepository of setting.getPackagesDataUrl()) {
         await ipcRenderer.invoke(
           'download',
-          packageRepo,
+          packageRepository,
           true,
           'package',
-          packageRepo
+          packageRepository
         );
       }
       await mod.downloadData();
