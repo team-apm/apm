@@ -2,6 +2,92 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/hal-shu-sato/apm/compare/v0.3.2...v1.0.0) (2021-09-12)
+
+### ⚠ BREAKING CHANGES
+
+- **App Name:** All settings will be lost.
+- changing the file name and tag name of the xml file
+- Data about the scripts is deleted.
+- All installation information will be reset.
+- **plugin.js&script.js:** This commit changes the data structure for 'installedVersion.plugin' and
+  'installedVersion.script'.
+- This commit changes the data structure for 'dataURL'.
+
+### Features
+
+- add a feature to display update date and time ([299c31d](https://github.com/hal-shu-sato/apm/commit/299c31d3ff0f80481d887a35a371ab140b66df83)), closes [#104](https://github.com/hal-shu-sato/apm/issues/104)
+- add a menu to send a feedback ([3e5fe81](https://github.com/hal-shu-sato/apm/commit/3e5fe816cf9417091fff179605a5979dbf127516)), closes [#117](https://github.com/hal-shu-sato/apm/issues/117)
+- add a tool for generating packages ([e7ef296](https://github.com/hal-shu-sato/apm/commit/e7ef296afdef70ba2b656afa824c8a1d6ad557ae))
+- add contributors' credits ([39724ef](https://github.com/hal-shu-sato/apm/commit/39724effbddcda2982a5f9bbdf4a0cb8040f2951)), closes [#59](https://github.com/hal-shu-sato/apm/issues/59)
+- add copyright and information about third-party notices ([f0f78fe](https://github.com/hal-shu-sato/apm/commit/f0f78fee83e3c00991e590cc60088a9021be71df)), closes [#63](https://github.com/hal-shu-sato/apm/issues/63)
+- add descriptions to the UI ([4a7cbbe](https://github.com/hal-shu-sato/apm/commit/4a7cbbec792307023b6c9aeb4a6d2722a5774f15))
+- add the feature to adjust the zoom of the display ([1cea281](https://github.com/hal-shu-sato/apm/commit/1cea281f7cd1b3b3a58a06cc0865b7a1916430a7)), closes [#46](https://github.com/hal-shu-sato/apm/issues/46)
+- bundle a file that notices the license in the package ([9f17a78](https://github.com/hal-shu-sato/apm/commit/9f17a789505a5d26fd1992987b96250f8472d2bc)), closes [#63](https://github.com/hal-shu-sato/apm/issues/63)
+- change to manage versions by JSON file in installation directory ([c7606ec](https://github.com/hal-shu-sato/apm/commit/c7606ec9b35a588b2209b9d9e917fe18039d5c2c)), closes [#45](https://github.com/hal-shu-sato/apm/issues/45)
+- change to use the path of the file specified in the archive in the data file ([5431fcf](https://github.com/hal-shu-sato/apm/commit/5431fcfed317ee3680921b7e37c639a9ba106a56)), closes [#52](https://github.com/hal-shu-sato/apm/issues/52)
+- enables DevTools in the development environment ([71b58a3](https://github.com/hal-shu-sato/apm/commit/71b58a3cd51e01c229e565103402a8ccf16f7e30))
+- improve appearance of the table ([8f1c862](https://github.com/hal-shu-sato/apm/commit/8f1c862762ca8d60d92208ecf4af0e882892a1f1))
+- insert the default repository when nothing is entered in the input ([446a13e](https://github.com/hal-shu-sato/apm/commit/446a13e9dc15326cd2e41eba399c3113afd480e6)), closes [#122](https://github.com/hal-shu-sato/apm/issues/122)
+- integrating plugins and scripts ([b55c7f9](https://github.com/hal-shu-sato/apm/commit/b55c7f9e1c1525aea90a275a5364eeb47aed0732)), closes [#70](https://github.com/hal-shu-sato/apm/issues/70)
+- **Logo:** add a logo ([20e1977](https://github.com/hal-shu-sato/apm/commit/20e1977cb826ed69b8f124446e9f556160d55760)), closes [#11](https://github.com/hal-shu-sato/apm/issues/11)
+- **main.js:** allow the download function to handle local files ([3952e2f](https://github.com/hal-shu-sato/apm/commit/3952e2f79613c99575795f38eddd6be1835c43d7))
+- **main.js:** multiple repositories support for download function ([d8a10d5](https://github.com/hal-shu-sato/apm/commit/d8a10d5c92570eec9ec386ce8f06a677753f42de))
+- **package maker:** support for installers ([d2aab43](https://github.com/hal-shu-sato/apm/commit/d2aab43f12d1a25f30bc7bd8b292f9546dd4da6b))
+- **parseXML:** automatically generate type ([47deb3c](https://github.com/hal-shu-sato/apm/commit/47deb3c74b0d8b4e99fc396cee60d3334894d35c))
+- **plugin.js&script.js:** avoid plugin or script id conflicts ([9e95363](https://github.com/hal-shu-sato/apm/commit/9e953637319c941c8c2d69b866688e5a772e39ad)), closes [#48](https://github.com/hal-shu-sato/apm/issues/48)
+- **plugin&script:** show manually added plug-ins ([1a84bb4](https://github.com/hal-shu-sato/apm/commit/1a84bb4c6b78bc08f4a68115c0afad4463d5ec19)), closes [#47](https://github.com/hal-shu-sato/apm/issues/47)
+- **plugin&script:** work with manually added plugins ([d09cfae](https://github.com/hal-shu-sato/apm/commit/d09cfaecd1e47367baee95ad37e4b625af463665))
+- **preload:** load repository data at first startup ([aac327f](https://github.com/hal-shu-sato/apm/commit/aac327f2792aa6de49d3f2097fd9f8e0e871b464))
+- rename plugin to package ([e8c50fe](https://github.com/hal-shu-sato/apm/commit/e8c50fec4eee1f99ba1c4a81428a505eb988b055))
+- save window position & size and restore it on starting ([4921b16](https://github.com/hal-shu-sato/apm/commit/4921b16bf32f67e56e35e1efc5bb672d6d06a41d)), closes [#96](https://github.com/hal-shu-sato/apm/issues/96)
+- sortable and filterable tables ([efc95fc](https://github.com/hal-shu-sato/apm/commit/efc95fcb941e403bdc3d0a325e694f16fadd276b)), closes [#40](https://github.com/hal-shu-sato/apm/issues/40) [#41](https://github.com/hal-shu-sato/apm/issues/41)
+- support for multiple repositories ([ce191b6](https://github.com/hal-shu-sato/apm/commit/ce191b67fcf1b716eaa809227a56ba080ddfc731))
+- **unzip:** support for lzh files ([80ca546](https://github.com/hal-shu-sato/apm/commit/80ca546b92965429d3900bf8c09a707227ba76c3))
+- **userData&Store:** separate data for production and development versions ([d52c62e](https://github.com/hal-shu-sato/apm/commit/d52c62ef8577e254840f8e804e156245cf60704c))
+
+### Bug Fixes
+
+- add await to avoid bugs ([3209019](https://github.com/hal-shu-sato/apm/commit/32090195821d705b86400849f50065862d15b443))
+- add missing await ([03800a9](https://github.com/hal-shu-sato/apm/commit/03800a90e4e2f321514a8d9004c0adbcff530074))
+- **apmJson:** fix an issue with the installed version ([927f14b](https://github.com/hal-shu-sato/apm/commit/927f14bb382035e46392a7a9e6fb282550263d3b)), closes [#45](https://github.com/hal-shu-sato/apm/issues/45)
+- **apmJson:** write json synchronously ([4604be1](https://github.com/hal-shu-sato/apm/commit/4604be1e059bd4c02f8c0e9c758808748b6d5850))
+- change to be able to cancel the installation ([07e454a](https://github.com/hal-shu-sato/apm/commit/07e454ac8337e904b099e5e904d32fab235d2fe7)), closes [#81](https://github.com/hal-shu-sato/apm/issues/81)
+- change to freeze the selected package while installing or uninstalling ([eca1aae](https://github.com/hal-shu-sato/apm/commit/eca1aae2bdf8d8814e57c954edf3818267b1e94a)), closes [#111](https://github.com/hal-shu-sato/apm/issues/111)
+- **core.js:** fix the condition for status display ([5ba053e](https://github.com/hal-shu-sato/apm/commit/5ba053efc9fcab9087b73a618545a6e0827d7308))
+- correct folder name ([c228716](https://github.com/hal-shu-sato/apm/commit/c2287164ebd14593464e2684e40cb3880b4dd279))
+- dataURL is not loaded on first launch ([3b1a655](https://github.com/hal-shu-sato/apm/commit/3b1a65511ca7f164937646b1976a22635965cccc))
+- debug -> dev ([7e2387c](https://github.com/hal-shu-sato/apm/commit/7e2387ca9bb4f2ca5b2692b721a3d3cb69f33397))
+- delete unnecessary lines ([1bd13de](https://github.com/hal-shu-sato/apm/commit/1bd13de18aebe3d32b87a56fb523bf4f23ad2e9b))
+- display the certificate confirmation dialog ([dca9893](https://github.com/hal-shu-sato/apm/commit/dca9893394c659485e3ad4014517d8c8e7450bc3)), closes [#80](https://github.com/hal-shu-sato/apm/issues/80)
+- fix a bug in which errors are not displayed while processing is in progress ([1aa3c6c](https://github.com/hal-shu-sato/apm/commit/1aa3c6c8e4dc23694e9fdc6c9049a8ac2868a3ea)), closes [#97](https://github.com/hal-shu-sato/apm/issues/97)
+- fix a problem of checking the latest core version ([e2eddd1](https://github.com/hal-shu-sato/apm/commit/e2eddd17da0a8ecec2a6c83f80eeccc129322885)), closes [#97](https://github.com/hal-shu-sato/apm/issues/97)
+- fix an error in displaying the latest version and improve wording ([a3682d1](https://github.com/hal-shu-sato/apm/commit/a3682d128082f4e52acb4e5da39646ac00725281)), closes [#97](https://github.com/hal-shu-sato/apm/issues/97)
+- fix an error when destroying the browser window ([9e08c58](https://github.com/hal-shu-sato/apm/commit/9e08c58627a6b57d5d6433bbd4966214a6d6562a))
+- fix for sorting after refresh ([698538e](https://github.com/hal-shu-sato/apm/commit/698538e8bc562d3239636db8324417bfb6479c33))
+- fix for sorting and filtering ([e3f6b61](https://github.com/hal-shu-sato/apm/commit/e3f6b619b911916ababddca3f3d66799b5a135a5))
+- fix scrolling the detail panel ([c80e4ca](https://github.com/hal-shu-sato/apm/commit/c80e4caee3e564af23ec137b1137e30157571591)), closes [#61](https://github.com/hal-shu-sato/apm/issues/61)
+- fix scrolling the detail panel for a script ([244f370](https://github.com/hal-shu-sato/apm/commit/244f370c742e41199f05898b4d6e05998d970f5c)), closes [#61](https://github.com/hal-shu-sato/apm/issues/61)
+- fix the name of type of track bar ([843a9fb](https://github.com/hal-shu-sato/apm/commit/843a9fbb3f340174adfcbf0f7861e010a77bc435)), closes [#42](https://github.com/hal-shu-sato/apm/issues/42)
+- fix to not continue processing when an error occurs on searching a file ([d80d3e8](https://github.com/hal-shu-sato/apm/commit/d80d3e887762d930d809d0711a9280cfb4ba13b6))
+- give the class name in HTML ([aac5dc7](https://github.com/hal-shu-sato/apm/commit/aac5dc7b323dc17ed888a8a5639933e4e685c43f))
+- **index.html:** fixed description of settings ([ef307d9](https://github.com/hal-shu-sato/apm/commit/ef307d90b221778eab47f97842f9bf9424f54b9d))
+- **main.js:** change the timing of hiding the splash screen ([6e4c508](https://github.com/hal-shu-sato/apm/commit/6e4c508f96ac0c7f9c37bf04b429af4b6c92a753))
+- **main.js:** make the file name readable ([79583a1](https://github.com/hal-shu-sato/apm/commit/79583a1b36af62c0a359d91f6dba3e8b617e6180))
+- **main.js:** remove the menu entry ([8f64eb7](https://github.com/hal-shu-sato/apm/commit/8f64eb7c04b97906bf2f409e0b5d316fbda0d3f8))
+- **main.js:** remove the unnecessary condition ([9ef4244](https://github.com/hal-shu-sato/apm/commit/9ef42447e33759d10e9d646254fc46eb81ffba9e))
+- make variable names understandable ([572170a](https://github.com/hal-shu-sato/apm/commit/572170a46df0a7edae812a318293e8401bb779d0))
+- modify the table design ([0741b10](https://github.com/hal-shu-sato/apm/commit/0741b104e896e72ae8eccd8da402cbd70de953b7))
+- **parseXML:** fix an error in parsing files written in XML ([0c5e655](https://github.com/hal-shu-sato/apm/commit/0c5e6550c5a1860911b3503dcf071d621a479f88)), closes [#52](https://github.com/hal-shu-sato/apm/issues/52)
+- **plugin.js&script.js:** treat a single file as an array ([2ea328f](https://github.com/hal-shu-sato/apm/commit/2ea328f39a3341cb44c7fd89c735b6f8594003bc))
+- **plugin.js:** fix the path passed to the shell ([7396441](https://github.com/hal-shu-sato/apm/commit/73964412a5eac7c27acee727c8b42f921c7f8305))
+- **plugin&script:** fixed a bug introduced by [#56](https://github.com/hal-shu-sato/apm/issues/56) ([0ee66f6](https://github.com/hal-shu-sato/apm/commit/0ee66f6d1ad34505685899d50e130464c166b950))
+- **readme:** improving the text ([79f2463](https://github.com/hal-shu-sato/apm/commit/79f24637ddbdc5a209900a4b6ef574c266c73779))
+- **setting:** fixed dataURL initialization process ([ba15bbf](https://github.com/hal-shu-sato/apm/commit/ba15bbf11a4eae5f4a68a474e410f6f574408121))
+- use dataset attribute ([45f561e](https://github.com/hal-shu-sato/apm/commit/45f561e613cb13823b2fb4f35639e62fa95fec63))
+
+- **App Name:** change the name of the app ([4ca986b](https://github.com/hal-shu-sato/apm/commit/4ca986bf48db044516773392005d06a917f0dae6)), closes [#93](https://github.com/hal-shu-sato/apm/issues/93)
+
 ### [0.3.2](https://github.com/hal-shu-sato/apm/compare/v0.3.1...v0.3.2) (2021-07-10)
 
 ### Features

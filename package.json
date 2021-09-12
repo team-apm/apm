@@ -1,7 +1,7 @@
 {
   "name": "apm",
   "productName": "AviUtl Package Manager",
-  "version": "0.3.2",
+  "version": "1.0.0",
   "description": "A package manager for AviUtl",
   "main": "./src/main.js",
   "repository": "https://github.com/hal-shu-sato/apm.git",
