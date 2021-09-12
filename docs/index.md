@@ -1,1 +1,1 @@
-# ![Logo](../icon/apm32.png) AviUtl Package Manager
+# ![Logo](./images/apm32.png) AviUtl Package Manager
