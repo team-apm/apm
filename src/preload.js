@@ -91,7 +91,7 @@ window.addEventListener('load', () => {
   const setDataUrlBtn = document.getElementById('set-data-url');
   const dataURL = document.getElementById('data-url');
   setDataUrlBtn.addEventListener('click', (event) => {
-    setting.setDataUrl(setDataUrlBtn, dataURL.value);
+    setting.setDataUrl(setDataUrlBtn, dataURL);
   });
 
   const setExtraDataUrlBtn = document.getElementById('set-extra-data-url');

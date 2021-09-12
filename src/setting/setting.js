@@ -31,32 +31,32 @@ module.exports = {
    * Sets a data files URL.
    *
    * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
-   * @param {string} dataUrl - A data files URL to set.
+   * @param {HTMLInputElement} dataUrl - An input element that contains a data files URL to set.
    */
   setDataUrl: function (btn, dataUrl) {
     let enableButton;
     if (btn !== null) enableButton = buttonTransition.loading(btn);
 
-    if (!dataUrl) {
-      ipcRenderer.invoke(
-        'open-err-dialog',
-        'エラー',
-        'データファイル取得先を入力してください。'
-      );
-    } else if (!dataUrl.startsWith('http') && !fs.existsSync(dataUrl)) {
+    if (!dataUrl.value) {
+      dataUrl.value =
+        'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/';
+    }
+
+    const value = dataUrl.value;
+    if (!value.startsWith('http') && !fs.existsSync(value)) {
       ipcRenderer.invoke(
         'open-err-dialog',
         'エラー',
         '有効なURLまたは場所を入力してください。'
       );
-    } else if (path.extname(dataUrl) === '.xml') {
+    } else if (path.extname(value) === '.xml') {
       ipcRenderer.invoke(
         'open-err-dialog',
         'エラー',
         'フォルダのURLを入力してください。'
       );
     } else {
-      store.set('dataURL.main', dataUrl);
+      store.set('dataURL.main', value);
       this.setExtraDataUrl(null, store.get('dataURL.extra'));
     }
 
