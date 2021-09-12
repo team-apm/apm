@@ -130,7 +130,7 @@ module.exports = {
         for (const version of Object.keys(progInfo.releases)) {
           const option = document.createElement('option');
           option.value = version;
-          option.innerHTML =
+          option.innerText =
             version +
             (version.includes('rc') ? '（テスト版）' : '') +
             (version === progInfo.latestVersion ? '（最新版）' : '');
