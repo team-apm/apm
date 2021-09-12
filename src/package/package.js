@@ -147,12 +147,12 @@ module.exports = {
    * Sets rows of each package in the table.
    *
    * @param {string} instPath - An installation path.
+   * @param {boolean} minorUpdate - Only the version of the installed package is updated.
    */
-  setPackagesList: async function (instPath) {
+  setPackagesList: async function (instPath, minorUpdate = false) {
     const packagesTable = document.getElementById('packages-table');
     const thead = packagesTable.getElementsByTagName('thead')[0];
     const tbody = packagesTable.getElementsByTagName('tbody')[0];
-    tbody.innerHTML = null;
     const bottomTbody = packagesTable.getElementsByTagName('tbody')[1];
     bottomTbody.innerHTML = null;
 
@@ -251,42 +251,8 @@ module.exports = {
       }
     }
 
-    const makeTrFromArray = (tdList) => {
-      const tr = document.createElement('tr');
-      const tds = tdList.map((tdName) => {
-        const td = document.createElement('td');
-        td.classList.add(tdName);
-        tr.appendChild(td);
-        return td;
-      });
-      return [tr].concat(tds);
-    };
-
-    for (const package of packages) {
-      const [
-        tr,
-        name,
-        overview,
-        developer,
-        type,
-        latestVersion,
-        installedVersion,
-      ] = makeTrFromArray(columns);
-      tr.classList.add('package-tr');
-      tr.addEventListener('click', (event) => {
-        showPackageDetail(package);
-        selectedPackage = package;
-        for (const tmptr of tbody.getElementsByTagName('tr')) {
-          tmptr.classList.remove('table-secondary');
-        }
-        tr.classList.add('table-secondary');
-      });
-      name.innerHTML = package.info.name;
-      overview.innerHTML = package.info.overview;
-      developer.innerHTML = package.info.developer;
-      type.innerHTML = parsePackageType(package.info.type);
-      latestVersion.innerHTML = package.info.latestVersion;
-
+    const getInstalledVersion = (package) => {
+      let installedVersion;
       let otherVersion = false;
       let otherManualVersion = false;
       for (const file of package.info.files) {
@@ -295,7 +261,7 @@ module.exports = {
           if (manualFiles.includes(file.filename)) otherManualVersion = true;
         }
       }
-      installedVersion.innerHTML = otherManualVersion
+      installedVersion = otherManualVersion
         ? '手動インストール済み'
         : otherVersion
         ? '他バージョンがインストール済み'
@@ -320,15 +286,74 @@ module.exports = {
           }
 
           if (filesCount === existCount) {
-            installedVersion.innerHTML = installedPackage.version;
+            installedVersion = installedPackage.version;
           } else {
-            installedVersion.innerHTML =
+            installedVersion =
               '未インストール（ファイルの存在が確認できませんでした。）';
           }
         }
       }
 
-      tbody.appendChild(tr);
+      return installedVersion;
+    };
+
+    const makeTrFromArray = (tdList) => {
+      const tr = document.createElement('tr');
+      const tds = tdList.map((tdName) => {
+        const td = document.createElement('td');
+        td.classList.add(tdName);
+        tr.appendChild(td);
+        return td;
+      });
+      return [tr].concat(tds);
+    };
+
+    if (!minorUpdate) {
+      tbody.innerHTML = null;
+
+      for (const package of packages) {
+        const [
+          tr,
+          name,
+          overview,
+          developer,
+          type,
+          latestVersion,
+          installedVersion,
+        ] = makeTrFromArray(columns);
+        tr.classList.add('package-tr');
+        tr.dataset.id = package.id;
+        tr.dataset.repository = package.repo;
+        tr.addEventListener('click', (event) => {
+          showPackageDetail(package);
+          selectedPackage = package;
+          for (const tmptr of tbody.getElementsByTagName('tr')) {
+            tmptr.classList.remove('table-secondary');
+          }
+          tr.classList.add('table-secondary');
+        });
+        name.innerHTML = package.info.name;
+        overview.innerHTML = package.info.overview;
+        developer.innerHTML = package.info.developer;
+        type.innerHTML = parsePackageType(package.info.type);
+        latestVersion.innerHTML = package.info.latestVersion;
+        installedVersion.innerHTML = getInstalledVersion(package);
+
+        tbody.appendChild(tr);
+      }
+    } else {
+      for (const package of packages) {
+        let installedVersion;
+        for (const tr of tbody.getElementsByTagName('tr')) {
+          if (
+            tr.dataset.id === package.id &&
+            tr.dataset.repository === package.repo
+          ) {
+            installedVersion = tr.getElementsByClassName('installedVersion')[0];
+            installedVersion.innerHTML = getInstalledVersion(package);
+          }
+        }
+      }
     }
 
     // list manually added packages
@@ -355,8 +380,9 @@ module.exports = {
     // sorting and filtering
     if (typeof listJS === 'undefined') {
       listJS = new List('packages', { valueNames: columns });
-    } else {
+    } else if (!minorUpdate) {
       listJS.reIndex();
+      listJS.update();
     }
 
     const modInfo = await mod.getInfo();
@@ -541,7 +567,7 @@ module.exports = {
 
     if (filesCount === existCount) {
       apmJson.addPackage(instPath, installedPackage);
-      await this.setPackagesList(instPath);
+      await this.setPackagesList(instPath, true);
 
       buttonTransition.message(btn, 'インストール完了', 'success');
     } else {
@@ -605,7 +631,7 @@ module.exports = {
 
     if (filesCount === existCount) {
       apmJson.removePackage(instPath, uninstalledPackage);
-      await this.setPackagesList(instPath);
+      await this.setPackagesList(instPath, true);
 
       buttonTransition.message(btn, 'アンインストール完了', 'success');
     } else {
