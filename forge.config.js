@@ -1,6 +1,9 @@
+const path = require('path');
+
 module.exports = {
   packagerConfig: {
     executableName: 'apm',
+    icon: 'icon/apm',
     asar: {
       unpackDir: '{node_modules/7zip-bin,node_modules/win-7zip}',
     },
@@ -28,6 +31,7 @@ module.exports = {
       config: {
         name: 'apm',
         exe: 'apm.exe',
+        iconUrl: path.join(__dirname, 'icon/apm.ico'),
       },
     },
     {
@@ -40,6 +44,7 @@ module.exports = {
         options: {
           maintainer: 'ato lash',
           homepage: 'http://halshusato.starfree.jp/ato_lash/apm/',
+          icon: path.join(__dirname, 'icon/apm1024.png'),
         },
       },
     },
@@ -49,6 +54,7 @@ module.exports = {
         options: {
           maintainer: 'ato lash',
           homepage: 'http://halshusato.starfree.jp/ato_lash/apm/',
+          icon: path.join(__dirname, 'icon/apm1024.png'),
         },
       },
     },

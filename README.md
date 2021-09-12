@@ -1,4 +1,4 @@
-# AviUtl Package Manager
+# ![Logo](./icon/apm32.png) AviUtl Package Manager
 
 [![Build](https://github.com/hal-shu-sato/apm/actions/workflows/build.yml/badge.svg)](https://github.com/hal-shu-sato/apm/actions/workflows/build.yml)
 [![GitHub issues](https://img.shields.io/github/issues/hal-shu-sato/apm)](https://github.com/hal-shu-sato/apm/issues)
@@ -85,7 +85,7 @@ yarn start
 
 ## ライセンス
 
-[MIT license](./LICENSE)
+ソースコード: [MIT license](./LICENSE)
 
 ## 開発者
 
