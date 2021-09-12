@@ -39,6 +39,10 @@ function createSplash() {
     center: true,
     frame: false,
     show: false,
+    icon:
+      process.platform === 'linux'
+        ? path.join(__dirname, '../icon/apm1024.png')
+        : undefined,
   });
 
   splashWindow.loadFile(path.join(__dirname, 'splash.html'));
@@ -65,6 +69,10 @@ function createWindow() {
     width: mainWindowState.width,
     height: mainWindowState.height,
     show: false,
+    icon:
+      process.platform === 'linux'
+        ? path.join(__dirname, '../icon/apm1024.png')
+        : undefined,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -109,6 +117,10 @@ function createBrowser(url) {
     sandbox: true,
     parent: mainWindow,
     modal: true,
+    icon:
+      process.platform === 'linux'
+        ? path.join(__dirname, '../icon/apm1024.png')
+        : undefined,
   });
 
   browserWindow.loadURL(url);
@@ -257,6 +269,10 @@ const template = [
             resizable: false,
             modal: true,
             parent: mainWindow,
+            icon:
+              process.platform === 'linux'
+                ? path.join(__dirname, '../icon/apm1024.png')
+                : undefined,
             webPreferences: {
               preload: path.join(__dirname, 'about_preload.js'),
             },
@@ -277,6 +293,10 @@ const template = [
             height: 360,
             modal: true,
             parent: mainWindow,
+            icon:
+              process.platform === 'linux'
+                ? path.join(__dirname, '../icon/apm1024.png')
+                : undefined,
             webPreferences: {
               preload: path.join(__dirname, 'package_maker_preload.js'),
             },
