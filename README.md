@@ -6,32 +6,50 @@
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/hal-shu-sato/apm)
 ![GitHub all releases](https://img.shields.io/github/downloads/hal-shu-sato/apm/total)
 
-AviUtlやプラグイン・スクリプトのダウンロードや導入を補助するソフトウェアです。
+AviUtl本体やプラグイン・スクリプトの導入を補助するソフトウェアです。
 
-[English Version](./README.en.md)
+Read this in [English](./README.en.md).
 
-<!-- ## 説明 -->
-
-## 機能
-
-- AviUtlのダウンロード・アップデート
-- 拡張編集Pluginのダウンロード・アップデート
-- プラグインのダウンロード・アップデート・削除
-- スクリプトのダウンロード・アップデート・削除
-
-## 必要環境
-
-AviUtlが使用できる環境
-
-## 使用方法
-
-今後追記予定
+- AviUtl本体と拡張編集のダウンロード・アップデート
+- プラグインとスクリプトのダウンロード・アップデート・削除
+- 50を超えるプラグイン・スクリプトにデフォルトで対応
+- プラグイン・スクリプトの検索と紹介ページの確認
 
 ## インストール
 
-1. [リリースページ](https://github.com/hal-shu-sato/apm/releases)から最新版をダウンロード
-2. インストールするか、任意の場所に展開
-3. 「apm.exe」を実行
+[apm/releases](https://github.com/hal-shu-sato/apm/releases)のAssetsからダウンロードした`AviUtl.Package.Manager-{version}.Setup.exe`を実行してインストールを行います。
+
+インストール不要のzip版を利用する場合は`AviUtl.Package.Manager-{os}-{version}.zip`をダウンロードして任意の場所に展開します。
+
+## 使用方法
+
+### すでにAviutlをお使いの場合
+
+1. AviUtl Package Managerを起動
+2. 「インストール先フォルダを選択」からAviutlがインストールされているフォルダを選択します
+3. 「インストール済みのバージョン」に「手動インストール」と表示されていることを確認します
+4. すでにプラグインを導入している場合、「Plugins&Scripts」タブを開き一番下までスクロールして、追加されたファイルの一覧が表示されていることを確認します
+
+### 新規インストールの場合
+
+1. AviUtl Package Managerを起動
+2. 「インストール先フォルダを選択」からAviutlをインストールする新しいフォルダを選択します
+3. Aviutl・拡張編集のバージョンを選択してインストールボタンを押します
+4. 「インストール済みのバージョン」にインストールしたバージョンが表示されていることを確認します
+
+### プラグイン・スクリプトの導入
+
+1. 「Plugins&Scripts」タブを開き、インストールしたいプラグインを選択します
+2. プラグインの情報が表示されます
+   - URLをブラウザで開き利用規約や注意事項をよく確認してください
+   - インストール後に必要な設定もチェックします
+3. 「インストール」ボタンを押します
+4. 表示された作者サイトから、リストに表示された「最新バージョン」と同じバージョンのファイルをダウンロードしてください
+5. インストールは自動で行われます
+
+### プラグイン・スクリプト一覧への追加
+
+プラグイン・スクリプト一覧への追加・更新・削除等の要望は[apm-data](https://github.com/hal-shu-sato/apm-data/issues)にて受け付けています。
 
 ## コントリビューション
 
@@ -76,12 +94,12 @@ yarn start
 
 英語やi18nに関するプルリクエストは大歓迎です！
 
-## 使用言語・フレームワーク
+### 使用言語・フレームワーク
 
-- Electron
-  - Node.js
+- Electron (Node.js)
   - HTML
   - CSS
+  - JavaScript
 
 ## ライセンス
 
