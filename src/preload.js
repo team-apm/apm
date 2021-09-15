@@ -102,6 +102,14 @@ window.addEventListener('load', () => {
     await package.uninstallPackage(uninstallPackageBtn, installationPath.value);
   });
 
+  const openPackageFolderBtn = document.getElementById('open-package-folder');
+  openPackageFolderBtn.addEventListener('click', async (event) => {
+    await package.openPackageFolder(
+      openPackageFolderBtn,
+      installationPath.value
+    );
+  });
+
   // settings
   const setDataUrlBtn = document.getElementById('set-data-url');
   const dataURL = document.getElementById('data-url');

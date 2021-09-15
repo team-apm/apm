@@ -16,21 +16,21 @@ const pathTo7zipWin = require('win-7zip')['7z'].replace(
  * Unzips zip archive.
  *
  * @param {string} zipPath - A path to zip archive.
- * @param {string} encode - An encode of zip archive.
+ * @param {string} folderName - Name of the extracted folder.
  * @returns {Promise<string>} A path to unzipped directory.
  */
-module.exports = async function (zipPath, encode = 'utf8') {
+module.exports = async function (zipPath, folderName) {
   const getTargetPath = () => {
     if (path.resolve(path.dirname(zipPath), '../../').endsWith('Data')) {
       return path.resolve(
         path.dirname(zipPath),
         '../',
-        path.basename(zipPath, path.extname(zipPath))
+        folderName ? folderName : path.basename(zipPath, path.extname(zipPath))
       );
     } else {
       return path.resolve(
         path.dirname(zipPath),
-        path.basename(zipPath, path.extname(zipPath))
+        folderName ? folderName : path.basename(zipPath, path.extname(zipPath))
       );
     }
   };

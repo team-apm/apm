@@ -499,7 +499,7 @@ module.exports = {
     }
 
     try {
-      const unzippedPath = await unzip(archivePath);
+      const unzippedPath = await unzip(archivePath, installedPackage.id);
 
       if (installedPackage.info.installer) {
         const searchFiles = (dirName) => {
@@ -645,6 +645,48 @@ module.exports = {
       buttonTransition.message(btn, 'アンインストール完了', 'success');
     } else {
       buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    }
+
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+  },
+
+  /**
+   * Open the download folder of the package.
+   *
+   * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
+   */
+  openPackageFolder: async function (btn) {
+    const enableButton = buttonTransition.loading(btn);
+
+    if (!selectedPackage) {
+      buttonTransition.message(
+        btn,
+        'プラグインまたはスクリプトを選択してください。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      throw new Error('A package to install is not selected.');
+    }
+
+    const exists = await ipcRenderer.invoke(
+      'open-path',
+      `package/${selectedPackage.id}`
+    );
+
+    if (!exists) {
+      buttonTransition.message(
+        btn,
+        'このパッケージはダウンロードされていません。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      throw new Error('The package has not been downloaded.');
     }
 
     setTimeout(() => {
