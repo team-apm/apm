@@ -12,6 +12,7 @@ const debug = require('electron-debug');
 const windowStateKeeper = require('electron-window-state');
 const fs = require('fs-extra');
 const path = require('path');
+const { execSync } = require('child_process');
 const getHash = require('./lib/getHash');
 
 if (require('electron-squirrel-startup')) app.quit();
@@ -129,6 +130,13 @@ function createBrowser(url) {
 
 ipcMain.handle('get-app-version', (event) => {
   return app.getVersion();
+});
+
+ipcMain.handle('open-path', (event, relativePath) => {
+  const folderPath = path.join(app.getPath('userData'), 'Data/', relativePath);
+  const folderExists = fs.existsSync(folderPath);
+  if (folderExists) execSync(`start "" "${folderPath}"`);
+  return folderExists;
 });
 
 ipcMain.handle(
