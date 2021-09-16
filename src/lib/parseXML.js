@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs-extra');
 const parser = require('fast-xml-parser');
+const J2xParser = require('fast-xml-parser').j2xParser;
 
 const defaultKeys = [
   'id',
@@ -8,13 +9,14 @@ const defaultKeys = [
   'overview',
   'description',
   'developer',
-  'type',
   'pageURL',
   'downloadURL',
   'downloadMirrorURL',
   'latestVersion',
   'detailURL',
   'files',
+  'installer',
+  'installArg',
 ];
 
 const typeForExtention = {
@@ -60,6 +62,23 @@ function parseFiles(parsedData) {
 }
 
 /**
+ * @param {object} parsedData - An object to parse into XML.
+ * @returns {Array} An array of files.
+ */
+function parseFilesInverse(parsedData) {
+  const files = [];
+  for (const file of parsedData.files) {
+    const ret = { '#text': file.filename };
+    ret['@_tmp'] = ''; // to avoid parser bugs
+    if (file.isOptional) ret['@_optional'] = true;
+    if (file.isDirectory) ret['@_directory'] = true;
+    if (file.archivePath) ret['@_archivePath'] = file.archivePath;
+    files.push(ret);
+  }
+  return files;
+}
+
+/**
  *
  */
 class CoreInfo {
@@ -97,8 +116,7 @@ class PackageInfo {
    * @param {object} parsedPackage - An object parsed from XML.
    */
   constructor(parsedPackage) {
-    const keys = defaultKeys.concat('installer', 'installArg');
-    for (const key of keys) {
+    for (const key of defaultKeys) {
       if (parsedPackage[key]) {
         if (key === 'files') {
           this.files = parseFiles(parsedPackage);
@@ -117,6 +135,25 @@ class PackageInfo {
     });
     this.type = [...new Set(types)];
     Object.freeze(this);
+  }
+
+  /**
+   *
+   * @param {object} packageItem - An object to be parsed into xml
+   * @returns {object} package item ready to parse.
+   */
+  static inverse(packageItem) {
+    const newPackageItem = {};
+    for (const key of defaultKeys) {
+      if (packageItem[key]) {
+        if (key === 'files') {
+          newPackageItem.files = { file: parseFilesInverse(packageItem) };
+        } else {
+          newPackageItem[key] = packageItem[key];
+        }
+      }
+    }
+    return newPackageItem;
   }
 }
 
@@ -184,6 +221,25 @@ class PackagesList extends Object {
       throw valid;
     }
   }
+
+  /**
+   *
+   * @param {string} xmlPath - The path of the XML file.
+   * @param {object} packages - A path of xml file.
+   */
+  static write(xmlPath, packages) {
+    const xmlObject = [];
+    for (const packageItem of packages) {
+      xmlObject.push(PackageInfo.inverse(packageItem));
+    }
+    const parser = new J2xParser({ ignoreAttributes: false, format: true });
+    const innerText = parser
+      .parse({ packages: { package: xmlObject } })
+      .trim()
+      .replaceAll(' tmp=""', '') // to avoid parser bugs
+      .replaceAll(/^(\s+)/gm, (str) => '\t'.repeat(Math.floor(str.length / 2)));
+    fs.writeFileSync(xmlPath, innerText);
+  }
 }
 
 /**
@@ -240,6 +296,50 @@ module.exports = {
       return new PackagesList(packagesListPath);
     } else {
       throw new Error('The version file does not exist.');
+    }
+  },
+
+  /**
+   * Write the packages in XML.
+   *
+   * @param {string} packagesListPath - A path of xml file.
+   * @param {object} packages - A list of packages.
+   */
+  setPackages: function (packagesListPath, packages) {
+    PackagesList.write(packagesListPath, packages);
+  },
+
+  /**
+   * Add the packages to XML.
+   *
+   * @param {string} packagesListPath - A path of xml file.
+   * @param {object} packageItem - A package.
+   */
+  addPackage: function (packagesListPath, packageItem) {
+    let packages = [];
+    if (fs.existsSync(packagesListPath)) {
+      packages = Object.values(this.getPackages(packagesListPath)).filter(
+        (p) => p.id !== packageItem.id
+      );
+    }
+    packages.push(packageItem);
+    this.setPackages(packagesListPath, packages);
+  },
+
+  /**
+   * Remove the packages in XML.
+   *
+   * @param {string} packagesListPath - A path of xml file.
+   * @param {object} packageItem - A package.
+   */
+  removePackage: function (packagesListPath, packageItem) {
+    const packages = Object.values(this.getPackages(packagesListPath)).filter(
+      (p) => p.id !== packageItem.id
+    );
+    if (packages.length > 0) {
+      this.setPackages(packagesListPath, packages);
+    } else {
+      fs.unlinkSync(packagesListPath);
     }
   },
 

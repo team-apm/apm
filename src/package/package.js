@@ -182,12 +182,13 @@ module.exports = {
   /**
    * Returns an object parsed from packages_list.xml.
    *
+   * @param {string} instPath - An installation path.
    * @returns {Promise<object>} - A list of object parsed from packages_list.xml.
    */
-  getPackagesInfo: async function () {
+  getPackagesInfo: async function (instPath) {
     const xmlList = {};
 
-    for (const packageRepository of setting.getPackagesDataUrl()) {
+    for (const packageRepository of setting.getPackagesDataUrl(instPath)) {
       const packagesListFile = await ipcRenderer.invoke(
         'exists-temp-file',
         'package/packages_list.xml',
@@ -260,7 +261,7 @@ module.exports = {
     // table body
     const packages = [];
     for (const [packagesRepository, packagesInfo] of Object.entries(
-      await this.getPackagesInfo()
+      await this.getPackagesInfo(instPath)
     )) {
       for (const [id, packageInfo] of Object.entries(packagesInfo)) {
         packages.push({
@@ -488,7 +489,7 @@ module.exports = {
     overlay.classList.add('show');
 
     try {
-      for (const packageRepository of setting.getPackagesDataUrl()) {
+      for (const packageRepository of setting.getPackagesDataUrl(instPath)) {
         await ipcRenderer.invoke(
           'download',
           packageRepository,
