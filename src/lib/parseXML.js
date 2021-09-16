@@ -221,7 +221,7 @@ module.exports = {
    * @param {string} coreListPath - A path of xml file.
    * @returns {CoreList} A list of core programs.
    */
-  core: function (coreListPath) {
+  getCore: function (coreListPath) {
     if (fs.existsSync(coreListPath)) {
       return new CoreList(coreListPath);
     } else {
@@ -235,7 +235,7 @@ module.exports = {
    * @param {string} packagesListPath - A path of xml file.
    * @returns {PackagesList} A list of packages.
    */
-  package: function (packagesListPath) {
+  getPackages: function (packagesListPath) {
     if (fs.existsSync(packagesListPath)) {
       return new PackagesList(packagesListPath);
     } else {
@@ -249,7 +249,7 @@ module.exports = {
    * @param {string} packagesListPath - A path of xml file.
    * @returns {ModInfo} An object which contains mod dates.
    */
-  mod: function (packagesListPath) {
+  getMod: function (packagesListPath) {
     if (fs.existsSync(packagesListPath)) {
       return new ModInfo(packagesListPath);
     } else {

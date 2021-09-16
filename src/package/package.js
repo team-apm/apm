@@ -195,7 +195,9 @@ module.exports = {
       );
       if (packagesListFile.exists) {
         try {
-          xmlList[packageRepository] = parseXML.package(packagesListFile.path);
+          xmlList[packageRepository] = parseXML.getPackages(
+            packagesListFile.path
+          );
         } catch {
           ipcRenderer.invoke(
             'open-err-dialog',
