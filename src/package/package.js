@@ -100,6 +100,74 @@ function showPackageDetail(packageData) {
   pageSpan.appendChild(a);
 }
 
+const filterButtons = new Set();
+/**
+ * Filter the list.
+ *
+ * @param {string} column - A column name to filter
+ * @param {HTMLCollectionOf<HTMLButtonElement>} btns - A list of buttons
+ * @param {HTMLButtonElement} btn - A button selected
+ */
+function listFilter(column, btns, btn) {
+  if (btn.classList.contains('selected')) {
+    btn.classList.remove('selected');
+    listJS.filter();
+  } else {
+    for (const element of btns) {
+      filterButtons.add(element);
+    }
+
+    for (const element of filterButtons) {
+      element.classList.remove('selected');
+    }
+
+    let filterFunc;
+    if (column === 'type') {
+      const query = parsePackageType([btn.dataset.typeFilter]);
+      filterFunc = (item) => {
+        if (item.values().type.includes(query)) {
+          return true;
+        } else {
+          return false;
+        }
+      };
+    } else if (column === 'installedVersion') {
+      const query = btn.dataset.installFilter;
+      if (query === 'true') {
+        filterFunc = (item) => {
+          const value = item.values().installedVersion;
+          if (value === '未インストール' || value === '手動インストール済み') {
+            return false;
+          } else {
+            return true;
+          }
+        };
+      } else if (query === 'manual') {
+        filterFunc = (item) => {
+          const value = item.values().installedVersion;
+          if (value === '手動インストール済み') {
+            return true;
+          } else {
+            return false;
+          }
+        };
+      } else if (query === 'false') {
+        filterFunc = (item) => {
+          const value = item.values().installedVersion;
+          if (value === '未インストール') {
+            return true;
+          } else {
+            return false;
+          }
+        };
+      }
+    }
+
+    listJS.filter(filterFunc);
+    btn.classList.add('selected');
+  }
+}
+
 module.exports = {
   /**
    * Initializes package
@@ -693,4 +761,6 @@ module.exports = {
       enableButton();
     }, 3000);
   },
+
+  listFilter,
 };

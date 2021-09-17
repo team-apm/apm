@@ -8,6 +8,9 @@ main {
   height: calc(100% - 2.625rem);
   overflow-y: auto;
 }
+.dropdown-item:not(.selected) svg {
+  visibility: hidden;
+}
 .packages-table {
   position: relative;
   min-height: 6rem;
@@ -19,7 +22,7 @@ main {
 .packages-table thead th {
   position: sticky;
   top: 0;
-  z-index: 1020;
+  z-index: 900;
 }
 .packages-table thead th::before {
   content: '';
