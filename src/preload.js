@@ -97,6 +97,15 @@ window.addEventListener('load', () => {
     await package.installPackage(installPackageBtn, installationPath.value);
   });
 
+  const installScriptBtn = document.getElementById('install-script');
+  installScriptBtn.addEventListener('click', async (event) => {
+    await package.installScript(
+      installScriptBtn,
+      installationPath.value,
+      'https://mitosagi.github.io/apm-test-ghpage/apm-simple-install.html'
+    );
+  });
+
   const uninstallPackageBtn = document.getElementById('uninstall-package');
   uninstallPackageBtn.addEventListener('click', async (event) => {
     await package.uninstallPackage(uninstallPackageBtn, installationPath.value);
