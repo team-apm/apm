@@ -110,6 +110,21 @@ window.addEventListener('load', () => {
     );
   });
 
+  const filterDropdown = document.getElementById('filter').parentElement;
+  const typeFilterBtns = filterDropdown.getElementsByClassName('type-filter');
+  for (const element of typeFilterBtns) {
+    element.addEventListener('click', () => {
+      package.listFilter('type', typeFilterBtns, element);
+    });
+  }
+  const installFilterBtns =
+    filterDropdown.getElementsByClassName('install-filter');
+  for (const element of installFilterBtns) {
+    element.addEventListener('click', () => {
+      package.listFilter('installedVersion', installFilterBtns, element);
+    });
+  }
+
   // settings
   const setDataUrlBtn = document.getElementById('set-data-url');
   const dataURL = document.getElementById('data-url');
