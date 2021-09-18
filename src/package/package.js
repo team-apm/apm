@@ -718,12 +718,11 @@ module.exports = {
       }
     }
 
+    apmJson.removePackage(instPath, uninstalledPackage);
     if (filesCount === existCount) {
       if (!uninstalledPackage.id.startsWith('script_')) {
-        apmJson.removePackage(instPath, uninstalledPackage);
         await this.setPackagesList(instPath, true);
       } else {
-        apmJson.removePackage(instPath, uninstalledPackage);
         parseXML.removePackage(
           setting.getLocalPackagesDataUrl(instPath),
           uninstalledPackage

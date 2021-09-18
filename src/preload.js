@@ -102,7 +102,7 @@ window.addEventListener('load', () => {
     await package.installScript(
       installScriptBtn,
       installationPath.value,
-      'https://mitosagi.github.io/apm-test-ghpage/apm-simple-install.html'
+      'https://hal-shu-sato.github.io/apm-data/install-script.html'
     );
   });
 
