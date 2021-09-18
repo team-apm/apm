@@ -95,7 +95,7 @@ module.exports = {
     );
     if (coreFile.exists) {
       try {
-        return parseXML.core(coreFile.path);
+        return parseXML.getCore(coreFile.path);
       } catch {
         return null;
       }

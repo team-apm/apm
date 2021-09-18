@@ -89,10 +89,29 @@ module.exports = {
   /**
    * Returns package data files URLs.
    *
+   * @param {string} instPath - An installation path.
    * @returns {Array.<string>} -Package data files URLs.
    */
-  getPackagesDataUrl: function () {
-    return store.get('dataURL.packages');
+  getPackagesDataUrl: function (instPath) {
+    return store
+      .get('dataURL.packages')
+      .concat(
+        instPath &&
+          instPath.length > 0 &&
+          fs.existsSync(this.getLocalPackagesDataUrl(instPath))
+          ? [this.getLocalPackagesDataUrl(instPath)]
+          : []
+      );
+  },
+
+  /**
+   * Returns local package data files URL.
+   *
+   * @param {string} instPath - An installation path.
+   * @returns {string} - Package data files URL.
+   */
+  getLocalPackagesDataUrl: function (instPath) {
+    return path.join(instPath, 'packages_list.xml');
   },
 
   /**

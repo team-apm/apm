@@ -12,6 +12,7 @@ const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
+const getHash = require('../lib/getHash');
 
 /**
  * Shows check date.
@@ -182,12 +183,13 @@ module.exports = {
   /**
    * Returns an object parsed from packages_list.xml.
    *
+   * @param {string} instPath - An installation path.
    * @returns {Promise<object>} - A list of object parsed from packages_list.xml.
    */
-  getPackagesInfo: async function () {
+  getPackagesInfo: async function (instPath) {
     const xmlList = {};
 
-    for (const packageRepository of setting.getPackagesDataUrl()) {
+    for (const packageRepository of setting.getPackagesDataUrl(instPath)) {
       const packagesListFile = await ipcRenderer.invoke(
         'exists-temp-file',
         'package/packages_list.xml',
@@ -195,7 +197,9 @@ module.exports = {
       );
       if (packagesListFile.exists) {
         try {
-          xmlList[packageRepository] = parseXML.package(packagesListFile.path);
+          xmlList[packageRepository] = parseXML.getPackages(
+            packagesListFile.path
+          );
         } catch {
           ipcRenderer.invoke(
             'open-err-dialog',
@@ -258,7 +262,7 @@ module.exports = {
     // table body
     const packages = [];
     for (const [packagesRepository, packagesInfo] of Object.entries(
-      await this.getPackagesInfo()
+      await this.getPackagesInfo(instPath)
     )) {
       for (const [id, packageInfo] of Object.entries(packagesInfo)) {
         packages.push({
@@ -480,13 +484,16 @@ module.exports = {
    * @param {string} instPath - An installation path.
    */
   checkPackagesList: async function (btn, overlay, instPath) {
-    const enableButton = buttonTransition.loading(btn);
+    let enableButton;
+    if (btn) enableButton = buttonTransition.loading(btn);
 
-    overlay.style.zIndex = 1000;
-    overlay.classList.add('show');
+    if (overlay) {
+      overlay.style.zIndex = 1000;
+      overlay.classList.add('show');
+    }
 
     try {
-      for (const packageRepository of setting.getPackagesDataUrl()) {
+      for (const packageRepository of setting.getPackagesDataUrl(instPath)) {
         await ipcRenderer.invoke(
           'download',
           packageRepository,
@@ -499,18 +506,23 @@ module.exports = {
       store.set('checkDate.packages', Date.now());
       await this.setPackagesList(instPath);
 
-      buttonTransition.message(btn, '更新完了', 'success');
+      if (btn) buttonTransition.message(btn, '更新完了', 'success');
     } catch {
-      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      if (btn)
+        buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     }
 
-    overlay.classList.remove('show');
-    overlay.style.zIndex = -1;
+    if (overlay) {
+      overlay.classList.remove('show');
+      overlay.style.zIndex = -1;
+    }
 
-    setTimeout(() => {
-      enableButton();
-      showCheckDate();
-    }, 3000);
+    if (btn) {
+      setTimeout(() => {
+        enableButton();
+        showCheckDate();
+      }, 3000);
+    }
   },
 
   /**
@@ -706,9 +718,17 @@ module.exports = {
       }
     }
 
+    apmJson.removePackage(instPath, uninstalledPackage);
     if (filesCount === existCount) {
-      apmJson.removePackage(instPath, uninstalledPackage);
-      await this.setPackagesList(instPath, true);
+      if (!uninstalledPackage.id.startsWith('script_')) {
+        await this.setPackagesList(instPath, true);
+      } else {
+        parseXML.removePackage(
+          setting.getLocalPackagesDataUrl(instPath),
+          uninstalledPackage
+        );
+        await this.checkPackagesList(null, null, instPath);
+      }
 
       buttonTransition.message(btn, 'アンインストール完了', 'success');
     } else {
@@ -756,6 +776,180 @@ module.exports = {
       }, 3000);
       throw new Error('The package has not been downloaded.');
     }
+
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+  },
+
+  /**
+   * Installs a script to installation path.
+   *
+   * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
+   * @param {string} instPath - An installation path.
+   * @param {string} url - URL of the download site.
+   */
+  installScript: async function (btn, instPath, url) {
+    const enableButton = buttonTransition.loading(btn);
+
+    if (!instPath) {
+      buttonTransition.message(
+        btn,
+        'インストール先フォルダを指定してください。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      throw new Error('An installation path is not selected.');
+    }
+
+    const archivePath = await ipcRenderer.invoke(
+      'open-browser',
+      url,
+      'package'
+    );
+    if (archivePath === 'close') {
+      buttonTransition.message(
+        btn,
+        'インストールがキャンセルされました。',
+        'info'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      return;
+    }
+
+    const searchScriptFolders = (dirName, getFiles = false) => {
+      const regex = /\.(anm|obj|cam|tra|scn)$/;
+      const dirents = fs.readdirSync(dirName, {
+        withFileTypes: true,
+      });
+      return [].concat(
+        dirents.filter((i) => i.isFile() && regex.test(i.name)).length > 0
+          ? getFiles
+            ? dirents
+                .filter((i) => i.isFile() && regex.test(i.name))
+                .map((i) => path.join(path.basename(dirName), i.name))
+            : [dirName]
+          : [],
+        dirents
+          .filter((i) => i.isDirectory())
+          .flatMap((i) =>
+            searchScriptFolders(path.join(dirName, i.name), getFiles)
+          )
+      );
+    };
+
+    const searchPlugins = (dirName) => {
+      const regex = /\.(auf|aui|auo|auc|aul)$/;
+      const dirents = fs.readdirSync(dirName, {
+        withFileTypes: true,
+      });
+      return dirents.filter((i) => i.isFile() && regex.test(i.name)).length > 0
+        ? true
+        : dirents
+            .filter((i) => i.isDirectory())
+            .map((i) => searchPlugins(path.join(dirName, i.name)))
+            .some((e) => e);
+    };
+
+    try {
+      const unzippedPath = await unzip(archivePath);
+      const scriptFolders = searchScriptFolders(unzippedPath);
+      const scriptFiles = searchScriptFolders(unzippedPath, true);
+      const hasPlugin = searchPlugins(unzippedPath);
+
+      if (scriptFiles.length === 0) {
+        buttonTransition.message(
+          btn,
+          'スクリプトが含まれていません。',
+          'danger'
+        );
+        setTimeout(() => {
+          enableButton();
+        }, 3000);
+        return;
+      }
+
+      if (hasPlugin) {
+        buttonTransition.message(
+          btn,
+          'プラグインが含まれているためインストールできません。',
+          'danger'
+        );
+        setTimeout(() => {
+          enableButton();
+        }, 3000);
+        return;
+      }
+
+      const foldersToCopy = scriptFolders.map((f) => [
+        f,
+        path.join(instPath, 'script', path.basename(f)),
+      ]);
+      for (const filePath of foldersToCopy) {
+        fs.copySync(filePath[0], filePath[1]);
+      }
+
+      const name = path.basename(scriptFiles[0], path.extname(scriptFiles[0]));
+      const id = 'script_' + getHash(name);
+
+      const newPath = path.join(path.dirname(unzippedPath), id);
+      if (fs.existsSync(newPath)) fs.rmdirSync(newPath, { recursive: true });
+      fs.renameSync(unzippedPath, newPath);
+
+      const d = new Date();
+      const date = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(
+        2,
+        '0'
+      )}${String(d.getDate()).padStart(2, '0')}`;
+
+      const package = {
+        id: id,
+        name: name,
+        overview: 'スクリプト',
+        description:
+          'スクリプト一覧: ' + scriptFiles.map((f) => path.basename(f)).join(),
+        developer: '-',
+        pageURL: url,
+        downloadURL: url,
+        latestVersion: date,
+        files: scriptFolders
+          .map((f) => {
+            return {
+              filename: path
+                .join('script', path.basename(f))
+                .replaceAll('\\', '/'),
+              isDirectory: true,
+            };
+          })
+          .concat(
+            scriptFiles.map((f) => {
+              return {
+                filename: path.join('script', f).replaceAll('\\', '/'),
+              };
+            })
+          ),
+      };
+
+      parseXML.addPackage(setting.getLocalPackagesDataUrl(instPath), package);
+      apmJson.addPackage(instPath, {
+        id: package.id,
+        repository: setting.getLocalPackagesDataUrl(instPath),
+        info: package,
+      });
+      await this.checkPackagesList(null, null, instPath);
+    } catch (e) {
+      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      throw e;
+    }
+
+    buttonTransition.message(btn, 'インストール完了', 'success');
 
     setTimeout(() => {
       enableButton();

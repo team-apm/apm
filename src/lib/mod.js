@@ -16,7 +16,7 @@ module.exports = {
     const modFile = await ipcRenderer.invoke('exists-temp-file', 'mod.xml');
     if (modFile.exists) {
       try {
-        return parseXML.mod(modFile.path);
+        return parseXML.getMod(modFile.path);
       } catch {
         return null;
       }
