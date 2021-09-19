@@ -98,9 +98,12 @@ window.addEventListener('load', () => {
   });
 
   const installScriptBtn = document.getElementById('install-script');
+  const installScriptIndicationBtn = document.getElementById(
+    'install-script-indication'
+  );
   installScriptBtn.addEventListener('click', async (event) => {
     await package.installScript(
-      installScriptBtn,
+      installScriptIndicationBtn,
       installationPath.value,
       'https://hal-shu-sato.github.io/apm-data/install-script.html'
     );
