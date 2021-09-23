@@ -740,9 +740,9 @@
   integrity sha512-ZHty/hKoOLZvSz6BtP1g7tc7nUeJhoCf3flLjh8ZEv1vFKBWHXcnMbJMyN/pftSljNyy0kNW/UqI3DccnBnZ8w==
 
 "@types/node@^14.6.2":
-  version "14.17.17"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.17.17.tgz#4ec7b71bbcb01a4e55455b60b18b1b6a783fe31d"
-  integrity sha512-niAjcewgEYvSPCZm3OaM9y6YQrL2SEPH9PymtE6fuZAvFiP6ereCcvApGl2jKTq7copTIguX3PBvfP08LN4LvQ==
+  version "14.17.18"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.17.18.tgz#0198489a751005f71217744aa966cd1f29447c81"
+  integrity sha512-haYyibw4pbteEhkSg0xdDLAI3679L75EJ799ymVrPxOA922bPx3ML59SoDsQ//rHlvqpu+e36kcbR3XRQtFblA==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"
@@ -1785,9 +1785,9 @@ conventional-recommended-bump@6.1.0:
     q "^1.5.1"
 
 core-js@^3.6.5:
-  version "3.17.3"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.17.3.tgz#8e8bd20e91df9951e903cabe91f9af4a0895bc1e"
-  integrity sha512-lyvajs+wd8N1hXfzob1LdOCCHFU4bGMbqqmLn1Q4QlCpDqWPpGf+p0nj+LNrvDDG33j0hZXw2nsvvVpHysxyNw==
+  version "3.18.0"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.18.0.tgz#9af3f4a6df9ba3428a3fb1b171f1503b3f40cc49"
+  integrity sha512-WJeQqq6jOYgVgg4NrXKL0KLQhi0CT4ZOCvFL+3CQ5o7I6J8HkT5wd53EadMfqTDp1so/MT1J+w2ujhWcCJtN7w==
 
 core-util-is@1.0.2:
   version "1.0.2"
@@ -2316,10 +2316,10 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@^13.1.1:
-  version "13.4.0"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-13.4.0.tgz#f9f9e518d8c6bf23bfa8b69580447eea3ca0f880"
-  integrity sha512-KJGWS2qa0xZXIMPMDUNkRVO8/JxRd4+M0ejYYOzu2LIQ5ijecPzNuNR9nvDkml9XyyRBzu975FkhJcwD17ietQ==
+electron@^14.0.0:
+  version "14.0.1"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-14.0.1.tgz#967da47895a77a9af8a7938e9266cd4a75ab24c4"
+  integrity sha512-1XILvfE5mQEBz5L/QeNfcwC3PxAIjwMyA3GR8Naw5C0IKAnHl3lAdjczbtGX8nqbcEpOAVo+4TMSpcPD3zxe8Q==
   dependencies:
     "@electron/get" "^1.0.1"
     "@types/node" "^14.6.2"
