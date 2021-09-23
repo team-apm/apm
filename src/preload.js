@@ -1,8 +1,22 @@
+const { ipcRenderer } = require('electron');
 const Store = require('electron-store');
 const store = new Store();
+const log = require('electron-log');
 const core = require('./core/core');
 const package = require('./package/package');
 const setting = require('./setting/setting');
+
+log.catchErrors({
+  onError: () => {
+    ipcRenderer.invoke(
+      'open-err-dialog',
+      'エラー',
+      `予期しないエラーが発生しました。\nログファイル: ${
+        log.transports.file.getFile().path
+      }`
+    );
+  },
+});
 
 window.addEventListener('DOMContentLoaded', async () => {
   const installationPath = document.getElementById('installation-path');

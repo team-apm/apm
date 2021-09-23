@@ -1,4 +1,5 @@
 const { ipcRenderer } = require('electron');
+const log = require('electron-log');
 const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -7,6 +8,18 @@ const Sortable = require('sortablejs');
 const ClipboardJS = require('clipboard');
 const unzip = require('./lib/unzip');
 const buttonTransition = require('./lib/buttonTransition');
+
+log.catchErrors({
+  onError: () => {
+    ipcRenderer.invoke(
+      'open-err-dialog',
+      'エラー',
+      `予期しないエラーが発生しました。\nログファイル: ${
+        log.transports.file.getFile().path
+      }`
+    );
+  },
+});
 
 const imageExtention = [
   '.png',
