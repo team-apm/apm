@@ -290,7 +290,9 @@ const template = [
             aboutWindow = null;
           });
           aboutWindow.loadFile(aboutPath);
-          aboutWindow.show();
+          aboutWindow.once('ready-to-show', () => {
+            aboutWindow.show();
+          });
         },
       },
       {
@@ -314,7 +316,9 @@ const template = [
             packageMakerWindow = null;
           });
           packageMakerWindow.loadFile(packageMakerPath);
-          packageMakerWindow.show();
+          packageMakerWindow.once('ready-to-show', () => {
+            packageMakerWindow.show();
+          });
         },
       },
       {
