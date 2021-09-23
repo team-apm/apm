@@ -101,6 +101,776 @@ function showPackageDetail(packageData) {
   pageSpan.appendChild(a);
 }
 
+// Functions to be exported
+
+/**
+ * Initializes package
+ *
+ * @param {string} instPath - An installation path
+ */
+function initPackage(instPath) {
+  if (!apmJson.has(instPath, 'packages')) apmJson.set(instPath, 'packages', {});
+}
+
+/**
+ * Returns an object parsed from packages_list.xml.
+ *
+ * @param {string} instPath - An installation path.
+ * @returns {Promise<object>} - A list of object parsed from packages_list.xml.
+ */
+async function getPackagesInfo(instPath) {
+  const xmlList = {};
+
+  for (const packageRepository of setting.getPackagesDataUrl(instPath)) {
+    const packagesListFile = await ipcRenderer.invoke(
+      'exists-temp-file',
+      'package/packages_list.xml',
+      packageRepository
+    );
+    if (packagesListFile.exists) {
+      try {
+        xmlList[packageRepository] = parseXML.getPackages(
+          packagesListFile.path
+        );
+      } catch {
+        ipcRenderer.invoke(
+          'open-err-dialog',
+          'データ解析エラー',
+          '取得したデータの処理に失敗しました。' +
+            '\n' +
+            'URL: ' +
+            packageRepository
+        );
+      }
+    }
+  }
+  return xmlList;
+}
+
+/**
+ * Sets rows of each package in the table.
+ *
+ * @param {string} instPath - An installation path.
+ * @param {boolean} minorUpdate - Only the version of the installed package is updated.
+ */
+async function setPackagesList(instPath, minorUpdate = false) {
+  const packagesTable = document.getElementById('packages-table');
+  const thead = packagesTable.getElementsByTagName('thead')[0];
+  const tbody = packagesTable.getElementsByTagName('tbody')[0];
+  const bottomTbody = packagesTable.getElementsByTagName('tbody')[1];
+  bottomTbody.innerHTML = null;
+
+  const columns = [
+    'name',
+    'overview',
+    'developer',
+    'type',
+    'latestVersion',
+    'installedVersion',
+  ];
+  const columnsDisp = [
+    '名前',
+    '概要',
+    '開発者',
+    'タイプ',
+    '最新バージョン',
+    '現在バージョン',
+  ];
+
+  // table header
+  if (!thead.hasChildNodes()) {
+    const headerTr = document.createElement('tr');
+    for (const [i, columnName] of columns.entries()) {
+      const th = document.createElement('th');
+      th.classList.add('sort');
+      th.setAttribute('data-sort', columnName);
+      th.setAttribute('scope', 'col');
+      th.innerText = columnsDisp[i];
+      headerTr.appendChild(th);
+    }
+    thead.appendChild(headerTr);
+  }
+
+  // table body
+  const packages = [];
+  for (const [packagesRepository, packagesInfo] of Object.entries(
+    await this.getPackagesInfo(instPath)
+  )) {
+    for (const [id, packageInfo] of Object.entries(packagesInfo)) {
+      packages.push({
+        repository: packagesRepository,
+        id: id,
+        info: packageInfo,
+      });
+    }
+  }
+
+  const installedPackages = apmJson.get(instPath, 'packages');
+
+  const getAddedFiles = () => {
+    const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn)$/;
+    const safeReaddirSync = (path, option) => {
+      try {
+        return fs.readdirSync(path, option);
+      } catch (e) {
+        if (e.code === 'ENOENT') return [];
+        else throw e;
+      }
+    };
+    const readdir = (dir) =>
+      safeReaddirSync(dir, { withFileTypes: true })
+        .filter((i) => i.isFile() && regex.test(i.name))
+        .map((i) => i.name);
+    return readdir(instPath).concat(
+      readdir(path.join(instPath, 'plugins')).map((i) => 'plugins/' + i),
+      readdir(path.join(instPath, 'script')).map((i) => 'script/' + i),
+      safeReaddirSync(path.join(instPath, 'script'), { withFileTypes: true })
+        .filter((i) => i.isDirectory())
+        .map((i) => 'script/' + i.name)
+        .flatMap((i) => readdir(path.join(instPath, i)).map((j) => i + '/' + j))
+    );
+  };
+  const addedFiles = getAddedFiles();
+
+  const getManuallyAddedFiles = (files) => {
+    let retFiles = [...files];
+    for (const package of packages) {
+      for (const [installedId, installedPackage] of Object.entries(
+        installedPackages
+      )) {
+        if (
+          installedId === package.id &&
+          installedPackage.repository === package.repository
+        ) {
+          for (const file of package.info.files) {
+            if (!file.isOptional) {
+              if (retFiles.includes(file.filename)) {
+                retFiles = retFiles.filter((ef) => ef !== file.filename);
+              }
+            }
+            if (!file.isOptional && file.isDirectory) {
+              retFiles = retFiles.filter((ef) => !ef.startsWith(file.filename));
+            }
+          }
+        }
+      }
+    }
+    return retFiles;
+  };
+  const manuallyAddedFiles = getManuallyAddedFiles(addedFiles);
+
+  const getInstalledVersion = (package) => {
+    let installedVersion;
+    let addedVersion = false;
+    let manuallyAddedVersion = false;
+    for (const file of package.info.files) {
+      if (!file.isOptional) {
+        if (addedFiles.includes(file.filename)) addedVersion = true;
+        if (manuallyAddedFiles.includes(file.filename))
+          manuallyAddedVersion = true;
+      }
+    }
+    installedVersion = manuallyAddedVersion
+      ? '手動インストール済み'
+      : addedVersion
+      ? '他バージョンがインストール済み'
+      : '未インストール';
+
+    for (const [installedId, installedPackage] of Object.entries(
+      installedPackages
+    )) {
+      if (
+        installedId === package.id &&
+        installedPackage.repository === package.repository
+      ) {
+        let filesCount = 0;
+        let existCount = 0;
+        for (const file of package.info.files) {
+          if (!file.isOptional) {
+            filesCount++;
+            if (fs.existsSync(path.join(instPath, file.filename))) {
+              existCount++;
+            }
+          }
+        }
+
+        if (filesCount === existCount) {
+          installedVersion = installedPackage.version;
+        } else {
+          installedVersion =
+            '未インストール（ファイルの存在が確認できませんでした。）';
+        }
+      }
+    }
+
+    return installedVersion;
+  };
+
+  const makeTrFromArray = (tdList) => {
+    const tr = document.createElement('tr');
+    const tds = tdList.map((tdName) => {
+      const td = document.createElement('td');
+      td.classList.add(tdName);
+      tr.appendChild(td);
+      return td;
+    });
+    return [tr].concat(tds);
+  };
+
+  if (!minorUpdate) {
+    tbody.innerHTML = null;
+
+    for (const package of packages) {
+      const [
+        tr,
+        name,
+        overview,
+        developer,
+        type,
+        latestVersion,
+        installedVersion,
+      ] = makeTrFromArray(columns);
+      tr.classList.add('package-tr');
+      tr.dataset.id = package.id;
+      tr.dataset.repository = package.repository;
+      tr.addEventListener('click', (event) => {
+        showPackageDetail(package);
+        selectedPackage = package;
+        for (const tmptr of tbody.getElementsByTagName('tr')) {
+          tmptr.classList.remove('table-secondary');
+        }
+        tr.classList.add('table-secondary');
+      });
+      name.innerText = package.info.name;
+      overview.innerText = package.info.overview;
+      developer.innerText = package.info.developer;
+      type.innerText = parsePackageType(package.info.type);
+      latestVersion.innerText = package.info.latestVersion;
+      installedVersion.innerText = getInstalledVersion(package);
+
+      tbody.appendChild(tr);
+    }
+  } else {
+    for (const package of packages) {
+      let installedVersion;
+      for (const tr of tbody.getElementsByTagName('tr')) {
+        if (
+          tr.dataset.id === package.id &&
+          tr.dataset.repository === package.repository
+        ) {
+          installedVersion = tr.getElementsByClassName('installedVersion')[0];
+          installedVersion.innerText = getInstalledVersion(package);
+        }
+      }
+    }
+  }
+
+  // list manually added packages
+  for (const ef of manuallyAddedFiles) {
+    const [
+      tr,
+      name,
+      overview,
+      developer,
+      type,
+      latestVersion,
+      installedVersion,
+    ] = makeTrFromArray(columns);
+    tr.classList.add('package-tr');
+    name.innerText = ef;
+    overview.innerText = '手動で追加されたファイル';
+    developer.innerText = '';
+    type.innerText = '';
+    latestVersion.innerText = '';
+    installedVersion.innerText = '';
+    bottomTbody.appendChild(tr);
+  }
+
+  // sorting and filtering
+  if (typeof listJS === 'undefined') {
+    listJS = new List('packages', { valueNames: columns });
+  } else if (!minorUpdate) {
+    listJS.reIndex();
+    listJS.update();
+  }
+
+  const modInfo = await mod.getInfo();
+  if (modInfo) {
+    replaceText('packages-mod-date', modInfo.packages_list.toLocaleString());
+  } else {
+    replaceText('packages-mod-date', '未取得');
+  }
+
+  showCheckDate();
+}
+
+/**
+ * Checks the packages list.
+ *
+ * @param {HTMLButtonElement} btn - A HTMLElement of button element.
+ * @param {HTMLDivElement} overlay - A overlay of packages list.
+ * @param {string} instPath - An installation path.
+ */
+async function checkPackagesList(btn, overlay, instPath) {
+  let enableButton;
+  if (btn) enableButton = buttonTransition.loading(btn);
+
+  if (overlay) {
+    overlay.style.zIndex = 1000;
+    overlay.classList.add('show');
+  }
+
+  try {
+    for (const packageRepository of setting.getPackagesDataUrl(instPath)) {
+      await ipcRenderer.invoke(
+        'download',
+        packageRepository,
+        true,
+        'package',
+        packageRepository
+      );
+    }
+    await mod.downloadData();
+    store.set('checkDate.packages', Date.now());
+    await this.setPackagesList(instPath);
+
+    if (btn) buttonTransition.message(btn, '更新完了', 'success');
+  } catch {
+    if (btn) buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+  }
+
+  if (overlay) {
+    overlay.classList.remove('show');
+    overlay.style.zIndex = -1;
+  }
+
+  if (btn) {
+    setTimeout(() => {
+      enableButton();
+      showCheckDate();
+    }, 3000);
+  }
+}
+
+/**
+ * Installs a package to installation path.
+ *
+ * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
+ * @param {string} instPath - An installation path.
+ */
+async function installPackage(btn, instPath) {
+  const enableButton = buttonTransition.loading(btn);
+
+  if (!instPath) {
+    buttonTransition.message(
+      btn,
+      'インストール先フォルダを指定してください。',
+      'danger'
+    );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    throw new Error('An installation path is not selected.');
+  }
+
+  if (!selectedPackage) {
+    buttonTransition.message(
+      btn,
+      'プラグインまたはスクリプトを選択してください。',
+      'danger'
+    );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    throw new Error('A package to install is not selected.');
+  }
+
+  const installedPackage = { ...selectedPackage };
+
+  const url = installedPackage.info.downloadURL;
+  const archivePath = await ipcRenderer.invoke('open-browser', url, 'package');
+  if (archivePath === 'close') {
+    buttonTransition.message(
+      btn,
+      'インストールがキャンセルされました。',
+      'info'
+    );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    return;
+  }
+
+  try {
+    const unzippedPath = await unzip(archivePath, installedPackage.id);
+
+    if (installedPackage.info.installer) {
+      const searchFiles = (dirName) => {
+        let result = [];
+        const dirents = fs.readdirSync(dirName, {
+          withFileTypes: true,
+        });
+        for (const dirent of dirents) {
+          if (dirent.isDirectory()) {
+            const childResult = searchFiles(path.join(dirName, dirent.name));
+            result = result.concat(childResult);
+          } else {
+            if (dirent.name === installedPackage.info.installer) {
+              result.push([path.join(dirName, dirent.name)]);
+              break;
+            }
+          }
+        }
+        return result;
+      };
+
+      const exePath = searchFiles(unzippedPath);
+      const command =
+        '"' +
+        exePath[0][0] +
+        '" ' +
+        installedPackage.info.installArg
+          .replace('"$instpath"', '$instpath')
+          .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
+      execSync(command);
+    } else {
+      const filesToCopy = [];
+      for (const file of installedPackage.info.files) {
+        if (!file.isOptional) {
+          if (file.archivePath === null) {
+            filesToCopy.push([
+              path.join(unzippedPath, path.basename(file.filename)),
+              path.join(instPath, file.filename),
+            ]);
+          } else {
+            filesToCopy.push([
+              path.join(
+                unzippedPath,
+                file.archivePath,
+                path.basename(file.filename)
+              ),
+              path.join(instPath, file.filename),
+            ]);
+          }
+        }
+      }
+      for (const filePath of filesToCopy) {
+        fs.copySync(filePath[0], filePath[1]);
+      }
+    }
+  } catch (e) {
+    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    throw e;
+  }
+
+  let filesCount = 0;
+  let existCount = 0;
+  for (const file of installedPackage.info.files) {
+    if (!file.isOptional) {
+      filesCount++;
+      if (fs.existsSync(path.join(instPath, file.filename))) {
+        existCount++;
+      }
+    }
+  }
+
+  if (filesCount === existCount) {
+    apmJson.addPackage(instPath, installedPackage);
+    await this.setPackagesList(instPath, true);
+
+    buttonTransition.message(btn, 'インストール完了', 'success');
+  } else {
+    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+  }
+
+  setTimeout(() => {
+    enableButton();
+  }, 3000);
+}
+
+/**
+ * Uninstalls a package to installation path.
+ *
+ * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
+ * @param {string} instPath - An installation path.
+ */
+async function uninstallPackage(btn, instPath) {
+  const enableButton = buttonTransition.loading(btn);
+
+  if (!instPath) {
+    buttonTransition.message(
+      btn,
+      'インストール先フォルダを指定してください。',
+      'danger'
+    );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    throw new Error('An installation path is not selected.');
+  }
+
+  if (!selectedPackage) {
+    buttonTransition.message(
+      btn,
+      'プラグインまたはスクリプトを選択してください。',
+      'danger'
+    );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    throw new Error('A package to install is not selected.');
+  }
+
+  const uninstalledPackage = { ...selectedPackage };
+
+  for (const file of uninstalledPackage.info.files) {
+    fs.removeSync(path.join(instPath, file.filename));
+  }
+
+  let filesCount = 0;
+  let existCount = 0;
+  for (const file of uninstalledPackage.info.files) {
+    if (!file.isOptional) {
+      filesCount++;
+      if (!fs.existsSync(path.join(instPath, file.filename))) {
+        existCount++;
+      }
+    }
+  }
+
+  apmJson.removePackage(instPath, uninstalledPackage);
+  if (filesCount === existCount) {
+    if (!uninstalledPackage.id.startsWith('script_')) {
+      await this.setPackagesList(instPath, true);
+    } else {
+      parseXML.removePackage(
+        setting.getLocalPackagesDataUrl(instPath),
+        uninstalledPackage
+      );
+      await this.checkPackagesList(null, null, instPath);
+    }
+
+    buttonTransition.message(btn, 'アンインストール完了', 'success');
+  } else {
+    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+  }
+
+  setTimeout(() => {
+    enableButton();
+  }, 3000);
+}
+
+/**
+ * Open the download folder of the package.
+ *
+ * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
+ */
+async function openPackageFolder(btn) {
+  const enableButton = buttonTransition.loading(btn);
+
+  if (!selectedPackage) {
+    buttonTransition.message(
+      btn,
+      'プラグインまたはスクリプトを選択してください。',
+      'danger'
+    );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    throw new Error('A package to install is not selected.');
+  }
+
+  const exists = await ipcRenderer.invoke(
+    'open-path',
+    `package/${selectedPackage.id}`
+  );
+
+  if (!exists) {
+    buttonTransition.message(
+      btn,
+      'このパッケージはダウンロードされていません。',
+      'danger'
+    );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    throw new Error('The package has not been downloaded.');
+  }
+
+  setTimeout(() => {
+    enableButton();
+  }, 3000);
+}
+
+/**
+ * Installs a script to installation path.
+ *
+ * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
+ * @param {string} instPath - An installation path.
+ * @param {string} url - URL of the download site.
+ */
+async function installScript(btn, instPath, url) {
+  const enableButton = buttonTransition.loading(btn);
+
+  if (!instPath) {
+    buttonTransition.message(
+      btn,
+      'インストール先フォルダを指定してください。',
+      'danger'
+    );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    throw new Error('An installation path is not selected.');
+  }
+
+  const archivePath = await ipcRenderer.invoke('open-browser', url, 'package');
+  if (archivePath === 'close') {
+    buttonTransition.message(
+      btn,
+      'インストールがキャンセルされました。',
+      'info'
+    );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    return;
+  }
+
+  const searchScriptFolders = (dirName, getFiles = false) => {
+    const regex = /\.(anm|obj|cam|tra|scn)$/;
+    const dirents = fs.readdirSync(dirName, {
+      withFileTypes: true,
+    });
+    return [].concat(
+      dirents.filter((i) => i.isFile() && regex.test(i.name)).length > 0
+        ? getFiles
+          ? dirents
+              .filter((i) => i.isFile() && regex.test(i.name))
+              .map((i) => path.join(path.basename(dirName), i.name))
+          : [dirName]
+        : [],
+      dirents
+        .filter((i) => i.isDirectory())
+        .flatMap((i) =>
+          searchScriptFolders(path.join(dirName, i.name), getFiles)
+        )
+    );
+  };
+
+  const searchPlugins = (dirName) => {
+    const regex = /\.(auf|aui|auo|auc|aul)$/;
+    const dirents = fs.readdirSync(dirName, {
+      withFileTypes: true,
+    });
+    return dirents.filter((i) => i.isFile() && regex.test(i.name)).length > 0
+      ? true
+      : dirents
+          .filter((i) => i.isDirectory())
+          .map((i) => searchPlugins(path.join(dirName, i.name)))
+          .some((e) => e);
+  };
+
+  try {
+    const unzippedPath = await unzip(archivePath);
+    const scriptFolders = searchScriptFolders(unzippedPath);
+    const scriptFiles = searchScriptFolders(unzippedPath, true);
+    const hasPlugin = searchPlugins(unzippedPath);
+
+    if (scriptFiles.length === 0) {
+      buttonTransition.message(btn, 'スクリプトが含まれていません。', 'danger');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      return;
+    }
+
+    if (hasPlugin) {
+      buttonTransition.message(
+        btn,
+        'プラグインが含まれているためインストールできません。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      return;
+    }
+
+    const foldersToCopy = scriptFolders.map((f) => [
+      f,
+      path.join(instPath, 'script', path.basename(f)),
+    ]);
+    for (const filePath of foldersToCopy) {
+      fs.copySync(filePath[0], filePath[1]);
+    }
+
+    const name = path.basename(scriptFiles[0], path.extname(scriptFiles[0]));
+    const id = 'script_' + getHash(name);
+
+    const newPath = path.join(path.dirname(unzippedPath), id);
+    if (fs.existsSync(newPath)) fs.rmdirSync(newPath, { recursive: true });
+    fs.renameSync(unzippedPath, newPath);
+
+    const d = new Date();
+    const date = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(
+      2,
+      '0'
+    )}${String(d.getDate()).padStart(2, '0')}`;
+
+    const package = {
+      id: id,
+      name: name,
+      overview: 'スクリプト',
+      description:
+        'スクリプト一覧: ' + scriptFiles.map((f) => path.basename(f)).join(),
+      developer: '-',
+      pageURL: url,
+      downloadURL: url,
+      latestVersion: date,
+      files: scriptFolders
+        .map((f) => {
+          return {
+            filename: path
+              .join('script', path.basename(f))
+              .replaceAll('\\', '/'),
+            isDirectory: true,
+          };
+        })
+        .concat(
+          scriptFiles.map((f) => {
+            return {
+              filename: path.join('script', f).replaceAll('\\', '/'),
+            };
+          })
+        ),
+    };
+
+    parseXML.addPackage(setting.getLocalPackagesDataUrl(instPath), package);
+    apmJson.addPackage(instPath, {
+      id: package.id,
+      repository: setting.getLocalPackagesDataUrl(instPath),
+      info: package,
+    });
+    await this.checkPackagesList(null, null, instPath);
+  } catch (e) {
+    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    throw e;
+  }
+
+  buttonTransition.message(btn, 'インストール完了', 'success');
+
+  setTimeout(() => {
+    enableButton();
+  }, 3000);
+}
+
 const filterButtons = new Set();
 /**
  * Filter the list.
@@ -170,791 +940,13 @@ function listFilter(column, btns, btn) {
 }
 
 module.exports = {
-  /**
-   * Initializes package
-   *
-   * @param {string} instPath - An installation path
-   */
-  initPackage: function (instPath) {
-    if (!apmJson.has(instPath, 'packages'))
-      apmJson.set(instPath, 'packages', {});
-  },
-
-  /**
-   * Returns an object parsed from packages_list.xml.
-   *
-   * @param {string} instPath - An installation path.
-   * @returns {Promise<object>} - A list of object parsed from packages_list.xml.
-   */
-  getPackagesInfo: async function (instPath) {
-    const xmlList = {};
-
-    for (const packageRepository of setting.getPackagesDataUrl(instPath)) {
-      const packagesListFile = await ipcRenderer.invoke(
-        'exists-temp-file',
-        'package/packages_list.xml',
-        packageRepository
-      );
-      if (packagesListFile.exists) {
-        try {
-          xmlList[packageRepository] = parseXML.getPackages(
-            packagesListFile.path
-          );
-        } catch {
-          ipcRenderer.invoke(
-            'open-err-dialog',
-            'データ解析エラー',
-            '取得したデータの処理に失敗しました。' +
-              '\n' +
-              'URL: ' +
-              packageRepository
-          );
-        }
-      }
-    }
-    return xmlList;
-  },
-
-  /**
-   * Sets rows of each package in the table.
-   *
-   * @param {string} instPath - An installation path.
-   * @param {boolean} minorUpdate - Only the version of the installed package is updated.
-   */
-  setPackagesList: async function (instPath, minorUpdate = false) {
-    const packagesTable = document.getElementById('packages-table');
-    const thead = packagesTable.getElementsByTagName('thead')[0];
-    const tbody = packagesTable.getElementsByTagName('tbody')[0];
-    const bottomTbody = packagesTable.getElementsByTagName('tbody')[1];
-    bottomTbody.innerHTML = null;
-
-    const columns = [
-      'name',
-      'overview',
-      'developer',
-      'type',
-      'latestVersion',
-      'installedVersion',
-    ];
-    const columnsDisp = [
-      '名前',
-      '概要',
-      '開発者',
-      'タイプ',
-      '最新バージョン',
-      '現在バージョン',
-    ];
-
-    // table header
-    if (!thead.hasChildNodes()) {
-      const headerTr = document.createElement('tr');
-      for (const [i, columnName] of columns.entries()) {
-        const th = document.createElement('th');
-        th.classList.add('sort');
-        th.setAttribute('data-sort', columnName);
-        th.setAttribute('scope', 'col');
-        th.innerText = columnsDisp[i];
-        headerTr.appendChild(th);
-      }
-      thead.appendChild(headerTr);
-    }
-
-    // table body
-    const packages = [];
-    for (const [packagesRepository, packagesInfo] of Object.entries(
-      await this.getPackagesInfo(instPath)
-    )) {
-      for (const [id, packageInfo] of Object.entries(packagesInfo)) {
-        packages.push({
-          repository: packagesRepository,
-          id: id,
-          info: packageInfo,
-        });
-      }
-    }
-
-    const installedPackages = apmJson.get(instPath, 'packages');
-
-    const getAddedFiles = () => {
-      const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn)$/;
-      const safeReaddirSync = (path, option) => {
-        try {
-          return fs.readdirSync(path, option);
-        } catch (e) {
-          if (e.code === 'ENOENT') return [];
-          else throw e;
-        }
-      };
-      const readdir = (dir) =>
-        safeReaddirSync(dir, { withFileTypes: true })
-          .filter((i) => i.isFile() && regex.test(i.name))
-          .map((i) => i.name);
-      return readdir(instPath).concat(
-        readdir(path.join(instPath, 'plugins')).map((i) => 'plugins/' + i),
-        readdir(path.join(instPath, 'script')).map((i) => 'script/' + i),
-        safeReaddirSync(path.join(instPath, 'script'), { withFileTypes: true })
-          .filter((i) => i.isDirectory())
-          .map((i) => 'script/' + i.name)
-          .flatMap((i) =>
-            readdir(path.join(instPath, i)).map((j) => i + '/' + j)
-          )
-      );
-    };
-    const addedFiles = getAddedFiles();
-
-    const getManuallyAddedFiles = (files) => {
-      let retFiles = [...files];
-      for (const package of packages) {
-        for (const [installedId, installedPackage] of Object.entries(
-          installedPackages
-        )) {
-          if (
-            installedId === package.id &&
-            installedPackage.repository === package.repository
-          ) {
-            for (const file of package.info.files) {
-              if (!file.isOptional) {
-                if (retFiles.includes(file.filename)) {
-                  retFiles = retFiles.filter((ef) => ef !== file.filename);
-                }
-              }
-              if (!file.isOptional && file.isDirectory) {
-                retFiles = retFiles.filter(
-                  (ef) => !ef.startsWith(file.filename)
-                );
-              }
-            }
-          }
-        }
-      }
-      return retFiles;
-    };
-    const manuallyAddedFiles = getManuallyAddedFiles(addedFiles);
-
-    const getInstalledVersion = (package) => {
-      let installedVersion;
-      let addedVersion = false;
-      let manuallyAddedVersion = false;
-      for (const file of package.info.files) {
-        if (!file.isOptional) {
-          if (addedFiles.includes(file.filename)) addedVersion = true;
-          if (manuallyAddedFiles.includes(file.filename))
-            manuallyAddedVersion = true;
-        }
-      }
-      installedVersion = manuallyAddedVersion
-        ? '手動インストール済み'
-        : addedVersion
-        ? '他バージョンがインストール済み'
-        : '未インストール';
-
-      for (const [installedId, installedPackage] of Object.entries(
-        installedPackages
-      )) {
-        if (
-          installedId === package.id &&
-          installedPackage.repository === package.repository
-        ) {
-          let filesCount = 0;
-          let existCount = 0;
-          for (const file of package.info.files) {
-            if (!file.isOptional) {
-              filesCount++;
-              if (fs.existsSync(path.join(instPath, file.filename))) {
-                existCount++;
-              }
-            }
-          }
-
-          if (filesCount === existCount) {
-            installedVersion = installedPackage.version;
-          } else {
-            installedVersion =
-              '未インストール（ファイルの存在が確認できませんでした。）';
-          }
-        }
-      }
-
-      return installedVersion;
-    };
-
-    const makeTrFromArray = (tdList) => {
-      const tr = document.createElement('tr');
-      const tds = tdList.map((tdName) => {
-        const td = document.createElement('td');
-        td.classList.add(tdName);
-        tr.appendChild(td);
-        return td;
-      });
-      return [tr].concat(tds);
-    };
-
-    if (!minorUpdate) {
-      tbody.innerHTML = null;
-
-      for (const package of packages) {
-        const [
-          tr,
-          name,
-          overview,
-          developer,
-          type,
-          latestVersion,
-          installedVersion,
-        ] = makeTrFromArray(columns);
-        tr.classList.add('package-tr');
-        tr.dataset.id = package.id;
-        tr.dataset.repository = package.repository;
-        tr.addEventListener('click', (event) => {
-          showPackageDetail(package);
-          selectedPackage = package;
-          for (const tmptr of tbody.getElementsByTagName('tr')) {
-            tmptr.classList.remove('table-secondary');
-          }
-          tr.classList.add('table-secondary');
-        });
-        name.innerText = package.info.name;
-        overview.innerText = package.info.overview;
-        developer.innerText = package.info.developer;
-        type.innerText = parsePackageType(package.info.type);
-        latestVersion.innerText = package.info.latestVersion;
-        installedVersion.innerText = getInstalledVersion(package);
-
-        tbody.appendChild(tr);
-      }
-    } else {
-      for (const package of packages) {
-        let installedVersion;
-        for (const tr of tbody.getElementsByTagName('tr')) {
-          if (
-            tr.dataset.id === package.id &&
-            tr.dataset.repository === package.repository
-          ) {
-            installedVersion = tr.getElementsByClassName('installedVersion')[0];
-            installedVersion.innerText = getInstalledVersion(package);
-          }
-        }
-      }
-    }
-
-    // list manually added packages
-    for (const ef of manuallyAddedFiles) {
-      const [
-        tr,
-        name,
-        overview,
-        developer,
-        type,
-        latestVersion,
-        installedVersion,
-      ] = makeTrFromArray(columns);
-      tr.classList.add('package-tr');
-      name.innerText = ef;
-      overview.innerText = '手動で追加されたファイル';
-      developer.innerText = '';
-      type.innerText = '';
-      latestVersion.innerText = '';
-      installedVersion.innerText = '';
-      bottomTbody.appendChild(tr);
-    }
-
-    // sorting and filtering
-    if (typeof listJS === 'undefined') {
-      listJS = new List('packages', { valueNames: columns });
-    } else if (!minorUpdate) {
-      listJS.reIndex();
-      listJS.update();
-    }
-
-    const modInfo = await mod.getInfo();
-    if (modInfo) {
-      replaceText('packages-mod-date', modInfo.packages_list.toLocaleString());
-    } else {
-      replaceText('packages-mod-date', '未取得');
-    }
-
-    showCheckDate();
-  },
-
-  /**
-   * Checks the packages list.
-   *
-   * @param {HTMLButtonElement} btn - A HTMLElement of button element.
-   * @param {HTMLDivElement} overlay - A overlay of packages list.
-   * @param {string} instPath - An installation path.
-   */
-  checkPackagesList: async function (btn, overlay, instPath) {
-    let enableButton;
-    if (btn) enableButton = buttonTransition.loading(btn);
-
-    if (overlay) {
-      overlay.style.zIndex = 1000;
-      overlay.classList.add('show');
-    }
-
-    try {
-      for (const packageRepository of setting.getPackagesDataUrl(instPath)) {
-        await ipcRenderer.invoke(
-          'download',
-          packageRepository,
-          true,
-          'package',
-          packageRepository
-        );
-      }
-      await mod.downloadData();
-      store.set('checkDate.packages', Date.now());
-      await this.setPackagesList(instPath);
-
-      if (btn) buttonTransition.message(btn, '更新完了', 'success');
-    } catch {
-      if (btn)
-        buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-    }
-
-    if (overlay) {
-      overlay.classList.remove('show');
-      overlay.style.zIndex = -1;
-    }
-
-    if (btn) {
-      setTimeout(() => {
-        enableButton();
-        showCheckDate();
-      }, 3000);
-    }
-  },
-
-  /**
-   * Installs a package to installation path.
-   *
-   * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
-   * @param {string} instPath - An installation path.
-   */
-  installPackage: async function (btn, instPath) {
-    const enableButton = buttonTransition.loading(btn);
-
-    if (!instPath) {
-      buttonTransition.message(
-        btn,
-        'インストール先フォルダを指定してください。',
-        'danger'
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      throw new Error('An installation path is not selected.');
-    }
-
-    if (!selectedPackage) {
-      buttonTransition.message(
-        btn,
-        'プラグインまたはスクリプトを選択してください。',
-        'danger'
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      throw new Error('A package to install is not selected.');
-    }
-
-    const installedPackage = { ...selectedPackage };
-
-    const url = installedPackage.info.downloadURL;
-    const archivePath = await ipcRenderer.invoke(
-      'open-browser',
-      url,
-      'package'
-    );
-    if (archivePath === 'close') {
-      buttonTransition.message(
-        btn,
-        'インストールがキャンセルされました。',
-        'info'
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      return;
-    }
-
-    try {
-      const unzippedPath = await unzip(archivePath, installedPackage.id);
-
-      if (installedPackage.info.installer) {
-        const searchFiles = (dirName) => {
-          let result = [];
-          const dirents = fs.readdirSync(dirName, {
-            withFileTypes: true,
-          });
-          for (const dirent of dirents) {
-            if (dirent.isDirectory()) {
-              const childResult = searchFiles(path.join(dirName, dirent.name));
-              result = result.concat(childResult);
-            } else {
-              if (dirent.name === installedPackage.info.installer) {
-                result.push([path.join(dirName, dirent.name)]);
-                break;
-              }
-            }
-          }
-          return result;
-        };
-
-        const exePath = searchFiles(unzippedPath);
-        const command =
-          '"' +
-          exePath[0][0] +
-          '" ' +
-          installedPackage.info.installArg
-            .replace('"$instpath"', '$instpath')
-            .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
-        execSync(command);
-      } else {
-        const filesToCopy = [];
-        for (const file of installedPackage.info.files) {
-          if (!file.isOptional) {
-            if (file.archivePath === null) {
-              filesToCopy.push([
-                path.join(unzippedPath, path.basename(file.filename)),
-                path.join(instPath, file.filename),
-              ]);
-            } else {
-              filesToCopy.push([
-                path.join(
-                  unzippedPath,
-                  file.archivePath,
-                  path.basename(file.filename)
-                ),
-                path.join(instPath, file.filename),
-              ]);
-            }
-          }
-        }
-        for (const filePath of filesToCopy) {
-          fs.copySync(filePath[0], filePath[1]);
-        }
-      }
-    } catch (e) {
-      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      throw e;
-    }
-
-    let filesCount = 0;
-    let existCount = 0;
-    for (const file of installedPackage.info.files) {
-      if (!file.isOptional) {
-        filesCount++;
-        if (fs.existsSync(path.join(instPath, file.filename))) {
-          existCount++;
-        }
-      }
-    }
-
-    if (filesCount === existCount) {
-      apmJson.addPackage(instPath, installedPackage);
-      await this.setPackagesList(instPath, true);
-
-      buttonTransition.message(btn, 'インストール完了', 'success');
-    } else {
-      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-    }
-
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-  },
-
-  /**
-   * Uninstalls a package to installation path.
-   *
-   * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
-   * @param {string} instPath - An installation path.
-   */
-  uninstallPackage: async function (btn, instPath) {
-    const enableButton = buttonTransition.loading(btn);
-
-    if (!instPath) {
-      buttonTransition.message(
-        btn,
-        'インストール先フォルダを指定してください。',
-        'danger'
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      throw new Error('An installation path is not selected.');
-    }
-
-    if (!selectedPackage) {
-      buttonTransition.message(
-        btn,
-        'プラグインまたはスクリプトを選択してください。',
-        'danger'
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      throw new Error('A package to install is not selected.');
-    }
-
-    const uninstalledPackage = { ...selectedPackage };
-
-    for (const file of uninstalledPackage.info.files) {
-      fs.removeSync(path.join(instPath, file.filename));
-    }
-
-    let filesCount = 0;
-    let existCount = 0;
-    for (const file of uninstalledPackage.info.files) {
-      if (!file.isOptional) {
-        filesCount++;
-        if (!fs.existsSync(path.join(instPath, file.filename))) {
-          existCount++;
-        }
-      }
-    }
-
-    apmJson.removePackage(instPath, uninstalledPackage);
-    if (filesCount === existCount) {
-      if (!uninstalledPackage.id.startsWith('script_')) {
-        await this.setPackagesList(instPath, true);
-      } else {
-        parseXML.removePackage(
-          setting.getLocalPackagesDataUrl(instPath),
-          uninstalledPackage
-        );
-        await this.checkPackagesList(null, null, instPath);
-      }
-
-      buttonTransition.message(btn, 'アンインストール完了', 'success');
-    } else {
-      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-    }
-
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-  },
-
-  /**
-   * Open the download folder of the package.
-   *
-   * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
-   */
-  openPackageFolder: async function (btn) {
-    const enableButton = buttonTransition.loading(btn);
-
-    if (!selectedPackage) {
-      buttonTransition.message(
-        btn,
-        'プラグインまたはスクリプトを選択してください。',
-        'danger'
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      throw new Error('A package to install is not selected.');
-    }
-
-    const exists = await ipcRenderer.invoke(
-      'open-path',
-      `package/${selectedPackage.id}`
-    );
-
-    if (!exists) {
-      buttonTransition.message(
-        btn,
-        'このパッケージはダウンロードされていません。',
-        'danger'
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      throw new Error('The package has not been downloaded.');
-    }
-
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-  },
-
-  /**
-   * Installs a script to installation path.
-   *
-   * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
-   * @param {string} instPath - An installation path.
-   * @param {string} url - URL of the download site.
-   */
-  installScript: async function (btn, instPath, url) {
-    const enableButton = buttonTransition.loading(btn);
-
-    if (!instPath) {
-      buttonTransition.message(
-        btn,
-        'インストール先フォルダを指定してください。',
-        'danger'
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      throw new Error('An installation path is not selected.');
-    }
-
-    const archivePath = await ipcRenderer.invoke(
-      'open-browser',
-      url,
-      'package'
-    );
-    if (archivePath === 'close') {
-      buttonTransition.message(
-        btn,
-        'インストールがキャンセルされました。',
-        'info'
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      return;
-    }
-
-    const searchScriptFolders = (dirName, getFiles = false) => {
-      const regex = /\.(anm|obj|cam|tra|scn)$/;
-      const dirents = fs.readdirSync(dirName, {
-        withFileTypes: true,
-      });
-      return [].concat(
-        dirents.filter((i) => i.isFile() && regex.test(i.name)).length > 0
-          ? getFiles
-            ? dirents
-                .filter((i) => i.isFile() && regex.test(i.name))
-                .map((i) => path.join(path.basename(dirName), i.name))
-            : [dirName]
-          : [],
-        dirents
-          .filter((i) => i.isDirectory())
-          .flatMap((i) =>
-            searchScriptFolders(path.join(dirName, i.name), getFiles)
-          )
-      );
-    };
-
-    const searchPlugins = (dirName) => {
-      const regex = /\.(auf|aui|auo|auc|aul)$/;
-      const dirents = fs.readdirSync(dirName, {
-        withFileTypes: true,
-      });
-      return dirents.filter((i) => i.isFile() && regex.test(i.name)).length > 0
-        ? true
-        : dirents
-            .filter((i) => i.isDirectory())
-            .map((i) => searchPlugins(path.join(dirName, i.name)))
-            .some((e) => e);
-    };
-
-    try {
-      const unzippedPath = await unzip(archivePath);
-      const scriptFolders = searchScriptFolders(unzippedPath);
-      const scriptFiles = searchScriptFolders(unzippedPath, true);
-      const hasPlugin = searchPlugins(unzippedPath);
-
-      if (scriptFiles.length === 0) {
-        buttonTransition.message(
-          btn,
-          'スクリプトが含まれていません。',
-          'danger'
-        );
-        setTimeout(() => {
-          enableButton();
-        }, 3000);
-        return;
-      }
-
-      if (hasPlugin) {
-        buttonTransition.message(
-          btn,
-          'プラグインが含まれているためインストールできません。',
-          'danger'
-        );
-        setTimeout(() => {
-          enableButton();
-        }, 3000);
-        return;
-      }
-
-      const foldersToCopy = scriptFolders.map((f) => [
-        f,
-        path.join(instPath, 'script', path.basename(f)),
-      ]);
-      for (const filePath of foldersToCopy) {
-        fs.copySync(filePath[0], filePath[1]);
-      }
-
-      const name = path.basename(scriptFiles[0], path.extname(scriptFiles[0]));
-      const id = 'script_' + getHash(name);
-
-      const newPath = path.join(path.dirname(unzippedPath), id);
-      if (fs.existsSync(newPath)) fs.rmdirSync(newPath, { recursive: true });
-      fs.renameSync(unzippedPath, newPath);
-
-      const d = new Date();
-      const date = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(
-        2,
-        '0'
-      )}${String(d.getDate()).padStart(2, '0')}`;
-
-      const package = {
-        id: id,
-        name: name,
-        overview: 'スクリプト',
-        description:
-          'スクリプト一覧: ' + scriptFiles.map((f) => path.basename(f)).join(),
-        developer: '-',
-        pageURL: url,
-        downloadURL: url,
-        latestVersion: date,
-        files: scriptFolders
-          .map((f) => {
-            return {
-              filename: path
-                .join('script', path.basename(f))
-                .replaceAll('\\', '/'),
-              isDirectory: true,
-            };
-          })
-          .concat(
-            scriptFiles.map((f) => {
-              return {
-                filename: path.join('script', f).replaceAll('\\', '/'),
-              };
-            })
-          ),
-      };
-
-      parseXML.addPackage(setting.getLocalPackagesDataUrl(instPath), package);
-      apmJson.addPackage(instPath, {
-        id: package.id,
-        repository: setting.getLocalPackagesDataUrl(instPath),
-        info: package,
-      });
-      await this.checkPackagesList(null, null, instPath);
-    } catch (e) {
-      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      throw e;
-    }
-
-    buttonTransition.message(btn, 'インストール完了', 'success');
-
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-  },
-
+  initPackage,
+  getPackagesInfo,
+  setPackagesList,
+  checkPackagesList,
+  installPackage,
+  uninstallPackage,
+  openPackageFolder,
+  installScript,
   listFilter,
 };

@@ -270,90 +270,99 @@ class ModInfo extends Object {
   }
 }
 
-module.exports = {
-  /**
-   * Returns a list of core programs.
-   *
-   * @param {string} coreListPath - A path of xml file.
-   * @returns {CoreList} A list of core programs.
-   */
-  getCore: function (coreListPath) {
-    if (fs.existsSync(coreListPath)) {
-      return new CoreList(coreListPath);
-    } else {
-      throw new Error('The version file does not exist.');
-    }
-  },
+// Functions to be exported
 
-  /**
-   * Returns a list of packages.
-   *
-   * @param {string} packagesListPath - A path of xml file.
-   * @returns {PackagesList} A list of packages.
-   */
-  getPackages: function (packagesListPath) {
-    if (fs.existsSync(packagesListPath)) {
-      return new PackagesList(packagesListPath);
-    } else {
-      throw new Error('The version file does not exist.');
-    }
-  },
+/**
+ * Returns a list of core programs.
+ *
+ * @param {string} coreListPath - A path of xml file.
+ * @returns {CoreList} A list of core programs.
+ */
+function getCore(coreListPath) {
+  if (fs.existsSync(coreListPath)) {
+    return new CoreList(coreListPath);
+  } else {
+    throw new Error('The version file does not exist.');
+  }
+}
 
-  /**
-   * Write the packages in XML.
-   *
-   * @param {string} packagesListPath - A path of xml file.
-   * @param {object} packages - A list of packages.
-   */
-  setPackages: function (packagesListPath, packages) {
-    PackagesList.write(packagesListPath, packages);
-  },
+/**
+ * Returns a list of packages.
+ *
+ * @param {string} packagesListPath - A path of xml file.
+ * @returns {PackagesList} A list of packages.
+ */
+function getPackages(packagesListPath) {
+  if (fs.existsSync(packagesListPath)) {
+    return new PackagesList(packagesListPath);
+  } else {
+    throw new Error('The version file does not exist.');
+  }
+}
 
-  /**
-   * Add the packages to XML.
-   *
-   * @param {string} packagesListPath - A path of xml file.
-   * @param {object} packageItem - A package.
-   */
-  addPackage: function (packagesListPath, packageItem) {
-    let packages = [];
-    if (fs.existsSync(packagesListPath)) {
-      packages = Object.values(this.getPackages(packagesListPath)).filter(
-        (p) => p.id !== packageItem.id
-      );
-    }
-    packages.push(packageItem);
-    this.setPackages(packagesListPath, packages);
-  },
+/**
+ * Write the packages in XML.
+ *
+ * @param {string} packagesListPath - A path of xml file.
+ * @param {object} packages - A list of packages.
+ */
+function setPackages(packagesListPath, packages) {
+  PackagesList.write(packagesListPath, packages);
+}
 
-  /**
-   * Remove the packages in XML.
-   *
-   * @param {string} packagesListPath - A path of xml file.
-   * @param {object} packageItem - A package.
-   */
-  removePackage: function (packagesListPath, packageItem) {
-    const packages = Object.values(this.getPackages(packagesListPath)).filter(
+/**
+ * Add the packages to XML.
+ *
+ * @param {string} packagesListPath - A path of xml file.
+ * @param {object} packageItem - A package.
+ */
+function addPackage(packagesListPath, packageItem) {
+  let packages = [];
+  if (fs.existsSync(packagesListPath)) {
+    packages = Object.values(this.getPackages(packagesListPath)).filter(
       (p) => p.id !== packageItem.id
     );
-    if (packages.length > 0) {
-      this.setPackages(packagesListPath, packages);
-    } else {
-      fs.unlinkSync(packagesListPath);
-    }
-  },
+  }
+  packages.push(packageItem);
+  this.setPackages(packagesListPath, packages);
+}
 
-  /**
-   * Returns an object which contains mod dates.
-   *
-   * @param {string} packagesListPath - A path of xml file.
-   * @returns {ModInfo} An object which contains mod dates.
-   */
-  getMod: function (packagesListPath) {
-    if (fs.existsSync(packagesListPath)) {
-      return new ModInfo(packagesListPath);
-    } else {
-      throw new Error('The version file does not exist.');
-    }
-  },
+/**
+ * Remove the packages in XML.
+ *
+ * @param {string} packagesListPath - A path of xml file.
+ * @param {object} packageItem - A package.
+ */
+function removePackage(packagesListPath, packageItem) {
+  const packages = Object.values(this.getPackages(packagesListPath)).filter(
+    (p) => p.id !== packageItem.id
+  );
+  if (packages.length > 0) {
+    this.setPackages(packagesListPath, packages);
+  } else {
+    fs.unlinkSync(packagesListPath);
+  }
+}
+
+/**
+ * Returns an object which contains mod dates.
+ *
+ * @param {string} packagesListPath - A path of xml file.
+ * @returns {ModInfo} An object which contains mod dates.
+ */
+function getMod(packagesListPath) {
+  if (fs.existsSync(packagesListPath)) {
+    return new ModInfo(packagesListPath);
+  } else {
+    throw new Error('The version file does not exist.');
+  }
+}
+
+module.exports = {
+  getCore,
+  getPackages,
+  setPackages,
+  addPackage,
+  removePackage,
+  getMod,
 };
