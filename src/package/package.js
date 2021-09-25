@@ -13,6 +13,7 @@ const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
 const getHash = require('../lib/getHash');
+const packageUtil = require('./packageUtil');
 
 /**
  * Shows check date.
@@ -32,54 +33,6 @@ let selectedPackage;
 let listJS;
 
 /**
- * @param {string} packageType - A list of package types.
- * @returns {string} Parsed package types.
- */
-function parsePackageType(packageType) {
-  const result = [];
-  for (const type of packageType) {
-    switch (type) {
-      // plugin
-      case 'input':
-        result.push('入力');
-        break;
-      case 'output':
-        result.push('出力');
-        break;
-      case 'filter':
-        result.push('フィルター');
-        break;
-      case 'color':
-        result.push('色変換');
-        break;
-      case 'language':
-        result.push('言語');
-        break;
-      // script
-      case 'animation':
-        result.push('アニメーション効果');
-        break;
-      case 'object':
-        result.push('カスタムオブジェクト');
-        break;
-      case 'scene':
-        result.push('シーンチェンジ');
-        break;
-      case 'camera':
-        result.push('カメラ制御');
-        break;
-      case 'track':
-        result.push('トラックバー');
-        break;
-      default:
-        result.push('不明');
-        break;
-    }
-  }
-  return result.toString();
-}
-
-/**
  * Show package's details.
  *
  * @param {object} packageData - An object of package's details.
@@ -88,7 +41,10 @@ function showPackageDetail(packageData) {
   for (const detail of ['name', 'overview', 'description', 'developer']) {
     replaceText('package-' + detail, packageData.info[detail]);
   }
-  replaceText('package-type', parsePackageType(packageData.info.type));
+  replaceText(
+    'package-type',
+    packageUtil.parsePackageType(packageData.info.type)
+  );
   replaceText('package-latest-version', packageData.info.latestVersion);
 
   const a = document.createElement('a');
@@ -110,41 +66,6 @@ function showPackageDetail(packageData) {
  */
 function initPackage(instPath) {
   if (!apmJson.has(instPath, 'packages')) apmJson.set(instPath, 'packages', {});
-}
-
-/**
- * Returns an object parsed from packages_list.xml.
- *
- * @param {string} instPath - An installation path.
- * @returns {Promise<object>} - A list of object parsed from packages_list.xml.
- */
-async function getPackagesInfo(instPath) {
-  const xmlList = {};
-
-  for (const packageRepository of setting.getPackagesDataUrl(instPath)) {
-    const packagesListFile = await ipcRenderer.invoke(
-      'exists-temp-file',
-      'package/packages_list.xml',
-      packageRepository
-    );
-    if (packagesListFile.exists) {
-      try {
-        xmlList[packageRepository] = parseXML.getPackages(
-          packagesListFile.path
-        );
-      } catch {
-        ipcRenderer.invoke(
-          'open-err-dialog',
-          'データ解析エラー',
-          '取得したデータの処理に失敗しました。' +
-            '\n' +
-            'URL: ' +
-            packageRepository
-        );
-      }
-    }
-  }
-  return xmlList;
 }
 
 /**
@@ -192,119 +113,16 @@ async function setPackagesList(instPath, minorUpdate = false) {
   }
 
   // table body
-  const packages = [];
-  for (const [packagesRepository, packagesInfo] of Object.entries(
-    await this.getPackagesInfo(instPath)
-  )) {
-    for (const [id, packageInfo] of Object.entries(packagesInfo)) {
-      packages.push({
-        repository: packagesRepository,
-        id: id,
-        info: packageInfo,
-      });
-    }
-  }
-
+  const packages = await packageUtil.getPackages(
+    setting.getPackagesDataUrl(instPath)
+  );
   const installedPackages = apmJson.get(instPath, 'packages');
-
-  const getAddedFiles = () => {
-    const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn)$/;
-    const safeReaddirSync = (path, option) => {
-      try {
-        return fs.readdirSync(path, option);
-      } catch (e) {
-        if (e.code === 'ENOENT') return [];
-        else throw e;
-      }
-    };
-    const readdir = (dir) =>
-      safeReaddirSync(dir, { withFileTypes: true })
-        .filter((i) => i.isFile() && regex.test(i.name))
-        .map((i) => i.name);
-    return readdir(instPath).concat(
-      readdir(path.join(instPath, 'plugins')).map((i) => 'plugins/' + i),
-      readdir(path.join(instPath, 'script')).map((i) => 'script/' + i),
-      safeReaddirSync(path.join(instPath, 'script'), { withFileTypes: true })
-        .filter((i) => i.isDirectory())
-        .map((i) => 'script/' + i.name)
-        .flatMap((i) => readdir(path.join(instPath, i)).map((j) => i + '/' + j))
-    );
-  };
-  const addedFiles = getAddedFiles();
-
-  const getManuallyAddedFiles = (files) => {
-    let retFiles = [...files];
-    for (const package of packages) {
-      for (const [installedId, installedPackage] of Object.entries(
-        installedPackages
-      )) {
-        if (
-          installedId === package.id &&
-          installedPackage.repository === package.repository
-        ) {
-          for (const file of package.info.files) {
-            if (!file.isOptional) {
-              if (retFiles.includes(file.filename)) {
-                retFiles = retFiles.filter((ef) => ef !== file.filename);
-              }
-            }
-            if (!file.isOptional && file.isDirectory) {
-              retFiles = retFiles.filter((ef) => !ef.startsWith(file.filename));
-            }
-          }
-        }
-      }
-    }
-    return retFiles;
-  };
-  const manuallyAddedFiles = getManuallyAddedFiles(addedFiles);
-
-  const getInstalledVersion = (package) => {
-    let installedVersion;
-    let addedVersion = false;
-    let manuallyAddedVersion = false;
-    for (const file of package.info.files) {
-      if (!file.isOptional) {
-        if (addedFiles.includes(file.filename)) addedVersion = true;
-        if (manuallyAddedFiles.includes(file.filename))
-          manuallyAddedVersion = true;
-      }
-    }
-    installedVersion = manuallyAddedVersion
-      ? '手動インストール済み'
-      : addedVersion
-      ? '他バージョンがインストール済み'
-      : '未インストール';
-
-    for (const [installedId, installedPackage] of Object.entries(
-      installedPackages
-    )) {
-      if (
-        installedId === package.id &&
-        installedPackage.repository === package.repository
-      ) {
-        let filesCount = 0;
-        let existCount = 0;
-        for (const file of package.info.files) {
-          if (!file.isOptional) {
-            filesCount++;
-            if (fs.existsSync(path.join(instPath, file.filename))) {
-              existCount++;
-            }
-          }
-        }
-
-        if (filesCount === existCount) {
-          installedVersion = installedPackage.version;
-        } else {
-          installedVersion =
-            '未インストール（ファイルの存在が確認できませんでした。）';
-        }
-      }
-    }
-
-    return installedVersion;
-  };
+  const addedFiles = packageUtil.getInstalledFiles(instPath);
+  const manuallyAddedFiles = packageUtil.getManuallyInstalledFiles(
+    addedFiles,
+    installedPackages,
+    packages
+  );
 
   const makeTrFromArray = (tdList) => {
     const tr = document.createElement('tr');
@@ -344,22 +162,34 @@ async function setPackagesList(instPath, minorUpdate = false) {
       name.innerText = package.info.name;
       overview.innerText = package.info.overview;
       developer.innerText = package.info.developer;
-      type.innerText = parsePackageType(package.info.type);
+      type.innerText = packageUtil.parsePackageType(package.info.type);
       latestVersion.innerText = package.info.latestVersion;
-      installedVersion.innerText = getInstalledVersion(package);
+      installedVersion.innerText = packageUtil.getInstalledVersionOfPackage(
+        package,
+        addedFiles,
+        manuallyAddedFiles,
+        installedPackages,
+        instPath
+      );
 
       tbody.appendChild(tr);
     }
   } else {
     for (const package of packages) {
-      let installedVersion;
       for (const tr of tbody.getElementsByTagName('tr')) {
         if (
           tr.dataset.id === package.id &&
           tr.dataset.repository === package.repository
         ) {
-          installedVersion = tr.getElementsByClassName('installedVersion')[0];
-          installedVersion.innerText = getInstalledVersion(package);
+          const installedVersion =
+            tr.getElementsByClassName('installedVersion')[0];
+          installedVersion.innerText = packageUtil.getInstalledVersionOfPackage(
+            package,
+            addedFiles,
+            manuallyAddedFiles,
+            installedPackages,
+            instPath
+          );
         }
       }
     }
@@ -421,15 +251,7 @@ async function checkPackagesList(btn, overlay, instPath) {
   }
 
   try {
-    for (const packageRepository of setting.getPackagesDataUrl(instPath)) {
-      await ipcRenderer.invoke(
-        'download',
-        packageRepository,
-        true,
-        'package',
-        packageRepository
-      );
-    }
+    await packageUtil.downloadRepository(setting.getPackagesDataUrl(instPath));
     await mod.downloadData();
     store.set('checkDate.packages', Date.now());
     await this.setPackagesList(instPath);
@@ -894,7 +716,7 @@ function listFilter(column, btns, btn) {
 
     let filterFunc;
     if (column === 'type') {
-      const query = parsePackageType([btn.dataset.typeFilter]);
+      const query = packageUtil.parsePackageType([btn.dataset.typeFilter]);
       filterFunc = (item) => {
         if (item.values().type.includes(query)) {
           return true;
@@ -941,7 +763,6 @@ function listFilter(column, btns, btn) {
 
 module.exports = {
   initPackage,
-  getPackagesInfo,
   setPackagesList,
   checkPackagesList,
   installPackage,
