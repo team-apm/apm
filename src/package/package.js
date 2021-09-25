@@ -123,6 +123,15 @@ async function setPackagesList(instPath, minorUpdate = false) {
     installedPackages,
     packages
   );
+  packages.forEach((p) => {
+    p.installedVersion = packageUtil.getInstalledVersionOfPackage(
+      p,
+      installedFiles,
+      manuallyInstalledFiles,
+      installedPackages,
+      instPath
+    );
+  });
 
   const makeTrFromArray = (tdList) => {
     const tr = document.createElement('tr');
@@ -164,13 +173,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
       developer.innerText = package.info.developer;
       type.innerText = packageUtil.parsePackageType(package.info.type);
       latestVersion.innerText = package.info.latestVersion;
-      installedVersion.innerText = packageUtil.getInstalledVersionOfPackage(
-        package,
-        installedFiles,
-        manuallyInstalledFiles,
-        installedPackages,
-        instPath
-      );
+      installedVersion.innerText = package.installedVersion;
 
       tbody.appendChild(tr);
     }
@@ -183,13 +186,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
         ) {
           const installedVersion =
             tr.getElementsByClassName('installedVersion')[0];
-          installedVersion.innerText = packageUtil.getInstalledVersionOfPackage(
-            package,
-            installedFiles,
-            manuallyInstalledFiles,
-            installedPackages,
-            instPath
-          );
+          installedVersion.innerText = package.installedVersion;
         }
       }
     }
@@ -729,7 +726,10 @@ function listFilter(column, btns, btn) {
       if (query === 'true') {
         filterFunc = (item) => {
           const value = item.values().installedVersion;
-          if (value === '未インストール' || value === '手動インストール済み') {
+          if (
+            value === packageUtil.states.notInstalled ||
+            value === packageUtil.states.manuallyInstalled
+          ) {
             return false;
           } else {
             return true;
@@ -738,7 +738,7 @@ function listFilter(column, btns, btn) {
       } else if (query === 'manual') {
         filterFunc = (item) => {
           const value = item.values().installedVersion;
-          if (value === '手動インストール済み') {
+          if (value === packageUtil.states.manuallyInstalled) {
             return true;
           } else {
             return false;
@@ -747,7 +747,7 @@ function listFilter(column, btns, btn) {
       } else if (query === 'false') {
         filterFunc = (item) => {
           const value = item.values().installedVersion;
-          if (value === '未インストール') {
+          if (value === packageUtil.states.notInstalled) {
             return true;
           } else {
             return false;
