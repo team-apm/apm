@@ -15,6 +15,26 @@ const path = require('path');
 const { execSync } = require('child_process');
 const getHash = require('./lib/getHash');
 
+log.catchErrors({
+  showDialog: false,
+  onError: () => {
+    const options = {
+      title: 'エラー',
+      message: `予期しないエラーが発生したため、AviUtl Package Managerを終了します。\nログファイル: ${
+        log.transports.file.getFile().path
+      }`,
+      type: 'error',
+    };
+    if (app.isReady()) {
+      dialog.showMessageBoxSync(options);
+    } else {
+      dialog.showErrorBox(options.title, options.message);
+    }
+
+    app.quit();
+  },
+});
+
 if (require('electron-squirrel-startup')) app.quit();
 
 require('update-electron-app')();
