@@ -117,9 +117,9 @@ async function setPackagesList(instPath, minorUpdate = false) {
     setting.getPackagesDataUrl(instPath)
   );
   const installedPackages = apmJson.get(instPath, 'packages');
-  const addedFiles = packageUtil.getInstalledFiles(instPath);
-  const manuallyAddedFiles = packageUtil.getManuallyInstalledFiles(
-    addedFiles,
+  const installedFiles = packageUtil.getInstalledFiles(instPath);
+  const manuallyInstalledFiles = packageUtil.getManuallyInstalledFiles(
+    installedFiles,
     installedPackages,
     packages
   );
@@ -166,8 +166,8 @@ async function setPackagesList(instPath, minorUpdate = false) {
       latestVersion.innerText = package.info.latestVersion;
       installedVersion.innerText = packageUtil.getInstalledVersionOfPackage(
         package,
-        addedFiles,
-        manuallyAddedFiles,
+        installedFiles,
+        manuallyInstalledFiles,
         installedPackages,
         instPath
       );
@@ -185,8 +185,8 @@ async function setPackagesList(instPath, minorUpdate = false) {
             tr.getElementsByClassName('installedVersion')[0];
           installedVersion.innerText = packageUtil.getInstalledVersionOfPackage(
             package,
-            addedFiles,
-            manuallyAddedFiles,
+            installedFiles,
+            manuallyInstalledFiles,
             installedPackages,
             instPath
           );
@@ -196,7 +196,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
   }
 
   // list manually added packages
-  for (const ef of manuallyAddedFiles) {
+  for (const ef of manuallyInstalledFiles) {
     const [
       tr,
       name,
