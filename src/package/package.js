@@ -319,7 +319,7 @@ async function checkPackagesList(btn, overlay, instPath) {
     await packageUtil.downloadRepository(setting.getPackagesDataUrl(instPath));
     await mod.downloadData();
     store.set('checkDate.packages', Date.now());
-    await this.setPackagesList(instPath);
+    await setPackagesList(instPath);
 
     if (btn) buttonTransition.message(btn, '更新完了', 'success');
   } catch {
@@ -466,7 +466,7 @@ async function installPackage(btn, instPath) {
 
   if (filesCount === existCount) {
     apmJson.addPackage(instPath, installedPackage);
-    await this.setPackagesList(instPath, true);
+    await setPackagesList(instPath, true);
 
     buttonTransition.message(btn, 'インストール完了', 'success');
   } else {
@@ -531,13 +531,13 @@ async function uninstallPackage(btn, instPath) {
   apmJson.removePackage(instPath, uninstalledPackage);
   if (filesCount === existCount) {
     if (!uninstalledPackage.id.startsWith('script_')) {
-      await this.setPackagesList(instPath, true);
+      await setPackagesList(instPath, true);
     } else {
       parseXML.removePackage(
         setting.getLocalPackagesDataUrl(instPath),
         uninstalledPackage
       );
-      await this.checkPackagesList(null, null, instPath);
+      await checkPackagesList(null, null, instPath);
     }
 
     buttonTransition.message(btn, 'アンインストール完了', 'success');
@@ -742,7 +742,7 @@ async function installScript(btn, instPath, url) {
       repository: setting.getLocalPackagesDataUrl(instPath),
       info: package,
     });
-    await this.checkPackagesList(null, null, instPath);
+    await checkPackagesList(null, null, instPath);
   } catch (e) {
     buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     setTimeout(() => {
