@@ -31,7 +31,7 @@ function showCheckDate() {
 
 let selectedPackage;
 let listJS;
-// let installBtn;
+let installBtn;
 
 /**
  * Show package's details.
@@ -68,7 +68,7 @@ function showPackageDetail(packageData) {
  */
 function initPackage(instPath, installPackageBtn) {
   if (!apmJson.has(instPath, 'packages')) apmJson.set(instPath, 'packages', {});
-  // installBtn = installPackageBtn;
+  installBtn = installPackageBtn;
 }
 
 /**
@@ -175,25 +175,23 @@ async function setPackagesList(instPath, minorUpdate = false) {
       p.installedVersion !== packageUtil.states.notInstalled &&
       p.installedVersion !== packageUtil.states.otherInstalled;
     const detached = (p) => {
-      if (!isInstalled(p)) {
-        return true;
-      }
+      const lists = [];
+      if (!isInstalled(p)) lists.push(p);
       if (p.info.dependencies) {
-        return p.info.dependencies.dependency
-          .map((id) => {
+        lists.push(
+          ...p.info.dependencies.dependency.flatMap((id) => {
             if (aviUtlR.test(id) || exeditR.test(id)) {
-              return false;
+              return [];
             }
             return packages
               .filter((pp) => pp.id === id)
-              .map((pp) => detached(pp))
-              .some((e) => e);
+              .flatMap((pp) => detached(pp));
           })
-          .some((e) => e);
+        );
       }
-      return false;
+      return lists;
     };
-    p.detached = isInstalled(p) ? detached(p) : false;
+    p.detached = isInstalled(p) ? detached(p) : [];
   });
 
   const makeTrFromArray = (tdList) => {
@@ -236,29 +234,46 @@ async function setPackagesList(instPath, minorUpdate = false) {
       developer.innerText = package.info.developer;
       type.innerText = packageUtil.parsePackageType(package.info.type);
       latestVersion.innerText = package.info.latestVersion;
-      installedVersion.innerText =
-        (package.doNotInstall ? '⚠️インストール不可\r\n' : '') +
-        (package.detached ? '❗ 依存関係をインストールしてください\r\n' : '') +
-        package.installedVersion;
+      // temporary string for sorting or filtering
+      installedVersion.innerText = package.installedVersion;
 
       tbody.appendChild(tr);
     }
-  } else {
-    for (const package of packages) {
-      for (const tr of tbody.getElementsByTagName('tr')) {
-        if (
-          tr.dataset.id === package.id &&
-          tr.dataset.repository === package.repository
-        ) {
-          const installedVersion =
-            tr.getElementsByClassName('installedVersion')[0];
-          installedVersion.innerText =
-            (package.doNotInstall ? '⚠️インストール不可\r\n' : '') +
-            (package.detached
-              ? '❗ 依存関係をインストールしてください\r\n'
-              : '') +
-            package.installedVersion;
-        }
+
+    // sorting and filtering
+    // this must be done before setting the click event for the installedVersion element
+    if (typeof listJS === 'undefined') {
+      listJS = new List('packages', { valueNames: columns });
+    } else {
+      listJS.reIndex();
+      listJS.update();
+    }
+  }
+
+  for (const package of packages) {
+    for (const tr of tbody.getElementsByTagName('tr')) {
+      if (
+        tr.dataset.id === package.id &&
+        tr.dataset.repository === package.repository
+      ) {
+        const installedVersion =
+          tr.getElementsByClassName('installedVersion')[0];
+        installedVersion.innerText = null;
+        package.detached.forEach((p) => {
+          const aTag = document.createElement('a');
+          aTag.href = '#';
+          aTag.innerText = `❗ 要導入: ${p.info.name}\r\n`;
+          installedVersion.appendChild(aTag);
+          aTag.addEventListener('click', async (event) => {
+            await installPackage(installBtn, instPath, p);
+            return false;
+          });
+        });
+        const verText = document.createElement('div');
+        verText.innerText =
+          (package.doNotInstall ? '⚠️インストール不可\r\n' : '') +
+          package.installedVersion;
+        installedVersion.appendChild(verText);
       }
     }
   }
@@ -282,14 +297,6 @@ async function setPackagesList(instPath, minorUpdate = false) {
     latestVersion.innerText = '';
     installedVersion.innerText = '';
     bottomTbody.appendChild(tr);
-  }
-
-  // sorting and filtering
-  if (typeof listJS === 'undefined') {
-    listJS = new List('packages', { valueNames: columns });
-  } else if (!minorUpdate) {
-    listJS.reIndex();
-    listJS.update();
   }
 
   const modInfo = await mod.getInfo();
