@@ -31,6 +31,7 @@ function showCheckDate() {
 
 let selectedPackage;
 let listJS;
+// let installBtn;
 
 /**
  * Show package's details.
@@ -63,9 +64,11 @@ function showPackageDetail(packageData) {
  * Initializes package
  *
  * @param {string} instPath - An installation path
+ * @param {HTMLButtonElement} installPackageBtn - Button to install the package
  */
-function initPackage(instPath) {
+function initPackage(instPath, installPackageBtn) {
   if (!apmJson.has(instPath, 'packages')) apmJson.set(instPath, 'packages', {});
+  // installBtn = installPackageBtn;
 }
 
 /**
@@ -344,8 +347,9 @@ async function checkPackagesList(btn, overlay, instPath) {
  *
  * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} instPath - An installation path.
+ * @param {object} packageToInstall - A package to install.
  */
-async function installPackage(btn, instPath) {
+async function installPackage(btn, instPath, packageToInstall) {
   const enableButton = buttonTransition.loading(btn);
 
   if (!instPath) {
@@ -360,7 +364,7 @@ async function installPackage(btn, instPath) {
     throw new Error('An installation path is not selected.');
   }
 
-  if (!selectedPackage) {
+  if (!packageToInstall && !selectedPackage) {
     buttonTransition.message(
       btn,
       'プラグインまたはスクリプトを選択してください。',
@@ -372,7 +376,9 @@ async function installPackage(btn, instPath) {
     throw new Error('A package to install is not selected.');
   }
 
-  const installedPackage = { ...selectedPackage };
+  const installedPackage = packageToInstall
+    ? { ...packageToInstall }
+    : { ...selectedPackage };
 
   const url = installedPackage.info.downloadURL;
   const archivePath = await ipcRenderer.invoke('open-browser', url, 'package');
