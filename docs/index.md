@@ -1,11 +1,11 @@
 # ![Logo](./images/apm32.png) AviUtl Package Manager
 
-<p float="center">
-  <img src="./images/screen1.png" width="30%" />
-  <img src="./images/screen2.png" width="60%" />
+<p>
+  <img src="./images/screen1.png" width="160" />
+  <img src="./images/screen2.png" width="320" />
 </p>
 
-目次
+## 目次
 
 - [APMのチュートリアル](#apmのチュートリアル)
 - [プラグイン・スクリプトとは](#プラグイン・スクリプトとは)
