@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron');
 const Store = require('electron-store');
 const store = new Store();
+const log = require('electron-log');
 const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -368,7 +369,8 @@ async function installPackage(btn, instPath, packageToInstall) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw new Error('An installation path is not selected.');
+    log.error('An installation path is not selected.');
+    return;
   }
 
   if (!packageToInstall && !selectedPackage) {
@@ -380,7 +382,8 @@ async function installPackage(btn, instPath, packageToInstall) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw new Error('A package to install is not selected.');
+    log.error('A package to install is not selected.');
+    return;
   }
 
   const installedPackage = packageToInstall
@@ -463,7 +466,8 @@ async function installPackage(btn, instPath, packageToInstall) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw e;
+    log.error(e);
+    return;
   }
 
   let filesCount = 0;
@@ -509,7 +513,8 @@ async function uninstallPackage(btn, instPath) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw new Error('An installation path is not selected.');
+    log.error('An installation path is not selected.');
+    return;
   }
 
   if (!selectedPackage) {
@@ -521,7 +526,8 @@ async function uninstallPackage(btn, instPath) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw new Error('A package to install is not selected.');
+    log.error('A package to install is not selected.');
+    return;
   }
 
   const uninstalledPackage = { ...selectedPackage };
@@ -580,7 +586,8 @@ async function openPackageFolder(btn) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw new Error('A package to install is not selected.');
+    log.error('A package to install is not selected.');
+    return;
   }
 
   const exists = await ipcRenderer.invoke(
@@ -597,7 +604,8 @@ async function openPackageFolder(btn) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw new Error('The package has not been downloaded.');
+    log.error('The package has not been downloaded.');
+    return;
   }
 
   setTimeout(() => {
@@ -624,7 +632,8 @@ async function installScript(btn, instPath, url) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw new Error('An installation path is not selected.');
+    log.error('An installation path is not selected.');
+    return;
   }
 
   const archivePath = await ipcRenderer.invoke('open-browser', url, 'package');
@@ -761,7 +770,8 @@ async function installScript(btn, instPath, url) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw e;
+    log.error(e);
+    return;
   }
 
   buttonTransition.message(btn, 'インストール完了', 'success');
