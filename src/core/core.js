@@ -3,6 +3,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const Store = require('electron-store');
 const store = new Store();
+const log = require('electron-log');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const package = require('../package/package');
@@ -171,7 +172,8 @@ async function checkLatestVersion(btn, instPath) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw e;
+    log.error(e);
+    return;
   }
 
   buttonTransition.message(btn, '更新完了', 'success');
@@ -227,7 +229,8 @@ async function installProgram(btn, program, version, instPath) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw new Error('An installation path is not selected.');
+    log.error('An installation path is not selected.');
+    return;
   }
 
   if (!version) {
@@ -235,7 +238,8 @@ async function installProgram(btn, program, version, instPath) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    throw new Error('A version is not selected.');
+    log.error('A version is not selected.');
+    return;
   }
 
   const coreInfo = await this.getCoreInfo();
