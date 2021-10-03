@@ -6,50 +6,52 @@
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/hal-shu-sato/apm)
 ![GitHub all releases](https://img.shields.io/github/downloads/hal-shu-sato/apm/total)
 
+<p>
+  <img src="./docs/images/screen1.png" width="160" />
+  <img src="./docs/images/screen2.png" width="320" />
+</p>
+
 AviUtl本体やプラグイン・スクリプトの導入を補助するソフトウェアです。
 
-Read this in [English](./README.en.md).
+- AviUtl本体と拡張編集のダウンロード・更新
+- プラグインとスクリプトのダウンロード・更新・削除
+- 50を超えるプラグインと多数のスクリプトに対応
+- インストール済みのAviUtlへ追加可能
 
-- AviUtl本体と拡張編集のダウンロード・アップデート
-- プラグインとスクリプトのダウンロード・アップデート・削除
-- 50を超えるプラグイン・スクリプトにデフォルトで対応
-- プラグイン・スクリプトの検索と紹介ページの確認
+_Read this in [English](./README.en.md)_.
 
-## インストール
+## ダウンロード
 
-[apm/releases](https://github.com/hal-shu-sato/apm/releases)のAssetsからダウンロードした`AviUtl.Package.Manager-{version}.Setup.exe`を実行してインストールを行います。
+[Releases](https://github.com/hal-shu-sato/apm/releases/latest)のAssetsから`AviUtl.Package.Manager-{version}.Setup.exe`をダウンロードします。インストール不要のzip版もあります。
 
-インストール不要のzip版を利用する場合は`AviUtl.Package.Manager-{os}-{version}.zip`をダウンロードして任意の場所に展開します。
+## 準備
 
-## 使用方法
+AviUtl Package Managerを起動した後は次の設定を行ってください。
 
-### すでにAviutlをお使いの場合
+- すでにAviutlをお使いの場合
+  1. 「インストール先フォルダを選択」からAviutlがインストールされているフォルダを選択します
+- 新規インストールの場合
+  1. 「インストール先フォルダを選択」からAviutlをインストールする空のフォルダを選択します
+  2. Aviutlと拡張編集のそれぞれのバージョンを選択してインストールします
 
-1. AviUtl Package Managerを起動
-2. 「インストール先フォルダを選択」からAviutlがインストールされているフォルダを選択します
-3. 「インストール済みのバージョン」に「手動インストール」と表示されていることを確認します
-4. すでにプラグインを導入している場合、「Plugins&Scripts」タブを開き一番下までスクロールして、追加されたファイルの一覧が表示されていることを確認します
+## パッケージ（プラグイン・スクリプト）の導入
 
-### 新規インストールの場合
-
-1. AviUtl Package Managerを起動
-2. 「インストール先フォルダを選択」からAviutlをインストールする新しいフォルダを選択します
-3. Aviutl・拡張編集のバージョンを選択してインストールボタンを押します
-4. 「インストール済みのバージョン」にインストールしたバージョンが表示されていることを確認します
-
-### プラグイン・スクリプトの導入
-
-1. 「Plugins&Scripts」タブを開き、インストールしたいプラグインを選択します
-2. プラグインの情報が表示されます
-   - URLをブラウザで開き利用規約や注意事項をよく確認してください
-   - インストール後に必要な設定もチェックします
+1. 「Plugins&Scripts」タブからインストールしたいパッケージを選びます
+2. パッケージの情報が表示されます
+   - URLをブラウザで開き利用規約や注意事項を読んでください
+   - インストール後に必要な設定がないか確認してください
 3. 「インストール」ボタンを押します
-4. 表示された作者サイトから、リストに表示された「最新バージョン」と同じバージョンのファイルをダウンロードしてください
-5. インストールは自動で行われます
+4. 表示された作者サイトから、リストに表示された「最新バージョン」と同じバージョンのファイルをダウンロードします
 
-### プラグイン・スクリプト一覧への追加
+### パッケージ一覧にないスクリプトを導入する場合
 
-プラグイン・スクリプト一覧への追加・更新・削除等の要望は[apm-data](https://github.com/hal-shu-sato/apm-data/issues)にて受け付けています。
+1. 「Plugins&Scripts」タブを開き、「インストール▼>リストにないスクリプトのインストール」を選択します
+2. リンクをたどり作者サイトに移動して、スクリプトをダウンロードします
+
+### その他
+
+- 上記の方法で導入できないパッケージも、従来の手動でファイルをコピーする方法で導入できます
+- プラグイン・スクリプト一覧への追加・更新・削除等の要望は[apm-data](https://github.com/hal-shu-sato/apm-data/issues)までお知らせください。
 
 ## コントリビューション
 
