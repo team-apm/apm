@@ -6,7 +6,7 @@
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/hal-shu-sato/apm)
 ![GitHub all releases](https://img.shields.io/github/downloads/hal-shu-sato/apm/total)
 
-APM is software that assists in the installation of AviUtl itself and its plugins and scripts.
+apm is software that assists in the installation of AviUtl itself and its plugins and scripts.
 
 Read this in [日本語](./README.md)
 
