@@ -5,6 +5,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
 const List = require('list.js');
+const twemoji = require('twemoji');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const setting = require('../setting/setting');
@@ -277,6 +278,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
       }
     }
   }
+  twemoji.parse(tbody);
 
   // list manually added packages
   for (const ef of manuallyInstalledFiles) {
