@@ -31,6 +31,7 @@ function showCheckDate() {
 
 let selectedPackage;
 let listJS;
+let installBtn;
 
 /**
  * Show package's details.
@@ -63,9 +64,11 @@ function showPackageDetail(packageData) {
  * Initializes package
  *
  * @param {string} instPath - An installation path
+ * @param {HTMLButtonElement} installPackageBtn - Button to install the package
  */
-function initPackage(instPath) {
+function initPackage(instPath, installPackageBtn) {
   if (!apmJson.has(instPath, 'packages')) apmJson.set(instPath, 'packages', {});
+  installBtn = installPackageBtn;
 }
 
 /**
@@ -172,25 +175,23 @@ async function setPackagesList(instPath, minorUpdate = false) {
       p.installedVersion !== packageUtil.states.notInstalled &&
       p.installedVersion !== packageUtil.states.otherInstalled;
     const detached = (p) => {
-      if (!isInstalled(p)) {
-        return true;
-      }
+      const lists = [];
+      if (!isInstalled(p)) lists.push(p);
       if (p.info.dependencies) {
-        return p.info.dependencies.dependency
-          .map((id) => {
+        lists.push(
+          ...p.info.dependencies.dependency.flatMap((id) => {
             if (aviUtlR.test(id) || exeditR.test(id)) {
-              return false;
+              return [];
             }
             return packages
               .filter((pp) => pp.id === id)
-              .map((pp) => detached(pp))
-              .some((e) => e);
+              .flatMap((pp) => detached(pp));
           })
-          .some((e) => e);
+        );
       }
-      return false;
+      return lists;
     };
-    p.detached = isInstalled(p) ? detached(p) : false;
+    p.detached = isInstalled(p) ? detached(p) : [];
   });
 
   const makeTrFromArray = (tdList) => {
@@ -233,29 +234,46 @@ async function setPackagesList(instPath, minorUpdate = false) {
       developer.innerText = package.info.developer;
       type.innerText = packageUtil.parsePackageType(package.info.type);
       latestVersion.innerText = package.info.latestVersion;
-      installedVersion.innerText =
-        (package.doNotInstall ? '⚠️インストール不可\r\n' : '') +
-        (package.detached ? '❗ 依存関係をインストールしてください\r\n' : '') +
-        package.installedVersion;
+      // temporary string for sorting or filtering
+      installedVersion.innerText = package.installedVersion;
 
       tbody.appendChild(tr);
     }
-  } else {
-    for (const package of packages) {
-      for (const tr of tbody.getElementsByTagName('tr')) {
-        if (
-          tr.dataset.id === package.id &&
-          tr.dataset.repository === package.repository
-        ) {
-          const installedVersion =
-            tr.getElementsByClassName('installedVersion')[0];
-          installedVersion.innerText =
-            (package.doNotInstall ? '⚠️インストール不可\r\n' : '') +
-            (package.detached
-              ? '❗ 依存関係をインストールしてください\r\n'
-              : '') +
-            package.installedVersion;
-        }
+
+    // sorting and filtering
+    // this must be done before setting the click event for the installedVersion element
+    if (typeof listJS === 'undefined') {
+      listJS = new List('packages', { valueNames: columns });
+    } else {
+      listJS.reIndex();
+      listJS.update();
+    }
+  }
+
+  for (const package of packages) {
+    for (const tr of tbody.getElementsByTagName('tr')) {
+      if (
+        tr.dataset.id === package.id &&
+        tr.dataset.repository === package.repository
+      ) {
+        const installedVersion =
+          tr.getElementsByClassName('installedVersion')[0];
+        installedVersion.innerText = null;
+        package.detached.forEach((p) => {
+          const aTag = document.createElement('a');
+          aTag.href = '#';
+          aTag.innerText = `❗ 要導入: ${p.info.name}\r\n`;
+          installedVersion.appendChild(aTag);
+          aTag.addEventListener('click', async (event) => {
+            await installPackage(installBtn, instPath, p);
+            return false;
+          });
+        });
+        const verText = document.createElement('div');
+        verText.innerText =
+          (package.doNotInstall ? '⚠️インストール不可\r\n' : '') +
+          package.installedVersion;
+        installedVersion.appendChild(verText);
       }
     }
   }
@@ -279,14 +297,6 @@ async function setPackagesList(instPath, minorUpdate = false) {
     latestVersion.innerText = '';
     installedVersion.innerText = '';
     bottomTbody.appendChild(tr);
-  }
-
-  // sorting and filtering
-  if (typeof listJS === 'undefined') {
-    listJS = new List('packages', { valueNames: columns });
-  } else if (!minorUpdate) {
-    listJS.reIndex();
-    listJS.update();
   }
 
   const modInfo = await mod.getInfo();
@@ -319,7 +329,7 @@ async function checkPackagesList(btn, overlay, instPath) {
     await packageUtil.downloadRepository(setting.getPackagesDataUrl(instPath));
     await mod.downloadData();
     store.set('checkDate.packages', Date.now());
-    await this.setPackagesList(instPath);
+    await setPackagesList(instPath);
 
     if (btn) buttonTransition.message(btn, '更新完了', 'success');
   } catch {
@@ -344,8 +354,9 @@ async function checkPackagesList(btn, overlay, instPath) {
  *
  * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} instPath - An installation path.
+ * @param {object} packageToInstall - A package to install.
  */
-async function installPackage(btn, instPath) {
+async function installPackage(btn, instPath, packageToInstall) {
   const enableButton = buttonTransition.loading(btn);
 
   if (!instPath) {
@@ -360,7 +371,7 @@ async function installPackage(btn, instPath) {
     throw new Error('An installation path is not selected.');
   }
 
-  if (!selectedPackage) {
+  if (!packageToInstall && !selectedPackage) {
     buttonTransition.message(
       btn,
       'プラグインまたはスクリプトを選択してください。',
@@ -372,7 +383,9 @@ async function installPackage(btn, instPath) {
     throw new Error('A package to install is not selected.');
   }
 
-  const installedPackage = { ...selectedPackage };
+  const installedPackage = packageToInstall
+    ? { ...packageToInstall }
+    : { ...selectedPackage };
 
   const url = installedPackage.info.downloadURL;
   const archivePath = await ipcRenderer.invoke('open-browser', url, 'package');
@@ -466,7 +479,7 @@ async function installPackage(btn, instPath) {
 
   if (filesCount === existCount) {
     apmJson.addPackage(instPath, installedPackage);
-    await this.setPackagesList(instPath, true);
+    await setPackagesList(instPath, true);
 
     buttonTransition.message(btn, 'インストール完了', 'success');
   } else {
@@ -531,13 +544,13 @@ async function uninstallPackage(btn, instPath) {
   apmJson.removePackage(instPath, uninstalledPackage);
   if (filesCount === existCount) {
     if (!uninstalledPackage.id.startsWith('script_')) {
-      await this.setPackagesList(instPath, true);
+      await setPackagesList(instPath, true);
     } else {
       parseXML.removePackage(
         setting.getLocalPackagesDataUrl(instPath),
         uninstalledPackage
       );
-      await this.checkPackagesList(null, null, instPath);
+      await checkPackagesList(null, null, instPath);
     }
 
     buttonTransition.message(btn, 'アンインストール完了', 'success');
@@ -742,7 +755,7 @@ async function installScript(btn, instPath, url) {
       repository: setting.getLocalPackagesDataUrl(instPath),
       info: package,
     });
-    await this.checkPackagesList(null, null, instPath);
+    await checkPackagesList(null, null, instPath);
   } catch (e) {
     buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     setTimeout(() => {

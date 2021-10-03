@@ -25,7 +25,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   // init data
   const firstLaunch = !store.has('dataURL.main');
   setting.initSettings();
-  package.initPackage(installationPath.value);
+  package.initPackage(
+    installationPath.value,
+    document.getElementById('install-package')
+  );
   if (firstLaunch) {
     const checkCoreVersionBtn = document.getElementById('check-core-version');
     await core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
