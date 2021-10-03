@@ -3,6 +3,15 @@ const fs = require('fs-extra');
 const path = require('path');
 const parseXML = require('../lib/parseXML');
 
+/** Installation state of packages */
+const states = {
+  installedButBroken:
+    '未インストール（ファイルの存在が確認できませんでした。）',
+  manuallyInstalled: '手動インストール済み',
+  otherInstalled: '他バージョンがインストール済み',
+  notInstalled: '未インストール',
+};
+
 /**
  * Convert type from internal expression to display
  *
@@ -203,10 +212,10 @@ function getInstalledVersionOfPackage(
     }
   }
   installedVersion = manuallyAddedVersion
-    ? '手動インストール済み'
+    ? states.manuallyInstalled
     : addedVersion
-    ? '他バージョンがインストール済み'
-    : '未インストール';
+    ? states.otherInstalled
+    : states.notInstalled;
 
   for (const [installedId, installedPackage] of Object.entries(
     installedPackages
@@ -229,8 +238,7 @@ function getInstalledVersionOfPackage(
       if (filesCount === existCount) {
         installedVersion = installedPackage.version;
       } else {
-        installedVersion =
-          '未インストール（ファイルの存在が確認できませんでした。）';
+        installedVersion = states.installedButBroken;
       }
     }
   }
@@ -239,6 +247,7 @@ function getInstalledVersionOfPackage(
 }
 
 module.exports = {
+  states,
   parsePackageType,
   getPackages,
   downloadRepository,

@@ -123,6 +123,75 @@ async function setPackagesList(instPath, minorUpdate = false) {
     installedPackages,
     packages
   );
+  packages.forEach((p) => {
+    p.installedVersion = packageUtil.getInstalledVersionOfPackage(
+      p,
+      installedFiles,
+      manuallyInstalledFiles,
+      installedPackages,
+      instPath
+    );
+  });
+
+  let aviUtlVer = '';
+  let exeditVer = '';
+  const aviUtlR = /aviutl\d/;
+  const exeditR = /exedit\d/;
+  try {
+    aviUtlVer = apmJson.get(instPath, 'core.' + 'aviutl', '');
+    exeditVer = apmJson.get(instPath, 'core.' + 'exedit', '');
+    // eslint-disable-next-line no-empty
+  } catch {}
+  packages.forEach((p) => {
+    const doNotInstall = (p) => {
+      if (p.installedVersion === packageUtil.states.otherInstalled) {
+        return true;
+      }
+      if (p.info.dependencies) {
+        return p.info.dependencies.dependency
+          .map((id) => {
+            if (aviUtlR.test(id)) {
+              return id !== 'aviutl' + aviUtlVer;
+            }
+            if (exeditR.test(id)) {
+              return id !== 'exedit' + exeditVer;
+            }
+            return packages
+              .filter((pp) => pp.id === id)
+              .map((pp) => doNotInstall(pp))
+              .some((e) => e);
+          })
+          .some((e) => e);
+      }
+      return false;
+    };
+    p.doNotInstall = doNotInstall(p);
+
+    const isInstalled = (p) =>
+      p.installedVersion !== packageUtil.states.installedButBroken &&
+      p.installedVersion !== packageUtil.states.notInstalled &&
+      p.installedVersion !== packageUtil.states.otherInstalled;
+    const detached = (p) => {
+      if (!isInstalled(p)) {
+        return true;
+      }
+      if (p.info.dependencies) {
+        return p.info.dependencies.dependency
+          .map((id) => {
+            if (aviUtlR.test(id) || exeditR.test(id)) {
+              return false;
+            }
+            return packages
+              .filter((pp) => pp.id === id)
+              .map((pp) => detached(pp))
+              .some((e) => e);
+          })
+          .some((e) => e);
+      }
+      return false;
+    };
+    p.detached = isInstalled(p) ? detached(p) : false;
+  });
 
   const makeTrFromArray = (tdList) => {
     const tr = document.createElement('tr');
@@ -164,13 +233,10 @@ async function setPackagesList(instPath, minorUpdate = false) {
       developer.innerText = package.info.developer;
       type.innerText = packageUtil.parsePackageType(package.info.type);
       latestVersion.innerText = package.info.latestVersion;
-      installedVersion.innerText = packageUtil.getInstalledVersionOfPackage(
-        package,
-        installedFiles,
-        manuallyInstalledFiles,
-        installedPackages,
-        instPath
-      );
+      installedVersion.innerText =
+        (package.doNotInstall ? '⚠️インストール不可\r\n' : '') +
+        (package.detached ? '❗ 依存関係をインストールしてください\r\n' : '') +
+        package.installedVersion;
 
       tbody.appendChild(tr);
     }
@@ -183,13 +249,12 @@ async function setPackagesList(instPath, minorUpdate = false) {
         ) {
           const installedVersion =
             tr.getElementsByClassName('installedVersion')[0];
-          installedVersion.innerText = packageUtil.getInstalledVersionOfPackage(
-            package,
-            installedFiles,
-            manuallyInstalledFiles,
-            installedPackages,
-            instPath
-          );
+          installedVersion.innerText =
+            (package.doNotInstall ? '⚠️インストール不可\r\n' : '') +
+            (package.detached
+              ? '❗ 依存関係をインストールしてください\r\n'
+              : '') +
+            package.installedVersion;
         }
       }
     }
@@ -726,10 +791,19 @@ function listFilter(column, btns, btn) {
       };
     } else if (column === 'installedVersion') {
       const query = btn.dataset.installFilter;
+      const getValue = (item) => {
+        console.log(item.values().installedVersion);
+        const valueSplit = item.values().installedVersion.split('<br>');
+        return valueSplit[valueSplit.length - 1].trim();
+      };
       if (query === 'true') {
         filterFunc = (item) => {
-          const value = item.values().installedVersion;
-          if (value === '未インストール' || value === '手動インストール済み') {
+          const value = getValue(item);
+          if (
+            value === packageUtil.states.notInstalled ||
+            value === packageUtil.states.manuallyInstalled ||
+            value === packageUtil.states.otherInstalled
+          ) {
             return false;
           } else {
             return true;
@@ -737,8 +811,8 @@ function listFilter(column, btns, btn) {
         };
       } else if (query === 'manual') {
         filterFunc = (item) => {
-          const value = item.values().installedVersion;
-          if (value === '手動インストール済み') {
+          const value = getValue(item);
+          if (value === packageUtil.states.manuallyInstalled) {
             return true;
           } else {
             return false;
@@ -746,8 +820,11 @@ function listFilter(column, btns, btn) {
         };
       } else if (query === 'false') {
         filterFunc = (item) => {
-          const value = item.values().installedVersion;
-          if (value === '未インストール') {
+          const value = getValue(item);
+          if (
+            value === packageUtil.states.notInstalled ||
+            value === packageUtil.states.otherInstalled
+          ) {
             return true;
           } else {
             return false;

@@ -266,6 +266,7 @@ async function installProgram(btn, program, version, instPath) {
       if (filesCount === existCount) {
         apmJson.setCore(instPath, program, version);
         await this.displayInstalledVersion(instPath);
+        await package.setPackagesList(instPath, true);
 
         buttonTransition.message(btn, 'インストール完了', 'success');
       } else {
