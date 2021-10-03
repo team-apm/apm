@@ -6,50 +6,52 @@
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/hal-shu-sato/apm)
 ![GitHub all releases](https://img.shields.io/github/downloads/hal-shu-sato/apm/total)
 
-apm is software that assists in the installation of AviUtl itself and its plugins and scripts.
+<p>
+  <img src="./docs/images/screen1.png" width="160" />
+  <img src="./docs/images/screen2.png" width="320" />
+</p>
 
-Read this in [日本語](./README.md)
+apm is software that assists in the installation of AviUtl itself and its plugins and scripts.
 
 - Download and update AviUtl itself and Exedit
 - Download, update and delete plugins and scripts
-- Support for over 50 plugins and scripts by default
-- Search for plugins or scripts and view their introduction pages
+- Support for over 50 plugins and many scripts
+- Can be added to pre-installed AviUtl
+
+Read this in [日本語](./README.md)
 
 ## Installation
 
-Run the `AviUtl.Package.Manager-{version}.Setup.exe` downloaded from Assets on [apm/releases](https://github.com/hal-shu-sato/apm/releases) to install.
+Download `AviUtl.Package.Manager-{version}.Setup.exe` from Assets in [Releases](https://github.com/hal-shu-sato/apm/releases/latest). There is also a zipped version that does not require installation.
 
-If you want to use the zipped version that does not require installation, download `AviUtl.Package.Manager-{os}-{version}.zip` and extract it to a location of your choice.
+## Preparation
 
-## How to use
+After launching the AviUtl Package Manager, please perform the following settings.
 
-### If you are already using Aviutl
+- If you are already using Aviutl
+  1. Select the folder where Aviutl is installed from "インストール先フォルダを選択"
+- For a new installation
+  1. Select an empty folder where you want to install Aviutl from "インストール先フォルダを選択"
+  2. select the version of Aviutl and Exedit and click the "インストール" button
 
-1. Launch AviUtl Package Manager
-2. Select the folder where Aviutl is installed from "インストール先フォルダを選択"
-3. Confirm that "手動インストール" is displayed in the "インストール済みのバージョン" section
-4. If you have already installed plugins, open the "Plugins&Scripts" tab and scroll down to the bottom to see the list of added files
+## Install the packages (plugins/scripts)
 
-### If you are newly installing
-
-1. Launch the AviUtl Package Manager
-2. Select the new folder where you want to install Aviutl from "インストール先フォルダを選択"
-3. Select the version of Aviutl and Exedit and click the "インストール" button
-4. Confirm that the installed version is displayed in "インストール済みのバージョン"
-
-### Install Plugins & Scripts
-
-1. Open the "Plugins&Scripts" tab and select the plugins you want to install
-2. The plugin information will be displayed
-   - Open the URL in your browser and carefully read the terms of use and precautions
-   - Check the settings that are required after installation
+1. Select the package you want to install from the "Plugins&Scripts" tab
+2. The package information will be displayed
+   - Open the URL in your browser and read the terms of use and precautions
+   - Make sure that there are any settings required after installation
 3. Click the "インストール" button
 4. Download the same version of the file as shown in the "最新バージョン" on the list
-5. The installation will be done automatically
 
-### Add plugin/script to the list
+### To install a script that is not in the package list
 
-Requests for additions, updates, deletions, etc. to the list of plugins and scripts can be sent to [apm-data](https://github.com/hal-shu-sato/apm-data/issues).
+1. Open the "Plugins&Scripts" tab and select "インストール▼>リストにないスクリプトのインストール"
+2. Follow the link to the author's site to download the script
+
+### Other
+
+- If a package cannot be installed using the above method, it can be installed using the traditional method of manually copying the files
+- If you have any requests for additions, updates or deletions to the list of plugins and scripts, please contact [apm-data](https://github.com/hal-shu-sato/apm-data/issues)
 
 ## Contribution
 
