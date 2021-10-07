@@ -44,6 +44,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     );
   }
 
+  // tutorial
+  if (store.get('installationPath', '') === '') {
+    const tutorialAlert = document.getElementById('tutorial-alert');
+    tutorialAlert.classList.remove('d-none');
+  }
+
   // load data
   const dataURL = document.getElementById('data-url');
   dataURL.value = setting.getDataUrl();
