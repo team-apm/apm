@@ -320,12 +320,12 @@ function setPackages(packagesListPath, packages) {
 function addPackage(packagesListPath, packageItem) {
   let packages = [];
   if (fs.existsSync(packagesListPath)) {
-    packages = Object.values(this.getPackages(packagesListPath)).filter(
+    packages = Object.values(getPackages(packagesListPath)).filter(
       (p) => p.id !== packageItem.id
     );
   }
   packages.push(packageItem);
-  this.setPackages(packagesListPath, packages);
+  setPackages(packagesListPath, packages);
 }
 
 /**
@@ -335,11 +335,11 @@ function addPackage(packagesListPath, packageItem) {
  * @param {object} packageItem - A package.
  */
 function removePackage(packagesListPath, packageItem) {
-  const packages = Object.values(this.getPackages(packagesListPath)).filter(
+  const packages = Object.values(getPackages(packagesListPath)).filter(
     (p) => p.id !== packageItem.id
   );
   if (packages.length > 0) {
-    this.setPackages(packagesListPath, packages);
+    setPackages(packagesListPath, packages);
   } else {
     fs.unlinkSync(packagesListPath);
   }

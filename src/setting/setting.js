@@ -11,7 +11,7 @@ const buttonTransition = require('../lib/buttonTransition');
 function initSettings() {
   if (!store.has('dataURL.extra')) store.set('dataURL.extra', '');
   if (!store.has('dataURL.main'))
-    this.setDataUrl(null, {
+    setDataUrl(null, {
       value: 'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/',
     });
 }
@@ -55,7 +55,7 @@ function setDataUrl(btn, dataUrl) {
     );
   } else {
     store.set('dataURL.main', value);
-    this.setExtraDataUrl(null, store.get('dataURL.extra'));
+    setExtraDataUrl(null, store.get('dataURL.extra'));
   }
 
   if (btn !== null) {
@@ -81,7 +81,7 @@ function getExtraDataUrl() {
  * @returns {string} - A core data file URL.
  */
 function getCoreDataUrl() {
-  const dataUrl = this.getDataUrl();
+  const dataUrl = getDataUrl();
   return path.join(dataUrl, 'core.xml');
 }
 
@@ -97,8 +97,8 @@ function getPackagesDataUrl(instPath) {
     .concat(
       instPath &&
         instPath.length > 0 &&
-        fs.existsSync(this.getLocalPackagesDataUrl(instPath))
-        ? [this.getLocalPackagesDataUrl(instPath)]
+        fs.existsSync(getLocalPackagesDataUrl(instPath))
+        ? [getLocalPackagesDataUrl(instPath)]
         : []
     );
 }
@@ -119,7 +119,7 @@ function getLocalPackagesDataUrl(instPath) {
  * @returns {string} - A mod data file URL.
  */
 function getModDataUrl() {
-  const dataUrl = this.getDataUrl();
+  const dataUrl = getDataUrl();
   return path.join(dataUrl, 'mod.xml');
 }
 
