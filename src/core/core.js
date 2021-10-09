@@ -74,10 +74,9 @@ async function displayInstalledVersion(instPath) {
       replaceText(`${program}-installed-version`, '未取得');
     }
   }
-
-  const modInfo = await mod.getInfo();
-  if (modInfo) {
-    replaceText('core-mod-date', modInfo.core.toLocaleString());
+  if (store.has('modDate.core')) {
+    const modDate = new Date(store.get('modDate.core'));
+    replaceText('core-mod-date', modDate.toLocaleString());
   } else {
     replaceText('core-mod-date', '未取得');
   }
@@ -165,6 +164,8 @@ async function checkLatestVersion(btn, instPath) {
     );
     await mod.downloadData();
     store.set('checkDate.core', Date.now());
+    const modInfo = await mod.getInfo();
+    store.set('modDate.core', modInfo.core.getTime());
     await displayInstalledVersion(instPath);
     await setCoreVersions();
   } catch (e) {
@@ -175,6 +176,9 @@ async function checkLatestVersion(btn, instPath) {
     log.error(e);
     return;
   }
+
+  const coreDataAlert = document.getElementById('core-data-alert');
+  coreDataAlert.classList.add('d-none');
 
   buttonTransition.message(btn, '更新完了', 'success');
   setTimeout(() => {
