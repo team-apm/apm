@@ -25,7 +25,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // init data
   const firstLaunch = !store.has('dataURL.main');
-  await setting.initSettings();
+  setting.initSettings();
   package.initPackage(
     installationPath.value,
     document.getElementById('install-package'),
