@@ -35,7 +35,7 @@ function showCheckDate() {
  * @param {string} instPath - An installation path.
  */
 async function displayInstalledVersion(instPath) {
-  const coreInfo = await this.getCoreInfo();
+  const coreInfo = await getCoreInfo();
   if (coreInfo) {
     for (const program of ['aviutl', 'exedit']) {
       let filesCount = 0;
@@ -119,7 +119,7 @@ async function setCoreVersions() {
     exeditVersionSelect.removeChild(exeditVersionSelect.lastChild);
   }
 
-  const coreInfo = await this.getCoreInfo();
+  const coreInfo = await getCoreInfo();
   if (coreInfo) {
     for (const program of ['aviutl', 'exedit']) {
       const progInfo = coreInfo[program];
@@ -165,8 +165,8 @@ async function checkLatestVersion(btn, instPath) {
     );
     await mod.downloadData();
     store.set('checkDate.core', Date.now());
-    await this.displayInstalledVersion(instPath);
-    await this.setCoreVersions();
+    await displayInstalledVersion(instPath);
+    await setCoreVersions();
   } catch (e) {
     buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     setTimeout(() => {
@@ -203,7 +203,7 @@ async function selectInstallationPath(input) {
     );
   } else if (selectedPath[0] != originalPath) {
     store.set('installationPath', selectedPath[0]);
-    await this.displayInstalledVersion(selectedPath[0]);
+    await displayInstalledVersion(selectedPath[0]);
     await package.setPackagesList(selectedPath[0]);
     input.value = selectedPath[0];
   }
@@ -242,7 +242,7 @@ async function installProgram(btn, program, version, instPath) {
     return;
   }
 
-  const coreInfo = await this.getCoreInfo();
+  const coreInfo = await getCoreInfo();
 
   if (coreInfo) {
     try {
@@ -269,7 +269,7 @@ async function installProgram(btn, program, version, instPath) {
 
       if (filesCount === existCount) {
         apmJson.setCore(instPath, program, version);
-        await this.displayInstalledVersion(instPath);
+        await displayInstalledVersion(instPath);
         await package.setPackagesList(instPath, true);
 
         buttonTransition.message(btn, 'インストール完了', 'success');
