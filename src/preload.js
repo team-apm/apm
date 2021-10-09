@@ -74,9 +74,9 @@ window.addEventListener('load', () => {
     await core.selectInstallationPath(installationPath);
   });
 
-  const autoInstallBtn = document.getElementById('auto-install');
-  autoInstallBtn.addEventListener('click', async (event) => {
-    await core.autoInstallProgram(autoInstallBtn, installationPath.value);
+  const batchInstallBtn = document.getElementById('batch-install');
+  batchInstallBtn.addEventListener('click', async (event) => {
+    await core.batchInstall(batchInstallBtn, installationPath.value);
   });
 
   const installAviutlBtn = document.getElementById('install-aviutl');

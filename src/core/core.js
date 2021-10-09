@@ -306,7 +306,7 @@ async function installProgram(btn, program, version, instPath) {
  * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} instPath - An installation path.
  */
-async function autoInstallProgram(btn, instPath) {
+async function batchInstall(btn, instPath) {
   const enableButton = buttonTransition.loading(btn);
 
   if (!instPath) {
@@ -350,5 +350,5 @@ module.exports = {
   checkLatestVersion,
   selectInstallationPath,
   installProgram,
-  autoInstallProgram,
+  batchInstall,
 };
