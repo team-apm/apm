@@ -8,7 +8,7 @@ main {
   height: calc(100% - 2.625rem);
   overflow-y: auto;
 }
-.dropdown-item:not(.selected) svg {
+button.dropdown-item:not(.selected) svg {
   visibility: hidden;
 }
 .packages-table {
