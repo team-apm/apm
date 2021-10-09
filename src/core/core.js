@@ -97,7 +97,8 @@ async function getCoreInfo() {
   if (coreFile.exists) {
     try {
       return parseXML.getCore(coreFile.path);
-    } catch {
+    } catch (e) {
+      log.error(e);
       return null;
     }
   } else {
@@ -285,9 +286,10 @@ async function installProgram(btn, program, version, instPath) {
         if (btn)
           buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
       }
-    } catch {
+    } catch (e) {
       if (btn)
         buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      log.error(e);
     }
   } else {
     if (btn)
@@ -342,8 +344,9 @@ async function batchInstall(btn, instPath) {
     }
 
     buttonTransition.message(btn, 'インストール完了', 'success');
-  } catch {
+  } catch (e) {
     buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    log.error(e);
   }
 
   setTimeout(() => {
