@@ -218,26 +218,30 @@ async function selectInstallationPath(input) {
  * @param {string} instPath - An installation path.
  */
 async function installProgram(btn, program, version, instPath) {
-  const enableButton = buttonTransition.loading(btn);
+  const enableButton = btn ? buttonTransition.loading(btn) : null;
 
   if (!instPath) {
-    buttonTransition.message(
-      btn,
-      'インストール先フォルダを指定してください。',
-      'danger'
-    );
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'インストール先フォルダを指定してください。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
     log.error('An installation path is not selected.');
     return;
   }
 
   if (!version) {
-    buttonTransition.message(btn, 'バージョンを指定してください。', 'danger');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+    if (btn) {
+      buttonTransition.message(btn, 'バージョンを指定してください。', 'danger');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
     log.error('A version is not selected.');
     return;
   }
@@ -272,16 +276,67 @@ async function installProgram(btn, program, version, instPath) {
         await displayInstalledVersion(instPath);
         await package.setPackagesList(instPath, true);
 
-        buttonTransition.message(btn, 'インストール完了', 'success');
+        if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
       } else {
-        buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+        if (btn)
+          buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
       }
     } catch {
-      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      if (btn)
+        buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     }
   } else {
-    buttonTransition.message(btn, 'バージョンデータが存在しません。', 'danger');
+    if (btn)
+      buttonTransition.message(
+        btn,
+        'バージョンデータが存在しません。',
+        'danger'
+      );
   }
+
+  if (btn)
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+}
+
+/**
+ * Perform a batch installation.
+ *
+ * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
+ * @param {string} instPath - An installation path.
+ */
+async function batchInstall(btn, instPath) {
+  const enableButton = buttonTransition.loading(btn);
+
+  if (!instPath) {
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'インストール先フォルダを指定してください。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
+    log.error('An installation path is not selected.');
+    return;
+  }
+
+  const coreInfo = await getCoreInfo();
+  for (const program of ['aviutl', 'exedit']) {
+    const progInfo = coreInfo[program];
+    await installProgram(null, program, progInfo.latestVersion, instPath);
+  }
+  const packages = (await package.getPackages(instPath)).filter(
+    (p) => p.info.directURL
+  );
+  for (const packageItem of packages) {
+    await package.installPackage(null, instPath, packageItem, true);
+  }
+
+  buttonTransition.message(btn, 'インストール完了', 'success');
 
   setTimeout(() => {
     enableButton();
@@ -295,4 +350,5 @@ module.exports = {
   checkLatestVersion,
   selectInstallationPath,
   installProgram,
+  batchInstall,
 };

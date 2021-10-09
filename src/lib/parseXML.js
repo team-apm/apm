@@ -13,6 +13,7 @@ const defaultKeys = [
   'pageURL',
   'downloadURL',
   'downloadMirrorURL',
+  'directURL',
   'latestVersion',
   'detailURL',
   'files',

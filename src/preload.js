@@ -27,7 +27,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   setting.initSettings();
   package.initPackage(
     installationPath.value,
-    document.getElementById('install-package')
+    document.getElementById('install-package'),
+    document.getElementById('batch-install-packages')
   );
   if (firstLaunch) {
     const checkCoreVersionBtn = document.getElementById('check-core-version');
@@ -78,6 +79,11 @@ window.addEventListener('load', () => {
   );
   selectInstallationPathBtn.addEventListener('click', async (event) => {
     await core.selectInstallationPath(installationPath);
+  });
+
+  const batchInstallBtn = document.getElementById('batch-install');
+  batchInstallBtn.addEventListener('click', async (event) => {
+    await core.batchInstall(batchInstallBtn, installationPath.value);
   });
 
   const installAviutlBtn = document.getElementById('install-aviutl');

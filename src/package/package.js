@@ -34,6 +34,7 @@ function showCheckDate() {
 let selectedPackage;
 let listJS;
 let installBtn;
+let batchInstallElm;
 
 /**
  * Show package's details.
@@ -67,10 +68,22 @@ function showPackageDetail(packageData) {
  *
  * @param {string} instPath - An installation path
  * @param {HTMLButtonElement} installPackageBtn - Button to install the package
+ * @param {HTMLElement} batchInstallPackagesElm - Element representing the name of the package to be batch installed
  */
-function initPackage(instPath, installPackageBtn) {
+function initPackage(instPath, installPackageBtn, batchInstallPackagesElm) {
   if (!apmJson.has(instPath, 'packages')) apmJson.set(instPath, 'packages', {});
   installBtn = installPackageBtn;
+  batchInstallElm = batchInstallPackagesElm;
+}
+
+/**
+ * Get packages
+ *
+ * @param {string} instPath - An installation path
+ * @returns {Promise.<object[]>} An object of packages
+ */
+async function getPackages(instPath) {
+  return await packageUtil.getPackages(setting.getPackagesDataUrl(instPath));
 }
 
 /**
@@ -102,6 +115,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
     '最新バージョン',
     '現在バージョン',
   ];
+  const packages = await getPackages(instPath);
 
   // table header
   if (!thead.hasChildNodes()) {
@@ -117,10 +131,13 @@ async function setPackagesList(instPath, minorUpdate = false) {
     thead.appendChild(headerTr);
   }
 
+  // update auto install text
+  batchInstallElm.innerText = packages
+    .filter((p) => p.info.directURL)
+    .map((p) => ' + ' + p.info.name)
+    .join('');
+
   // table body
-  const packages = await packageUtil.getPackages(
-    setting.getPackagesDataUrl(instPath)
-  );
   const installedPackages = apmJson.get(instPath, 'packages');
   const installedFiles = packageUtil.getInstalledFiles(instPath);
   const manuallyInstalledFiles = packageUtil.getManuallyInstalledFiles(
@@ -358,32 +375,37 @@ async function checkPackagesList(btn, overlay, instPath) {
  * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} instPath - An installation path.
  * @param {object} packageToInstall - A package to install.
+ * @param {boolean} direct - Install from the direct link to the zip.
  */
-async function installPackage(btn, instPath, packageToInstall) {
-  const enableButton = buttonTransition.loading(btn);
+async function installPackage(btn, instPath, packageToInstall, direct = false) {
+  const enableButton = btn ? buttonTransition.loading(btn) : null;
 
   if (!instPath) {
-    buttonTransition.message(
-      btn,
-      'インストール先フォルダを指定してください。',
-      'danger'
-    );
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'インストール先フォルダを指定してください。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
     log.error('An installation path is not selected.');
     return;
   }
 
   if (!packageToInstall && !selectedPackage) {
-    buttonTransition.message(
-      btn,
-      'プラグインまたはスクリプトを選択してください。',
-      'danger'
-    );
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'プラグインまたはスクリプトを選択してください。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
     log.error('A package to install is not selected.');
     return;
   }
@@ -392,18 +414,33 @@ async function installPackage(btn, instPath, packageToInstall) {
     ? { ...packageToInstall }
     : { ...selectedPackage };
 
-  const url = installedPackage.info.downloadURL;
-  const archivePath = await ipcRenderer.invoke('open-browser', url, 'package');
-  if (archivePath === 'close') {
-    buttonTransition.message(
-      btn,
-      'インストールがキャンセルされました。',
-      'info'
+  let archivePath = '';
+  if (direct) {
+    archivePath = await ipcRenderer.invoke(
+      'download',
+      installedPackage.info.directURL,
+      true,
+      'package'
     );
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-    return;
+  } else {
+    archivePath = await ipcRenderer.invoke(
+      'open-browser',
+      installedPackage.info.downloadURL,
+      'package'
+    );
+    if (archivePath === 'close') {
+      if (btn) {
+        buttonTransition.message(
+          btn,
+          'インストールがキャンセルされました。',
+          'info'
+        );
+        setTimeout(() => {
+          enableButton();
+        }, 3000);
+      }
+      return;
+    }
   }
 
   try {
@@ -464,10 +501,12 @@ async function installPackage(btn, instPath, packageToInstall) {
       }
     }
   } catch (e) {
-    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+    if (btn) {
+      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
     log.error(e);
     return;
   }
@@ -487,14 +526,16 @@ async function installPackage(btn, instPath, packageToInstall) {
     apmJson.addPackage(instPath, installedPackage);
     await setPackagesList(instPath, true);
 
-    buttonTransition.message(btn, 'インストール完了', 'success');
+    if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
   } else {
-    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    if (btn) buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
   }
 
-  setTimeout(() => {
-    enableButton();
-  }, 3000);
+  if (btn) {
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+  }
 }
 
 /**
@@ -865,6 +906,7 @@ function listFilter(column, btns, btn) {
 
 module.exports = {
   initPackage,
+  getPackages,
   setPackagesList,
   checkPackagesList,
   installPackage,
