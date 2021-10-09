@@ -300,6 +300,49 @@ async function installProgram(btn, program, version, instPath) {
     }, 3000);
 }
 
+/**
+ * Perform a batch installation.
+ *
+ * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
+ * @param {string} instPath - An installation path.
+ */
+async function autoInstallProgram(btn, instPath) {
+  const enableButton = buttonTransition.loading(btn);
+
+  if (!instPath) {
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'インストール先フォルダを指定してください。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
+    log.error('An installation path is not selected.');
+    return;
+  }
+
+  const coreInfo = await getCoreInfo();
+  for (const program of ['aviutl', 'exedit']) {
+    const progInfo = coreInfo[program];
+    await installProgram(null, program, progInfo.latestVersion, instPath);
+  }
+  const packages = (await package.getPackages(instPath)).filter(
+    (p) => p.info.directURL
+  );
+  for (const packageItem of packages) {
+    await package.installPackage(null, instPath, packageItem, true);
+  }
+
+  buttonTransition.message(btn, 'インストール完了', 'success');
+
+  setTimeout(() => {
+    enableButton();
+  }, 3000);
+}
+
 module.exports = {
   displayInstalledVersion,
   getCoreInfo,
@@ -307,4 +350,5 @@ module.exports = {
   checkLatestVersion,
   selectInstallationPath,
   installProgram,
+  autoInstallProgram,
 };

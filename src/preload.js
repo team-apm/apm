@@ -74,6 +74,11 @@ window.addEventListener('load', () => {
     await core.selectInstallationPath(installationPath);
   });
 
+  const autoInstallBtn = document.getElementById('auto-install');
+  autoInstallBtn.addEventListener('click', async (event) => {
+    await core.autoInstallProgram(autoInstallBtn, installationPath.value);
+  });
+
   const installAviutlBtn = document.getElementById('install-aviutl');
   const aviutlVersionSelect = document.getElementById('aviutl-version-select');
   installAviutlBtn.addEventListener('click', async (event) => {
