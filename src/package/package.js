@@ -74,6 +74,16 @@ function initPackage(instPath, installPackageBtn) {
 }
 
 /**
+ * Get packages
+ *
+ * @param {string} instPath - An installation path
+ * @returns {Promise.<object[]>} An object of packages
+ */
+async function getPackages(instPath) {
+  return await packageUtil.getPackages(setting.getPackagesDataUrl(instPath));
+}
+
+/**
  * Sets rows of each package in the table.
  *
  * @param {string} instPath - An installation path.
@@ -118,9 +128,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
   }
 
   // table body
-  const packages = await packageUtil.getPackages(
-    setting.getPackagesDataUrl(instPath)
-  );
+  const packages = await getPackages(instPath);
   const installedPackages = apmJson.get(instPath, 'packages');
   const installedFiles = packageUtil.getInstalledFiles(instPath);
   const manuallyInstalledFiles = packageUtil.getManuallyInstalledFiles(
@@ -865,6 +873,7 @@ function listFilter(column, btns, btn) {
 
 module.exports = {
   initPackage,
+  getPackages,
   setPackagesList,
   checkPackagesList,
   installPackage,
