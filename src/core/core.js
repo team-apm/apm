@@ -218,26 +218,30 @@ async function selectInstallationPath(input) {
  * @param {string} instPath - An installation path.
  */
 async function installProgram(btn, program, version, instPath) {
-  const enableButton = buttonTransition.loading(btn);
+  const enableButton = btn ? buttonTransition.loading(btn) : null;
 
   if (!instPath) {
-    buttonTransition.message(
-      btn,
-      'インストール先フォルダを指定してください。',
-      'danger'
-    );
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'インストール先フォルダを指定してください。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
     log.error('An installation path is not selected.');
     return;
   }
 
   if (!version) {
-    buttonTransition.message(btn, 'バージョンを指定してください。', 'danger');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+    if (btn) {
+      buttonTransition.message(btn, 'バージョンを指定してください。', 'danger');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
     log.error('A version is not selected.');
     return;
   }
@@ -272,20 +276,28 @@ async function installProgram(btn, program, version, instPath) {
         await displayInstalledVersion(instPath);
         await package.setPackagesList(instPath, true);
 
-        buttonTransition.message(btn, 'インストール完了', 'success');
+        if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
       } else {
-        buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+        if (btn)
+          buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
       }
     } catch {
-      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      if (btn)
+        buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     }
   } else {
-    buttonTransition.message(btn, 'バージョンデータが存在しません。', 'danger');
+    if (btn)
+      buttonTransition.message(
+        btn,
+        'バージョンデータが存在しません。',
+        'danger'
+      );
   }
 
-  setTimeout(() => {
-    enableButton();
-  }, 3000);
+  if (btn)
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
 }
 
 module.exports = {

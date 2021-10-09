@@ -366,32 +366,37 @@ async function checkPackagesList(btn, overlay, instPath) {
  * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} instPath - An installation path.
  * @param {object} packageToInstall - A package to install.
+ * @param {boolean} direct - Install from the direct link to the zip.
  */
-async function installPackage(btn, instPath, packageToInstall) {
-  const enableButton = buttonTransition.loading(btn);
+async function installPackage(btn, instPath, packageToInstall, direct = false) {
+  const enableButton = btn ? buttonTransition.loading(btn) : null;
 
   if (!instPath) {
-    buttonTransition.message(
-      btn,
-      'インストール先フォルダを指定してください。',
-      'danger'
-    );
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'インストール先フォルダを指定してください。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
     log.error('An installation path is not selected.');
     return;
   }
 
   if (!packageToInstall && !selectedPackage) {
-    buttonTransition.message(
-      btn,
-      'プラグインまたはスクリプトを選択してください。',
-      'danger'
-    );
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'プラグインまたはスクリプトを選択してください。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
     log.error('A package to install is not selected.');
     return;
   }
@@ -400,18 +405,33 @@ async function installPackage(btn, instPath, packageToInstall) {
     ? { ...packageToInstall }
     : { ...selectedPackage };
 
-  const url = installedPackage.info.downloadURL;
-  const archivePath = await ipcRenderer.invoke('open-browser', url, 'package');
-  if (archivePath === 'close') {
-    buttonTransition.message(
-      btn,
-      'インストールがキャンセルされました。',
-      'info'
+  let archivePath = '';
+  if (direct) {
+    archivePath = await ipcRenderer.invoke(
+      'download',
+      installedPackage.info.directURL,
+      true,
+      'package'
     );
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-    return;
+  } else {
+    archivePath = await ipcRenderer.invoke(
+      'open-browser',
+      installedPackage.info.downloadURL,
+      'package'
+    );
+    if (archivePath === 'close') {
+      if (btn) {
+        buttonTransition.message(
+          btn,
+          'インストールがキャンセルされました。',
+          'info'
+        );
+        setTimeout(() => {
+          enableButton();
+        }, 3000);
+      }
+      return;
+    }
   }
 
   try {
@@ -472,10 +492,12 @@ async function installPackage(btn, instPath, packageToInstall) {
       }
     }
   } catch (e) {
-    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+    if (btn) {
+      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
     log.error(e);
     return;
   }
@@ -495,14 +517,16 @@ async function installPackage(btn, instPath, packageToInstall) {
     apmJson.addPackage(instPath, installedPackage);
     await setPackagesList(instPath, true);
 
-    buttonTransition.message(btn, 'インストール完了', 'success');
+    if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
   } else {
-    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    if (btn) buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
   }
 
-  setTimeout(() => {
-    enableButton();
-  }, 3000);
+  if (btn) {
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+  }
 }
 
 /**
