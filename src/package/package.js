@@ -319,9 +319,9 @@ async function setPackagesList(instPath, minorUpdate = false) {
     bottomTbody.appendChild(tr);
   }
 
-  const modInfo = await mod.getInfo();
-  if (modInfo) {
-    replaceText('packages-mod-date', modInfo.packages_list.toLocaleString());
+  if (store.has('modDate.packages')) {
+    const modDate = new Date(store.get('modDate.packages'));
+    replaceText('packages-mod-date', modDate.toLocaleString());
   } else {
     replaceText('packages-mod-date', '未取得');
   }
@@ -349,7 +349,12 @@ async function checkPackagesList(btn, overlay, instPath) {
     await packageUtil.downloadRepository(setting.getPackagesDataUrl(instPath));
     await mod.downloadData();
     store.set('checkDate.packages', Date.now());
+    const modInfo = await mod.getInfo();
+    store.set('modDate.packages', modInfo.packages_list.getTime());
     await setPackagesList(instPath);
+
+    const packagesDataAlert = document.getElementById('packages-data-alert');
+    packagesDataAlert.classList.add('d-none');
 
     if (btn) buttonTransition.message(btn, '更新完了', 'success');
   } catch {

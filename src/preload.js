@@ -5,6 +5,7 @@ const log = require('electron-log');
 const core = require('./core/core');
 const package = require('./package/package');
 const setting = require('./setting/setting');
+const mod = require('./lib/mod');
 
 log.catchErrors({
   onError: () => {
@@ -24,7 +25,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // init data
   const firstLaunch = !store.has('dataURL.main');
-  setting.initSettings();
+  await setting.initSettings();
   package.initPackage(
     installationPath.value,
     document.getElementById('install-package'),
@@ -63,6 +64,19 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const zoomFactorSelect = document.getElementById('zoom-factor-select');
   setting.setZoomFactor(zoomFactorSelect);
+
+  const oldCoreMod = new Date(store.get('modDate.core', 0));
+  const oldPackagesMod = new Date(store.get('modDate.packages', 0));
+  await mod.downloadData();
+  const currentMod = await mod.getInfo();
+  if (oldCoreMod.getTime() < currentMod.core.getTime()) {
+    const coreDataAlert = document.getElementById('core-data-alert');
+    coreDataAlert.classList.remove('d-none');
+  }
+  if (oldPackagesMod.getTime() < currentMod.packages_list.getTime()) {
+    const packagesDataAlert = document.getElementById('packages-data-alert');
+    packagesDataAlert.classList.remove('d-none');
+  }
 });
 
 window.addEventListener('load', () => {
