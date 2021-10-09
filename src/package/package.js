@@ -34,6 +34,7 @@ function showCheckDate() {
 let selectedPackage;
 let listJS;
 let installBtn;
+let batchInstallElm;
 
 /**
  * Show package's details.
@@ -67,10 +68,12 @@ function showPackageDetail(packageData) {
  *
  * @param {string} instPath - An installation path
  * @param {HTMLButtonElement} installPackageBtn - Button to install the package
+ * @param {HTMLElement} batchInstallPackagesElm - Element representing the name of the package to be batch installed
  */
-function initPackage(instPath, installPackageBtn) {
+function initPackage(instPath, installPackageBtn, batchInstallPackagesElm) {
   if (!apmJson.has(instPath, 'packages')) apmJson.set(instPath, 'packages', {});
   installBtn = installPackageBtn;
+  batchInstallElm = batchInstallPackagesElm;
 }
 
 /**
@@ -112,6 +115,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
     '最新バージョン',
     '現在バージョン',
   ];
+  const packages = await getPackages(instPath);
 
   // table header
   if (!thead.hasChildNodes()) {
@@ -127,8 +131,13 @@ async function setPackagesList(instPath, minorUpdate = false) {
     thead.appendChild(headerTr);
   }
 
+  // update auto install text
+  batchInstallElm.innerText = packages
+    .filter((p) => p.info.directURL)
+    .map((p) => ' + ' + p.info.name)
+    .join('');
+
   // table body
-  const packages = await getPackages(instPath);
   const installedPackages = apmJson.get(instPath, 'packages');
   const installedFiles = packageUtil.getInstalledFiles(instPath);
   const manuallyInstalledFiles = packageUtil.getManuallyInstalledFiles(

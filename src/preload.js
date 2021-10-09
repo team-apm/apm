@@ -27,7 +27,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   setting.initSettings();
   package.initPackage(
     installationPath.value,
-    document.getElementById('install-package')
+    document.getElementById('install-package'),
+    document.getElementById('batch-install-packages')
   );
   if (firstLaunch) {
     const checkCoreVersionBtn = document.getElementById('check-core-version');
