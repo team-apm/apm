@@ -328,19 +328,23 @@ async function batchInstall(btn, instPath) {
     return;
   }
 
-  const coreInfo = await getCoreInfo();
-  for (const program of ['aviutl', 'exedit']) {
-    const progInfo = coreInfo[program];
-    await installProgram(null, program, progInfo.latestVersion, instPath);
-  }
-  const packages = (await package.getPackages(instPath)).filter(
-    (p) => p.info.directURL
-  );
-  for (const packageItem of packages) {
-    await package.installPackage(null, instPath, packageItem, true);
-  }
+  try {
+    const coreInfo = await getCoreInfo();
+    for (const program of ['aviutl', 'exedit']) {
+      const progInfo = coreInfo[program];
+      await installProgram(null, program, progInfo.latestVersion, instPath);
+    }
+    const packages = (await package.getPackages(instPath)).filter(
+      (p) => p.info.directURL
+    );
+    for (const packageItem of packages) {
+      await package.installPackage(null, instPath, packageItem, true);
+    }
 
-  buttonTransition.message(btn, 'インストール完了', 'success');
+    buttonTransition.message(btn, 'インストール完了', 'success');
+  } catch {
+    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+  }
 
   setTimeout(() => {
     enableButton();
