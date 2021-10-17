@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/hal-shu-sato/apm/compare/v1.0.0...v1.1.0) (2021-10-17)
+
+### Features
+
+- add a button to open the download folder ([61c535f](https://github.com/hal-shu-sato/apm/commit/61c535f751b17639e070d753aea08efce351e544)), closes [#138](https://github.com/hal-shu-sato/apm/issues/138)
+- add batch install function ([a3b2d85](https://github.com/hal-shu-sato/apm/commit/a3b2d8537b076ff1b5fc31199b30664c0c55f976)), closes [#167](https://github.com/hal-shu-sato/apm/issues/167)
+- add checking mod dates of the lists on startup ([3699c1a](https://github.com/hal-shu-sato/apm/commit/3699c1a5728b4460878ec07c0a9419441ece5408)), closes [#169](https://github.com/hal-shu-sato/apm/issues/169)
+- add filtering of packages ([551026a](https://github.com/hal-shu-sato/apm/commit/551026a5d0226936854e2df3f1cf9b95cf9c80e8)), closes [#113](https://github.com/hal-shu-sato/apm/issues/113)
+- add links to the documentation ([777caac](https://github.com/hal-shu-sato/apm/commit/777caacaa9062a3a5debe5adc68084d0a50a2058)), closes [#31](https://github.com/hal-shu-sato/apm/issues/31)
+- call the install function on any package ([4b8e006](https://github.com/hal-shu-sato/apm/commit/4b8e006d5a42fafd2fe30cdd7d6b4fbd3bddfa5e))
+- enable installation without UI ([55ff85c](https://github.com/hal-shu-sato/apm/commit/55ff85cb113bc02446c5e0fc34b4e2ce18697648))
+- **html:** update CSP ([dc5589f](https://github.com/hal-shu-sato/apm/commit/dc5589f106365ef2a9d3d39a4083ead574dae3ec))
+- install scripts without a database ([ea4dc13](https://github.com/hal-shu-sato/apm/commit/ea4dc131c71db047d4d408edf76882478f9a79e3)), closes [#141](https://github.com/hal-shu-sato/apm/issues/141)
+- **log:** add the feature to log uncaught exceptions and exit ([086c8dd](https://github.com/hal-shu-sato/apm/commit/086c8dd55496ad94be0fafcc2edfccf48a8c4bab))
+- **log:** add the feature to log uncaught exceptions in renderer processes ([e336451](https://github.com/hal-shu-sato/apm/commit/e336451e35f76981b7000344c68ba8024d4780d2))
+- **package.js:** add links to install dependencies ([c512fbe](https://github.com/hal-shu-sato/apm/commit/c512fbef498ae2d8a11118409efaf9ac95036bed))
+- **package:** support for dependency features ([2b509ab](https://github.com/hal-shu-sato/apm/commit/2b509ab0114e6ec0a709400b8ad154d1f25cb492))
+- show package names to install ([7490310](https://github.com/hal-shu-sato/apm/commit/749031017034e50aaf4e467b0260654cb9b6b6fc))
+- support for local repositories ([43f4e95](https://github.com/hal-shu-sato/apm/commit/43f4e95e2d47216837af9bc63122083c964314f5))
+- use twemoji ([058695b](https://github.com/hal-shu-sato/apm/commit/058695bbe6fb902d3d5ead00e7be80208b2d7e29))
+
+### Bug Fixes
+
+- fixes problems with error messages not appearing ([a1abbe3](https://github.com/hal-shu-sato/apm/commit/a1abbe39e3df6942885b4f4c9ed4e89571ec0a60))
+- **index.html:** align the menu to the right ([fcdd4df](https://github.com/hal-shu-sato/apm/commit/fcdd4df5a0848a8836a1bc6c720cea54249b05c3))
+- reduce buttons ([b70cc34](https://github.com/hal-shu-sato/apm/commit/b70cc347562ab7d4eceb538c8f9d9652993d96d3))
+- replace url and refactoring ([ccdb32d](https://github.com/hal-shu-sato/apm/commit/ccdb32d3612e5dd1f40d05284a5aab66db95ca62))
+
 ## [1.0.0](https://github.com/hal-shu-sato/apm/compare/v0.3.2...v1.0.0) (2021-09-12)
 
 ### ⚠ BREAKING CHANGES
