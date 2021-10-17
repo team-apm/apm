@@ -19,6 +19,9 @@ button.dropdown-item:not(.selected) svg {
   height: 100%;
   overflow-y: auto;
 }
+.packages-table #packages-table {
+  margin-bottom: 0;
+}
 .packages-table thead th {
   position: sticky;
   top: 0;
@@ -30,11 +33,15 @@ button.dropdown-item:not(.selected) svg {
   position: absolute;
   bottom: 0;
   left: 0;
-  border-bottom: #000 solid 1px;
+  border-bottom: #000 solid 2px;
 }
+
+/* Prevent thead>th border from flickering */
 .table > :first-child > :last-child > * {
-  /* Prevent thead>th border from flickering */
-  border-bottom-color: transparent;
+  border-bottom: none;
+}
+.table > :nth-child(2) {
+  border-top: none;
 }
 
 .packages-table th:first-child,
