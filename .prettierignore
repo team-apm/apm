@@ -1,3 +1,4 @@
 out
 .github/**/*.md
 CODE_OF_CONDUCT.md
+docs/_site
