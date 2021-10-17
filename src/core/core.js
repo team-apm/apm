@@ -97,7 +97,8 @@ async function getCoreInfo() {
   if (coreFile.exists) {
     try {
       return parseXML.getCore(coreFile.path);
-    } catch {
+    } catch (e) {
+      log.error(e);
       return null;
     }
   } else {
@@ -285,9 +286,10 @@ async function installProgram(btn, program, version, instPath) {
         if (btn)
           buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
       }
-    } catch {
+    } catch (e) {
       if (btn)
         buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      log.error(e);
     }
   } else {
     if (btn)
@@ -328,19 +330,24 @@ async function batchInstall(btn, instPath) {
     return;
   }
 
-  const coreInfo = await getCoreInfo();
-  for (const program of ['aviutl', 'exedit']) {
-    const progInfo = coreInfo[program];
-    await installProgram(null, program, progInfo.latestVersion, instPath);
-  }
-  const packages = (await package.getPackages(instPath)).filter(
-    (p) => p.info.directURL
-  );
-  for (const packageItem of packages) {
-    await package.installPackage(null, instPath, packageItem, true);
-  }
+  try {
+    const coreInfo = await getCoreInfo();
+    for (const program of ['aviutl', 'exedit']) {
+      const progInfo = coreInfo[program];
+      await installProgram(null, program, progInfo.latestVersion, instPath);
+    }
+    const packages = (await package.getPackages(instPath)).filter(
+      (p) => p.info.directURL
+    );
+    for (const packageItem of packages) {
+      await package.installPackage(null, instPath, packageItem, true);
+    }
 
-  buttonTransition.message(btn, 'インストール完了', 'success');
+    buttonTransition.message(btn, 'インストール完了', 'success');
+  } catch (e) {
+    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    log.error(e);
+  }
 
   setTimeout(() => {
     enableButton();

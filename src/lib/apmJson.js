@@ -15,7 +15,7 @@ function getApmJson(instPath) {
     } else {
       throw new Error('Invalid apm.json.');
     }
-  } catch (error) {
+  } catch {
     return { core: {}, packages: {} };
   }
 }

@@ -357,8 +357,9 @@ async function checkPackagesList(btn, overlay, instPath) {
     packagesDataAlert.classList.add('d-none');
 
     if (btn) buttonTransition.message(btn, '更新完了', 'success');
-  } catch {
+  } catch (e) {
     if (btn) buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    log.error(e);
   }
 
   if (overlay) {
