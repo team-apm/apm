@@ -179,7 +179,7 @@ ipcMain.handle(
     repositoryURI = ''
   ) => {
     const ext = isTempData && path.extname(url);
-    const win = BrowserWindow.getFocusedWindow();
+    const win = mainWindow;
 
     const opt = {};
     if (isTempData) {
