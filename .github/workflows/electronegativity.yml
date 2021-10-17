@@ -11,6 +11,7 @@ on:
 
 jobs:
   build_job:
+    name: Analyze
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
