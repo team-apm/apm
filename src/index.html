@@ -67,21 +67,14 @@
 				aria-labelledby="aviutl"
 			>
 				<div class="container-lg py-2">
-					<div class="row justify-content-center my-3">
-						<div class="col-auto">
-							<img src="../icon/apm128.png" alt="Girl in a jacket" />
+					<nav class="navbar navbar-light bg-light">
+						<div class="container-fluid">
+							<a class="navbar-brand" href="#">
+								<img src="../icon/apm32.png" alt="" class="d-inline-block" />
+								<span class="align-middle">AviUtl Package Manager</span>
+							</a>
 						</div>
-						<div class="col-auto">
-							<h2>AviUtl Package Manager</h2>
-							<p>
-								AviUtl:
-								<span id="aviutl-installed-version"></span><br />
-								拡張編集:
-								<span id="exedit-installed-version"></span>
-							</p>
-						</div>
-					</div>
-
+					</nav>
 					<div id="tutorial-alert" class="row my-2 d-none">
 						<div
 							class="my-0 alert alert-info alert-dismissible fade show"
@@ -103,20 +96,6 @@
 							></button>
 						</div>
 					</div>
-
-					<div class="row my-2">
-						<div class="card">
-							<div class="card-body">
-								<h3 class="card-title">最新バージョン</h3>
-								<p class="card-text">
-									AviUtl: <span id="aviutl-latest-version"></span><br />
-									拡張編集:
-									<span id="exedit-latest-version"></span><br />
-								</p>
-							</div>
-						</div>
-					</div>
-
 					<div class="row my-2">
 						<div class="card">
 							<div class="card-body">
@@ -145,7 +124,7 @@
 										</button>
 									</div>
 								</div>
-								<div class="row mb-3">
+								<div class="row mb-4">
 									<p class="col-sm-3 col-form-label">
 										おすすめ一括インストール
 									</p>
@@ -164,58 +143,70 @@
 										</button>
 									</div>
 								</div>
-								<div class="row mb-3">
-									<label
-										for="aviutl-version-select"
-										class="col-sm-3 col-form-label"
-										>AviUtlバージョンの選択</label
-									>
-									<div class="col-sm-6">
-										<select
-											class="form-select"
-											id="aviutl-version-select"
-											aria-label="AviUtl version select"
-										>
-											<option value="" selected>AviUtlバージョンを選択</option>
-										</select>
-									</div>
-									<div class="col-sm-3">
-										<button
-											type="button"
-											class="btn btn-outline-primary w-100"
-											id="install-aviutl"
-										>
-											AviUtlをインストール
-										</button>
-									</div>
-								</div>
-
-								<div class="row mb-3">
-									<label
-										for="exedit-version-select"
-										class="col-sm-3 col-form-label"
-										>拡張編集バージョンの選択</label
-									>
-									<div class="col-sm-6">
-										<select
-											class="form-select"
-											id="exedit-version-select"
-											aria-label="Exedit version select"
-										>
-											<option value="" selected>
-												拡張編集バージョンを選択
-											</option>
-										</select>
-									</div>
-									<div class="col-sm-3">
-										<button
-											type="button"
-											class="btn btn-outline-primary w-100"
-											id="install-exedit"
-										>
-											拡張編集をインストール
-										</button>
-									</div>
+								<div class="row">
+									<table class="table table-borderless">
+										<thead class="table-light">
+											<tr>
+												<th scope="col"></th>
+												<th scope="col">現在バージョン</th>
+												<th scope="col">最新バージョン</th>
+												<th scope="col">インストール</th>
+												<th scope="col"></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<th scope="row">AviUtl</th>
+												<td><span id="aviutl-installed-version"></span></td>
+												<td><span id="aviutl-latest-version"></span></td>
+												<td>
+													<select
+														class="form-select"
+														id="aviutl-version-select"
+														aria-label="AviUtl version select"
+													>
+														<option value="" selected>
+															AviUtlバージョンを選択
+														</option>
+													</select>
+												</td>
+												<td>
+													<button
+														type="button"
+														class="btn btn-outline-primary w-100"
+														id="install-aviutl"
+													>
+														AviUtlをインストール
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">拡張編集</th>
+												<td><span id="exedit-installed-version"></span></td>
+												<td><span id="exedit-latest-version"></span></td>
+												<td>
+													<select
+														class="form-select"
+														id="exedit-version-select"
+														aria-label="Exedit version select"
+													>
+														<option value="" selected>
+															拡張編集バージョンを選択
+														</option>
+													</select>
+												</td>
+												<td>
+													<button
+														type="button"
+														class="btn btn-outline-primary w-100"
+														id="install-exedit"
+													>
+														拡張編集をインストール
+													</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
 								</div>
 							</div>
 						</div>

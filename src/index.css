@@ -37,10 +37,10 @@ button.dropdown-item:not(.selected) svg {
 }
 
 /* Prevent thead>th border from flickering */
-.table > :first-child > :last-child > * {
+#packages-table > :first-child > :last-child > * {
   border-bottom: none;
 }
-.table > :nth-child(2) {
+#packages-table > :nth-child(2) {
   border-top: none;
 }
 
