@@ -104,36 +104,6 @@
 						</div>
 					</div>
 
-					<div id="core-data-alert" class="row my-2 d-none">
-						<div
-							class="my-0 alert alert-info alert-dismissible fade show"
-							role="alert"
-						>
-							AviUtl&拡張編集データの更新があります。
-							<button
-								type="button"
-								class="btn-close"
-								data-bs-dismiss="alert"
-								aria-label="Close"
-							></button>
-						</div>
-					</div>
-
-					<div id="packages-data-alert" class="row my-2 d-none">
-						<div
-							class="my-0 alert alert-info alert-dismissible fade show"
-							role="alert"
-						>
-							パッケージデータの更新があります。
-							<button
-								type="button"
-								class="btn-close"
-								data-bs-dismiss="alert"
-								aria-label="Close"
-							></button>
-						</div>
-					</div>
-
 					<div class="row my-2">
 						<div class="card">
 							<div class="card-body">
@@ -143,20 +113,6 @@
 									拡張編集:
 									<span id="exedit-latest-version"></span><br />
 								</p>
-								<button
-									type="button"
-									class="btn btn-outline-primary"
-									id="check-core-version"
-								>
-									最新バージョンを確認
-									<div class="d-inline-block small">
-										（最終確認日時:
-										<span id="core-check-date"></span>）
-									</div>
-								</button>
-								<div class="d-inline-block small align-middle ms-2">
-									リスト更新日時: <span id="core-mod-date"></span>
-								</div>
 							</div>
 						</div>
 					</div>
@@ -276,17 +232,6 @@
 				<div class="container-fluid d-flex flex-column pt-2">
 					<div class="row border-bottom">
 						<div class="col-12 col-lg">
-							<button
-								type="button"
-								class="btn btn-primary mb-2"
-								id="check-packages-list"
-							>
-								更新を確認
-								<div class="d-inline-block small">
-									（最終確認日時:
-									<span id="packages-check-date"></span>）
-								</div>
-							</button>
 							<div class="btn-group">
 								<button
 									type="button"
@@ -326,10 +271,6 @@
 							>
 								ダウンロードフォルダを開く
 							</button>
-							<div class="d-inline-block small align-middle mb-2">
-								リスト更新日時:
-								<span id="packages-mod-date"></span>
-							</div>
 						</div>
 						<div class="col-6 col-lg-1 dropdown">
 							<button
@@ -798,6 +739,49 @@
 											id="set-extra-data-url"
 										>
 											追加データ取得先を設定
+										</button>
+									</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-sm-3 col-form-label">
+										AviUtl・拡張編集データの手動更新
+									</div>
+									<div class="col-sm-6 col-form-label">
+										リスト更新日時: <span id="core-mod-date"></span>
+									</div>
+									<div class="col-sm-3">
+										<button
+											type="button"
+											class="btn btn-outline-primary w-100"
+											id="check-core-version"
+										>
+											更新を確認
+											<div class="d-inline-block small">
+												（最終確認日時:
+												<span id="core-check-date"></span>）
+											</div>
+										</button>
+									</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-sm-3 col-form-label">
+										パッケージデータの手動更新
+									</div>
+									<div class="col-sm-6 col-form-label">
+										リスト更新日時:
+										<span id="packages-mod-date"></span>
+									</div>
+									<div class="col-sm-3">
+										<button
+											type="button"
+											class="btn btn-outline-primary w-100"
+											id="check-packages-list"
+										>
+											更新を確認
+											<div class="d-inline-block small">
+												（最終確認日時:
+												<span id="packages-check-date"></span>）
+											</div>
 										</button>
 									</div>
 								</div>

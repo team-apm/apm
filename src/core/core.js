@@ -178,9 +178,6 @@ async function checkLatestVersion(btn, instPath) {
     return;
   }
 
-  const coreDataAlert = document.getElementById('core-data-alert');
-  coreDataAlert.classList.add('d-none');
-
   buttonTransition.message(btn, '更新完了', 'success');
   setTimeout(() => {
     enableButton();
