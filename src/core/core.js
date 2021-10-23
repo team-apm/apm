@@ -178,7 +178,7 @@ async function checkLatestVersion(btn, instPath) {
     const modInfo = await mod.getInfo();
     store.set('modDate.core', modInfo.core.getTime());
     await displayInstalledVersion(instPath);
-    await setCoreVersions();
+    await setCoreVersions(instPath);
   } catch (e) {
     buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     setTimeout(() => {
