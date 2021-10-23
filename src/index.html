@@ -224,20 +224,20 @@
 				role="tabpanel"
 				aria-labelledby="packages"
 			>
-				<div class="container-fluid d-flex flex-column pt-2">
-					<div class="row border-bottom">
+				<div class="container-fluid d-flex flex-column">
+					<div class="row pt-2 border-bottom bg-white">
 						<div class="col-12 col-lg">
 							<div class="btn-group">
 								<button
 									type="button"
-									class="btn btn-primary mb-2"
+									class="btn btn-outline-primary mb-2"
 									id="install-package"
 								>
 									インストール
 								</button>
 								<button
 									type="button"
-									class="btn btn-primary mb-2 dropdown-toggle"
+									class="btn btn-outline-primary mb-2 dropdown-toggle"
 									id="install-script-indication"
 									data-bs-toggle="dropdown"
 									aria-expanded="false"
@@ -254,14 +254,14 @@
 							</div>
 							<button
 								type="button"
-								class="btn btn-primary mb-2"
+								class="btn btn-outline-primary mb-2"
 								id="uninstall-package"
 							>
 								アンインストール
 							</button>
 							<button
 								type="button"
-								class="btn btn-primary mb-2"
+								class="btn btn-outline-primary mb-2"
 								id="open-package-folder"
 							>
 								ダウンロードフォルダを開く
@@ -269,7 +269,7 @@
 						</div>
 						<div class="col-6 col-lg-1 dropdown">
 							<button
-								class="btn btn-secondary dropdown-toggle mb-2 w-100"
+								class="input-group-text dropdown-toggle mb-2"
 								type="button"
 								id="filter"
 								data-bs-toggle="dropdown"
@@ -605,10 +605,10 @@
 						</div>
 					</div>
 
-					<div class="row flex-grow-1 packages-table">
+					<div class="row flex-grow-1 packages-table bg-white">
 						<div class="col g-0">
 							<table class="table table-hover" id="packages-table">
-								<thead class="table-primary"></thead>
+								<thead class="bg-light"></thead>
 								<tbody class="list"></tbody>
 								<tbody class="table-secondary"></tbody>
 							</table>
