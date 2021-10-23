@@ -353,9 +353,6 @@ async function checkPackagesList(btn, overlay, instPath) {
     store.set('modDate.packages', modInfo.packages_list.getTime());
     await setPackagesList(instPath);
 
-    const packagesDataAlert = document.getElementById('packages-data-alert');
-    packagesDataAlert.classList.add('d-none');
-
     if (btn) buttonTransition.message(btn, '更新完了', 'success');
   } catch (e) {
     if (btn) buttonTransition.message(btn, 'エラーが発生しました。', 'danger');

@@ -23,6 +23,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   const installationPath = document.getElementById('installation-path');
   installationPath.value = store.get('installationPath', '');
 
+  const checkCoreVersionBtn = document.getElementById('check-core-version');
+  const checkPackagesListBtn = document.getElementById('check-packages-list');
+  const packagesTableOverlay = document.getElementById(
+    'packages-table-overlay'
+  );
+
   // init data
   const firstLaunch = !store.has('dataURL.main');
   setting.initSettings();
@@ -32,13 +38,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('batch-install-packages')
   );
   if (firstLaunch) {
-    const checkCoreVersionBtn = document.getElementById('check-core-version');
     await core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
-
-    const checkPackagesListBtn = document.getElementById('check-packages-list');
-    const packagesTableOverlay = document.getElementById(
-      'packages-table-overlay'
+    await package.checkPackagesList(
+      checkPackagesListBtn,
+      packagesTableOverlay,
+      installationPath.value
     );
+  }
+
+  // update data
+  const oldCoreMod = new Date(store.get('modDate.core', 0));
+  const oldPackagesMod = new Date(store.get('modDate.packages', 0));
+  await mod.downloadData();
+  const currentMod = await mod.getInfo();
+  if (oldCoreMod.getTime() < currentMod.core.getTime()) {
+    await core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
+  }
+  if (oldPackagesMod.getTime() < currentMod.packages_list.getTime()) {
     await package.checkPackagesList(
       checkPackagesListBtn,
       packagesTableOverlay,
@@ -64,19 +80,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const zoomFactorSelect = document.getElementById('zoom-factor-select');
   setting.setZoomFactor(zoomFactorSelect);
-
-  const oldCoreMod = new Date(store.get('modDate.core', 0));
-  const oldPackagesMod = new Date(store.get('modDate.packages', 0));
-  await mod.downloadData();
-  const currentMod = await mod.getInfo();
-  if (oldCoreMod.getTime() < currentMod.core.getTime()) {
-    const coreDataAlert = document.getElementById('core-data-alert');
-    coreDataAlert.classList.remove('d-none');
-  }
-  if (oldPackagesMod.getTime() < currentMod.packages_list.getTime()) {
-    const packagesDataAlert = document.getElementById('packages-data-alert');
-    packagesDataAlert.classList.remove('d-none');
-  }
 });
 
 window.addEventListener('load', () => {
