@@ -98,22 +98,25 @@ function get(instPath, keys = '', defaultValue = undefined) {
  * @param {string} keys - Keys to set value
  * @param {any} value - A value to set
  */
-function set(instPath, keys, value) {
+function set(instPath, keys, value = undefined) {
   if (!keys) return;
 
   const keyArray = keys.split('.');
 
-  let object = getApmJson(instPath);
+  const rootObject = getApmJson(instPath);
+  let object = rootObject;
   for (const [i, key] of keyArray.entries()) {
     if (i !== keyArray.length - 1) {
-      if (!(typeof object === 'object')) {
+      if (!(typeof object[key] === 'object')) {
         object[key] = {};
       }
       object = object[key];
     } else {
-      object[key] = value;
+      if (value !== undefined) object[key] = value;
+      else delete object[key];
     }
   }
+  setApmJson(instPath, rootObject);
 }
 
 /**
@@ -124,9 +127,7 @@ function set(instPath, keys, value) {
  * @param {string} version - A version of the program
  */
 function setCore(instPath, program, version) {
-  const apmJson = getApmJson(instPath);
-  apmJson.core[program] = version;
-  setApmJson(instPath, apmJson);
+  set(instPath, `core.${program}`, version);
 }
 
 /**
@@ -136,13 +137,11 @@ function setCore(instPath, program, version) {
  * @param {object} package - An information of a package
  */
 function addPackage(instPath, package) {
-  const apmJson = getApmJson(instPath);
-  apmJson.packages[package.id] = {
+  set(instPath, `packages.${package.id}`, {
     id: package.id,
     repository: package.repository,
     version: package.info.latestVersion,
-  };
-  setApmJson(instPath, apmJson);
+  });
 }
 
 /**
@@ -152,9 +151,7 @@ function addPackage(instPath, package) {
  * @param {object} package - An information of a package
  */
 function removePackage(instPath, package) {
-  const apmJson = getApmJson(instPath);
-  delete apmJson.packages[package.id];
-  setApmJson(instPath, apmJson);
+  set(instPath, `packages.${package.id}`);
 }
 
 module.exports = { has, get, set, setCore, addPackage, removePackage };

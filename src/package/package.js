@@ -66,12 +66,10 @@ function showPackageDetail(packageData) {
 /**
  * Initializes package
  *
- * @param {string} instPath - An installation path
  * @param {HTMLButtonElement} installPackageBtn - Button to install the package
  * @param {HTMLElement} batchInstallPackagesElm - Element representing the name of the package to be batch installed
  */
-function initPackage(instPath, installPackageBtn, batchInstallPackagesElm) {
-  if (!apmJson.has(instPath, 'packages')) apmJson.set(instPath, 'packages', {});
+function initPackage(installPackageBtn, batchInstallPackagesElm) {
   installBtn = installPackageBtn;
   batchInstallElm = batchInstallPackagesElm;
 }

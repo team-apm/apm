@@ -33,7 +33,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const firstLaunch = !store.has('dataURL.main');
   setting.initSettings();
   package.initPackage(
-    installationPath.value,
     document.getElementById('install-package'),
     document.getElementById('batch-install-packages')
   );
