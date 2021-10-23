@@ -108,14 +108,18 @@ async function getCoreInfo() {
 
 /**
  * Sets versions of each program in selects.
+ *
+ * @param {string} instPath - An installation path.
  */
-async function setCoreVersions() {
+async function setCoreVersions(instPath) {
+  const installAviutlBtn = document.getElementById('install-aviutl');
+  const installExeditBtn = document.getElementById('install-exedit');
   const aviutlVersionSelect = document.getElementById('aviutl-version-select');
   const exeditVersionSelect = document.getElementById('exedit-version-select');
-  while (aviutlVersionSelect.childElementCount > 1) {
+  while (aviutlVersionSelect.childElementCount > 0) {
     aviutlVersionSelect.removeChild(aviutlVersionSelect.lastChild);
   }
-  while (exeditVersionSelect.childElementCount > 1) {
+  while (exeditVersionSelect.childElementCount > 0) {
     exeditVersionSelect.removeChild(exeditVersionSelect.lastChild);
   }
 
@@ -126,16 +130,22 @@ async function setCoreVersions() {
       replaceText(`${program}-latest-version`, progInfo.latestVersion);
 
       for (const version of Object.keys(progInfo.releases)) {
-        const option = document.createElement('option');
-        option.value = version;
+        const option = document.createElement('li');
+        option.classList.add('dropdown-item');
         option.innerText =
           version +
           (version.includes('rc') ? '（テスト版）' : '') +
           (version === progInfo.latestVersion ? '（最新版）' : '');
 
         if (program === 'aviutl') {
+          option.addEventListener('click', async (event) => {
+            await installProgram(installAviutlBtn, program, version, instPath);
+          });
           aviutlVersionSelect.appendChild(option);
         } else if (program === 'exedit') {
+          option.addEventListener('click', async (event) => {
+            await installProgram(installExeditBtn, program, version, instPath);
+          });
           exeditVersionSelect.appendChild(option);
         }
       }
@@ -206,6 +216,7 @@ async function selectInstallationPath(input) {
   } else if (selectedPath[0] != originalPath) {
     store.set('installationPath', selectedPath[0]);
     await displayInstalledVersion(selectedPath[0]);
+    await setCoreVersions(selectedPath[0]);
     await package.setPackagesList(selectedPath[0]);
     input.value = selectedPath[0];
   }
