@@ -42,14 +42,9 @@ let batchInstallElm;
  * @param {object} packageData - An object of package's details.
  */
 function showPackageDetail(packageData) {
-  for (const detail of ['name', 'overview', 'description', 'developer']) {
+  for (const detail of ['name', 'description', 'developer']) {
     replaceText('package-' + detail, packageData.info[detail]);
   }
-  replaceText(
-    'package-type',
-    packageUtil.parsePackageType(packageData.info.type)
-  );
-  replaceText('package-latest-version', packageData.info.latestVersion);
 
   const a = document.createElement('a');
   a.innerText = packageData.info.pageURL;
