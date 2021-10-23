@@ -74,7 +74,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   extraDataURL.value = setting.getExtraDataUrl();
 
   await core.displayInstalledVersion(installationPath.value);
-  await core.setCoreVersions();
+  await core.setCoreVersions(installationPath.value);
   await package.setPackagesList(installationPath.value);
 
   const zoomFactorSelect = document.getElementById('zoom-factor-select');
@@ -100,28 +100,6 @@ window.addEventListener('load', () => {
   const batchInstallBtn = document.getElementById('batch-install');
   batchInstallBtn.addEventListener('click', async (event) => {
     await core.batchInstall(batchInstallBtn, installationPath.value);
-  });
-
-  const installAviutlBtn = document.getElementById('install-aviutl');
-  const aviutlVersionSelect = document.getElementById('aviutl-version-select');
-  installAviutlBtn.addEventListener('click', async (event) => {
-    await core.installProgram(
-      installAviutlBtn,
-      'aviutl',
-      aviutlVersionSelect.value,
-      installationPath.value
-    );
-  });
-
-  const installExeditBtn = document.getElementById('install-exedit');
-  const exeditVersionSelect = document.getElementById('exedit-version-select');
-  installExeditBtn.addEventListener('click', async (event) => {
-    await core.installProgram(
-      installExeditBtn,
-      'exedit',
-      exeditVersionSelect.value,
-      installationPath.value
-    );
   });
 
   // packages
