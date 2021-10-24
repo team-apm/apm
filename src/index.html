@@ -696,47 +696,47 @@
 									</div>
 								</div>
 								<div class="row mb-3">
-									<div class="col-sm-3 col-form-label">
-										AviUtl・拡張編集データの手動更新
-									</div>
-									<div class="col-sm-6 col-form-label">
-										リスト更新日時: <span id="core-mod-date"></span>
-									</div>
-									<div class="col-sm-3">
-										<button
-											type="button"
-											class="btn btn-outline-primary w-100"
-											id="check-core-version"
-										>
-											更新を確認
-											<div class="d-inline-block small">
-												（最終確認日時:
-												<span id="core-check-date"></span>）
-											</div>
-										</button>
-									</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col-sm-3 col-form-label">
-										パッケージデータの手動更新
-									</div>
-									<div class="col-sm-6 col-form-label">
-										リスト更新日時:
-										<span id="packages-mod-date"></span>
-									</div>
-									<div class="col-sm-3">
-										<button
-											type="button"
-											class="btn btn-outline-primary w-100"
-											id="check-packages-list"
-										>
-											更新を確認
-											<div class="d-inline-block small">
-												（最終確認日時:
-												<span id="packages-check-date"></span>）
-											</div>
-										</button>
-									</div>
+									<h4>データの手動更新</h4>
+									<table class="table table-borderless table-striped">
+										<thead>
+											<tr>
+												<th scope="col" class="col-sm-3"></th>
+												<th scope="col" class="col-sm-3">リスト更新日時</th>
+												<th scope="col" class="col-sm-3">最終更新日時</th>
+												<th scope="col" class="col-sm-3"></th>
+											</tr>
+										</thead>
+										<tbody class="align-middle">
+											<tr>
+												<th scope="row">AviUtl・拡張編集データ</th>
+												<td><span id="core-mod-date"></span></td>
+												<td><span id="core-check-date"></span></td>
+												<td>
+													<button
+														type="button"
+														class="btn btn-outline-primary w-100"
+														id="check-core-version"
+													>
+														更新を確認
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">パッケージデータ</th>
+												<td><span id="packages-mod-date"></span></td>
+												<td><span id="packages-check-date"></span></td>
+												<td>
+													<button
+														type="button"
+														class="btn btn-outline-primary w-100"
+														id="check-packages-list"
+													>
+														更新を確認
+													</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
 								</div>
 								<div class="row mb-3">
 									<label
