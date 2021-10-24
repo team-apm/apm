@@ -17,20 +17,6 @@ const mod = require('../lib/mod');
 const getHash = require('../lib/getHash');
 const packageUtil = require('./packageUtil');
 
-/**
- * Shows check date.
- */
-function showCheckDate() {
-  if (document.getElementById('packages-check-date')) {
-    if (store.has('checkDate.packages')) {
-      const checkDate = new Date(store.get('checkDate.packages'));
-      replaceText('packages-check-date', checkDate.toLocaleString());
-    } else {
-      replaceText('packages-check-date', '未確認');
-    }
-  }
-}
-
 let selectedPackage;
 let listJS;
 let installBtn;
@@ -315,11 +301,14 @@ async function setPackagesList(instPath, minorUpdate = false) {
   if (store.has('modDate.packages')) {
     const modDate = new Date(store.get('modDate.packages'));
     replaceText('packages-mod-date', modDate.toLocaleString());
+
+    const checkDate = new Date(store.get('checkDate.packages'));
+    replaceText('packages-check-date', checkDate.toLocaleString());
   } else {
     replaceText('packages-mod-date', '未取得');
-  }
 
-  showCheckDate();
+    replaceText('packages-check-date', '未確認');
+  }
 }
 
 /**
@@ -360,7 +349,6 @@ async function checkPackagesList(btn, overlay, instPath) {
   if (btn) {
     setTimeout(() => {
       enableButton();
-      showCheckDate();
     }, 3000);
   }
 }

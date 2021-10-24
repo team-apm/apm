@@ -13,20 +13,6 @@ const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
 
-/**
- * Shows check date.
- */
-function showCheckDate() {
-  if (document.getElementById('core-check-date')) {
-    if (store.has('checkDate.core')) {
-      const checkDate = new Date(store.get('checkDate.core'));
-      replaceText('core-check-date', checkDate.toLocaleString());
-    } else {
-      replaceText('core-check-date', '未確認');
-    }
-  }
-}
-
 // Functions to be exported
 
 /**
@@ -77,11 +63,14 @@ async function displayInstalledVersion(instPath) {
   if (store.has('modDate.core')) {
     const modDate = new Date(store.get('modDate.core'));
     replaceText('core-mod-date', modDate.toLocaleString());
+
+    const checkDate = new Date(store.get('checkDate.core'));
+    replaceText('core-check-date', checkDate.toLocaleString());
   } else {
     replaceText('core-mod-date', '未取得');
-  }
 
-  showCheckDate();
+    replaceText('core-check-date', '未確認');
+  }
 }
 
 /**
@@ -192,7 +181,6 @@ async function checkLatestVersion(btn, instPath) {
   setTimeout(() => {
     enableButton();
   }, 3000);
-  showCheckDate();
 }
 
 /**
