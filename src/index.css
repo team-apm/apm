@@ -22,7 +22,7 @@ button.dropdown-item:not(.selected) svg {
 .packages-table #packages-table {
   margin-bottom: 0;
 }
-.packages-table thead th {
+.packages-table thead {
   position: sticky;
   top: 0;
   z-index: 900;
@@ -33,7 +33,7 @@ button.dropdown-item:not(.selected) svg {
   position: absolute;
   bottom: 0;
   left: 0;
-  border-bottom: #000 solid 2px;
+  border-bottom: 1px solid #dfdfdf;
 }
 
 /* Prevent thead>th border from flickering */
