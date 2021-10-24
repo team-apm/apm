@@ -91,6 +91,8 @@ function createWindow() {
     y: mainWindowState.y,
     width: mainWindowState.width,
     height: mainWindowState.height,
+    minWidth: 320,
+    minHeight: 240,
     show: false,
     icon: icon,
     webPreferences: {
@@ -135,6 +137,8 @@ function createBrowser(url) {
   browserWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    minWidth: 240,
+    minHeight: 320,
     sandbox: true,
     parent: mainWindow,
     modal: true,
