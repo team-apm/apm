@@ -14,6 +14,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
 const getHash = require('./lib/getHash');
+const shortcut = require('./lib/shortcut');
 
 log.catchErrors({
   showDialog: false,
@@ -35,6 +36,7 @@ log.catchErrors({
   },
 });
 
+shortcut.uninstaller(app.getPath('appData'));
 if (require('electron-squirrel-startup')) app.quit();
 
 require('update-electron-app')();
