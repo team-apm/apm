@@ -13,7 +13,28 @@ const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
 
+/**
+ * Returns the default installation path
+ *
+ * @returns {Promise<string>} - The path where AviUtl will be installed.
+ */
+async function getDefaultPath() {
+  return path.join(await ipcRenderer.invoke('app-get-path', 'home'), 'aviutl');
+}
+
 // Functions to be exported
+
+/**
+ * Initializes core
+ *
+ */
+async function initCore() {
+  if (!store.has('installationPath')) {
+    const instPath = await getDefaultPath();
+    store.set('installationPath', instPath);
+    fs.mkdir(instPath);
+  }
+}
 
 /**
  * Displays installed version.
@@ -202,6 +223,12 @@ async function selectInstallationPath(input) {
       'インストール先フォルダを選択してください。'
     );
   } else if (selectedPath[0] != originalPath) {
+    if (
+      originalPath === (await getDefaultPath()) &&
+      fs.existsSync(originalPath) &&
+      fs.readdirSync(originalPath).length === 0
+    )
+      fs.rmdirSync(originalPath);
     store.set('installationPath', selectedPath[0]);
     await displayInstalledVersion(selectedPath[0]);
     await setCoreVersions(selectedPath[0]);
@@ -351,6 +378,7 @@ async function batchInstall(btn, instPath) {
 }
 
 module.exports = {
+  initCore,
   displayInstalledVersion,
   getCoreInfo,
   setCoreVersions,

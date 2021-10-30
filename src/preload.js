@@ -21,8 +21,6 @@ log.catchErrors({
 
 window.addEventListener('DOMContentLoaded', async () => {
   const installationPath = document.getElementById('installation-path');
-  installationPath.value = store.get('installationPath', '');
-
   const checkCoreVersionBtn = document.getElementById('check-core-version');
   const checkPackagesListBtn = document.getElementById('check-packages-list');
   const packagesTableOverlay = document.getElementById(
@@ -32,10 +30,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   // init data
   const firstLaunch = !store.has('dataURL.main');
   setting.initSettings();
+  await core.initCore();
   package.initPackage(
     document.getElementById('install-package'),
     document.getElementById('batch-install-packages')
   );
+  installationPath.value = store.get('installationPath', '');
   if (firstLaunch) {
     await core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
     await package.checkPackagesList(
@@ -62,7 +62,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   // tutorial
-  if (store.get('installationPath', '') === '') {
+  if (firstLaunch) {
     const tutorialAlert = document.getElementById('tutorial-alert');
     tutorialAlert.classList.remove('d-none');
   }
