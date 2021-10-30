@@ -6,6 +6,7 @@ const store = new Store();
 const log = require('electron-log');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
+const shortcut = require('../lib/shortcut');
 const package = require('../package/package');
 const setting = require('../setting/setting');
 const buttonTransition = require('../lib/buttonTransition');
@@ -91,6 +92,17 @@ async function displayInstalledVersion(instPath) {
     replaceText('core-mod-date', '未取得');
 
     replaceText('core-check-date', '未確認');
+  }
+
+  // Add a shortcut to the Start menu
+  if (process.platform === 'win32') {
+    const appDataPath = await ipcRenderer.invoke('app-get-path', 'appData');
+    const aviutlPath = path.join(instPath, 'aviutl.exe');
+    if (fs.existsSync(aviutlPath)) {
+      shortcut.addAviUtlShortcut(appDataPath, aviutlPath);
+    } else {
+      shortcut.removeAviUtlShortcut(appDataPath);
+    }
   }
 }
 
