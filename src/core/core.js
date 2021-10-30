@@ -100,10 +100,8 @@ async function displayInstalledVersion(instPath) {
     const aviutlPath = path.join(instPath, 'aviutl.exe');
     if (fs.existsSync(aviutlPath)) {
       shortcut.addAviUtlShortcut(appDataPath, aviutlPath);
-      console.log('add');
     } else {
       shortcut.removeAviUtlShortcut(appDataPath);
-      console.log('remove');
     }
   }
 }
