@@ -283,6 +283,10 @@ ipcMain.handle('change-main-zoom-factor', (event, zoomFactor) => {
   mainWindow.webContents.setZoomFactor(zoomFactor);
 });
 
+ipcMain.handle('app-get-path', (event, name) => {
+  return app.getPath(name);
+});
+
 const template = [
   {
     label: 'apm',
