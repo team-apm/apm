@@ -36,14 +36,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('batch-install-packages')
   );
   installationPath.value = store.get('installationPath', '');
-  if (firstLaunch) {
-    await core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
-    await package.checkPackagesList(
-      checkPackagesListBtn,
-      packagesTableOverlay,
-      installationPath.value
-    );
-  }
 
   // update data
   const oldCoreMod = new Date(store.get('modDate.core', 0));
