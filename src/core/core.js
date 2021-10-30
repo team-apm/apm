@@ -32,7 +32,7 @@ async function initCore() {
   if (!store.has('installationPath')) {
     const instPath = await getDefaultPath();
     store.set('installationPath', instPath);
-    fs.mkdir(instPath);
+    if (!fs.existsSync(instPath)) fs.mkdirSync(instPath);
   }
 }
 
