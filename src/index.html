@@ -9,15 +9,16 @@
 		/>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>AviUtl Package Manager</title>
+		<meta name="color-scheme" content="light dark" />
 		<link
 			rel="stylesheet"
-			href="../node_modules/bootstrap/dist/css/bootstrap.min.css"
+			href="../node_modules/bootstrap-dark-5/dist/css/bootstrap-dark.min.css"
 		/>
 		<link rel="stylesheet" href="main.css" />
 		<link rel="stylesheet" href="index.css" />
 	</head>
 
-	<body class="bg-light">
+	<body>
 		<nav>
 			<div class="nav nav-tabs" id="nav-tab" role="tablist">
 				<button
@@ -59,7 +60,7 @@
 			</div>
 		</nav>
 
-		<main class="tab-content" id="nav-tabContent">
+		<main class="tab-content bg-light" id="nav-tabContent">
 			<section
 				class="tab-pane fade show active"
 				id="aviutl"
@@ -67,12 +68,12 @@
 				aria-labelledby="aviutl"
 			>
 				<div class="container-lg py-2">
-					<nav class="navbar navbar-light bg-light">
+					<nav class="navbar navbar-light">
 						<div class="container-fluid">
-							<a class="navbar-brand" href="#">
+							<span class="navbar-brand">
 								<img src="../icon/apm32.png" alt="" class="d-inline-block" />
 								<span class="align-middle">AviUtl Package Manager</span>
-							</a>
+							</span>
 						</div>
 					</nav>
 					<div id="tutorial-alert" class="row my-2 d-none">
@@ -610,7 +611,7 @@
 					<div class="row flex-grow-1 packages-table bg-white">
 						<div class="col g-0">
 							<table class="table table-hover" id="packages-table">
-								<thead class="bg-light"></thead>
+								<thead class="bg-light-on-surface"></thead>
 								<tbody class="list"></tbody>
 								<tbody class="table-secondary"></tbody>
 							</table>
