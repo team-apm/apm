@@ -10,9 +10,6 @@ body {
   font-family: 'Helvetica Neue', 'Helvetica', 'Hiragino Sans',
     'Hiragino Kaku Gothic ProN', 'Arial', 'Meiryo', sans-serif;
 }
-.bg-light-on-surface {
-  background-color: var(--bs-light) !important;
-}
 @media (prefers-color-scheme: dark) {
   :root {
     --bs-gray-850: #2e2e2e;
@@ -30,14 +27,11 @@ body {
   .card {
     background-color: var(--bs-gray-900);
   }
-  .bg-light-on-surface {
-    background-color: var(--bs-gray-850) !important;
-  }
   .dropdown-menu {
     background-color: var(--bs-gray-850);
   }
-  .table-secondary {
-    --bs-table-bg: var(--bs-gray-850);
+  .list-group-item-secondary {
+    background-color: var(--bs-gray-850);
   }
 
   /* improve text visibility */
@@ -64,6 +58,15 @@ body {
   }
   .form-control::placeholder:focus {
     color: var(--bs-gray-300);
+  }
+  .list-group-item-secondary {
+    color: var(--bs-body-color);
+  }
+  .list-group-item-action:hover {
+    color: var(--bs-body-color);
+  }
+  .list-group-item-secondary.list-group-item-action:hover {
+    color: var(--bs-body-color);
   }
 
   /* use fill instead of outline */

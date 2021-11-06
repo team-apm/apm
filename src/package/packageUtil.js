@@ -15,8 +15,8 @@ const states = {
 /**
  * Convert type from internal expression to display
  *
- * @param {string} packageType - A list of package types
- * @returns {string} Parsed package types
+ * @param {string[]} packageType - A list of package types
+ * @returns {string[]} Parsed package types
  */
 function parsePackageType(packageType) {
   const result = [];
@@ -59,7 +59,7 @@ function parsePackageType(packageType) {
         break;
     }
   }
-  return result.toString();
+  return result;
 }
 
 /**

@@ -1,7 +1,9 @@
 html,
 body,
 section,
-section#packages .container-fluid {
+section#packages .container-lg,
+section#packages .container-lg > .card,
+section#packages .container-lg > .card > .card-body {
   height: 100%;
 }
 main {
@@ -11,48 +13,21 @@ main {
 button.dropdown-item:not(.selected) svg {
   visibility: hidden;
 }
-.packages-table {
-  position: relative;
-  min-height: 6rem;
+#packages-table ul {
+  list-style: none;
 }
-.packages-table .col {
-  height: 100%;
-  overflow-y: auto;
+#packages-table input[type='radio'] {
+  display: none;
 }
-.packages-table #packages-table {
-  margin-bottom: 0;
+#packages-table input[type='radio']:checked + label {
+  min-height: 150px;
 }
-.packages-table thead {
-  position: sticky;
-  top: 0;
-  z-index: 900;
+#packages-table .accordion-detail {
+  display: none;
 }
-.packages-table thead th::before {
-  content: '';
-  width: 100%;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  border-bottom: 1px solid #dfdfdf;
+#packages-table input[type='radio']:checked + label .accordion-detail {
+  display: block;
 }
-
-/* Prevent thead>th border from flickering */
-#packages-table > :first-child > :last-child > * {
-  border-bottom: none;
-}
-#packages-table > :nth-child(2) {
-  border-top: none;
-}
-
-.packages-table th:first-child,
-.packages-table td:first-child {
-  padding-left: 0.75rem;
-}
-.packages-table th:last-child,
-.packages-table td:last-child {
-  padding-right: 0.75rem;
-}
-
 div#packages-table-overlay {
   z-index: -1;
   position: absolute;
@@ -62,12 +37,13 @@ div#packages-table-overlay {
   height: 100%;
   background-color: rgba(127, 127, 127, 0.5);
 }
-.package-detail {
-  overflow-x: auto;
-}
-.package-detail .row {
-  margin-top: 2px;
-  margin-bottom: 2px;
+.sort:after {
+  content: '';
+  float: right;
+  margin-top: 0.5em;
+  border-width: 0 0.3em 0.6em;
+  border-style: solid;
+  border-color: transparent;
 }
 .sort.desc:after {
   content: '';

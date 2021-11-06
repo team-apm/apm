@@ -22,26 +22,6 @@ let listJS;
 let installBtn;
 let batchInstallElm;
 
-/**
- * Show package's details.
- *
- * @param {object} packageData - An object of package's details.
- */
-function showPackageDetail(packageData) {
-  for (const detail of ['name', 'description', 'developer']) {
-    replaceText('package-' + detail, packageData.info[detail]);
-  }
-
-  const a = document.createElement('a');
-  a.innerText = packageData.info.pageURL;
-  a.href = packageData.info.pageURL;
-  const pageSpan = document.getElementById('package-page');
-  while (pageSpan.firstChild) {
-    pageSpan.removeChild(pageSpan.firstChild);
-  }
-  pageSpan.appendChild(a);
-}
-
 // Functions to be exported
 
 /**
@@ -72,11 +52,10 @@ async function getPackages(instPath) {
  * @param {boolean} minorUpdate - Only the version of the installed package is updated.
  */
 async function setPackagesList(instPath, minorUpdate = false) {
-  const packagesTable = document.getElementById('packages-table');
-  const thead = packagesTable.getElementsByTagName('thead')[0];
-  const tbody = packagesTable.getElementsByTagName('tbody')[0];
-  const bottomTbody = packagesTable.getElementsByTagName('tbody')[1];
-  bottomTbody.innerHTML = null;
+  const packagesSort = document.getElementById('packages-sort');
+  const packagesList = document.getElementById('packages-list');
+  const packagesList2 = document.getElementById('packages-list2');
+  packagesList2.innerHTML = null;
 
   const columns = [
     'name',
@@ -85,6 +64,8 @@ async function setPackagesList(instPath, minorUpdate = false) {
     'type',
     'latestVersion',
     'installedVersion',
+    'description',
+    'pageURL',
   ];
   const columnsDisp = [
     '名前',
@@ -93,21 +74,24 @@ async function setPackagesList(instPath, minorUpdate = false) {
     'タイプ',
     '最新バージョン',
     '現在バージョン',
+    '解説',
+    'リンク',
   ];
   const packages = await getPackages(instPath);
 
-  // table header
-  if (!thead.hasChildNodes()) {
-    const headerTr = document.createElement('tr');
-    for (const [i, columnName] of columns.entries()) {
-      const th = document.createElement('th');
-      th.classList.add('sort');
-      th.setAttribute('data-sort', columnName);
-      th.setAttribute('scope', 'col');
-      th.innerText = columnsDisp[i];
-      headerTr.appendChild(th);
-    }
-    thead.appendChild(headerTr);
+  // sort buttons
+  if (!packagesSort.hasChildNodes()) {
+    Array.from(columns.entries())
+      .filter(([n, s]) => ['name', 'developer'].includes(s))
+      .forEach(([i, columnName]) => {
+        const sortBtn = document
+          .getElementById('sort-template')
+          .cloneNode(true);
+        sortBtn.removeAttribute('id');
+        sortBtn.setAttribute('data-sort', columnName);
+        sortBtn.innerText = columnsDisp[i];
+        packagesSort.appendChild(sortBtn);
+      });
   }
 
   // update auto install text
@@ -116,7 +100,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
     .map((p) => ' + ' + p.info.name)
     .join('');
 
-  // table body
+  // package list
   const installedPackages = apmJson.get(instPath, 'packages');
   const installedFiles = packageUtil.getInstalledFiles(instPath);
   const manuallyInstalledFiles = packageUtil.getManuallyInstalledFiles(
@@ -192,50 +176,59 @@ async function setPackagesList(instPath, minorUpdate = false) {
     p.detached = isInstalled(p) ? detached(p) : [];
   });
 
-  const makeTrFromArray = (tdList) => {
-    const tr = document.createElement('tr');
-    const tds = tdList.map((tdName) => {
-      const td = document.createElement('td');
-      td.classList.add(tdName);
-      tr.appendChild(td);
-      return td;
-    });
-    return [tr].concat(tds);
+  const makeLiFromArray = (columnList) => {
+    const li = document.getElementById('list-template').cloneNode(true);
+    li.removeAttribute('id');
+    const divs = columnList.map(
+      (tdName) => li.getElementsByClassName(tdName)[0]
+    );
+    return [li].concat(divs);
   };
 
   if (!minorUpdate) {
-    tbody.innerHTML = null;
+    packagesList.innerHTML = null;
 
     for (const package of packages) {
       const [
-        tr,
+        li,
         name,
         overview,
         developer,
         type,
         latestVersion,
         installedVersion,
-      ] = makeTrFromArray(columns);
-      tr.classList.add('package-tr');
-      tr.dataset.id = package.id;
-      tr.dataset.repository = package.repository;
-      tr.addEventListener('click', (event) => {
-        showPackageDetail(package);
+        description,
+        pageURL,
+      ] = makeLiFromArray(columns);
+      li.dataset.id = package.id;
+      li.dataset.repository = package.repository;
+      li.addEventListener('click', (event) => {
         selectedPackage = package;
-        for (const tmptr of tbody.getElementsByTagName('tr')) {
-          tmptr.classList.remove('table-secondary');
+        li.getElementsByTagName('input')[0].checked = true;
+        for (const tmpli of packagesList.getElementsByTagName('li')) {
+          tmpli.classList.remove('list-group-item-secondary');
         }
-        tr.classList.add('table-secondary');
+        li.classList.add('list-group-item-secondary');
       });
       name.innerText = package.info.name;
       overview.innerText = package.info.overview;
       developer.innerText = package.info.developer;
-      type.innerText = packageUtil.parsePackageType(package.info.type);
+      packageUtil.parsePackageType(package.info.type).forEach((e) => {
+        const typeItem = document
+          .getElementById('tag-template')
+          .cloneNode(true);
+        typeItem.removeAttribute('id');
+        typeItem.innerText = e;
+        type.appendChild(typeItem);
+      });
       latestVersion.innerText = package.info.latestVersion;
       // temporary string for sorting or filtering
       installedVersion.innerText = package.installedVersion;
+      description.innerText = package.info.description;
+      pageURL.innerText = package.info.pageURL;
+      pageURL.href = package.info.pageURL;
 
-      tbody.appendChild(tr);
+      packagesList.appendChild(li);
     }
 
     // sorting and filtering
@@ -249,13 +242,13 @@ async function setPackagesList(instPath, minorUpdate = false) {
   }
 
   for (const package of packages) {
-    for (const tr of tbody.getElementsByTagName('tr')) {
+    for (const li of packagesList.getElementsByTagName('li')) {
       if (
-        tr.dataset.id === package.id &&
-        tr.dataset.repository === package.repository
+        li.dataset.id === package.id &&
+        li.dataset.repository === package.repository
       ) {
         const installedVersion =
-          tr.getElementsByClassName('installedVersion')[0];
+          li.getElementsByClassName('installedVersion')[0];
         installedVersion.innerText = null;
         package.detached.forEach((p) => {
           const aTag = document.createElement('a');
@@ -275,27 +268,28 @@ async function setPackagesList(instPath, minorUpdate = false) {
       }
     }
   }
-  twemoji.parse(tbody);
+  twemoji.parse(packagesList);
 
   // list manually added packages
   for (const ef of manuallyInstalledFiles) {
     const [
-      tr,
+      li,
       name,
       overview,
       developer,
       type,
       latestVersion,
       installedVersion,
-    ] = makeTrFromArray(columns);
-    tr.classList.add('package-tr');
+    ] = makeLiFromArray(columns);
+    li.classList.add('list-group-item-secondary');
+    li.getElementsByTagName('input')[0].remove(); // remove the radio button
     name.innerText = ef;
     overview.innerText = '手動で追加されたファイル';
     developer.innerText = '';
     type.innerText = '';
     latestVersion.innerText = '';
     installedVersion.innerText = '';
-    bottomTbody.appendChild(tr);
+    packagesList2.appendChild(li);
   }
 
   if (store.has('modDate.packages')) {
@@ -831,7 +825,9 @@ function listFilter(column, btns, btn) {
 
     let filterFunc;
     if (column === 'type') {
-      const query = packageUtil.parsePackageType([btn.dataset.typeFilter]);
+      const query = packageUtil
+        .parsePackageType([btn.dataset.typeFilter])
+        .toString();
       filterFunc = (item) => {
         if (item.values().type.includes(query)) {
           return true;
