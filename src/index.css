@@ -41,26 +41,27 @@ div#packages-table-overlay {
   content: '';
   float: right;
   margin-top: 0.5em;
-  border-width: 0 0.3em 0.6em;
+  border-width: 0 0.3em;
   border-style: solid;
   border-color: transparent;
 }
 .sort.desc:after {
-  content: '';
-  float: right;
-  margin-top: 0.5em;
   border-width: 0 0.3em 0.6em;
-  border-style: solid;
   border-color: #505050 transparent;
 }
 .sort.asc:after {
-  content: '';
-  float: right;
-  margin-top: 0.5em;
   border-width: 0.6em 0.3em 0;
-  border-style: solid;
   border-color: #505050 transparent;
 }
+@media (prefers-color-scheme: dark) {
+  .sort.desc:after {
+    border-color: #a0a0a0 transparent;
+  }
+  .sort.asc:after {
+    border-color: #a0a0a0 transparent;
+  }
+}
+
 img.emoji {
   height: 1em;
   width: 1em;
