@@ -13,7 +13,7 @@
   <img src="./docs/images/tab2dark.png" width="160" />
 </p>
 
-AviUtlを手軽に導入できるソフトウエアです
+AviUtlを手軽に導入できるソフトウェアです
 
 - AviUtl・拡張編集やプラグイン・スクリプトのインストール
 - 50を超えるプラグインと多数のスクリプトに対応
@@ -23,7 +23,7 @@ _Read this in [English](./README.en.md)_.
 
 ## ダウンロード
 
-[ダウンロードページ](https://github.com/hal-shu-sato/apm/releases/latest)のAssetsから`AviUtl.Package.Manager-{version}.Setup.exe`をダウンロードします。
+[ダウンロードページ](https://github.com/hal-shu-sato/apm/releases/latest)のAssetsから`AviUtl.Package.Manager-{version}.Setup.exe`をダウンロードします
 
 ## 準備
 

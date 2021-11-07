@@ -17,7 +17,7 @@
 
 ### ダウンロード
 
-[ダウンロードページ](https://github.com/hal-shu-sato/apm/releases/latest)のAssetsから`AviUtl.Package.Manager-{version}.Setup.exe`をダウンロードします。
+[ダウンロードページ](https://github.com/hal-shu-sato/apm/releases/latest)のAssetsから`AviUtl.Package.Manager-{version}.Setup.exe`をダウンロードします
 
 ### 準備
 
