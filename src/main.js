@@ -147,6 +147,12 @@ function launch() {
     icon: icon,
   });
 
+  splashWindow.once('ready-to-show', () => {
+    splashWindow.show();
+  });
+
+  splashWindow.loadFile(path.join(__dirname, 'splash.html'));
+
   const mainWindowState = windowStateKeeper({
     defaultWidth: 800,
     defaultHeight: 600,
@@ -364,10 +370,6 @@ function launch() {
     });
   });
 
-  splashWindow.once('ready-to-show', () => {
-    splashWindow.show();
-  });
-
   mainWindow.once('ready-to-show', () => {
     setTimeout(() => {
       mainWindow.show();
@@ -376,7 +378,6 @@ function launch() {
     }, 2000);
   });
 
-  splashWindow.loadFile(path.join(__dirname, 'splash.html'));
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 }
 
