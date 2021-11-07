@@ -225,416 +225,465 @@
 				role="tabpanel"
 				aria-labelledby="packages"
 			>
-				<div class="container-fluid d-flex flex-column">
-					<div class="row justify-content-between pt-2 border-bottom bg-white">
-						<div class="col-auto">
-							<div class="btn-group">
-								<button
-									type="button"
-									class="btn btn-outline-primary mb-2"
-									id="install-package"
-								>
-									インストール
-								</button>
-								<button
-									type="button"
-									class="btn btn-outline-primary mb-2 dropdown-toggle"
-									id="install-script-indication"
-									data-bs-toggle="dropdown"
-									aria-expanded="false"
-								>
-									<span class="visually-hidden">Toggle Dropdown</span>
-								</button>
-								<ul class="dropdown-menu dropdown-menu-end">
-									<li>
-										<a class="dropdown-item" id="install-script" href="#"
-											>リストにないスクリプトのインストール</a
-										>
-									</li>
-								</ul>
-							</div>
-							<button
-								type="button"
-								class="btn btn-outline-primary mb-2"
-								id="uninstall-package"
-							>
-								アンインストール
-							</button>
-							<button
-								type="button"
-								class="btn btn-outline-primary mb-2"
-								id="open-package-folder"
-							>
-								ダウンロードフォルダを開く
-							</button>
-						</div>
-						<div class="col-auto">
-							<div class="d-inline-block dropdown align-middle mb-2">
-								<button
-									class="input-group-text dropdown-toggle"
-									type="button"
-									id="filter"
-									data-bs-toggle="dropdown"
-									aria-expanded="false"
-								>
-									絞り込み
-								</button>
-								<ul class="dropdown-menu" aria-labelledby="type-filter">
-									<li>
+				<div class="container-lg">
+					<div class="row card border-top-0 border-bottom-0 rounded-0">
+						<div class="card-body d-flex flex-column py-2">
+							<div class="row justify-content-between border-bottom">
+								<div class="col-auto">
+									<div class="btn-group">
 										<button
-											class="dropdown-item type-filter"
 											type="button"
-											data-type-filter="input"
+											class="btn btn-outline-primary mb-2"
+											id="install-package"
 										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>入力
+											インストール
 										</button>
-									</li>
-									<li>
 										<button
-											class="dropdown-item type-filter"
 											type="button"
-											data-type-filter="output"
+											class="btn btn-outline-primary mb-2 dropdown-toggle"
+											id="install-script-indication"
+											data-bs-toggle="dropdown"
+											aria-expanded="false"
 										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>出力
+											<span class="visually-hidden">Toggle Dropdown</span>
 										</button>
-									</li>
-									<li>
+										<ul class="dropdown-menu dropdown-menu-end">
+											<li>
+												<a class="dropdown-item" id="install-script" href="#"
+													>リストにないスクリプトのインストール</a
+												>
+											</li>
+										</ul>
+									</div>
+									<button
+										type="button"
+										class="btn btn-outline-primary mb-2"
+										id="uninstall-package"
+									>
+										アンインストール
+									</button>
+									<button
+										type="button"
+										class="btn btn-outline-primary mb-2"
+										id="open-package-folder"
+									>
+										ダウンロードフォルダを開く
+									</button>
+								</div>
+								<div class="col-auto">
+									<div class="d-inline-block dropdown align-middle mb-2">
 										<button
-											class="dropdown-item type-filter"
+											class="input-group-text dropdown-toggle"
 											type="button"
-											data-type-filter="filter"
+											id="filter"
+											data-bs-toggle="dropdown"
+											aria-expanded="false"
 										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>フィルター
+											絞り込み
 										</button>
-									</li>
-									<li>
-										<button
-											class="dropdown-item type-filter"
-											type="button"
-											data-type-filter="color"
-										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>色変換
-										</button>
-									</li>
-									<li>
-										<button
-											class="dropdown-item type-filter"
-											type="button"
-											data-type-filter="language"
-										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>言語
-										</button>
-									</li>
-									<li>
-										<button
-											class="dropdown-item type-filter"
-											type="button"
-											data-type-filter="animation"
-										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>アニメーション効果
-										</button>
-									</li>
-									<li>
-										<button
-											class="dropdown-item type-filter"
-											type="button"
-											data-type-filter="object"
-										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>カスタムオブジェクト
-										</button>
-									</li>
-									<li>
-										<button
-											class="dropdown-item type-filter"
-											type="button"
-											data-type-filter="scene"
-										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>シーンチェンジ
-										</button>
-									</li>
-									<li>
-										<button
-											class="dropdown-item type-filter"
-											type="button"
-											data-type-filter="camera"
-										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>カメラ制御
-										</button>
-									</li>
-									<li>
-										<button
-											class="dropdown-item type-filter"
-											type="button"
-											data-type-filter="track"
-										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>トラックバー
-										</button>
-									</li>
-									<li>
-										<a
-											href="https://hal-shu-sato.github.io/apm/#%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%81%A8%E3%81%AF"
-											class="dropdown-item"
-											type="button"
-										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-info-circle"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
-												/>
-												<path
-													d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
-												/>
-											</svg>
-											タイプについて
-										</a>
-									</li>
-									<li><hr class="dropdown-divider" /></li>
-									<li>
-										<button
-											class="dropdown-item install-filter"
-											type="button"
-											data-install-filter="true"
-										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>インストール済み
-										</button>
-									</li>
-									<li>
-										<button
-											class="dropdown-item install-filter"
-											type="button"
-											data-install-filter="manual"
-										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>手動インストール済み
-										</button>
-									</li>
-									<li>
-										<button
-											class="dropdown-item install-filter"
-											type="button"
-											data-install-filter="false"
-										>
-											<!-- from Bootstrap Icons -->
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="16"
-												height="16"
-												fill="currentColor"
-												class="bi bi-check"
-												viewBox="0 0 16 16"
-											>
-												<path
-													d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-												/></svg
-											>未インストール
-										</button>
-									</li>
-								</ul>
-							</div>
-							<div class="d-inline-block ms-1">
-								<div class="input-group mb-2">
-									<span class="input-group-text">
-										<!-- from Bootstrap Icons -->
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="16"
-											height="16"
-											fill="currentColor"
-											class="bi bi-search"
-											viewBox="0 0 16 16"
-										>
-											<path
-												d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
+										<ul class="dropdown-menu" aria-labelledby="type-filter">
+											<li>
+												<button
+													class="dropdown-item type-filter"
+													type="button"
+													data-type-filter="input"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>入力
+												</button>
+											</li>
+											<li>
+												<button
+													class="dropdown-item type-filter"
+													type="button"
+													data-type-filter="output"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>出力
+												</button>
+											</li>
+											<li>
+												<button
+													class="dropdown-item type-filter"
+													type="button"
+													data-type-filter="filter"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>フィルター
+												</button>
+											</li>
+											<li>
+												<button
+													class="dropdown-item type-filter"
+													type="button"
+													data-type-filter="color"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>色変換
+												</button>
+											</li>
+											<li>
+												<button
+													class="dropdown-item type-filter"
+													type="button"
+													data-type-filter="language"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>言語
+												</button>
+											</li>
+											<li>
+												<button
+													class="dropdown-item type-filter"
+													type="button"
+													data-type-filter="animation"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>アニメーション効果
+												</button>
+											</li>
+											<li>
+												<button
+													class="dropdown-item type-filter"
+													type="button"
+													data-type-filter="object"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>カスタムオブジェクト
+												</button>
+											</li>
+											<li>
+												<button
+													class="dropdown-item type-filter"
+													type="button"
+													data-type-filter="scene"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>シーンチェンジ
+												</button>
+											</li>
+											<li>
+												<button
+													class="dropdown-item type-filter"
+													type="button"
+													data-type-filter="camera"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>カメラ制御
+												</button>
+											</li>
+											<li>
+												<button
+													class="dropdown-item type-filter"
+													type="button"
+													data-type-filter="track"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>トラックバー
+												</button>
+											</li>
+											<li>
+												<a
+													href="https://hal-shu-sato.github.io/apm/#%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%81%A8%E3%81%AF"
+													class="dropdown-item"
+													type="button"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-info-circle"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+														/>
+														<path
+															d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
+														/>
+													</svg>
+													タイプについて
+												</a>
+											</li>
+											<li><hr class="dropdown-divider" /></li>
+											<li>
+												<button
+													class="dropdown-item install-filter"
+													type="button"
+													data-install-filter="true"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>インストール済み
+												</button>
+											</li>
+											<li>
+												<button
+													class="dropdown-item install-filter"
+													type="button"
+													data-install-filter="manual"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>手動インストール済み
+												</button>
+											</li>
+											<li>
+												<button
+													class="dropdown-item install-filter"
+													type="button"
+													data-install-filter="false"
+												>
+													<!-- from Bootstrap Icons -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="16"
+														height="16"
+														fill="currentColor"
+														class="bi bi-check"
+														viewBox="0 0 16 16"
+													>
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+														/></svg
+													>未インストール
+												</button>
+											</li>
+										</ul>
+									</div>
+									<div class="d-inline-block ms-1">
+										<div class="input-group mb-2">
+											<span class="input-group-text">
+												<!-- from Bootstrap Icons -->
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="16"
+													height="16"
+													fill="currentColor"
+													class="bi bi-search"
+													viewBox="0 0 16 16"
+												>
+													<path
+														d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
+													/>
+												</svg>
+											</span>
+											<input
+												class="fuzzy-search form-control"
+												placeholder="検索"
+												aria-label="検索"
 											/>
-										</svg>
-									</span>
-									<input
-										class="fuzzy-search form-control"
-										placeholder="検索"
-										aria-label="検索"
-									/>
+										</div>
+									</div>
 								</div>
 							</div>
-						</div>
-					</div>
-
-					<div class="row flex-grow-1 packages-table bg-white">
-						<div class="col g-0">
-							<table class="table table-hover" id="packages-table">
-								<thead class="bg-light-on-surface"></thead>
-								<tbody class="list"></tbody>
-								<tbody class="table-secondary"></tbody>
-							</table>
-						</div>
-						<div
-							class="d-flex justify-content-center align-items-center fade"
-							id="packages-table-overlay"
-						>
-							<div class="spinner-border" role="status">
-								<span class="visually-hidden">Loading...</span>
+							<div class="my-1 ms-auto" id="packages-sort"></div>
+							<div class="row flex-grow-1 overflow-auto">
+								<div class="col" id="packages-table">
+									<ul
+										class="list list-group list-group-flush"
+										id="packages-list"
+									></ul>
+									<ul
+										class="list-group list-group-flush"
+										id="packages-list2"
+									></ul>
+								</div>
+								<div
+									class="d-flex justify-content-center align-items-center fade"
+									id="packages-table-overlay"
+								>
+									<div class="spinner-border" role="status">
+										<span class="visually-hidden">Loading...</span>
+									</div>
+								</div>
 							</div>
-						</div>
-					</div>
-
-					<div class="row border-top py-1 flex-shrink-0 package-detail">
-						<div class="col">
-							<h4 class="d-inline-block" id="package-name"></h4>
-							<div
-								class="text-primary d-inline-block ms-1"
-								id="package-developer"
-							></div>
-							<div class="text-break" id="package-description"></div>
-							<div class="text-break" id="package-page"></div>
+							<div class="d-none">
+								<div
+									id="sort-template"
+									class="
+										sort
+										rounded-pill
+										d-inline-block
+										px-2
+										mx-1
+										list-group-item-secondary
+										small
+										border
+									"
+								></div>
+								<span
+									id="tag-template"
+									class="
+										rounded-pill
+										d-inline-block
+										px-2
+										mx-1
+										list-group-item-secondary
+										small
+										border
+									"
+								></span>
+								<li
+									id="list-template"
+									class="list-group-item list-group-item-action"
+								>
+									<input type="radio" name="accordion" />
+									<label class="d-block">
+										<div class="row">
+											<div class="col-sm-9">
+												<div class="d-inline-block name"></div>
+												<div
+													class="text-primary d-inline-block ms-1 developer"
+												></div>
+												<div class="d-inline-block type"></div>
+												<br />
+												<div class="d-inline-block text-break overview"></div>
+												<div class="accordion-detail">
+													<div class="text-break description"></div>
+													<div class="text-break"><a class="pageURL"></a></div>
+												</div>
+											</div>
+											<div class="col-sm-3">
+												<div class="text-break latestVersion"></div>
+												<div class="text-break installedVersion"></div>
+											</div>
+										</div>
+									</label>
+								</li>
+							</div>
 						</div>
 					</div>
 				</div>
