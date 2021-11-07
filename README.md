@@ -7,14 +7,15 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/hal-shu-sato/apm/total)
 
 <p>
-  <img src="./docs/images/screen1.png" width="160" />
-  <img src="./docs/images/screen2.png" width="320" />
+  <img src="./docs/images/tab1.png" width="160" />
+  <img src="./docs/images/tab2.png" width="160" />
+  <img src="./docs/images/tab1dark.png" width="160" />
+  <img src="./docs/images/tab2dark.png" width="160" />
 </p>
 
-AviUtl本体やプラグイン・スクリプトの導入を補助するソフトウェアです。
+AviUtlを手軽に導入できるソフトウエアです
 
-- AviUtl本体と拡張編集のダウンロード・更新
-- プラグインとスクリプトのダウンロード・更新・削除
+- AviUtl・拡張編集やプラグイン・スクリプトのインストール
 - 50を超えるプラグインと多数のスクリプトに対応
 - インストール済みのAviUtlへ追加可能
 
@@ -22,36 +23,32 @@ _Read this in [English](./README.en.md)_.
 
 ## ダウンロード
 
-[Releases](https://github.com/hal-shu-sato/apm/releases/latest)のAssetsから`AviUtl.Package.Manager-{version}.Setup.exe`をダウンロードします。インストール不要のzip版もあります。
+[ダウンロードページ](https://github.com/hal-shu-sato/apm/releases/latest)のAssetsから`AviUtl.Package.Manager-{version}.Setup.exe`をダウンロードします。
 
 ## 準備
 
-AviUtl Package Managerを起動した後は次の設定を行ってください。
-
-- すでにAviutlをお使いの場合
-  1. 「インストール先フォルダを選択」からAviutlがインストールされているフォルダを選択します
-- 新規インストールの場合
-  1. 「インストール先フォルダを選択」からAviutlをインストールする空のフォルダを選択します
-  2. Aviutlと拡張編集のそれぞれのバージョンを選択してインストールします
+1. AviUtl Package Managerの起動後、
+   - 既にAviutlをお使いの場合は、「インストール先フォルダを選択」からAviutlがインストールされているフォルダを選択します
+   - 新規インストールの場合は、「おすすめ一括インストール」を押してAviUtl・拡張編集とmp4の入出力に必要なプラグインをインストールします
+2. スタートメニューにAviUtlが追加されているはずです。AviUtlを起動して動画編集を始めましょう！
 
 ## パッケージ（プラグイン・スクリプト）の導入
 
-1. 「Plugins&Scripts」タブからインストールしたいパッケージを選びます
-2. パッケージの情報が表示されます
-   - URLをブラウザで開き利用規約や注意事項を読んでください
-   - インストール後に必要な設定がないか確認してください
+1. 「Plugins&Scripts」タブからインストールするパッケージを選びます
+2. パッケージの説明が表示されます
+   - URLをブラウザで開き利用規約、注意事項やインストール後に必要な設定を確認してください
 3. 「インストール」ボタンを押します
-4. 表示された作者サイトから、リストに表示された「最新バージョン」と同じバージョンのファイルをダウンロードします
+4. 表示された作者サイトから、リストに表示されているバージョンと同じバージョンのファイルをダウンロードします
 
 ### パッケージ一覧にないスクリプトを導入する場合
 
 1. 「Plugins&Scripts」タブを開き、「インストール▼>リストにないスクリプトのインストール」を選択します
-2. リンクをたどり作者サイトに移動して、スクリプトをダウンロードします
+2. 表示されるリンクから作者サイトに移動して、スクリプトをダウンロードします
 
 ### その他
 
-- 上記の方法で導入できないパッケージも、従来の手動でファイルをコピーする方法で導入できます
-- プラグイン・スクリプト一覧への追加・更新・削除等の要望は[apm-data](https://github.com/hal-shu-sato/apm-data/issues)までお知らせください。
+- 上記の方法で導入できないパッケージも、手動でファイルをコピーする従来の方法により導入できます
+- プラグイン・スクリプト一覧への追加・更新・削除等の要望がありましたら[apm-data](https://github.com/hal-shu-sato/apm-data/issues)までご連絡ください
 
 ## コントリビューション
 
