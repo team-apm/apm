@@ -7,8 +7,10 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/hal-shu-sato/apm/total)
 
 <p>
-  <img src="./docs/images/screen1.png" width="160" />
-  <img src="./docs/images/screen2.png" width="320" />
+  <img src="./docs/images/tab1.png" width="160" />
+  <img src="./docs/images/tab2.png" width="160" />
+  <img src="./docs/images/tab1dark.png" width="160" />
+  <img src="./docs/images/tab2dark.png" width="160" />
 </p>
 
 apm is software that assists in the installation of AviUtl itself and its plugins and scripts.
