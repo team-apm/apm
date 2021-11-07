@@ -88,7 +88,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
           .getElementById('sort-template')
           .cloneNode(true);
         sortBtn.removeAttribute('id');
-        sortBtn.setAttribute('data-sort', columnName);
+        sortBtn.dataset.sort = columnName;
         sortBtn.innerText = columnsDisp[i];
         packagesSort.appendChild(sortBtn);
       });
