@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/hal-shu-sato/apm/compare/v1.1.1...v1.2.0) (2021-11-07)
+
+### Features
+
+- add AviUtl shortcut to the Start menu ([a1b0169](https://github.com/hal-shu-sato/apm/commit/a1b01691adb4b67682236b162fda04aa79e729f5))
+- adding the default installation path ([072c2b0](https://github.com/hal-shu-sato/apm/commit/072c2b0ba17d21d9f3cce2a9fcf286ae832618fc))
+- automatically download repository data ([807a8c7](https://github.com/hal-shu-sato/apm/commit/807a8c7f2ec568213aad4f69f93fc7beefa04c3f)), closes [#188](https://github.com/hal-shu-sato/apm/issues/188)
+- change button colors ([681cf0f](https://github.com/hal-shu-sato/apm/commit/681cf0f81646e2a24a558d9e454a13bdc76771df))
+- change design of showing mod or check date ([14606c3](https://github.com/hal-shu-sato/apm/commit/14606c3b9cd1d3af4ab77e37b7d238fef4f0d2b9))
+- display the versions using a table ([754ab3d](https://github.com/hal-shu-sato/apm/commit/754ab3d0f821dc6ab3cfcce3b491e34a05e8f114))
+- fix button layout ([b4396c7](https://github.com/hal-shu-sato/apm/commit/b4396c77ad9831ea5978d656adb9129a869decc3))
+- limit the minimum window size ([60224ed](https://github.com/hal-shu-sato/apm/commit/60224eda71a3dac65c2493b488088ae729000860))
+- makes package detail easier to understand ([9c6805c](https://github.com/hal-shu-sato/apm/commit/9c6805cfa03af108da75a578983e322a10c6dd35))
+- supports dark theme ([fe74a02](https://github.com/hal-shu-sato/apm/commit/fe74a023c0655ed64307f6723058dbf82a603465)), closes [#194](https://github.com/hal-shu-sato/apm/issues/194)
+- use dropdowns instead of selects ([2cc2acb](https://github.com/hal-shu-sato/apm/commit/2cc2acb1cdaf6c11d0052e5493a95c16393f7bb7))
+- use ul instead of table ([c43094e](https://github.com/hal-shu-sato/apm/commit/c43094e67926905e296e35ad7916da850b1e0b49))
+
+### Bug Fixes
+
+- **core.js:** delete unnecessary lines ([32ee303](https://github.com/hal-shu-sato/apm/commit/32ee303b98a921b2cdf5e05f7750fa20a391570d))
+- fix an download error on startup ([950340c](https://github.com/hal-shu-sato/apm/commit/950340cbede7283eff02ac7d8ec4c05837288cb7)), closes [#173](https://github.com/hal-shu-sato/apm/issues/173)
+- fix for missing argument ([f4afaf9](https://github.com/hal-shu-sato/apm/commit/f4afaf9629484383b2aed90fd394dbbfe1ed768f))
+- fix sort button design ([0e292c1](https://github.com/hal-shu-sato/apm/commit/0e292c1b2349283789d81b1fe116600d142b04db))
+- fix to folder creation ([59a677f](https://github.com/hal-shu-sato/apm/commit/59a677fabe183ef61d26551043c85a4beb4f33e6))
+- fixing the design ([ee9023b](https://github.com/hal-shu-sato/apm/commit/ee9023b21e5d46e5883b6fb186db1c83d75b415f))
+- make the install buttons clickable ([38f08dc](https://github.com/hal-shu-sato/apm/commit/38f08dccdaacc9194d3eb4ab1c7baf211df9fdfb))
+
 ### [1.1.1](https://github.com/hal-shu-sato/apm/compare/v1.1.0...v1.1.1) (2021-10-17)
 
 ## [1.1.0](https://github.com/hal-shu-sato/apm/compare/v1.0.0...v1.1.0) (2021-10-17)
