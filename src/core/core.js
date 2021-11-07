@@ -82,6 +82,7 @@ async function displayInstalledVersion(instPath) {
       replaceText(`${program}-installed-version`, '未取得');
     }
   }
+
   if (store.has('modDate.core')) {
     const modDate = new Date(store.get('modDate.core'));
     replaceText('core-mod-date', modDate.toLocaleString());
@@ -152,23 +153,26 @@ async function setCoreVersions(instPath) {
       replaceText(`${program}-latest-version`, progInfo.latestVersion);
 
       for (const version of Object.keys(progInfo.releases)) {
-        const option = document.createElement('li');
-        option.classList.add('dropdown-item');
-        option.innerText =
+        const li = document.createElement('li');
+        const anchor = document.createElement('a');
+        anchor.classList.add('dropdown-item');
+        anchor.href = '#';
+        anchor.innerText =
           version +
           (version.includes('rc') ? '（テスト版）' : '') +
           (version === progInfo.latestVersion ? '（最新版）' : '');
+        li.appendChild(anchor);
 
         if (program === 'aviutl') {
-          option.addEventListener('click', async (event) => {
+          anchor.addEventListener('click', async (event) => {
             await installProgram(installAviutlBtn, program, version, instPath);
           });
-          aviutlVersionSelect.appendChild(option);
+          aviutlVersionSelect.appendChild(li);
         } else if (program === 'exedit') {
-          option.addEventListener('click', async (event) => {
+          anchor.addEventListener('click', async (event) => {
             await installProgram(installExeditBtn, program, version, instPath);
           });
-          exeditVersionSelect.appendChild(option);
+          exeditVersionSelect.appendChild(li);
         }
       }
     }
