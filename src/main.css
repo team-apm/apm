@@ -5,18 +5,24 @@
     'Hiragino Kaku Gothic ProN', 'Arial', 'Meiryo', sans-serif;
   --font-family-serif: 'Times New Roman', 'YuMincho', 'Hiragino Mincho ProN',
     'Yu Mincho', 'MS PMincho', serif;
+  --bs-gray-150: #f0f2f4;
+  --bs-gray-850: #2e2e2e;
+  --bs-gray-950: #1a1a1a;
+  --bs-light-blue: #58a6ff;
 }
 body {
   font-family: 'Helvetica Neue', 'Helvetica', 'Hiragino Sans',
     'Hiragino Kaku Gothic ProN', 'Arial', 'Meiryo', sans-serif;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bs-gray-850: #2e2e2e;
-    --bs-gray-950: #1a1a1a;
-    --bs-light-blue: #58a6ff;
+@media (prefers-color-scheme: light) {
+  .list-group-item-secondary {
+    background-color: var(--bs-gray-100);
   }
-
+  .list-group-item-secondary.list-group-item-action:hover {
+    background-color: var(--bs-gray-150);
+  }
+}
+@media (prefers-color-scheme: dark) {
   /* dark mode background */
   .bg-white {
     background-color: var(--bs-gray-950) !important;
@@ -32,6 +38,9 @@ body {
   }
   .list-group-item-secondary {
     background-color: var(--bs-gray-850);
+  }
+  .list-group-item-secondary.list-group-item-action:hover {
+    background-color: var(--bs-gray-800);
   }
 
   /* improve text visibility */
