@@ -22,6 +22,19 @@ let listJS;
 let installBtn;
 let batchInstallElm;
 
+/**
+ * Get the date today
+ *
+ * @returns {string} Today's date
+ */
+function getDate() {
+  const d = new Date();
+  return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(
+    2,
+    '0'
+  )}/${String(d.getDate()).padStart(2, '0')}`;
+}
+
 // Functions to be exported
 
 /**
@@ -501,6 +514,11 @@ async function installPackage(btn, instPath, packageToInstall, direct = false) {
   }
 
   if (filesCount === existCount) {
+    if (installedPackage.info.isContinuous)
+      installedPackage.info = {
+        ...installedPackage.info,
+        latestVersion: getDate(),
+      };
     apmJson.addPackage(instPath, installedPackage);
     await setPackagesList(instPath, true);
 
@@ -745,12 +763,6 @@ async function installScript(btn, instPath, url) {
     if (fs.existsSync(newPath)) fs.rmdirSync(newPath, { recursive: true });
     fs.renameSync(unzippedPath, newPath);
 
-    const d = new Date();
-    const date = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(
-      2,
-      '0'
-    )}${String(d.getDate()).padStart(2, '0')}`;
-
     const package = {
       id: id,
       name: name,
@@ -760,7 +772,7 @@ async function installScript(btn, instPath, url) {
       developer: '-',
       pageURL: url,
       downloadURL: url,
-      latestVersion: date,
+      latestVersion: getDate(),
       files: scriptFolders
         .map((f) => {
           return {
