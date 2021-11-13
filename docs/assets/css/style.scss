@@ -4,4 +4,4 @@
 $header-bg-color: #ff6a00 !default;
 $header-bg-color-secondary: #ee0979 !default;
 
-@import "{{ site.theme }}";
+@import '{{ site.theme }}';
