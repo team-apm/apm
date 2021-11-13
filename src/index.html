@@ -746,49 +746,6 @@
 									</div>
 								</div>
 								<div class="row mb-3">
-									<h4>データの手動更新</h4>
-									<table class="table table-borderless table-striped">
-										<thead>
-											<tr>
-												<th scope="col" class="col-sm-3"></th>
-												<th scope="col" class="col-sm-3">リスト更新日時</th>
-												<th scope="col" class="col-sm-3">最終更新日時</th>
-												<th scope="col" class="col-sm-3"></th>
-											</tr>
-										</thead>
-										<tbody class="align-middle">
-											<tr>
-												<th scope="row">AviUtl・拡張編集データ</th>
-												<td><span id="core-mod-date"></span></td>
-												<td><span id="core-check-date"></span></td>
-												<td>
-													<button
-														type="button"
-														class="btn btn-outline-primary w-100"
-														id="check-core-version"
-													>
-														更新を確認
-													</button>
-												</td>
-											</tr>
-											<tr>
-												<th scope="row">パッケージデータ</th>
-												<td><span id="packages-mod-date"></span></td>
-												<td><span id="packages-check-date"></span></td>
-												<td>
-													<button
-														type="button"
-														class="btn btn-outline-primary w-100"
-														id="check-packages-list"
-													>
-														更新を確認
-													</button>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-								<div class="row mb-3">
 									<label
 										for="zoom-factor-select"
 										class="col-sm-3 col-form-label"
@@ -814,6 +771,54 @@
 										</select>
 									</div>
 									<div class="col-sm-3"></div>
+								</div>
+								<hr />
+								<div class="row mb-3">
+									<h4>データの手動更新</h4>
+									<table class="table table-borderless table-striped">
+										<thead>
+											<tr>
+												<th scope="col" class="col-sm-3"></th>
+												<th scope="col" class="col-sm-3">リスト更新日時</th>
+												<th scope="col" class="col-sm-3">最終更新日時</th>
+												<th scope="col" class="col-sm-3"></th>
+											</tr>
+										</thead>
+										<tbody class="align-middle">
+											<tr>
+												<th scope="row">AviUtl・拡張編集データ</th>
+												<td><span id="core-mod-date"></span></td>
+												<td><span id="core-check-date"></span></td>
+												<td>
+													<div class="bg-body">
+														<button
+															type="button"
+															class="btn btn-outline-primary w-100"
+															id="check-core-version"
+														>
+															更新を確認
+														</button>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">パッケージデータ</th>
+												<td><span id="packages-mod-date"></span></td>
+												<td><span id="packages-check-date"></span></td>
+												<td>
+													<div class="bg-body">
+														<button
+															type="button"
+															class="btn btn-outline-primary w-100"
+															id="check-packages-list"
+														>
+															更新を確認
+														</button>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
 								</div>
 							</div>
 						</div>
