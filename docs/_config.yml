@@ -56,4 +56,6 @@ timezone: Asia/Tokyo
 
 lang: ja
 logo: /images/apm1024.png
-show_downloads: false
+show_downloads: true
+github:
+  exe_url: https://github.com/hal-shu-sato/apm/releases/download/v1.2.0/AviUtl.Package.Manager-1.2.0.Setup.exe
