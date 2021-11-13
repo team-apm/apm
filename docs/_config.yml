@@ -28,9 +28,9 @@ twitter_username: hal_shu_sato
 github_username: hal-shu-sato
 
 # Build settings
-theme: jekyll-theme-minimal
+remote_theme: pages-themes/cayman
 plugins:
-  - jekyll-feed
+  - jekyll-remote-theme
 
 # Exclude from processing.
 # The following items will not be processed, by default.
