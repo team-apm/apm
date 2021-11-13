@@ -3,7 +3,7 @@ const setting = require('../setting/setting');
 const parseXML = require('./parseXML');
 
 /**
- *
+ * Download mod.xml.
  */
 async function downloadData() {
   await ipcRenderer.invoke('download', setting.getModDataUrl(), true, '');
