@@ -1,11 +1,15 @@
-# ![Logo](./images/apm32.png) AviUtl Package Manager
-
 <p>
   <img src="./images/tab1.png" width="160" />
   <img src="./images/tab2.png" width="160" />
   <img src="./images/tab1dark.png" width="160" />
   <img src="./images/tab2dark.png" width="160" />
 </p>
+
+AviUtlを手軽に導入できるソフトウェアです
+
+- AviUtl・拡張編集やプラグイン・スクリプトのインストール
+- 50を超えるプラグインと多数のスクリプトに対応
+- インストール済みのAviUtlへ追加可能
 
 ## 目次
 
