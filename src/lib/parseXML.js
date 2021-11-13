@@ -9,6 +9,7 @@ const defaultKeys = [
   'overview',
   'description',
   'developer',
+  'originalDeveloper',
   'dependencies',
   'pageURL',
   'downloadURL',

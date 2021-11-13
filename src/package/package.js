@@ -212,7 +212,9 @@ async function setPackagesList(instPath, minorUpdate = false) {
       });
       name.innerText = package.info.name;
       overview.innerText = package.info.overview;
-      developer.innerText = package.info.developer;
+      developer.innerText = package.info.originalDeveloper
+        ? `${package.info.developer}（オリジナル：${package.info.originalDeveloper}）`
+        : package.info.developer;
       packageUtil.parsePackageType(package.info.type).forEach((e) => {
         const typeItem = document
           .getElementById('tag-template')
