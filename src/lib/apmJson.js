@@ -37,7 +37,7 @@ function setApmJson(instPath, object) {
  *
  * @param {string} instPath - An installation path
  * @param {string} keys - Keys to check existing
- * @returns {Promise<boolean>} Whether `apm.json` has the property.
+ * @returns {boolean} Whether `apm.json` has the property.
  */
 function has(instPath, keys) {
   if (!keys) return false;
@@ -67,7 +67,7 @@ function has(instPath, keys) {
  * @param {string} instPath - An installation path
  * @param {string} keys - Keys to get value
  * @param {any} defaultValue - A value replaced when the property don't exists.
- * @returns {Promise<any>} The property selected by key.
+ * @returns {any} The property selected by key.
  */
 function get(instPath, keys = '', defaultValue = undefined) {
   const apmJson = getApmJson(instPath);
