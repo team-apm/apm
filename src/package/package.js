@@ -146,18 +146,26 @@ async function setPackagesList(instPath, minorUpdate = false) {
         return true;
       }
       if (p.info.dependencies) {
+        // Whether there is at least one package that is not installable
         return p.info.dependencies.dependency
-          .map((id) => {
-            if (aviUtlR.test(id)) {
-              return id !== 'aviutl' + aviUtlVer;
-            }
-            if (exeditR.test(id)) {
-              return id !== 'exedit' + exeditVer;
-            }
-            return packages
-              .filter((pp) => pp.id === id)
-              .map((pp) => doNotInstall(pp))
-              .some((e) => e);
+          .map((ids) => {
+            // Whether all ids are not installable
+            return ids
+              .split('|')
+              .map((id) => {
+                if (aviUtlR.test(id)) {
+                  return id !== 'aviutl' + aviUtlVer;
+                }
+                if (exeditR.test(id)) {
+                  return id !== 'exedit' + exeditVer;
+                }
+                // Actually, there is no need to use a list because id is unique
+                return packages
+                  .filter((pp) => pp.id === id)
+                  .map((pp) => doNotInstall(pp))
+                  .some((e) => e);
+              })
+              .every((e) => e);
           })
           .some((e) => e);
       }
@@ -174,7 +182,24 @@ async function setPackagesList(instPath, minorUpdate = false) {
       if (!isInstalled(p)) lists.push(p);
       if (p.info.dependencies) {
         lists.push(
-          ...p.info.dependencies.dependency.flatMap((id) => {
+          ...p.info.dependencies.dependency.flatMap((ids) => {
+            // Whether all ids are detached or not
+            const isDetached = ids
+              .split('|')
+              .map((id) => {
+                if (aviUtlR.test(id) || exeditR.test(id)) return false;
+                // Actually, there is no need to use a list because id is unique
+                return packages
+                  .filter((pp) => pp.id === id)
+                  .map((pp) => detached(pp).length !== 0)
+                  .some((e) => e);
+              })
+              .every((e) => e);
+
+            if (!isDetached) return [];
+
+            // If all id's are detached, perform a list fetch for the first id
+            const id = ids.split('|')[0];
             if (aviUtlR.test(id) || exeditR.test(id)) {
               return [];
             }
