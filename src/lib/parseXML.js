@@ -123,6 +123,15 @@ class PackageInfo {
       if (parsedPackage[key]) {
         if (key === 'files') {
           this.files = parseFiles(parsedPackage);
+        } else if (key === 'latestVersion') {
+          const tmpObj = parsedPackage[key][0];
+          if (typeof tmpObj === 'string') {
+            this[key] = tmpObj;
+          } else if (typeof tmpObj === 'object') {
+            this[key] = tmpObj._[0];
+            if (tmpObj.$continuous)
+              this.isContinuous = Boolean(tmpObj.$continuous[0]);
+          }
         } else {
           this[key] = parsedPackage[key][0];
         }
@@ -151,6 +160,10 @@ class PackageInfo {
       if (packageItem[key]) {
         if (key === 'files') {
           newPackageItem.files = { file: parseFilesInverse(packageItem) };
+        } else if (key === 'latestVersion') {
+          const tmpItem = { '#text': packageItem[key] };
+          if (packageItem.isContinuous) tmpItem['@_continuous'] = true;
+          newPackageItem[key] = tmpItem;
         } else {
           newPackageItem[key] = packageItem[key];
         }
