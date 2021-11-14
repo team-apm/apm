@@ -274,7 +274,7 @@ function launch() {
     ) => {
       const ext = isTempData && path.extname(url);
 
-      const opt = {};
+      const opt = { overwrite: true };
       if (isTempData) {
         const directory = path.join(
           app.getPath('userData'),
