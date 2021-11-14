@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/hal-shu-sato/apm/compare/v1.2.0...v1.3.0) (2021-11-14)
+
+### Features
+
+- add the option to make the version a date ([45a55ab](https://github.com/hal-shu-sato/apm/commit/45a55ab608eee2085147e3563ce5076a31f8bced))
+- change the UI colors to improve readability ([72a7213](https://github.com/hal-shu-sato/apm/commit/72a72130cf29284128a6c4c4370e47a5efbf894f))
+- **package.js:** support dependency specification by logical OR ([d2aa49b](https://github.com/hal-shu-sato/apm/commit/d2aa49bcfedf5ba5c8d189c79d7eb19455ddb083))
+- show original developers ([cf94656](https://github.com/hal-shu-sato/apm/commit/cf94656ec79cc3e3010d785279f29880dcb7de72)), closes [#174](https://github.com/hal-shu-sato/apm/issues/174)
+
+### Bug Fixes
+
+- **\_config.yml:** fix theme name ([faad90c](https://github.com/hal-shu-sato/apm/commit/faad90c4f9b4350f97732f7851d41fbf7dccf977))
+- fix theme ([07b3fe3](https://github.com/hal-shu-sato/apm/commit/07b3fe3c02c2c26206f8d4430492fe74bce09721))
+
 ## [1.2.0](https://github.com/hal-shu-sato/apm/compare/v1.1.1...v1.2.0) (2021-11-07)
 
 ### Features
