@@ -13,4 +13,4 @@ function getHash(text, limit = 7) {
   return shasum.digest('hex').substr(0, limit);
 }
 
-module.exports = getHash;
+module.exports = { getHash };

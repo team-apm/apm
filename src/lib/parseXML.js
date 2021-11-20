@@ -102,7 +102,12 @@ class CoreInfo {
       this.releases = {};
       const prefix = parsedCore.releases[0].$prefix[0];
       for (const fileURL of parsedCore.releases[0].fileURL) {
-        this.releases[fileURL.$version[0]] = path.join(prefix, fileURL._[0]);
+        const release = {};
+        release.url = path.join(prefix, fileURL._[0]);
+        if (fileURL.$target) release.target = fileURL.$target[0];
+        if (fileURL.$targetIntegrity)
+          release.targetIntegrity = fileURL.$targetIntegrity[0];
+        this.releases[fileURL.$version[0]] = release;
       }
     }
     Object.freeze(this);

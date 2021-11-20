@@ -4,6 +4,7 @@ const path = require('path');
 const Store = require('electron-store');
 const store = new Store();
 const log = require('electron-log');
+const ssri = require('ssri');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const shortcut = require('../lib/shortcut');
@@ -44,7 +45,7 @@ async function initCore() {
  */
 async function displayInstalledVersion(instPath) {
   const coreInfo = await getCoreInfo();
-  if (coreInfo) {
+  if (instPath && coreInfo) {
     for (const program of ['aviutl', 'exedit']) {
       let filesCount = 0;
       let existCount = 0;
@@ -57,7 +58,29 @@ async function displayInstalledVersion(instPath) {
         }
       }
 
-      if (instPath && apmJson.has(instPath, 'core.' + program)) {
+      // Set the version of the manually installed program
+      if (!apmJson.has(instPath, 'core.' + program)) {
+        for (const [version, release] of Object.entries(
+          coreInfo[program].releases
+        )) {
+          if (!release.target || !release.targetIntegrity) continue;
+          const targetPath = path.join(instPath, release.target);
+          if (!fs.existsSync(targetPath)) continue;
+
+          try {
+            await ssri.checkStream(
+              fs.createReadStream(targetPath),
+              release.targetIntegrity
+            );
+            apmJson.setCore(instPath, program, version);
+            break;
+          } catch {
+            continue;
+          }
+        }
+      }
+
+      if (apmJson.has(instPath, 'core.' + program)) {
         if (filesCount === existCount) {
           replaceText(
             `${program}-installed-version`,
@@ -66,7 +89,8 @@ async function displayInstalledVersion(instPath) {
         } else {
           replaceText(
             `${program}-installed-version`,
-            '未インストール（ファイルの存在が確認できませんでした。）'
+            apmJson.get(instPath, 'core.' + program, '未インストール') +
+              '（ファイルの存在が確認できませんでした。）'
           );
         }
       } else {
@@ -294,7 +318,7 @@ async function installProgram(btn, program, version, instPath) {
 
   if (coreInfo) {
     try {
-      const url = coreInfo[program].releases[version];
+      const url = coreInfo[program].releases[version].url;
       const archivePath = await ipcRenderer.invoke(
         'download',
         url,
