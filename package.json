@@ -51,7 +51,7 @@
     "win-7zip": "^0.1.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^14.0.0",
+    "@commitlint/cli": "^15.0.0",
     "@commitlint/config-conventional": "^15.0.0",
     "@electron-forge/cli": "^6.0.0-beta.57",
     "@electron-forge/maker-deb": "^6.0.0-beta.57",
