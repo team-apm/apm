@@ -23,7 +23,7 @@ _Read this in [English](./README.en.md)_.
 
 ## ダウンロード
 
-[ダウンロードページ](https://github.com/hal-shu-sato/apm/releases/latest)のAssetsから`AviUtl.Package.Manager-{version}.Setup.exe`をダウンロードします
+[ダウンロードページ](https://hal-shu-sato.github.io/apm/)からAviUtl Package Managerをダウンロードします
 
 ## 準備
 
