@@ -13,6 +13,7 @@ const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
+const { getHashOfFile } = require('../lib/getHash');
 
 /**
  * Returns the default installation path
@@ -44,7 +45,7 @@ async function initCore() {
  */
 async function displayInstalledVersion(instPath) {
   const coreInfo = await getCoreInfo();
-  if (coreInfo) {
+  if (instPath && coreInfo) {
     for (const program of ['aviutl', 'exedit']) {
       let filesCount = 0;
       let existCount = 0;
@@ -57,7 +58,26 @@ async function displayInstalledVersion(instPath) {
         }
       }
 
-      if (instPath && apmJson.has(instPath, 'core.' + program)) {
+      // Set the version of the manually installed program
+      if (!apmJson.has(instPath, 'core.' + program)) {
+        for (const [version, release] of Object.entries(
+          coreInfo[program].releases
+        )) {
+          if (release.hashTarget && release.hashTargetSHA256) {
+            const targetPath = path.join(instPath, release.hashTarget);
+            if (
+              fs.existsSync(targetPath) &&
+              getHashOfFile(targetPath).toUpperCase() ===
+                release.hashTargetSHA256.toUpperCase()
+            ) {
+              apmJson.setCore(instPath, program, version);
+              break;
+            }
+          }
+        }
+      }
+
+      if (apmJson.has(instPath, 'core.' + program)) {
         if (filesCount === existCount) {
           replaceText(
             `${program}-installed-version`,
@@ -66,7 +86,8 @@ async function displayInstalledVersion(instPath) {
         } else {
           replaceText(
             `${program}-installed-version`,
-            '未インストール（ファイルの存在が確認できませんでした。）'
+            apmJson.get(instPath, 'core.' + program, '未インストール') +
+              '（ファイルの存在が確認できませんでした。）'
           );
         }
       } else {
@@ -294,7 +315,7 @@ async function installProgram(btn, program, version, instPath) {
 
   if (coreInfo) {
     try {
-      const url = coreInfo[program].releases[version];
+      const url = coreInfo[program].releases[version].url;
       const archivePath = await ipcRenderer.invoke(
         'download',
         url,

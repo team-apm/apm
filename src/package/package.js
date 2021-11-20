@@ -14,7 +14,7 @@ const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
-const getHash = require('../lib/getHash');
+const { getHash } = require('../lib/getHash');
 const packageUtil = require('./packageUtil');
 
 let selectedPackage;

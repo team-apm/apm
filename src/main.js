@@ -13,7 +13,7 @@ const windowStateKeeper = require('electron-window-state');
 const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
-const getHash = require('./lib/getHash');
+const { getHash } = require('./lib/getHash');
 const shortcut = require('./lib/shortcut');
 
 log.catchErrors({
