@@ -4,6 +4,7 @@ const path = require('path');
 const Store = require('electron-store');
 const store = new Store();
 const log = require('electron-log');
+const ssri = require('ssri');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const shortcut = require('../lib/shortcut');
@@ -13,7 +14,6 @@ const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
-const { getHashOfFile } = require('../lib/getHash');
 
 /**
  * Returns the default installation path
@@ -63,16 +63,19 @@ async function displayInstalledVersion(instPath) {
         for (const [version, release] of Object.entries(
           coreInfo[program].releases
         )) {
-          if (release.hashTarget && release.hashTargetSHA256) {
-            const targetPath = path.join(instPath, release.hashTarget);
-            if (
-              fs.existsSync(targetPath) &&
-              getHashOfFile(targetPath).toUpperCase() ===
-                release.hashTargetSHA256.toUpperCase()
-            ) {
-              apmJson.setCore(instPath, program, version);
-              break;
-            }
+          if (!release.target || !release.targetIntegrity) continue;
+          const targetPath = path.join(instPath, release.target);
+          if (!fs.existsSync(targetPath)) continue;
+
+          try {
+            await ssri.checkStream(
+              fs.createReadStream(targetPath),
+              release.targetIntegrity
+            );
+            apmJson.setCore(instPath, program, version);
+            break;
+          } catch {
+            continue;
           }
         }
       }

@@ -104,9 +104,9 @@ class CoreInfo {
       for (const fileURL of parsedCore.releases[0].fileURL) {
         const release = [];
         release.url = path.join(prefix, fileURL._[0]);
-        if (fileURL.$hashTarget) release.hashTarget = fileURL.$hashTarget[0];
-        if (fileURL.$hashTargetSHA256)
-          release.hashTargetSHA256 = fileURL.$hashTargetSHA256[0];
+        if (fileURL.$target) release.target = fileURL.$target[0];
+        if (fileURL.$targetIntegrity)
+          release.targetIntegrity = fileURL.$targetIntegrity[0];
         this.releases[fileURL.$version[0]] = release;
       }
     }
