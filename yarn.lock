@@ -432,7 +432,7 @@
     "@electron-forge/template-base" "6.0.0-beta.61"
     fs-extra "^10.0.0"
 
-"@electron/get@^1.0.1", "@electron/get@^1.6.0", "@electron/get@^1.9.0":
+"@electron/get@^1.13.0", "@electron/get@^1.6.0", "@electron/get@^1.9.0":
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/@electron/get/-/get-1.13.1.tgz#42a0aa62fd1189638bd966e23effaebb16108368"
   integrity sha512-U5vkXDZ9DwXtkPqlB45tfYnnYBN8PePp1z/XDCupnSpdrxT8/ThCv9WCwPLf9oqiSGZTkH6dx2jDUPuoXpjkcA==
@@ -2351,12 +2351,12 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@^14.0.0:
-  version "14.2.1"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-14.2.1.tgz#ee8b9cfa8c04ad4d9456daa5bbac562c2c2517a1"
-  integrity sha512-20cLOVpmjIgYMgsDLpI36VQhv0bIy54sSBAP3rLFtrs/kVVHLu0educMVZkkMm5GJPd2vvU4mcK7f43JgVRcNg==
+electron@^16.0.1:
+  version "16.0.1"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-16.0.1.tgz#34c0946bd6b6fa8de5181338a04cb690611f140c"
+  integrity sha512-6TSDBcoKGgmKL/+W+LyaXidRVeRl1V4I81ZOWcqsVksdTMfM4AlxTgfaoYdK/nUhqBrUtuPDcqOyJE6Bc4qMpw==
   dependencies:
-    "@electron/get" "^1.0.1"
+    "@electron/get" "^1.13.0"
     "@types/node" "^14.6.2"
     extract-zip "^1.0.3"
 

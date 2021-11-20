@@ -64,7 +64,7 @@
     "cross-env": "^7.0.3",
     "cz-conventional-changelog": "3.3.0",
     "cz-conventional-changelog-ja": "^0.0.2",
-    "electron": "^14.0.0",
+    "electron": "^16.0.1",
     "eslint": "^8.0.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.3.0",
