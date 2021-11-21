@@ -56,7 +56,7 @@ function parseFiles(parsedData) {
       if (file.$directory) tmpFile.isDirectory = Boolean(file.$directory[0]);
       if (file.$archivePath) tmpFile.archivePath = file.$archivePath[0];
     } else {
-      break;
+      continue;
     }
     Object.freeze(tmpFile);
     files.push(tmpFile);
