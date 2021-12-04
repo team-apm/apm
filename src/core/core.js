@@ -14,6 +14,7 @@ const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
+const migration = require('../migration/migration1to2');
 
 /**
  * Returns the default installation path
@@ -276,6 +277,8 @@ async function selectInstallationPath(input) {
       fs.readdirSync(originalPath).length === 0
     )
       fs.rmdirSync(originalPath);
+
+    migration.byFolder(selectedPath[0]);
     store.set('installationPath', selectedPath[0]);
     await displayInstalledVersion(selectedPath[0]);
     await setCoreVersions(selectedPath[0]);

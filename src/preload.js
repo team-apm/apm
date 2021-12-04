@@ -6,6 +6,7 @@ const core = require('./core/core');
 const package = require('./package/package');
 const setting = require('./setting/setting');
 const mod = require('./lib/mod');
+const migration = require('./migration/migration1to2');
 
 log.catchErrors({
   onError: () => {
@@ -26,6 +27,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   const packagesTableOverlay = document.getElementById(
     'packages-table-overlay'
   );
+  // migration
+  await migration.global();
+  if (store.has('installationPath'))
+    migration.byFolder(store.get('installationPath'));
 
   // init data
   const firstLaunch = !store.has('dataURL.main');
