@@ -67,15 +67,14 @@ async function displayInstalledVersion(instPath) {
           const targetPath = path.join(instPath, release.target);
           if (!fs.existsSync(targetPath)) continue;
 
+          let readStream;
           try {
-            await ssri.checkStream(
-              fs.createReadStream(targetPath),
-              release.targetIntegrity
-            );
+            readStream = fs.createReadStream(targetPath);
+            await ssri.checkStream(readStream, release.targetIntegrity);
             apmJson.setCore(instPath, program, version);
             break;
-          } catch {
-            continue;
+          } finally {
+            if (readStream) readStream.destroy();
           }
         }
       }
