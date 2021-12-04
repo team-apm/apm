@@ -366,7 +366,7 @@ async function checkPackagesList(btn, overlay, instPath) {
     await mod.downloadData();
     store.set('checkDate.packages', Date.now());
     const modInfo = await mod.getInfo();
-    store.set('modDate.packages', modInfo.packages_list.getTime());
+    store.set('modDate.packages', modInfo.packages.getTime());
     await setPackagesList(instPath);
 
     if (btn) buttonTransition.message(btn, '更新完了', 'success');

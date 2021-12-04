@@ -283,7 +283,7 @@ class ModInfo extends Object {
     if (valid === true) {
       const modInfo = parser.parse(xmlData, parseOptions);
       if (modInfo.mod) {
-        for (const filename of ['core', 'packages_list']) {
+        for (const filename of ['core', 'packages']) {
           this[filename] = new Date(modInfo.mod[0][filename][0]);
         }
       } else {
