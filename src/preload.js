@@ -45,7 +45,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (oldCoreMod.getTime() < currentMod.core.getTime()) {
     await core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
   }
-  if (oldPackagesMod.getTime() < currentMod.packages_list.getTime()) {
+  if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
     await package.checkPackagesList(
       checkPackagesListBtn,
       packagesTableOverlay,
