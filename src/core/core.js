@@ -63,19 +63,27 @@ async function displayInstalledVersion(instPath) {
         for (const [version, release] of Object.entries(
           coreInfo[program].releases
         )) {
-          if (!release.target || !release.targetIntegrity) continue;
-          const targetPath = path.join(instPath, release.target);
-          if (!fs.existsSync(targetPath)) continue;
+          if (release.integrities.length === 0) continue;
+          let match = true;
+          for (const integrity of release.integrities) {
+            const targetPath = path.join(instPath, integrity.target);
+            if (!fs.existsSync(targetPath)) {
+              match = false;
+              break;
+            }
 
-          let readStream;
-          try {
-            readStream = fs.createReadStream(targetPath);
-            await ssri.checkStream(readStream, release.targetIntegrity);
-            apmJson.setCore(instPath, program, version);
-            break;
-          } finally {
-            if (readStream) readStream.destroy();
+            let readStream;
+            try {
+              readStream = fs.createReadStream(targetPath);
+              await ssri.checkStream(readStream, integrity.targetIntegrity);
+            } catch {
+              match = false;
+              break;
+            } finally {
+              if (readStream) readStream.destroy();
+            }
           }
+          if (match) apmJson.setCore(instPath, program, version);
         }
       }
 

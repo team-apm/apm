@@ -100,14 +100,18 @@ class CoreInfo {
     }
     if (parsedCore.releases) {
       this.releases = {};
-      const prefix = parsedCore.releases[0].$prefix[0];
-      for (const fileURL of parsedCore.releases[0].fileURL) {
-        const release = {};
-        release.url = path.join(prefix, fileURL._[0]);
-        if (fileURL.$target) release.target = fileURL.$target[0];
-        if (fileURL.$targetIntegrity)
-          release.targetIntegrity = fileURL.$targetIntegrity[0];
-        this.releases[fileURL.$version[0]] = release;
+      for (const release of parsedCore.releases[0].release) {
+        this.releases[release.$version[0]] = {
+          url: release.url[0],
+          integrities: release.integrities
+            ? release.integrities[0].integrity.map((integrity) => {
+                return {
+                  target: integrity.$target[0],
+                  targetIntegrity: integrity._[0],
+                };
+              })
+            : [],
+        };
       }
     }
     Object.freeze(this);
