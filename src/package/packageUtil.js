@@ -63,10 +63,10 @@ function parsePackageType(packageType) {
 }
 
 /**
- * Returns an object parsed from packages_list.xml
+ * Returns an object parsed from packages.xml
  *
  * @param {string[]} packageDataUrls - URLs of the repository
- * @returns {Promise<object[]>} - A list of object parsed from packages_list.xml
+ * @returns {Promise<object[]>} - A list of object parsed from packages.xml
  */
 async function getPackages(packageDataUrls) {
   const xmlList = {};
@@ -74,7 +74,7 @@ async function getPackages(packageDataUrls) {
   for (const packageRepository of packageDataUrls) {
     const packagesListFile = await ipcRenderer.invoke(
       'exists-temp-file',
-      'package/packages_list.xml',
+      'package/packages.xml',
       packageRepository
     );
     if (packagesListFile.exists) {
@@ -158,7 +158,7 @@ function getInstalledFiles(instPath) {
  *
  * @param {string[]} files - List of installed files
  * @param {object[]} installedPackages - A list of object from apmJson
- * @param {object[]} packages - A list of object parsed from packages_list.xml
+ * @param {object[]} packages - A list of object parsed from packages.xml
  * @returns {string[]} List of manually installed files
  */
 function getManuallyInstalledFiles(files, installedPackages, packages) {

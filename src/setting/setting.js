@@ -12,7 +12,7 @@ function initSettings() {
   if (!store.has('dataURL.extra')) store.set('dataURL.extra', '');
   if (!store.has('dataURL.main'))
     setDataUrl(null, {
-      value: 'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/',
+      value: 'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/v2/data/',
     });
 }
 
@@ -37,7 +37,7 @@ function setDataUrl(btn, dataUrl) {
 
   if (!dataUrl.value) {
     dataUrl.value =
-      'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/';
+      'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/v2/data/';
   }
 
   const value = dataUrl.value;
@@ -110,7 +110,7 @@ function getPackagesDataUrl(instPath) {
  * @returns {string} - Package data files URL.
  */
 function getLocalPackagesDataUrl(instPath) {
-  return path.join(instPath, 'packages_list.xml');
+  return path.join(instPath, 'packages.xml');
 }
 
 /**
@@ -133,7 +133,7 @@ function setExtraDataUrl(btn, dataUrls) {
   let enableButton;
   if (btn !== null) enableButton = buttonTransition.loading(btn);
 
-  const packages = [path.join(store.get('dataURL.main'), 'packages_list.xml')];
+  const packages = [path.join(store.get('dataURL.main'), 'packages.xml')];
 
   for (const tmpDataUrl of dataUrls.split(/\r?\n/)) {
     const dataUrl = tmpDataUrl.trim();
@@ -146,7 +146,7 @@ function setExtraDataUrl(btn, dataUrls) {
         `有効なURLまたは場所を入力してください。(${dataUrl})`
       );
     }
-    if (!(path.basename(dataUrl) === 'packages_list.xml')) {
+    if (!(path.basename(dataUrl) === 'packages.xml')) {
       ipcRenderer.invoke(
         'open-err-dialog',
         'エラー',
@@ -154,7 +154,7 @@ function setExtraDataUrl(btn, dataUrls) {
       );
     }
 
-    if (path.basename(dataUrl) === 'packages_list.xml') packages.push(dataUrl);
+    if (path.basename(dataUrl) === 'packages.xml') packages.push(dataUrl);
   }
 
   store.set('dataURL.extra', dataUrls);
