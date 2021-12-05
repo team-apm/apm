@@ -49,7 +49,7 @@ async function global() {
   // 2. Triggers initialization
   store.delete('modDate');
   // 3. Triggers initialization
-  store.delete('dataURL');
+  store.delete('dataURL.main');
 
   // Finalize
   store.set('dataVersion', '2');
@@ -83,15 +83,26 @@ async function byFolder(instPath) {
     log.error(e);
   }
 
+  // step 2 and 3
+  const packages = apmJson.get(instPath, 'packages');
+
   // 2. Update the path to the online and local xml files.
-  let text = fs.readFileSync(jsonPath, 'utf-8');
-  text = text.replaceAll(
-    'apm-data@main\\\\data',
-    'apm-data@main\\\\v2\\\\data'
-  );
-  text = text.replaceAll('apm-data@main\\/data', 'apm-data@main\\/v2\\/data');
-  text = text.replaceAll('packages_list.xml', 'packages.xml');
-  fs.writeFileSync(jsonPath, text, 'utf-8');
+  for (const id of Object.keys(packages)) {
+    let text = packages[id].repository;
+    text = text.replaceAll(
+      'apm-data@main\\data\\packages_list.xml',
+      'apm-data@main\\v2\\data\\packages.xml'
+    );
+    text = text.replaceAll(
+      'apm-data@main/data/packages_list.xml',
+      'apm-data@main/v2/data/packages.xml'
+    );
+    text = text.replaceAll(
+      path.join(instPath, 'packages_list.xml'),
+      path.join(instPath, 'packages.xml')
+    );
+    packages[id].repository = text;
+  }
 
   // 3. Convert id
   const convertJson = await ipcRenderer.invoke(
@@ -101,7 +112,6 @@ async function byFolder(instPath) {
     'migration1to2'
   );
   const convDict = JSON.parse(fs.readFileSync(convertJson));
-  const packages = apmJson.get(instPath, 'packages');
   for (const [oldId, package] of Object.entries(packages)) {
     if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
       const newId = convDict[package.id];
@@ -110,6 +120,7 @@ async function byFolder(instPath) {
       packages[newId].id = newId;
     }
   }
+
   apmJson.set(instPath, 'packages', packages);
 
   // Finish

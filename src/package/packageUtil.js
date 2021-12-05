@@ -74,7 +74,7 @@ async function getPackages(packageDataUrls) {
   for (const packageRepository of packageDataUrls) {
     const packagesListFile = await ipcRenderer.invoke(
       'exists-temp-file',
-      'package/packages.xml',
+      `package/${path.basename(packageRepository)}`,
       packageRepository
     );
     if (packagesListFile.exists) {
