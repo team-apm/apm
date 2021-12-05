@@ -41,8 +41,8 @@ async function global() {
   files.forEach((file) => {
     try {
       fs.unlinkSync(file);
-    } catch {
-      // empty
+    } catch (e) {
+      log.error(e);
     }
   });
 
@@ -63,8 +63,8 @@ async function global() {
 async function byFolder(instPath) {
   // Guard condition
   const jsonPath = path.join(instPath, 'apm.json');
-  const jsonExsits = fs.existsSync(jsonPath);
-  if (!jsonExsits) {
+  const jsonExists = fs.existsSync(jsonPath);
+  if (!jsonExists) {
     apmJson.set(instPath, 'dataVersion', '2');
     return;
   }
@@ -79,8 +79,8 @@ async function byFolder(instPath) {
       path.join(instPath, 'packages_list.xml'),
       path.join(instPath, 'packages.xml')
     );
-  } catch {
-    // empty
+  } catch (e) {
+    log.error(e);
   }
 
   // 2. Update the path to the online and local xml files.
