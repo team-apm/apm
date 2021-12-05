@@ -24,16 +24,72 @@ async function getIdDict() {
 /**
  * Migration of common settings.
  *
+ * @returns {Promise<boolean>} True on successful completion
  */
 async function global() {
   // Guard condition
   const firstLaunch = !store.has('dataURL.main');
   if (firstLaunch) {
     store.set('dataVersion', '2');
-    return;
+    return true;
   }
   const isVerOne = !store.has('dataVersion');
-  if (!isVerOne) return;
+  if (!isVerOne) return true;
+
+  // Show the dialogs for those using custom dataURL.main
+  let useDefaultDataURL = true;
+  if (
+    store.get('dataURL.main') !==
+    'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/'
+  ) {
+    for (;;) {
+      const response = await ipcRenderer.invoke('migration1to2-confirm-dialog');
+      if (response === 0) {
+        // quit
+        return false;
+      }
+      if (response === 2) {
+        // use default dataURL.main
+        break;
+      }
+      // else (response === 1) // use new dataURL.main
+
+      const newDataURL = await ipcRenderer.invoke(
+        'migration1to2-dataurl-input-dialog'
+      );
+      if (!newDataURL) {
+        continue;
+      } else if (!newDataURL.startsWith('http') && !fs.existsSync(newDataURL)) {
+        await ipcRenderer.invoke(
+          'open-err-dialog',
+          'エラー',
+          '有効なURLまたは場所を入力してください。'
+        );
+        continue;
+      } else if (path.extname(newDataURL) === '.xml') {
+        await ipcRenderer.invoke(
+          'open-err-dialog',
+          'エラー',
+          'フォルダのURLを入力してください。'
+        );
+        continue;
+      } else {
+        const oldDataURL = store.get('dataURL.main');
+        const urls = store
+          .get('dataURL.packages')
+          .filter((url) => !url.includes(oldDataURL));
+        urls.push(path.join(newDataURL, 'packages.xml'));
+        store.set('dataURL.main', newDataURL);
+        store.set('dataURL.packages', urls);
+        store.set('migration1to2', {
+          oldDataURL: oldDataURL,
+          newDataURL: newDataURL,
+        });
+        useDefaultDataURL = false;
+        break;
+      }
+    }
+  }
 
   // Main
   log.info('Start migration: migration1to2.global())');
@@ -64,10 +120,11 @@ async function global() {
   // 2. Triggers initialization
   store.delete('modDate');
   // 3. Triggers initialization
-  store.delete('dataURL.main');
+  if (useDefaultDataURL) store.delete('dataURL.main');
 
   // Finalize
   store.set('dataVersion', '2');
+  return true;
 }
 
 /**
@@ -116,6 +173,13 @@ async function byFolder(instPath) {
       path.join(instPath, 'packages_list.xml'),
       path.join(instPath, 'packages.xml')
     );
+    if (store.has('migration1to2')) {
+      const dataURLs = store.get('migration1to2');
+      text = text.replaceAll(
+        path.join(dataURLs.oldDataURL, 'packages_list.xml'),
+        path.join(dataURLs.newDataURL, 'packages.xml')
+      );
+    }
     packages[id].repository = text;
   }
 

@@ -13,6 +13,7 @@ const windowStateKeeper = require('electron-window-state');
 const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
+const prompt = require('electron-prompt');
 const { getHash } = require('./lib/getHash');
 const shortcut = require('./lib/shortcut');
 
@@ -61,6 +62,10 @@ ipcMain.handle('get-app-version', (event) => {
 
 ipcMain.handle('app-get-path', (event, name) => {
   return app.getPath(name);
+});
+
+ipcMain.handle('app-quit', (event) => {
+  app.quit();
 });
 
 ipcMain.handle('open-path', (event, relativePath) => {
@@ -258,6 +263,39 @@ function launch() {
   ];
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
+
+  ipcMain.handle('migration1to2-confirm-dialog', async (event) => {
+    return (
+      await dialog.showMessageBox(mainWindow, {
+        title: '確認',
+        message: `新しいバージョンのデータが必要です。apmはバージョン2のみに対応しています`,
+        // detail: '',
+        type: 'warning',
+        buttons: [
+          'キャンセル',
+          '新しいデータ取得先を入力する',
+          'デフォルトのデータ取得先を使う',
+        ],
+        cancelId: 0,
+      })
+    ).response;
+  });
+
+  ipcMain.handle('migration1to2-dataurl-input-dialog', async (event) => {
+    return await prompt(
+      {
+        title: '新しいデータ取得先の入力',
+        label: '新しいデータ取得先のURL（例: https://example.com/data/）',
+        // inputAttrs: {
+        //   type: 'url'
+        // },
+        width: 500,
+        height: 300,
+        type: 'input',
+      },
+      mainWindow
+    );
+  });
 
   ipcMain.handle('change-main-zoom-factor', (event, zoomFactor) => {
     mainWindow.webContents.setZoomFactor(zoomFactor);

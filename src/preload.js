@@ -28,7 +28,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     'packages-table-overlay'
   );
   // migration
-  await migration.global();
+  if (!(await migration.global())) {
+    await ipcRenderer.invoke('app-quit');
+    return;
+  }
   if (store.has('installationPath'))
     await migration.byFolder(store.get('installationPath'));
 
