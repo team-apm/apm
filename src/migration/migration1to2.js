@@ -147,10 +147,12 @@ async function byFolder(instPath) {
   log.info(`Start migration: migration1to2.byFolder(${instPath})`);
   // 1. Renaming the local repository
   try {
-    fs.renameSync(
-      path.join(instPath, 'packages_list.xml'),
-      path.join(instPath, 'packages.xml')
-    );
+    if (fs.existsSync(path.join(instPath, 'packages_list.xml'))) {
+      fs.renameSync(
+        path.join(instPath, 'packages_list.xml'),
+        path.join(instPath, 'packages.xml')
+      );
+    }
   } catch (e) {
     log.error(e);
   }
