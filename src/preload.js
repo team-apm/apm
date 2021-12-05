@@ -30,7 +30,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // migration
   await migration.global();
   if (store.has('installationPath'))
-    migration.byFolder(store.get('installationPath'));
+    await migration.byFolder(store.get('installationPath'));
 
   // init data
   const firstLaunch = !store.has('dataURL.main');

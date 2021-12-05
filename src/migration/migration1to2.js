@@ -60,7 +60,7 @@ async function global() {
  *
  * @param {string} instPath - An installation path.
  */
-function byFolder(instPath) {
+async function byFolder(instPath) {
   // Guard condition
   const jsonPath = path.join(instPath, 'apm.json');
   const jsonExsits = fs.existsSync(jsonPath);
@@ -92,6 +92,25 @@ function byFolder(instPath) {
   text = text.replaceAll('apm-data@main\\/data', 'apm-data@main\\/v2\\/data');
   text = text.replaceAll('packages_list.xml', 'packages.xml');
   fs.writeFileSync(jsonPath, text, 'utf-8');
+
+  // 3. Convert id
+  const convertJson = await ipcRenderer.invoke(
+    'download',
+    'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/v2/data/convert.json',
+    true,
+    'migration1to2'
+  );
+  const convDict = JSON.parse(fs.readFileSync(convertJson));
+  const packages = apmJson.get(instPath, 'packages');
+  for (const [oldId, package] of Object.entries(packages)) {
+    if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
+      const newId = convDict[package.id];
+      packages[newId] = packages[oldId];
+      delete packages[oldId];
+      packages[newId].id = newId;
+    }
+  }
+  apmJson.set(instPath, 'packages', packages);
 
   // Finish
   apmJson.set(instPath, 'dataVersion', '2');

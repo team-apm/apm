@@ -271,7 +271,7 @@ async function selectInstallationPath(input) {
       'インストール先フォルダを選択してください。'
     );
   } else if (selectedPath[0] != originalPath) {
-    migration.byFolder(selectedPath[0]);
+    await migration.byFolder(selectedPath[0]);
     store.set('installationPath', selectedPath[0]);
     await displayInstalledVersion(selectedPath[0]);
     await setCoreVersions(selectedPath[0]);
