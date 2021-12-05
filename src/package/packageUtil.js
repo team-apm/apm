@@ -79,7 +79,7 @@ async function getPackages(packageDataUrls) {
     );
     if (packagesListFile.exists) {
       try {
-        xmlList[packageRepository] = parseXML.getPackages(
+        xmlList[packageRepository] = await parseXML.getPackages(
           packagesListFile.path
         );
       } catch {

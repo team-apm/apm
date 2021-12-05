@@ -7,6 +7,21 @@ const log = require('electron-log');
 const apmJson = require('../lib/apmJson');
 
 /**
+ * Returns the id conversion dictionary for the migration.
+ *
+ * @returns {Promise<string[]>} Dictionary of id relationships.
+ */
+async function getIdDict() {
+  const convertJson = await ipcRenderer.invoke(
+    'download',
+    'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/v2/data/convert.json',
+    true,
+    'migration1to2'
+  );
+  return JSON.parse(fs.readFileSync(convertJson));
+}
+
+/**
  * Migration of common settings.
  *
  */
@@ -105,13 +120,7 @@ async function byFolder(instPath) {
   }
 
   // 3. Convert id
-  const convertJson = await ipcRenderer.invoke(
-    'download',
-    'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/v2/data/convert.json',
-    true,
-    'migration1to2'
-  );
-  const convDict = JSON.parse(fs.readFileSync(convertJson));
+  const convDict = await getIdDict();
   for (const [oldId, package] of Object.entries(packages)) {
     if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
       const newId = convDict[package.id];
@@ -128,6 +137,7 @@ async function byFolder(instPath) {
 }
 
 module.exports = {
+  getIdDict,
   global,
   byFolder,
 };
