@@ -268,7 +268,7 @@ function launch() {
     return (
       await dialog.showMessageBox(mainWindow, {
         title: '確認',
-        message: `新しいバージョンのデータが必要です。apmはバージョン2のみに対応しています`,
+        message: `お使いのバージョンのapmは現在設定されているデータ取得先に対応しておりません。新しいデータ取得先への移行が必要です。`,
         // detail: '',
         type: 'warning',
         buttons: [
