@@ -11,7 +11,7 @@ const buttonTransition = require('../lib/buttonTransition');
 async function initSettings() {
   if (!store.has('dataURL.extra')) store.set('dataURL.extra', '');
   if (!store.has('dataURL.main'))
-    await setDataUrl(null, {
+    await setDataUrl({
       value: 'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/v2/data/',
     });
 }
@@ -28,12 +28,13 @@ function getDataUrl() {
 /**
  * Sets a data files URL.
  *
- * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {HTMLInputElement} dataUrl - An input element that contains a data files URL to set.
  */
-async function setDataUrl(btn, dataUrl) {
+async function setDataUrl(dataUrl) {
+  const btn = document.getElementById('set-data-url');
   let enableButton;
-  if (btn !== null) enableButton = buttonTransition.loading(btn);
+  if (btn !== null)
+    enableButton = buttonTransition.loading(btn, 'データ取得先を設定');
 
   if (!dataUrl.value) {
     dataUrl.value =
@@ -55,7 +56,7 @@ async function setDataUrl(btn, dataUrl) {
     );
   } else {
     store.set('dataURL.main', value);
-    await setExtraDataUrl(null, store.get('dataURL.extra'));
+    await setExtraDataUrl(store.get('dataURL.extra'));
   }
 
   if (btn !== null) {
@@ -126,12 +127,13 @@ function getModDataUrl() {
 /**
  * Sets extra data files URLs.
  *
- * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} dataUrls - Data files URLs to set.
  */
-async function setExtraDataUrl(btn, dataUrls) {
+async function setExtraDataUrl(dataUrls) {
+  const btn = document.getElementById('set-extra-data-url');
   let enableButton;
-  if (btn !== null) enableButton = buttonTransition.loading(btn);
+  if (btn !== null)
+    enableButton = buttonTransition.loading(btn, '追加データ取得先を設定');
 
   const packages = [path.join(store.get('dataURL.main'), 'packages.xml')];
 

@@ -19,8 +19,6 @@ const packageUtil = require('./packageUtil');
 
 let selectedPackage;
 let listJS;
-let installBtn;
-let batchInstallElm;
 
 /**
  * Get the date today
@@ -36,17 +34,6 @@ function getDate() {
 }
 
 // Functions to be exported
-
-/**
- * Initializes package
- *
- * @param {HTMLButtonElement} installPackageBtn - Button to install the package
- * @param {HTMLElement} batchInstallPackagesElm - Element representing the name of the package to be batch installed
- */
-function initPackage(installPackageBtn, batchInstallPackagesElm) {
-  installBtn = installPackageBtn;
-  batchInstallElm = batchInstallPackagesElm;
-}
 
 /**
  * Get packages
@@ -108,6 +95,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
   }
 
   // update auto install text
+  const batchInstallElm = document.getElementById('batch-install-packages');
   batchInstallElm.innerText = packages
     .filter((p) => p.info.directURL)
     .map((p) => ' + ' + p.info.name)
@@ -296,7 +284,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
           aTag.innerText = `❗ 要導入: ${p.info.name}\r\n`;
           installedVersion.appendChild(aTag);
           aTag.addEventListener('click', async (event) => {
-            await installPackage(installBtn, instPath, p);
+            await installPackage(instPath, p);
             return false;
           });
         });
@@ -348,14 +336,14 @@ async function setPackagesList(instPath, minorUpdate = false) {
 /**
  * Checks the packages list.
  *
- * @param {HTMLButtonElement} btn - A HTMLElement of button element.
- * @param {HTMLDivElement} overlay - A overlay of packages list.
  * @param {string} instPath - An installation path.
  */
-async function checkPackagesList(btn, overlay, instPath) {
+async function checkPackagesList(instPath) {
+  const btn = document.getElementById('check-packages-list');
   let enableButton;
-  if (btn) enableButton = buttonTransition.loading(btn);
+  if (btn) enableButton = buttonTransition.loading(btn, '更新を確認');
 
+  const overlay = document.getElementById('packages-table-overlay');
   if (overlay) {
     overlay.style.zIndex = 1000;
     overlay.classList.add('show');
@@ -390,13 +378,15 @@ async function checkPackagesList(btn, overlay, instPath) {
 /**
  * Installs a package to installation path.
  *
- * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} instPath - An installation path.
  * @param {object} packageToInstall - A package to install.
  * @param {boolean} direct - Install from the direct link to the zip.
  */
-async function installPackage(btn, instPath, packageToInstall, direct = false) {
-  const enableButton = btn ? buttonTransition.loading(btn) : null;
+async function installPackage(instPath, packageToInstall, direct = false) {
+  const btn = document.getElementById('install-package');
+  const enableButton = btn
+    ? buttonTransition.loading(btn, 'インストール')
+    : null;
 
   if (!instPath) {
     if (btn) {
@@ -564,11 +554,11 @@ async function installPackage(btn, instPath, packageToInstall, direct = false) {
 /**
  * Uninstalls a package to installation path.
  *
- * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} instPath - An installation path.
  */
-async function uninstallPackage(btn, instPath) {
-  const enableButton = buttonTransition.loading(btn);
+async function uninstallPackage(instPath) {
+  const btn = document.getElementById('uninstall-package');
+  const enableButton = buttonTransition.loading(btn, 'アンインストール');
 
   if (!instPath) {
     buttonTransition.message(
@@ -622,7 +612,7 @@ async function uninstallPackage(btn, instPath) {
         setting.getLocalPackagesDataUrl(instPath),
         uninstalledPackage
       );
-      await checkPackagesList(null, null, instPath);
+      await checkPackagesList(instPath);
     }
 
     buttonTransition.message(btn, 'アンインストール完了', 'success');
@@ -637,11 +627,13 @@ async function uninstallPackage(btn, instPath) {
 
 /**
  * Open the download folder of the package.
- *
- * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  */
-async function openPackageFolder(btn) {
-  const enableButton = buttonTransition.loading(btn);
+async function openPackageFolder() {
+  const btn = document.getElementById('open-package-folder');
+  const enableButton = buttonTransition.loading(
+    btn,
+    'ダウンロードフォルダを開く'
+  );
 
   if (!selectedPackage) {
     buttonTransition.message(
@@ -682,11 +674,11 @@ async function openPackageFolder(btn) {
 /**
  * Installs a script to installation path.
  *
- * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} instPath - An installation path.
  * @param {string} url - URL of the download site.
  */
-async function installScript(btn, instPath, url) {
+async function installScript(instPath, url) {
+  const btn = document.getElementById('install-script-indication');
   const enableButton = buttonTransition.loading(btn);
 
   if (!instPath) {
@@ -827,7 +819,7 @@ async function installScript(btn, instPath, url) {
       repository: setting.getLocalPackagesDataUrl(instPath),
       info: package,
     });
-    await checkPackagesList(null, null, instPath);
+    await checkPackagesList(instPath);
   } catch (e) {
     buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     setTimeout(() => {
@@ -927,7 +919,6 @@ function listFilter(column, btns, btn) {
 }
 
 module.exports = {
-  initPackage,
   getPackages,
   setPackagesList,
   checkPackagesList,

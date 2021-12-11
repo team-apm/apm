@@ -218,11 +218,11 @@ async function setCoreVersions(instPath) {
 /**
  * Checks the latest versionof programs.
  *
- * @param {HTMLButtonElement} btn - A HTMLElement of button element.
  * @param {string} instPath - An installation path.
  */
-async function checkLatestVersion(btn, instPath) {
-  const enableButton = buttonTransition.loading(btn);
+async function checkLatestVersion(instPath) {
+  const btn = document.getElementById('check-core-version');
+  const enableButton = buttonTransition.loading(btn, '更新を確認');
 
   try {
     await ipcRenderer.invoke(
@@ -375,11 +375,14 @@ async function installProgram(btn, program, version, instPath) {
 /**
  * Perform a batch installation.
  *
- * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} instPath - An installation path.
  */
-async function batchInstall(btn, instPath) {
-  const enableButton = buttonTransition.loading(btn);
+async function batchInstall(instPath) {
+  const btn = document.getElementById('batch-install');
+  const enableButton = buttonTransition.loading(
+    btn,
+    'おすすめ一括インストール'
+  );
 
   if (!instPath) {
     if (btn) {
@@ -406,7 +409,7 @@ async function batchInstall(btn, instPath) {
       (p) => p.info.directURL
     );
     for (const packageItem of packages) {
-      await package.installPackage(null, instPath, packageItem, true);
+      await package.installPackage(instPath, packageItem, true);
     }
 
     buttonTransition.message(btn, 'インストール完了', 'success');
