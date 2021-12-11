@@ -247,9 +247,18 @@ function launch() {
           },
         },
         {
-          label: 'フィードバックを送る（外部ブラウザが開きます）',
+          label: 'フィードバックを送る（GitHub）（外部ブラウザが開きます）',
           click: () => {
             shell.openExternal('https://github.com/hal-shu-sato/apm/issues');
+          },
+        },
+        {
+          label:
+            'フィードバックを送る（Googleフォーム）（外部ブラウザが開きます）',
+          click: () => {
+            shell.openExternal(
+              'https://docs.google.com/forms/d/e/1FAIpQLSf0N-X_u_abi8rrWHVDdiK3YeYuQ7J1f8bQAy6QTD-OR94DWQ/viewform?usp=sf_link'
+            );
           },
         },
         {
