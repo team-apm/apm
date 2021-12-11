@@ -14,9 +14,10 @@ const buttonTypes = [
  * Show loading spinner in the button.
  *
  * @param {HTMLButtonElement} btn - An element of the button to be
+ * @param {string} [message] - A message to show.
  * @returns {Function} Returns a function to enable the button.
  */
-function loading(btn) {
+function loading(btn, message) {
   btn.disabled = true;
   const beforeHTML = btn.innerHTML;
   btn.innerHTML =
@@ -24,7 +25,7 @@ function loading(btn) {
     '<span class="visually-hidden">Loading...</span>';
 
   return function () {
-    btn.innerHTML = beforeHTML;
+    btn.innerHTML = message ? message : beforeHTML;
     btn.disabled = false;
   };
 }
