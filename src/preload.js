@@ -22,11 +22,6 @@ log.catchErrors({
 
 window.addEventListener('DOMContentLoaded', async () => {
   const installationPath = document.getElementById('installation-path');
-  const checkCoreVersionBtn = document.getElementById('check-core-version');
-  const checkPackagesListBtn = document.getElementById('check-packages-list');
-  const packagesTableOverlay = document.getElementById(
-    'packages-table-overlay'
-  );
   // migration
   if (!(await migration.global())) {
     await ipcRenderer.invoke('app-quit');
@@ -39,10 +34,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const firstLaunch = !store.has('dataURL.main');
   await setting.initSettings();
   await core.initCore();
-  package.initPackage(
-    document.getElementById('install-package'),
-    document.getElementById('batch-install-packages')
-  );
   installationPath.value = store.get('installationPath', '');
 
   // update data
@@ -51,14 +42,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   await mod.downloadData();
   const currentMod = await mod.getInfo();
   if (oldCoreMod.getTime() < currentMod.core.getTime()) {
-    await core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
+    await core.checkLatestVersion(installationPath.value);
   }
   if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
-    await package.checkPackagesList(
-      checkPackagesListBtn,
-      packagesTableOverlay,
-      installationPath.value
-    );
+    await package.checkPackagesList(installationPath.value);
   }
 
   // tutorial
@@ -87,7 +74,7 @@ window.addEventListener('load', () => {
   // core
   const checkCoreVersionBtn = document.getElementById('check-core-version');
   checkCoreVersionBtn.addEventListener('click', async (event) => {
-    await core.checkLatestVersion(checkCoreVersionBtn, installationPath.value);
+    await core.checkLatestVersion(installationPath.value);
   });
 
   const selectInstallationPathBtn = document.getElementById(
@@ -99,34 +86,23 @@ window.addEventListener('load', () => {
 
   const batchInstallBtn = document.getElementById('batch-install');
   batchInstallBtn.addEventListener('click', async (event) => {
-    await core.batchInstall(batchInstallBtn, installationPath.value);
+    await core.batchInstall(installationPath.value);
   });
 
   // packages
   const checkPackagesListBtn = document.getElementById('check-packages-list');
-  const packagesTableOverlay = document.getElementById(
-    'packages-table-overlay'
-  );
   checkPackagesListBtn.addEventListener('click', async (event) => {
-    await package.checkPackagesList(
-      checkPackagesListBtn,
-      packagesTableOverlay,
-      installationPath.value
-    );
+    await package.checkPackagesList(installationPath.value);
   });
 
   const installPackageBtn = document.getElementById('install-package');
   installPackageBtn.addEventListener('click', async (event) => {
-    await package.installPackage(installPackageBtn, installationPath.value);
+    await package.installPackage(installationPath.value);
   });
 
   const installScriptBtn = document.getElementById('install-script');
-  const installScriptIndicationBtn = document.getElementById(
-    'install-script-indication'
-  );
   installScriptBtn.addEventListener('click', async (event) => {
     await package.installScript(
-      installScriptIndicationBtn,
       installationPath.value,
       'https://hal-shu-sato.github.io/apm-data/install-script.html'
     );
@@ -134,15 +110,12 @@ window.addEventListener('load', () => {
 
   const uninstallPackageBtn = document.getElementById('uninstall-package');
   uninstallPackageBtn.addEventListener('click', async (event) => {
-    await package.uninstallPackage(uninstallPackageBtn, installationPath.value);
+    await package.uninstallPackage(installationPath.value);
   });
 
   const openPackageFolderBtn = document.getElementById('open-package-folder');
   openPackageFolderBtn.addEventListener('click', async (event) => {
-    await package.openPackageFolder(
-      openPackageFolderBtn,
-      installationPath.value
-    );
+    await package.openPackageFolder();
   });
 
   const filterDropdown = document.getElementById('filter').parentElement;
@@ -164,13 +137,13 @@ window.addEventListener('load', () => {
   const setDataUrlBtn = document.getElementById('set-data-url');
   const dataURL = document.getElementById('data-url');
   setDataUrlBtn.addEventListener('click', async (event) => {
-    await setting.setDataUrl(setDataUrlBtn, dataURL);
+    await setting.setDataUrl(dataURL);
   });
 
   const setExtraDataUrlBtn = document.getElementById('set-extra-data-url');
   const extraDataURL = document.getElementById('extra-data-url');
   setExtraDataUrlBtn.addEventListener('click', async (event) => {
-    await setting.setExtraDataUrl(setExtraDataUrlBtn, extraDataURL.value);
+    await setting.setExtraDataUrl(extraDataURL.value);
   });
 
   const zoomFactorSelect = document.getElementById('zoom-factor-select');
