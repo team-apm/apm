@@ -6,6 +6,7 @@ const core = require('./core/core');
 const package = require('./package/package');
 const setting = require('./setting/setting');
 const mod = require('./lib/mod');
+const migration = require('./migration/migration1to2');
 
 log.catchErrors({
   onError: () => {
@@ -26,10 +27,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   const packagesTableOverlay = document.getElementById(
     'packages-table-overlay'
   );
+  // migration
+  if (!(await migration.global())) {
+    await ipcRenderer.invoke('app-quit');
+    return;
+  }
+  if (store.has('installationPath'))
+    await migration.byFolder(store.get('installationPath'));
 
   // init data
   const firstLaunch = !store.has('dataURL.main');
-  setting.initSettings();
+  await setting.initSettings();
   await core.initCore();
   package.initPackage(
     document.getElementById('install-package'),
@@ -155,14 +163,14 @@ window.addEventListener('load', () => {
   // settings
   const setDataUrlBtn = document.getElementById('set-data-url');
   const dataURL = document.getElementById('data-url');
-  setDataUrlBtn.addEventListener('click', (event) => {
-    setting.setDataUrl(setDataUrlBtn, dataURL);
+  setDataUrlBtn.addEventListener('click', async (event) => {
+    await setting.setDataUrl(setDataUrlBtn, dataURL);
   });
 
   const setExtraDataUrlBtn = document.getElementById('set-extra-data-url');
   const extraDataURL = document.getElementById('extra-data-url');
-  setExtraDataUrlBtn.addEventListener('click', (event) => {
-    setting.setExtraDataUrl(setExtraDataUrlBtn, extraDataURL.value);
+  setExtraDataUrlBtn.addEventListener('click', async (event) => {
+    await setting.setExtraDataUrl(setExtraDataUrlBtn, extraDataURL.value);
   });
 
   const zoomFactorSelect = document.getElementById('zoom-factor-select');

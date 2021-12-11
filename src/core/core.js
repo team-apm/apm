@@ -14,6 +14,7 @@ const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
+const migration = require('../migration/migration1to2');
 
 /**
  * Returns the default installation path
@@ -270,12 +271,7 @@ async function selectInstallationPath(input) {
       'インストール先フォルダを選択してください。'
     );
   } else if (selectedPath[0] != originalPath) {
-    if (
-      originalPath === (await getDefaultPath()) &&
-      fs.existsSync(originalPath) &&
-      fs.readdirSync(originalPath).length === 0
-    )
-      fs.rmdirSync(originalPath);
+    await migration.byFolder(selectedPath[0]);
     store.set('installationPath', selectedPath[0]);
     await displayInstalledVersion(selectedPath[0]);
     await setCoreVersions(selectedPath[0]);

@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const parser = require('fast-xml-parser');
 const J2xParser = require('fast-xml-parser').j2xParser;
+const migration = require('../migration/migration1to2');
 
 const defaultKeys = [
   'id',
@@ -315,11 +316,24 @@ function getCore(coreListPath) {
  * Returns a list of packages.
  *
  * @param {string} packagesListPath - A path of xml file.
- * @returns {PackagesList} A list of packages.
+ * @returns {Promise<PackagesList>} A list of packages.
  */
-function getPackages(packagesListPath) {
+async function getPackages(packagesListPath) {
   if (fs.existsSync(packagesListPath)) {
-    return new PackagesList(packagesListPath);
+    const packages = new PackagesList(packagesListPath);
+
+    // For compatibility with data v1
+    const convDict = await migration.getIdDict();
+    for (const [oldId, package] of Object.entries(packages)) {
+      if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
+        const newId = convDict[package.id];
+        packages[newId] = packages[oldId];
+        delete packages[oldId];
+        packages[newId].id = newId;
+      }
+    }
+
+    return packages;
   } else {
     throw new Error('The version file does not exist.');
   }
@@ -341,10 +355,10 @@ function setPackages(packagesListPath, packages) {
  * @param {string} packagesListPath - A path of xml file.
  * @param {object} packageItem - A package.
  */
-function addPackage(packagesListPath, packageItem) {
+async function addPackage(packagesListPath, packageItem) {
   let packages = [];
   if (fs.existsSync(packagesListPath)) {
-    packages = Object.values(getPackages(packagesListPath)).filter(
+    packages = Object.values(await getPackages(packagesListPath)).filter(
       (p) => p.id !== packageItem.id
     );
   }
@@ -358,8 +372,8 @@ function addPackage(packagesListPath, packageItem) {
  * @param {string} packagesListPath - A path of xml file.
  * @param {object} packageItem - A package.
  */
-function removePackage(packagesListPath, packageItem) {
-  const packages = Object.values(getPackages(packagesListPath)).filter(
+async function removePackage(packagesListPath, packageItem) {
+  const packages = Object.values(await getPackages(packagesListPath)).filter(
     (p) => p.id !== packageItem.id
   );
   if (packages.length > 0) {

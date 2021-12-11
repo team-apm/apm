@@ -8,11 +8,11 @@ const buttonTransition = require('../lib/buttonTransition');
 /**
  * Initializes settings
  */
-function initSettings() {
+async function initSettings() {
   if (!store.has('dataURL.extra')) store.set('dataURL.extra', '');
   if (!store.has('dataURL.main'))
-    setDataUrl(null, {
-      value: 'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/',
+    await setDataUrl(null, {
+      value: 'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/v2/data/',
     });
 }
 
@@ -31,13 +31,13 @@ function getDataUrl() {
  * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {HTMLInputElement} dataUrl - An input element that contains a data files URL to set.
  */
-function setDataUrl(btn, dataUrl) {
+async function setDataUrl(btn, dataUrl) {
   let enableButton;
   if (btn !== null) enableButton = buttonTransition.loading(btn);
 
   if (!dataUrl.value) {
     dataUrl.value =
-      'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/';
+      'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/v2/data/';
   }
 
   const value = dataUrl.value;
@@ -55,7 +55,7 @@ function setDataUrl(btn, dataUrl) {
     );
   } else {
     store.set('dataURL.main', value);
-    setExtraDataUrl(null, store.get('dataURL.extra'));
+    await setExtraDataUrl(null, store.get('dataURL.extra'));
   }
 
   if (btn !== null) {
@@ -110,7 +110,7 @@ function getPackagesDataUrl(instPath) {
  * @returns {string} - Package data files URL.
  */
 function getLocalPackagesDataUrl(instPath) {
-  return path.join(instPath, 'packages_list.xml');
+  return path.join(instPath, 'packages.xml');
 }
 
 /**
@@ -129,32 +129,42 @@ function getModDataUrl() {
  * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} dataUrls - Data files URLs to set.
  */
-function setExtraDataUrl(btn, dataUrls) {
+async function setExtraDataUrl(btn, dataUrls) {
   let enableButton;
   if (btn !== null) enableButton = buttonTransition.loading(btn);
 
-  const packages = [path.join(store.get('dataURL.main'), 'packages_list.xml')];
+  const packages = [path.join(store.get('dataURL.main'), 'packages.xml')];
 
   for (const tmpDataUrl of dataUrls.split(/\r?\n/)) {
     const dataUrl = tmpDataUrl.trim();
     if (dataUrl === '') continue;
 
     if (!dataUrl.startsWith('http') && !fs.existsSync(dataUrl)) {
-      ipcRenderer.invoke(
+      await ipcRenderer.invoke(
         'open-err-dialog',
         'エラー',
         `有効なURLまたは場所を入力してください。(${dataUrl})`
       );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      return;
     }
-    if (!(path.basename(dataUrl) === 'packages_list.xml')) {
-      ipcRenderer.invoke(
+    if (
+      !['packages.xml', 'packages_list.xml'].includes(path.basename(dataUrl))
+    ) {
+      await ipcRenderer.invoke(
         'open-err-dialog',
         'エラー',
         `有効なxmlファイルのURLまたは場所を入力してください。(${dataUrl})`
       );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+      return;
     }
 
-    if (path.basename(dataUrl) === 'packages_list.xml') packages.push(dataUrl);
+    packages.push(dataUrl);
   }
 
   store.set('dataURL.extra', dataUrls);

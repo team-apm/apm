@@ -618,7 +618,7 @@ async function uninstallPackage(btn, instPath) {
     if (!uninstalledPackage.id.startsWith('script_')) {
       await setPackagesList(instPath, true);
     } else {
-      parseXML.removePackage(
+      await parseXML.removePackage(
         setting.getLocalPackagesDataUrl(instPath),
         uninstalledPackage
       );
@@ -818,7 +818,10 @@ async function installScript(btn, instPath, url) {
         ),
     };
 
-    parseXML.addPackage(setting.getLocalPackagesDataUrl(instPath), package);
+    await parseXML.addPackage(
+      setting.getLocalPackagesDataUrl(instPath),
+      package
+    );
     apmJson.addPackage(instPath, {
       id: package.id,
       repository: setting.getLocalPackagesDataUrl(instPath),
