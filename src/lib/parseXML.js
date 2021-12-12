@@ -21,6 +21,7 @@ const defaultKeys = [
   'files',
   'installer',
   'installArg',
+  'releases',
 ];
 
 const typeForExtention = {
@@ -142,6 +143,20 @@ class PackageInfo {
             if (tmpObj.$continuous)
               this.isContinuous = Boolean(tmpObj.$continuous[0]);
           }
+        } else if (key === 'releases') {
+          this.releases = {};
+          for (const release of parsedPackage[key][0].release) {
+            this.releases[release.$version[0]] = {
+              integrities: release.integrities
+                ? release.integrities[0].integrity.map((integrity) => {
+                    return {
+                      target: integrity.$target[0],
+                      targetIntegrity: integrity._[0],
+                    };
+                  })
+                : [],
+            };
+          }
         } else {
           this[key] = parsedPackage[key][0];
         }
@@ -174,6 +189,8 @@ class PackageInfo {
           const tmpItem = { '#text': packageItem[key] };
           if (packageItem.isContinuous) tmpItem['@_continuous'] = true;
           newPackageItem[key] = tmpItem;
+        } else if (key === 'releases') {
+          throw new Error('Writing sri is not implemented.');
         } else {
           newPackageItem[key] = packageItem[key];
         }
