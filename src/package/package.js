@@ -133,9 +133,12 @@ async function setPackagesList(instPath, minorUpdate = false) {
     .filter(
       (p) => p.installedVersion === packageUtil.states.manuallyInstalled
     )) {
-    for (const release of Object.values(p.info.releases)) {
+    for (const [version, release] of Object.entries(p.info.releases)) {
       if (await integrity.checkIntegrity(instPath, release.integrities)) {
-        apmJson.addPackage(instPath, p);
+        apmJson.addPackage(instPath, {
+          ...p,
+          info: { ...p.info, latestVersion: version },
+        });
         modified = true;
       }
     }
