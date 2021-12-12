@@ -4,7 +4,6 @@ const path = require('path');
 const Store = require('electron-store');
 const store = new Store();
 const log = require('electron-log');
-const ssri = require('ssri');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const shortcut = require('../lib/shortcut');
@@ -14,6 +13,7 @@ const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
 const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
+const integrity = require('../lib/integrity');
 const migration = require('../migration/migration1to2');
 
 /**
@@ -64,27 +64,8 @@ async function displayInstalledVersion(instPath) {
         for (const [version, release] of Object.entries(
           coreInfo[program].releases
         )) {
-          if (release.integrities.length === 0) continue;
-          let match = true;
-          for (const integrity of release.integrities) {
-            const targetPath = path.join(instPath, integrity.target);
-            if (!fs.existsSync(targetPath)) {
-              match = false;
-              break;
-            }
-
-            let readStream;
-            try {
-              readStream = fs.createReadStream(targetPath);
-              await ssri.checkStream(readStream, integrity.targetIntegrity);
-            } catch {
-              match = false;
-              break;
-            } finally {
-              if (readStream) readStream.destroy();
-            }
-          }
-          if (match) apmJson.setCore(instPath, program, version);
+          if (await integrity.checkIntegrity(instPath, release.integrities))
+            apmJson.setCore(instPath, program, version);
         }
       }
 

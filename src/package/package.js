@@ -16,6 +16,7 @@ const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
 const { getHash } = require('../lib/getHash');
 const packageUtil = require('./packageUtil');
+const integrity = require('../lib/integrity');
 
 let selectedPackage;
 let listJS;
@@ -79,7 +80,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
   ];
   const packages = await getPackages(instPath);
 
-  // sort buttons
+  // sort-buttons
   if (!packagesSort.hasChildNodes()) {
     Array.from(columns.entries())
       .filter(([n, s]) => ['name', 'developer'].includes(s))
@@ -94,30 +95,57 @@ async function setPackagesList(instPath, minorUpdate = false) {
       });
   }
 
-  // update auto install text
+  // update the batch installation text
   const batchInstallElm = document.getElementById('batch-install-packages');
   batchInstallElm.innerText = packages
     .filter((p) => p.info.directURL)
     .map((p) => ' + ' + p.info.name)
     .join('');
 
-  // package list
-  const installedPackages = apmJson.get(instPath, 'packages');
-  const installedFiles = packageUtil.getInstalledFiles(instPath);
-  const manuallyInstalledFiles = packageUtil.getManuallyInstalledFiles(
-    installedFiles,
-    installedPackages,
-    packages
-  );
-  packages.forEach((p) => {
-    p.installedVersion = packageUtil.getInstalledVersionOfPackage(
-      p,
-      installedFiles,
-      manuallyInstalledFiles,
-      installedPackages,
-      instPath
+  // prepare a package list
+  let tmpInstalledPackages;
+  let tmpInstalledFiles;
+  let tmpManuallyInstalledFiles;
+  const initLists = () => {
+    tmpInstalledPackages = apmJson.get(instPath, 'packages');
+    tmpInstalledFiles = packageUtil.getInstalledFiles(instPath);
+    tmpManuallyInstalledFiles = packageUtil.getManuallyInstalledFiles(
+      tmpInstalledFiles,
+      tmpInstalledPackages,
+      packages
     );
-  });
+    packages.forEach((p) => {
+      p.installedVersion = packageUtil.getInstalledVersionOfPackage(
+        p,
+        tmpInstalledFiles,
+        tmpManuallyInstalledFiles,
+        tmpInstalledPackages,
+        instPath
+      );
+    });
+  };
+  initLists();
+
+  // guess which packages are installed from integrity
+  let modified = false;
+  for (const p of packages
+    .filter((p) => p.info.releases)
+    .filter(
+      (p) => p.installedVersion === packageUtil.states.manuallyInstalled
+    )) {
+    for (const [version, release] of Object.entries(p.info.releases)) {
+      if (await integrity.checkIntegrity(instPath, release.integrities)) {
+        apmJson.addPackage(instPath, {
+          ...p,
+          info: { ...p.info, latestVersion: version },
+        });
+        modified = true;
+      }
+    }
+  }
+  if (modified) initLists();
+
+  const manuallyInstalledFiles = tmpManuallyInstalledFiles;
 
   let aviUtlVer = '';
   let exeditVer = '';
