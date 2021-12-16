@@ -106,8 +106,12 @@ yarn start
 
 ## 開発者
 
-**ato lash**
+ato lash
 
 - [GitHub](https://github.com/hal-shu-sato)
 - [Homepage](http://halshusato.starfree.jp/)
 - [Twitter](https://twitter.com/hal_shu_sato)
+
+## コントリビューター
+
+[@mitosagi](https://github.com/mitosagi)
