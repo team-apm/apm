@@ -63,6 +63,9 @@ window.addEventListener('load', () => {
   const xmlOverview = document.getElementById('xml-overview');
   const xmlDescription = document.getElementById('xml-description');
   const xmlDeveloper = document.getElementById('xml-developer');
+  const xmlOriginalDeveloper = document.getElementById(
+    'xml-original-developer'
+  );
   const xmlLatestVersion = document.getElementById('xml-latest-version');
   const xmlPageURL = document.getElementById('xml-page-url');
   const xmlDownloadURL = document.getElementById('xml-download-url');
@@ -71,18 +74,21 @@ window.addEventListener('load', () => {
   );
   const xmlInstaller = document.getElementById('xml-installer');
   const xmlInstallArg = document.getElementById('xml-install-arg');
+  const xmlDependencies = document.getElementById('xml-dependencies');
   const xmlTexts = [
     xmlId,
     xmlName,
     xmlOverview,
     xmlDescription,
     xmlDeveloper,
+    xmlOriginalDeveloper,
     xmlLatestVersion,
     xmlPageURL,
     xmlDownloadURL,
     xmlDownloadMirrorURL,
     xmlInstaller,
     xmlInstallArg,
+    xmlDependencies,
   ];
 
   const xmlIdValidate = document.getElementById('xml-id-validate');
@@ -93,6 +99,7 @@ window.addEventListener('load', () => {
   const clearTextBtn = document.getElementById('clear-text-button');
 
   const xmlInstallerSwitch = document.getElementById('xml-installer-switch');
+  const xmlIntegritySwitch = document.getElementById('xml-integrity-switch');
 
   const listDownload = document.getElementById('list-download');
   const listAviutl = document.getElementById('list-aviutl');
@@ -127,9 +134,9 @@ window.addEventListener('load', () => {
   };
 
   const makeXML = () => {
-    xmlIdValidate.innerText = xmlId.value.match(/^[A-Za-z0-9]*$/)
+    xmlIdValidate.innerText = xmlId.value.match(/^[A-Za-z0-9]+\/[A-Za-z0-9]+$/)
       ? ''
-      : 'idは半角英数字である必要があります';
+      : 'idは"{作者名(半角英数)}/{プラグイン名(半角英数)}"の形式です';
     xmlNameValidate.innerText =
       `${[...xmlName.value].length}/25文字` +
       ([...xmlName.value].length <= 25
@@ -183,6 +190,14 @@ window.addEventListener('load', () => {
         overview: xmlOverview.value,
         description: xmlDescription.value,
         developer: xmlDeveloper.value,
+        originalDeveloper: xmlOriginalDeveloper.value
+          ? xmlOriginalDeveloper.value
+          : undefined,
+        dependencies: xmlDependencies.value
+          ? {
+              dependency: xmlDependencies.value.split(' '),
+            }
+          : undefined,
         pageURL: xmlPageURL.value,
         downloadURL: xmlDownloadURL.value,
         downloadMirrorURL: xmlDownloadMirrorURL.value
@@ -196,6 +211,19 @@ window.addEventListener('load', () => {
         files: {
           file: files,
         },
+        releases: xmlIntegritySwitch.checked
+          ? {
+              release: {
+                '@_version': xmlLatestVersion.value,
+                integrities: {
+                  integrity: {
+                    '@_target': 'FILENAME',
+                    '#text': 'SRI',
+                  },
+                },
+              },
+            }
+          : undefined,
       },
     };
     output.innerText = parser
@@ -212,6 +240,10 @@ window.addEventListener('load', () => {
 
   xmlInstallerSwitch.addEventListener('change', (event) => {
     collapseInstallerElement();
+    makeXML();
+  });
+
+  xmlIntegritySwitch.addEventListener('change', (event) => {
     makeXML();
   });
 
