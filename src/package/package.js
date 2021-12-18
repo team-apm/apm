@@ -188,7 +188,8 @@ async function setPackagesList(instPath, minorUpdate = false) {
       return false;
     };
     p.doNotInstall = doNotInstall(p);
-
+  });
+  packages.forEach((p) => {
     const isInstalled = (p) =>
       p.installedVersion !== packageUtil.states.installedButBroken &&
       p.installedVersion !== packageUtil.states.notInstalled &&
@@ -214,14 +215,17 @@ async function setPackagesList(instPath, minorUpdate = false) {
 
             if (!isDetached) return [];
 
-            // If all id's are detached, perform a list fetch for the first id
-            const id = ids.split('|')[0];
-            if (aviUtlR.test(id) || exeditR.test(id)) {
-              return [];
+            // If all id's are detached, perform a list fetch for the ids
+            for (const id of ids.split('|')) {
+              if (aviUtlR.test(id) || exeditR.test(id)) {
+                continue;
+              }
+              const ps = packages
+                .filter((pp) => pp.id === id)
+                .flatMap((pp) => detached(pp).filter((p) => !p.doNotInstall));
+              if (ps.length > 0) return ps;
             }
-            return packages
-              .filter((pp) => pp.id === id)
-              .flatMap((pp) => detached(pp));
+            return [];
           })
         );
       }
