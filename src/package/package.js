@@ -50,7 +50,7 @@ async function getPackages(instPath) {
  * Sets rows of each package in the table.
  *
  * @param {string} instPath - An installation path.
- * @param {boolean} minorUpdate - Only the version of the installed package is updated.
+ * @param {boolean} minorUpdate - Only the installation status of the package has been updated.
  */
 async function setPackagesList(instPath, minorUpdate = false) {
   const packagesSort = document.getElementById('packages-sort');
@@ -301,6 +301,19 @@ async function setPackagesList(instPath, minorUpdate = false) {
     }
   }
 
+  // update the installedVersion inside the listJS
+  listJS.items.forEach((i) => {
+    const value = i.values();
+    const package = packages.filter(
+      (p) =>
+        p.id === i.elm.dataset.id && p.repository === i.elm.dataset.repository
+    );
+    if (package.length === 0) return;
+    value.installedVersion = package[0].installedVersion;
+    i.values(value);
+  });
+
+  // update the installedVersion in the DOM
   for (const package of packages) {
     for (const li of packagesList.getElementsByTagName('li')) {
       if (
@@ -904,7 +917,6 @@ function listFilter(column, btns, btn) {
     } else if (column === 'installedVersion') {
       const query = btn.dataset.installFilter;
       const getValue = (item) => {
-        console.log(item.values().installedVersion);
         const valueSplit = item.values().installedVersion.split('<br>');
         return valueSplit[valueSplit.length - 1].trim();
       };
