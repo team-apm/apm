@@ -303,14 +303,17 @@ async function setPackagesList(instPath, minorUpdate = false) {
 
   // update the installedVersion inside the listJS
   listJS.items.forEach((i) => {
-    const value = i.values();
     const package = packages.filter(
       (p) =>
         p.id === i.elm.dataset.id && p.repository === i.elm.dataset.repository
     );
     if (package.length === 0) return;
-    value.installedVersion = package[0].installedVersion;
-    i.values(value);
+
+    const value = i.values();
+    if (value.installedVersion !== package[0].installedVersion) {
+      value.installedVersion = package[0].installedVersion;
+      i.values(value);
+    }
   });
 
   // update the installedVersion in the DOM
