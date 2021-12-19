@@ -136,10 +136,8 @@ async function byFolder(instPath) {
   // Guard condition
   const jsonPath = path.join(instPath, 'apm.json');
   const jsonExists = fs.existsSync(jsonPath);
-  if (!jsonExists) {
-    apmJson.set(instPath, 'dataVersion', '2');
-    return;
-  }
+  if (!jsonExists) return;
+
   const isVerOne = !apmJson.has(instPath, 'dataVersion');
   if (!isVerOne) return;
 
