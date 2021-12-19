@@ -1,5 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
+const dotProp = require('dot-prop');
 
 /**
  * Gets the object parsed from `apm.json`.
@@ -16,7 +17,7 @@ function getApmJson(instPath) {
       throw new Error('Invalid apm.json.');
     }
   } catch {
-    return { core: {}, packages: {} };
+    return { dataVersion: '2', core: {}, packages: {} };
   }
 }
 
@@ -36,87 +37,47 @@ function setApmJson(instPath, object) {
  * Checks whether `apm.json` has the property.
  *
  * @param {string} instPath - An installation path
- * @param {string} keys - Keys to check existing
+ * @param {string} path - Key to check existing
  * @returns {boolean} Whether `apm.json` has the property.
  */
-function has(instPath, keys) {
-  if (!keys) return false;
-
-  const keysArray = keys.split('.');
-
-  let object = getApmJson(instPath);
-  for (const [i, key] of keysArray.entries()) {
-    if (Object.prototype.hasOwnProperty.call(object, key)) {
-      object = object[key];
-      if (object === null) {
-        if (i !== keysArray.length - 1) {
-          return false;
-        }
-        break;
-      }
-    } else {
-      return false;
-    }
-  }
-  return true;
+function has(instPath, path) {
+  return dotProp.has(getApmJson(instPath), path);
 }
 
 /**
  * Gets the value from `apm.json`.
  *
  * @param {string} instPath - An installation path
- * @param {string} keys - Keys to get value
- * @param {any} defaultValue - A value replaced when the property don't exists.
+ * @param {string} path - Key to get value
+ * @param {any} [defaultValue] - A value replaced when the property don't exists.
  * @returns {any} The property selected by key.
  */
-function get(instPath, keys = '', defaultValue = undefined) {
-  const apmJson = getApmJson(instPath);
-
-  if (keys === '') return apmJson;
-  const keyArray = keys.split('.');
-
-  let object = apmJson;
-  for (const [i, key] of keyArray.entries()) {
-    object = object[key];
-
-    if (object === undefined) {
-      break;
-    } else if (object === null) {
-      if (i !== keyArray.length - 1) {
-        object = undefined;
-      }
-      break;
-    }
-  }
-  return object === undefined ? defaultValue : object;
+function get(instPath, path = '', defaultValue) {
+  return dotProp.get(getApmJson(instPath), path, defaultValue);
 }
 
 /**
  * Sets the value to `apm.json`.
  *
  * @param {string} instPath - An installation path
- * @param {string} keys - Keys to set value
- * @param {any} value - A value to set
+ * @param {string} path - Key to set value
+ * @param {any} [value] - A value to set
  */
-function set(instPath, keys, value = undefined) {
-  if (!keys) return;
+function set(instPath, path, value) {
+  const object = dotProp.set(getApmJson(instPath), path, value);
+  setApmJson(instPath, object);
+}
 
-  const keyArray = keys.split('.');
-
-  const rootObject = getApmJson(instPath);
-  let object = rootObject;
-  for (const [i, key] of keyArray.entries()) {
-    if (i !== keyArray.length - 1) {
-      if (!(typeof object[key] === 'object')) {
-        object[key] = {};
-      }
-      object = object[key];
-    } else {
-      if (value !== undefined) object[key] = value;
-      else delete object[key];
-    }
-  }
-  setApmJson(instPath, rootObject);
+/**
+ * Deletes the value from `apm.json`.
+ *
+ * @param {string} instPath - An installation path
+ * @param {string} path - Key to delete value
+ */
+function deleteItem(instPath, path) {
+  const object = getApmJson(instPath);
+  dotProp.delete(object, path);
+  setApmJson(instPath, object);
 }
 
 /**
@@ -151,7 +112,15 @@ function addPackage(instPath, package) {
  * @param {object} package - An information of a package
  */
 function removePackage(instPath, package) {
-  set(instPath, `packages.${package.id}`);
+  deleteItem(instPath, `packages.${package.id}`);
 }
 
-module.exports = { has, get, set, setCore, addPackage, removePackage };
+module.exports = {
+  has,
+  get,
+  set,
+  delete: deleteItem,
+  setCore,
+  addPackage,
+  removePackage,
+};
