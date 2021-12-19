@@ -107,10 +107,32 @@
 					<div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
 						<input
 							class="form-control"
+							id="xml-original-developer"
+							type="text"
+							placeholder="（任意）オリジナル（派生元）開発者"
+							aria-label="（任意）オリジナル（派生元）開発者"
+						/>
+					</div>
+				</div>
+				<div class="row my-2">
+					<div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+						<input
+							class="form-control"
 							id="xml-latest-version"
 							type="text"
 							placeholder="バージョン"
 							aria-label="バージョン"
+						/>
+					</div>
+				</div>
+				<div class="row my-2">
+					<div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+						<input
+							class="form-control"
+							id="xml-dependencies"
+							type="text"
+							placeholder="（任意）依存するパッケージのid（半角スペースで区切って複数入力）"
+							aria-label="（任意）依存するパッケージのid"
 						/>
 					</div>
 				</div>
@@ -151,7 +173,7 @@
 							class="form-control"
 							id="xml-download-mirror-url"
 							type="text"
-							placeholder="ダウンロードページのミラーURL（任意）"
+							placeholder="（任意）ダウンロードページのミラーURL"
 							aria-label="Data URL"
 						/>
 					</div>
@@ -190,6 +212,20 @@
 							placeholder="インストーラに与える引数"
 							aria-label="Data URL"
 						/>
+					</div>
+				</div>
+				<div class="row my-2">
+					<div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+						<div class="form-check form-switch ms-2">
+							<input
+								class="form-check-input"
+								type="checkbox"
+								id="xml-integrity-switch"
+							/>
+							<label class="form-check-label" for="xml-integrity-switch"
+								>Integrity（整合性確認）用のプレースホルダを生成する</label
+							>
+						</div>
 					</div>
 				</div>
 			</div>
