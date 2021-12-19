@@ -282,7 +282,6 @@ async function setPackagesList(instPath, minorUpdate = false) {
         type.appendChild(typeItem);
       });
       latestVersion.innerText = package.info.latestVersion;
-      // temporary string for sorting or filtering
       installedVersion.innerText = package.installedVersion;
       description.innerText = package.info.description;
       pageURL.innerText = package.info.pageURL;
@@ -292,7 +291,6 @@ async function setPackagesList(instPath, minorUpdate = false) {
     }
 
     // sorting and filtering
-    // this must be done before setting the click event for the installedVersion element
     if (typeof listJS === 'undefined') {
       listJS = new List('packages', { valueNames: columns });
     } else {
@@ -303,41 +301,44 @@ async function setPackagesList(instPath, minorUpdate = false) {
 
   // update the installedVersion inside the listJS
   listJS.items.forEach((i) => {
-    const value = i.values();
     const package = packages.filter(
       (p) =>
         p.id === i.elm.dataset.id && p.repository === i.elm.dataset.repository
     );
     if (package.length === 0) return;
-    value.installedVersion = package[0].installedVersion;
-    i.values(value);
+
+    const value = i.values();
+    if (value.installedVersion !== package[0].installedVersion) {
+      value.installedVersion = package[0].installedVersion;
+      i.values(value);
+    }
   });
 
-  // update the installedVersion in the DOM
+  // update the statusInformation in the DOM
   for (const package of packages) {
     for (const li of packagesList.getElementsByTagName('li')) {
       if (
         li.dataset.id === package.id &&
         li.dataset.repository === package.repository
       ) {
-        const installedVersion =
-          li.getElementsByClassName('installedVersion')[0];
-        installedVersion.innerText = null;
+        const statusInformation =
+          li.getElementsByClassName('statusInformation')[0];
+        statusInformation.innerText = null;
         package.detached.forEach((p) => {
           const aTag = document.createElement('a');
           aTag.href = '#';
           aTag.innerText = `❗ 要導入: ${p.info.name}\r\n`;
-          installedVersion.appendChild(aTag);
+          statusInformation.appendChild(aTag);
           aTag.addEventListener('click', async (event) => {
             await installPackage(instPath, p);
             return false;
           });
         });
         const verText = document.createElement('div');
-        verText.innerText =
-          (package.doNotInstall ? '⚠️インストール不可\r\n' : '') +
-          package.installedVersion;
-        installedVersion.appendChild(verText);
+        verText.innerText = package.doNotInstall
+          ? '⚠️インストール不可\r\n'
+          : '';
+        statusInformation.appendChild(verText);
       }
     }
   }
@@ -917,8 +918,7 @@ function listFilter(column, btns, btn) {
     } else if (column === 'installedVersion') {
       const query = btn.dataset.installFilter;
       const getValue = (item) => {
-        const valueSplit = item.values().installedVersion.split('<br>');
-        return valueSplit[valueSplit.length - 1].trim();
+        return item.values().installedVersion;
       };
       if (query === 'true') {
         filterFunc = (item) => {
