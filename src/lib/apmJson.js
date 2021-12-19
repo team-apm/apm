@@ -17,7 +17,7 @@ function getApmJson(instPath) {
       throw new Error('Invalid apm.json.');
     }
   } catch {
-    return { core: {}, packages: {} };
+    return { dataVersion: '2', core: {}, packages: {} };
   }
 }
 
@@ -69,7 +69,7 @@ function set(instPath, path, value) {
 }
 
 /**
- * Delete the value from `apm.json`.
+ * Deletes the value from `apm.json`.
  *
  * @param {string} instPath - An installation path
  * @param {string} path - Key to delete value
