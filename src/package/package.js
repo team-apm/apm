@@ -299,7 +299,8 @@ async function setPackagesList(instPath, minorUpdate = false) {
     }
   }
 
-  // update the installedVersion inside the listJS
+  // values() updates the installedVersion inside the listJS
+  // it will also update the text in the DOM
   listJS.items.forEach((i) => {
     const package = packages.filter(
       (p) =>
