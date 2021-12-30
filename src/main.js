@@ -214,8 +214,10 @@ function launch() {
                 preload: path.join(__dirname, 'about_preload.js'),
               },
             });
-            aboutWindow.on('close', () => {
-              aboutWindow.destroy();
+            aboutWindow.once('close', () => {
+              if (!aboutWindow.isDestroyed()) {
+                aboutWindow.destroy();
+              }
             });
             aboutWindow.once('ready-to-show', () => {
               aboutWindow.show();
@@ -237,8 +239,10 @@ function launch() {
                 preload: path.join(__dirname, 'package_maker_preload.js'),
               },
             });
-            packageMakerWindow.on('close', () => {
-              packageMakerWindow.destroy();
+            packageMakerWindow.once('close', () => {
+              if (!packageMakerWindow.isDestroyed()) {
+                packageMakerWindow.destroy();
+              }
             });
             packageMakerWindow.once('ready-to-show', () => {
               packageMakerWindow.show();
@@ -376,7 +380,7 @@ function launch() {
       icon: icon,
     });
 
-    mainWindow.on('closed', (event) => {
+    mainWindow.once('closed', (event) => {
       if (!browserWindow.isDestroyed()) {
         browserWindow.destroy();
       }
@@ -385,7 +389,7 @@ function launch() {
     browserWindow.loadURL(url);
 
     return await new Promise((resolve) => {
-      browserWindow.webContents.session.on(
+      browserWindow.webContents.session.once(
         'will-download',
         (event, item, webContents) => {
           if (!browserWindow.isDestroyed()) browserWindow.hide();
@@ -407,7 +411,7 @@ function launch() {
         }
       );
 
-      browserWindow.on('close', (event) => {
+      browserWindow.once('closed', (event) => {
         resolve('close');
       });
     });
