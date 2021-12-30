@@ -136,14 +136,9 @@ window.addEventListener('load', () => {
   // settings
   const setDataUrlBtn = document.getElementById('set-data-url');
   const dataURL = document.getElementById('data-url');
-  setDataUrlBtn.addEventListener('click', async (event) => {
-    await setting.setDataUrl(dataURL);
-  });
-
-  const setExtraDataUrlBtn = document.getElementById('set-extra-data-url');
   const extraDataURL = document.getElementById('extra-data-url');
-  setExtraDataUrlBtn.addEventListener('click', async (event) => {
-    await setting.setExtraDataUrl(extraDataURL.value);
+  setDataUrlBtn.addEventListener('click', async (event) => {
+    await setting.setDataUrl(dataURL, extraDataURL.value);
   });
 
   const zoomFactorSelect = document.getElementById('zoom-factor-select');

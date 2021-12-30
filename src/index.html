@@ -121,7 +121,7 @@
 											class="btn btn-outline-primary w-100"
 											id="select-installation-path"
 										>
-											インストール先フォルダを選択
+											フォルダを選択
 										</button>
 									</div>
 								</div>
@@ -140,7 +140,7 @@
 											class="btn btn-outline-primary w-100"
 											id="batch-install"
 										>
-											おすすめ一括インストール
+											インストール
 										</button>
 									</div>
 								</div>
@@ -157,7 +157,7 @@
 										</thead>
 										<tbody class="align-middle">
 											<tr>
-												<th scope="row">AviUtl</th>
+												<th scope="row" class="h5">AviUtl</th>
 												<td><span id="aviutl-installed-version"></span></td>
 												<td><span id="aviutl-latest-version"></span></td>
 												<td>
@@ -169,7 +169,7 @@
 															data-bs-toggle="dropdown"
 															aria-expanded="false"
 														>
-															AviUtlをインストール
+															インストール
 														</button>
 														<ul
 															class="dropdown-menu"
@@ -180,7 +180,7 @@
 												</td>
 											</tr>
 											<tr>
-												<th scope="row">拡張編集</th>
+												<th scope="row" class="h5">拡張編集</th>
 												<td><span id="exedit-installed-version"></span></td>
 												<td><span id="exedit-latest-version"></span></td>
 												<td>
@@ -192,7 +192,7 @@
 															data-bs-toggle="dropdown"
 															aria-expanded="false"
 														>
-															拡張編集をインストール
+															インストール
 														</button>
 														<ul
 															class="dropdown-menu"
@@ -639,13 +639,15 @@
 									<label class="d-block">
 										<div class="row">
 											<div class="col-sm-9">
-												<div class="d-inline-block name"></div>
+												<h5 class="d-inline-block name"></h5>
 												<div
-													class="text-primary d-inline-block ms-1 developer"
+													class="text-primary d-inline-block ms-2 developer"
 												></div>
-												<div class="d-inline-block type"></div>
+												<div class="d-inline-block ms-1 type"></div>
 												<br />
-												<div class="d-inline-block text-break overview"></div>
+												<div
+													class="d-inline-block text-break overview text-muted"
+												></div>
 												<div class="accordion-detail">
 													<div class="text-break description"></div>
 													<div class="text-break"><a class="pageURL"></a></div>
@@ -654,7 +656,9 @@
 											<div class="col-sm-3">
 												<div class="text-break latestVersion"></div>
 												<div class="text-break statusInformation"></div>
-												<div class="text-break installedVersion"></div>
+												<div
+													class="text-break installedVersion text-muted"
+												></div>
 											</div>
 										</div>
 									</label>
@@ -695,7 +699,7 @@
 											class="btn btn-outline-primary w-100"
 											id="set-data-url"
 										>
-											データ取得先を設定
+											設定
 										</button>
 									</div>
 								</div>
@@ -711,15 +715,7 @@
 											aria-label="Extra Data URL"
 										></textarea>
 									</div>
-									<div class="col-sm-3">
-										<button
-											type="button"
-											class="btn btn-outline-primary w-100"
-											id="set-extra-data-url"
-										>
-											追加データ取得先を設定
-										</button>
-									</div>
+									<div class="col-sm-3"></div>
 								</div>
 								<div class="row mb-3">
 									<label
@@ -772,7 +768,7 @@
 															class="btn btn-outline-primary w-100"
 															id="check-core-version"
 														>
-															更新を確認
+															更新
 														</button>
 													</div>
 												</td>
@@ -788,7 +784,7 @@
 															class="btn btn-outline-primary w-100"
 															id="check-packages-list"
 														>
-															更新を確認
+															更新
 														</button>
 													</div>
 												</td>
