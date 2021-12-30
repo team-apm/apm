@@ -25,8 +25,7 @@ async function initSettings() {
 async function setDataUrl(dataUrl, extraDataUrls) {
   const btn = document.getElementById('set-data-url');
   let enableButton;
-  if (btn !== null)
-    enableButton = buttonTransition.loading(btn, 'データ取得先を設定');
+  if (btn !== null) enableButton = buttonTransition.loading(btn, '設定');
 
   if (!dataUrl.value) {
     dataUrl.value =
