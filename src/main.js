@@ -278,7 +278,6 @@ function launch() {
       await dialog.showMessageBox(mainWindow, {
         title: '確認',
         message: `お使いのバージョンのapmは現在設定されているデータ取得先に対応しておりません。新しいデータ取得先への移行が必要です。`,
-        // detail: '',
         type: 'warning',
         buttons: [
           'キャンセル',
@@ -295,9 +294,6 @@ function launch() {
       {
         title: '新しいデータ取得先の入力',
         label: '新しいデータ取得先のURL（例: https://example.com/data/）',
-        // inputAttrs: {
-        //   type: 'url'
-        // },
         width: 500,
         height: 300,
         type: 'input',

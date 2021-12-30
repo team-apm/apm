@@ -124,6 +124,7 @@ async function global() {
 
   // Finalize
   store.set('dataVersion', '2');
+  log.info('End of migration: migration1to2.global())');
   return true;
 }
 
@@ -143,7 +144,17 @@ async function byFolder(instPath) {
 
   // Main
   log.info(`Start migration: migration1to2.byFolder(${instPath})`);
-  // 1. Renaming the local repository
+
+  // 1. Backup apm.json
+  await ipcRenderer.invoke(
+    'download',
+    jsonPath,
+    true,
+    'migration1to2',
+    jsonPath
+  );
+
+  // 2. Renaming the local repository
   try {
     if (fs.existsSync(path.join(instPath, 'packages_list.xml'))) {
       fs.renameSync(
@@ -155,10 +166,10 @@ async function byFolder(instPath) {
     log.error(e);
   }
 
-  // step 2 and 3
+  // step 3 and 4
   const packages = apmJson.get(instPath, 'packages');
 
-  // 2. Update the path to the online and local xml files.
+  // 3. Update the path to the online and local xml files.
   for (const id of Object.keys(packages)) {
     let text = packages[id].repository;
     text = text.replaceAll(
@@ -183,7 +194,7 @@ async function byFolder(instPath) {
     packages[id].repository = text;
   }
 
-  // 3. Convert id
+  // 4. Convert id
   const convDict = await getIdDict();
   for (const [oldId, package] of Object.entries(packages)) {
     if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
@@ -196,8 +207,9 @@ async function byFolder(instPath) {
 
   apmJson.set(instPath, 'packages', packages);
 
-  // Finish
+  // Finalize
   apmJson.set(instPath, 'dataVersion', '2');
+  log.info(`End of migration: migration1to2.byFolder(${instPath})`);
 }
 
 module.exports = {
