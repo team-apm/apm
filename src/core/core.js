@@ -15,6 +15,7 @@ const apmJson = require('../lib/apmJson');
 const mod = require('../lib/mod');
 const integrity = require('../lib/integrity');
 const migration = require('../migration/migration1to2');
+const convertId = require('../lib/convertId');
 
 /**
  * Returns the default installation path
@@ -254,6 +255,7 @@ async function selectInstallationPath(input) {
   } else if (selectedPath[0] != originalPath) {
     await migration.byFolder(selectedPath[0]);
     store.set('installationPath', selectedPath[0]);
+    await convertId(selectedPath[0]);
     await displayInstalledVersion(selectedPath[0]);
     await setCoreVersions(selectedPath[0]);
     await package.setPackagesList(selectedPath[0]);

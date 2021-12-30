@@ -7,6 +7,7 @@ const package = require('./package/package');
 const setting = require('./setting/setting');
 const mod = require('./lib/mod');
 const migration = require('./migration/migration1to2');
+const convertId = require('./lib/convertId');
 
 log.catchErrors({
   onError: () => {
@@ -47,6 +48,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
     await package.checkPackagesList(installationPath.value);
   }
+  await convertId(installationPath.value);
 
   // tutorial
   if (firstLaunch) {

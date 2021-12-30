@@ -304,6 +304,8 @@ class ModInfo extends Object {
         for (const filename of ['core', 'packages']) {
           this[filename] = new Date(modInfo.mod[0][filename][0]);
         }
+        if (modInfo.mod[0].convert)
+          this.convert = new Date(modInfo.mod[0].convert[0]);
       } else {
         throw new Error('The list is invalid.');
       }
