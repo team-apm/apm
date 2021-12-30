@@ -7,21 +7,6 @@ const log = require('electron-log');
 const apmJson = require('../lib/apmJson');
 
 /**
- * Returns the id conversion dictionary for the migration.
- *
- * @returns {Promise<string[]>} Dictionary of id relationships.
- */
-async function getIdDict() {
-  const convertJson = await ipcRenderer.invoke(
-    'download',
-    'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/v2/data/convert.json',
-    true,
-    'migration1to2'
-  );
-  return JSON.parse(fs.readFileSync(convertJson));
-}
-
-/**
  * Migration of common settings.
  *
  * @returns {Promise<boolean>} True on successful completion
@@ -166,10 +151,9 @@ async function byFolder(instPath) {
     log.error(e);
   }
 
-  // step 3 and 4
+  // 3. Update the path to the online and local xml files.
   const packages = apmJson.get(instPath, 'packages');
 
-  // 3. Update the path to the online and local xml files.
   for (const id of Object.keys(packages)) {
     let text = packages[id].repository;
     text = text.replaceAll(
@@ -194,17 +178,6 @@ async function byFolder(instPath) {
     packages[id].repository = text;
   }
 
-  // 4. Convert id
-  const convDict = await getIdDict();
-  for (const [oldId, package] of Object.entries(packages)) {
-    if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
-      const newId = convDict[package.id];
-      packages[newId] = packages[oldId];
-      delete packages[oldId];
-      packages[newId].id = newId;
-    }
-  }
-
   apmJson.set(instPath, 'packages', packages);
 
   // Finalize
@@ -213,7 +186,6 @@ async function byFolder(instPath) {
 }
 
 module.exports = {
-  getIdDict,
   global,
   byFolder,
 };
