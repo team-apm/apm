@@ -203,7 +203,7 @@ async function setCoreVersions(instPath) {
  */
 async function checkLatestVersion(instPath) {
   const btn = document.getElementById('check-core-version');
-  const enableButton = buttonTransition.loading(btn, '更新を確認');
+  const enableButton = buttonTransition.loading(btn, '更新');
 
   try {
     await ipcRenderer.invoke(
@@ -360,10 +360,7 @@ async function installProgram(btn, program, version, instPath) {
  */
 async function batchInstall(instPath) {
   const btn = document.getElementById('batch-install');
-  const enableButton = buttonTransition.loading(
-    btn,
-    'おすすめ一括インストール'
-  );
+  const enableButton = buttonTransition.loading(btn, 'インストール');
 
   if (!instPath) {
     if (btn) {

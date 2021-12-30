@@ -388,7 +388,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
 async function checkPackagesList(instPath) {
   const btn = document.getElementById('check-packages-list');
   let enableButton;
-  if (btn) enableButton = buttonTransition.loading(btn, '更新を確認');
+  if (btn) enableButton = buttonTransition.loading(btn, '更新');
 
   const overlay = document.getElementById('packages-table-overlay');
   if (overlay) {

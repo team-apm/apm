@@ -236,7 +236,7 @@ function getInstalledVersionOfPackage(
       }
 
       if (filesCount === existCount) {
-        installedVersion = installedPackage.version;
+        installedVersion = 'インストール済み: ' + installedPackage.version;
       } else {
         installedVersion = states.installedButBroken;
       }

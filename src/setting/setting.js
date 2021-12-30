@@ -17,24 +17,15 @@ async function initSettings() {
 }
 
 /**
- * Returns a data files URL.
- *
- * @returns {string} - A data files URL.
- */
-function getDataUrl() {
-  return store.get('dataURL.main');
-}
-
-/**
  * Sets a data files URL.
  *
  * @param {HTMLInputElement} dataUrl - An input element that contains a data files URL to set.
+ * @param {string} extraDataUrls - Data files URLs to set.
  */
-async function setDataUrl(dataUrl) {
+async function setDataUrl(dataUrl, extraDataUrls) {
   const btn = document.getElementById('set-data-url');
   let enableButton;
-  if (btn !== null)
-    enableButton = buttonTransition.loading(btn, 'データ取得先を設定');
+  if (btn !== null) enableButton = buttonTransition.loading(btn, '設定');
 
   if (!dataUrl.value) {
     dataUrl.value =
@@ -56,7 +47,39 @@ async function setDataUrl(dataUrl) {
     );
   } else {
     store.set('dataURL.main', value);
-    await setExtraDataUrl(store.get('dataURL.extra'));
+
+    const packages = [path.join(value, 'packages.xml')];
+
+    for (const tmpDataUrl of extraDataUrls.split(/\r?\n/)) {
+      const extraDataUrl = tmpDataUrl.trim();
+      if (extraDataUrl === '') continue;
+
+      if (!extraDataUrl.startsWith('http') && !fs.existsSync(extraDataUrl)) {
+        await ipcRenderer.invoke(
+          'open-err-dialog',
+          'エラー',
+          `有効なURLまたは場所を入力してください。(${extraDataUrl})`
+        );
+        break;
+      }
+      if (
+        !['packages.xml', 'packages_list.xml'].includes(
+          path.basename(extraDataUrl)
+        )
+      ) {
+        await ipcRenderer.invoke(
+          'open-err-dialog',
+          'エラー',
+          `有効なxmlファイルのURLまたは場所を入力してください。(${extraDataUrl})`
+        );
+        break;
+      }
+
+      packages.push(extraDataUrl);
+    }
+
+    store.set('dataURL.extra', extraDataUrls);
+    store.set('dataURL.packages', packages);
   }
 
   if (btn !== null) {
@@ -65,6 +88,15 @@ async function setDataUrl(dataUrl) {
       enableButton();
     }, 3000);
   }
+}
+
+/**
+ * Returns a data files URL.
+ *
+ * @returns {string} - A data files URL.
+ */
+function getDataUrl() {
+  return store.get('dataURL.main');
 }
 
 /**
@@ -125,62 +157,6 @@ function getModDataUrl() {
 }
 
 /**
- * Sets extra data files URLs.
- *
- * @param {string} dataUrls - Data files URLs to set.
- */
-async function setExtraDataUrl(dataUrls) {
-  const btn = document.getElementById('set-extra-data-url');
-  let enableButton;
-  if (btn !== null)
-    enableButton = buttonTransition.loading(btn, '追加データ取得先を設定');
-
-  const packages = [path.join(store.get('dataURL.main'), 'packages.xml')];
-
-  for (const tmpDataUrl of dataUrls.split(/\r?\n/)) {
-    const dataUrl = tmpDataUrl.trim();
-    if (dataUrl === '') continue;
-
-    if (!dataUrl.startsWith('http') && !fs.existsSync(dataUrl)) {
-      await ipcRenderer.invoke(
-        'open-err-dialog',
-        'エラー',
-        `有効なURLまたは場所を入力してください。(${dataUrl})`
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      return;
-    }
-    if (
-      !['packages.xml', 'packages_list.xml'].includes(path.basename(dataUrl))
-    ) {
-      await ipcRenderer.invoke(
-        'open-err-dialog',
-        'エラー',
-        `有効なxmlファイルのURLまたは場所を入力してください。(${dataUrl})`
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      return;
-    }
-
-    packages.push(dataUrl);
-  }
-
-  store.set('dataURL.extra', dataUrls);
-  store.set('dataURL.packages', packages);
-
-  if (btn !== null) {
-    buttonTransition.message(btn, '設定完了', 'success');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-  }
-}
-
-/**
  * Sets a zoom factor.
  *
  * @param {HTMLSelectElement} zoomFactorSelect - A zoom factor select to change value.
@@ -207,14 +183,13 @@ function changeZoomFactor(zoomFactor) {
 
 module.exports = {
   initSettings,
-  getDataUrl,
   setDataUrl,
+  getDataUrl,
   getExtraDataUrl,
   getCoreDataUrl,
   getPackagesDataUrl,
   getLocalPackagesDataUrl,
   getModDataUrl,
-  setExtraDataUrl,
   setZoomFactor,
   changeZoomFactor,
 };
