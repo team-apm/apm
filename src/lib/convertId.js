@@ -8,7 +8,7 @@ const apmJson = require('./apmJson');
 /**
  * Returns the id conversion dictionary.
  *
- * @returns {Promise<string[]>} Dictionary of id relationships.
+ * @returns {Promise<object>} Dictionary of id relationships.
  */
 async function getIdDict() {
   const dictUrl = path.join(setting.getDataUrl(), 'convert.json');
