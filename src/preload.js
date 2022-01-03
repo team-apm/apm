@@ -39,16 +39,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   installationPath.value = store.get('installationPath', '');
 
   // update data
-  const oldCoreMod = new Date(store.get('modDate.core', 0));
-  const oldPackagesMod = new Date(store.get('modDate.packages', 0));
   await mod.downloadData();
   const currentMod = await mod.getInfo();
-  if (oldCoreMod.getTime() < currentMod.core.getTime()) {
-    await core.checkLatestVersion(installationPath.value);
-  }
-  if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
-    await package.checkPackagesList(installationPath.value);
-  }
+
   if (currentMod.convert) {
     const oldConvertMod = new Date(
       apmJson.get(installationPath.value, 'convertMod', 0)
@@ -56,6 +49,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
       await convertId(installationPath.value, currentMod.convert.getTime());
     }
+  }
+  const oldCoreMod = new Date(store.get('modDate.core', 0));
+  const oldPackagesMod = new Date(store.get('modDate.packages', 0));
+
+  if (oldCoreMod.getTime() < currentMod.core.getTime()) {
+    await core.checkLatestVersion(installationPath.value);
+  }
+  if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
+    await package.checkPackagesList(installationPath.value);
   }
 
   // tutorial
