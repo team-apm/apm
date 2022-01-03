@@ -253,13 +253,14 @@ async function selectInstallationPath(input) {
       'インストール先フォルダを選択してください。'
     );
   } else if (selectedPath[0] != originalPath) {
-    await migration.byFolder(selectedPath[0]);
-    store.set('installationPath', selectedPath[0]);
-    await convertId(selectedPath[0]);
-    await displayInstalledVersion(selectedPath[0]);
-    await setCoreVersions(selectedPath[0]);
-    await package.setPackagesList(selectedPath[0]);
-    input.value = selectedPath[0];
+    const instPath = selectedPath[0];
+    await migration.byFolder(instPath);
+    store.set('installationPath', instPath);
+    await convertId(instPath);
+    await displayInstalledVersion(instPath);
+    await setCoreVersions(instPath);
+    await package.setPackagesList(instPath);
+    input.value = instPath;
   }
 }
 
