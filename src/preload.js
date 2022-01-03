@@ -7,7 +7,8 @@ const package = require('./package/package');
 const setting = require('./setting/setting');
 const mod = require('./lib/mod');
 const migration = require('./migration/migration1to2');
-const convertId = require('./lib/convertId');
+const { convertId } = require('./lib/convertId');
+const apmJson = require('./lib/apmJson');
 
 log.catchErrors({
   onError: () => {
@@ -48,7 +49,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
     await package.checkPackagesList(installationPath.value);
   }
-  await convertId(installationPath.value);
+  if (currentMod.convert) {
+    const oldConvertMod = new Date(
+      apmJson.get(installationPath.value, 'convertMod', 0)
+    );
+    if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
+      await convertId(installationPath.value, currentMod.convert.getTime());
+    }
+  }
 
   // tutorial
   if (firstLaunch) {
