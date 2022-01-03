@@ -11,9 +11,7 @@ const buttonTransition = require('../lib/buttonTransition');
 async function initSettings() {
   if (!store.has('dataURL.extra')) store.set('dataURL.extra', '');
   if (!store.has('dataURL.main'))
-    await setDataUrl({
-      value: 'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/v2/data/',
-    });
+    await setDataUrl({ value: '' }, store.get('dataURL.extra'));
 }
 
 /**
