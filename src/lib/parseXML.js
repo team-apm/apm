@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const parser = require('fast-xml-parser');
 const J2xParser = require('fast-xml-parser').j2xParser;
-const migration = require('../migration/migration1to2');
+const { getIdDict } = require('./convertId');
 
 const defaultKeys = [
   'id',
@@ -304,6 +304,8 @@ class ModInfo extends Object {
         for (const filename of ['core', 'packages']) {
           this[filename] = new Date(modInfo.mod[0][filename][0]);
         }
+        if (modInfo.mod[0].convert)
+          this.convert = new Date(modInfo.mod[0].convert[0]);
       } else {
         throw new Error('The list is invalid.');
       }
@@ -340,7 +342,7 @@ async function getPackages(packagesListPath) {
     const packages = new PackagesList(packagesListPath);
 
     // For compatibility with data v1
-    const convDict = await migration.getIdDict();
+    const convDict = await getIdDict();
     for (const [oldId, package] of Object.entries(packages)) {
       if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
         const newId = convDict[package.id];
