@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/hal-shu-sato/apm/compare/v1.3.0...v2.0.0) (2022-01-03)
+
+### ⚠ BREAKING CHANGES
+
+- No longer supports data v1
+
+### Features
+
+- add a menu to open Google Form ([d8e6006](https://github.com/hal-shu-sato/apm/commit/d8e60061cca689323d7fec01524871cbde1312a5))
+- add backups and logs to the migration ([085257e](https://github.com/hal-shu-sato/apm/commit/085257ec93e0b598548645ff807f2acf0a5b0bcc))
+- add compatibility to package list ([04b0db3](https://github.com/hal-shu-sato/apm/commit/04b0db37dfbb5a9bacdccfb9d8af08feb187aabe))
+- add id conversion ([ecd863a](https://github.com/hal-shu-sato/apm/commit/ecd863a56c60adfd5bfc621e6ac27095a2b2a632))
+- add the dialogs for custom dataURL users ([b27d5e3](https://github.com/hal-shu-sato/apm/commit/b27d5e3cb12f9ced590fece3631a6299fa9ac16c))
+- **convertId:** add a feature to convert IDs ([8a82edc](https://github.com/hal-shu-sato/apm/commit/8a82edc20e70c4b3b4e0cb44e7de14ad47dbad44)), closes [#245](https://github.com/hal-shu-sato/apm/issues/245)
+- detecting the package version ([9e37a39](https://github.com/hal-shu-sato/apm/commit/9e37a3900a6bd97e7681bf3150eb3c5dae8945b5)), closes [#235](https://github.com/hal-shu-sato/apm/issues/235) [#245](https://github.com/hal-shu-sato/apm/issues/245)
+- estimate the version from the hash ([63152cf](https://github.com/hal-shu-sato/apm/commit/63152cfd253e9ff7cbf61086459d8b426930bcb9))
+- perform id conversion during xml parsing ([bf308ef](https://github.com/hal-shu-sato/apm/commit/bf308efea92d859e77851f95d0314fc418dc0c26))
+- support for data v2 ([0dfddee](https://github.com/hal-shu-sato/apm/commit/0dfddeebd30d478638f0f265507049a8c3a67b3f)), closes [#245](https://github.com/hal-shu-sato/apm/issues/245)
+- support for data v2 core ([b4649d1](https://github.com/hal-shu-sato/apm/commit/b4649d1a4e81c98926b3cf9c297ce16b889e38a3)), closes [#235](https://github.com/hal-shu-sato/apm/issues/235)
+- support for data v2 mod ([db8aeca](https://github.com/hal-shu-sato/apm/commit/db8aeca1edddc16c973e2294fd66e81fb19567e0)), closes [#235](https://github.com/hal-shu-sato/apm/issues/235)
+- support for data v2 package.xml ([a652aa8](https://github.com/hal-shu-sato/apm/commit/a652aa8cf0100dbb7ebbb93b3f41e1ace220b88a))
+- update Package Maker ([9931a5e](https://github.com/hal-shu-sato/apm/commit/9931a5e684bf4bbca746433f53cb4222f238172c))
+
+### Bug Fixes
+
+- **core.js:** handling the stream correctly ([7635a6f](https://github.com/hal-shu-sato/apm/commit/7635a6fddcd742591c7e507376b8c28fcae22d0e))
+- fix a bug that caused interruptions when parsing file elements failed ([6c2b5f7](https://github.com/hal-shu-sato/apm/commit/6c2b5f77ea78e37ee8a539f0dafd83a757f26a1f))
+- fix for dependency resolution ([107648f](https://github.com/hal-shu-sato/apm/commit/107648f77edec5320f4c04a92d17984c755dce8b))
+- fix for unexpected download of convert.json ([be8d034](https://github.com/hal-shu-sato/apm/commit/be8d0349a22233989a6e979019162b503c6e1e2c))
+- **migration1to2.js:** avoid the error in renaming ([8d83bba](https://github.com/hal-shu-sato/apm/commit/8d83bba995e54b7805d168cb4e280717db7b3385))
+- **migration1to2.js:** change the text ([3284415](https://github.com/hal-shu-sato/apm/commit/32844159a22bb09afa035b5fa5e68309fc73f4e1))
+- **migration1to2.js:** logging errors ([c46ba6d](https://github.com/hal-shu-sato/apm/commit/c46ba6d6feddec712b91caf73ffffb2aab25695d))
+- **package.js:** fix for plugin filtering ([8e662db](https://github.com/hal-shu-sato/apm/commit/8e662db43463d9162e3b251458224d4f8fbc8a23))
+- **package.js:** use the correct version name ([60b4aff](https://github.com/hal-shu-sato/apm/commit/60b4aff8343a5c9ed615457c30a3dbde4ea0b2a3))
+- **parseXML:** use object instead of list ([801ce12](https://github.com/hal-shu-sato/apm/commit/801ce12e012154dd00ecbbe44b9e97fd1f291544))
+- **setting.js:** fix for initialization failure ([3eb3bf9](https://github.com/hal-shu-sato/apm/commit/3eb3bf96e86cc8e74288fdcb743261a51d7b4279))
+- use SRI ([85cd59b](https://github.com/hal-shu-sato/apm/commit/85cd59b05332e33cb392084a35d317f5f43a49b9))
+
 ## [1.3.0](https://github.com/hal-shu-sato/apm/compare/v1.2.0...v1.3.0) (2021-11-14)
 
 ### Features
