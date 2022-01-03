@@ -44,4 +44,4 @@ async function convertId(instPath, modTime) {
   apmJson.set(instPath, 'convertMod', modTime);
 }
 
-module.exports = { convertId };
+module.exports = { getIdDict, convertId };
