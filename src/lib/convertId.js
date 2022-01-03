@@ -7,18 +7,32 @@ const apmJson = require('./apmJson');
 /**
  * Returns the id conversion dictionary.
  *
+ * @param {boolean} update - Download the json file.
  * @returns {Promise<object>} Dictionary of id relationships.
  */
-async function getIdDict() {
+async function getIdDict(update = false) {
   const dictUrl = path.join(setting.getDataUrl(), 'convert.json');
-  const convertJson = await ipcRenderer.invoke(
-    'download',
-    dictUrl,
-    true,
-    'package',
-    dictUrl
-  );
-  return fs.readJsonSync(convertJson);
+  if (update) {
+    const convertJson = await ipcRenderer.invoke(
+      'download',
+      dictUrl,
+      true,
+      'package',
+      dictUrl
+    );
+    return fs.readJsonSync(convertJson);
+  } else {
+    const convertJson = await ipcRenderer.invoke(
+      'exists-temp-file',
+      'package/convert.json',
+      dictUrl
+    );
+    if (convertJson.exists) {
+      return fs.readJsonSync(convertJson.path);
+    } else {
+      return {};
+    }
+  }
 }
 
 /**
@@ -30,7 +44,7 @@ async function getIdDict() {
 async function convertId(instPath, modTime) {
   const packages = apmJson.get(instPath, 'packages');
 
-  const convDict = await getIdDict();
+  const convDict = await getIdDict(true);
   for (const [oldId, package] of Object.entries(packages)) {
     if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
       const newId = convDict[package.id];
