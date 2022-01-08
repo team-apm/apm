@@ -3,7 +3,7 @@ const log = require('electron-log');
 const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
-const Parser = require('fast-xml-parser').j2xParser;
+const { XMLBuilder } = require('fast-xml-parser');
 const Sortable = require('sortablejs');
 const ClipboardJS = require('clipboard');
 const unzip = require('./lib/unzip');
@@ -20,6 +20,8 @@ log.catchErrors({
     );
   },
 });
+
+const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
 
 const imageExtention = [
   '.png',
@@ -181,7 +183,6 @@ window.addEventListener('load', () => {
         if (isDirectory) ret['@_directory'] = true;
         return ret;
       });
-    const parser = new Parser({ ignoreAttributes: false, format: true });
 
     const xmlObject = {
       package: {
@@ -226,8 +227,8 @@ window.addEventListener('load', () => {
           : undefined,
       },
     };
-    output.innerText = parser
-      .parse(xmlObject)
+    output.innerText = builder
+      .build(xmlObject)
       .trim()
       .replaceAll(' tmp=""', '') // to avoid parser bugs
       .replaceAll(/^(\s+)/gm, (str) => '\t'.repeat(Math.floor(str.length / 2)));

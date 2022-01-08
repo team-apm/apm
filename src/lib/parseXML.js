@@ -1,8 +1,19 @@
 const path = require('path');
 const fs = require('fs-extra');
-const parser = require('fast-xml-parser');
-const J2xParser = require('fast-xml-parser').j2xParser;
+const { XMLParser, XMLBuilder, XMLValidator } = require('fast-xml-parser');
 const { getIdDict } = require('./convertId');
+
+const parser = new XMLParser({
+  attributeNamePrefix: '$',
+  textNodeName: '_',
+  ignoreAttributes: false,
+  parseTagValue: false,
+  parseAttributeValue: false,
+  trimValues: true,
+  isArray: () => true,
+});
+
+const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
 
 const defaultKeys = [
   'id',
@@ -53,7 +64,7 @@ function parseFiles(parsedData) {
     if (typeof file === 'string') {
       tmpFile.filename = file;
     } else if (typeof file === 'object') {
-      tmpFile.filename = file._[0];
+      tmpFile.filename = file._;
       if (file.$optional) tmpFile.isOptional = Boolean(file.$optional[0]);
       if (file.$directory) tmpFile.isDirectory = Boolean(file.$directory[0]);
       if (file.$archivePath) tmpFile.archivePath = file.$archivePath[0];
@@ -109,7 +120,7 @@ class CoreInfo {
             ? release.integrities[0].integrity.map((integrity) => {
                 return {
                   target: integrity.$target[0],
-                  targetIntegrity: integrity._[0],
+                  targetIntegrity: integrity._,
                 };
               })
             : [],
@@ -139,7 +150,7 @@ class PackageInfo {
           if (typeof tmpObj === 'string') {
             this[key] = tmpObj;
           } else if (typeof tmpObj === 'object') {
-            this[key] = tmpObj._[0];
+            this[key] = tmpObj._;
             if (tmpObj.$continuous)
               this.isContinuous = Boolean(tmpObj.$continuous[0]);
           }
@@ -151,7 +162,7 @@ class PackageInfo {
                 ? release.integrities[0].integrity.map((integrity) => {
                     return {
                       target: integrity.$target[0],
-                      targetIntegrity: integrity._[0],
+                      targetIntegrity: integrity._,
                     };
                   })
                 : [],
@@ -200,16 +211,6 @@ class PackageInfo {
   }
 }
 
-const parseOptions = {
-  attributeNamePrefix: '$',
-  textNodeName: '_',
-  ignoreAttributes: false,
-  parseNodeValue: false,
-  parseAttributeValue: false,
-  trimValues: true,
-  arrayMode: 'strict',
-};
-
 /**
  * An object which contains core list.
  */
@@ -222,9 +223,9 @@ class CoreList extends Object {
   constructor(xmlPath) {
     super();
     const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-    const valid = parser.validate(xmlData);
+    const valid = XMLValidator.validate(xmlData);
     if (valid === true) {
-      const coreInfo = parser.parse(xmlData, parseOptions);
+      const coreInfo = parser.parse(xmlData);
       if (coreInfo.core) {
         for (const program of ['aviutl', 'exedit']) {
           this[program] = new CoreInfo(coreInfo.core[0][program][0]);
@@ -250,9 +251,9 @@ class PackagesList extends Object {
   constructor(xmlPath) {
     super();
     const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-    const valid = parser.validate(xmlData);
+    const valid = XMLValidator.validate(xmlData);
     if (valid === true) {
-      const packagesInfo = parser.parse(xmlData, parseOptions);
+      const packagesInfo = parser.parse(xmlData);
       if (packagesInfo.packages) {
         for (const packageItem of packagesInfo.packages[0].package) {
           this[packageItem.id[0]] = new PackageInfo(packageItem);
@@ -275,9 +276,8 @@ class PackagesList extends Object {
     for (const packageItem of packages) {
       xmlObject.push(PackageInfo.inverse(packageItem));
     }
-    const parser = new J2xParser({ ignoreAttributes: false, format: true });
-    const innerText = parser
-      .parse({ packages: { package: xmlObject } })
+    const innerText = builder
+      .build({ packages: { package: xmlObject } })
       .trim()
       .replaceAll(' tmp=""', '') // to avoid parser bugs
       .replaceAll(/^(\s+)/gm, (str) => '\t'.repeat(Math.floor(str.length / 2)));
@@ -297,9 +297,9 @@ class ModInfo extends Object {
   constructor(xmlPath) {
     super();
     const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-    const valid = parser.validate(xmlData);
+    const valid = XMLValidator.validate(xmlData);
     if (valid === true) {
-      const modInfo = parser.parse(xmlData, parseOptions);
+      const modInfo = parser.parse(xmlData);
       if (modInfo.mod) {
         for (const filename of ['core', 'packages']) {
           this[filename] = new Date(modInfo.mod[0][filename][0]);
