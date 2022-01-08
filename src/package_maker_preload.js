@@ -177,7 +177,6 @@ window.addEventListener('load', () => {
           isDirectory = true;
         }
         const ret = { '#text': baseItem };
-        ret['@_tmp'] = ''; // to avoid parser bugs
         if (dirItem !== '.' && !xmlInstallerSwitch.checked)
           ret['@_archivePath'] = dirItem;
         if (isDirectory) ret['@_directory'] = true;
@@ -230,7 +229,6 @@ window.addEventListener('load', () => {
     output.innerText = builder
       .build(xmlObject)
       .trim()
-      .replaceAll(' tmp=""', '') // to avoid parser bugs
       .replaceAll(/^(\s+)/gm, (str) => '\t'.repeat(Math.floor(str.length / 2)));
   };
 

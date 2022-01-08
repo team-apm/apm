@@ -85,7 +85,6 @@ function parseFilesInverse(parsedData) {
   const files = [];
   for (const file of parsedData.files) {
     const ret = { '#text': file.filename };
-    ret['@_tmp'] = ''; // to avoid parser bugs
     if (file.isOptional) ret['@_optional'] = true;
     if (file.isDirectory) ret['@_directory'] = true;
     if (file.archivePath) ret['@_archivePath'] = file.archivePath;
@@ -279,7 +278,6 @@ class PackagesList extends Object {
     const innerText = builder
       .build({ packages: { package: xmlObject } })
       .trim()
-      .replaceAll(' tmp=""', '') // to avoid parser bugs
       .replaceAll(/^(\s+)/gm, (str) => '\t'.repeat(Math.floor(str.length / 2)));
     fs.writeFileSync(xmlPath, innerText);
   }
