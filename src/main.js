@@ -75,19 +75,16 @@ ipcMain.handle('open-path', (event, relativePath) => {
   return folderExists;
 });
 
-ipcMain.handle(
-  'exists-temp-file',
-  (event, relativePath, repositoryURI = '') => {
-    let filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
-    if (repositoryURI !== '') {
-      filePath = path.join(
-        path.dirname(filePath),
-        getHash(repositoryURI) + '_' + path.basename(filePath)
-      );
-    }
-    return { exists: fs.existsSync(filePath), path: filePath };
+ipcMain.handle('exists-temp-file', (event, relativePath, keyText) => {
+  let filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
+  if (keyText) {
+    filePath = path.join(
+      path.dirname(filePath),
+      getHash(keyText) + '_' + path.basename(filePath)
+    );
   }
-);
+  return { exists: fs.existsSync(filePath), path: filePath };
+});
 
 ipcMain.handle('open-dir-dialog', async (event, title, defaultPath) => {
   const win = BrowserWindow.getFocusedWindow();
@@ -312,39 +309,19 @@ function launch() {
 
   ipcMain.handle(
     'download',
-    async (
-      event,
-      url,
-      isTempData = false,
-      tempSubDir = '',
-      repositoryURI = ''
-    ) => {
-      const ext = isTempData && path.extname(url);
+    async (event, url, loadCache = false, subDir = '', keyText) => {
+      const tmpDirectory = path.join(app.getPath('userData'), 'Data/', subDir);
+      const opt = {
+        overwrite: true,
+        directory: ['.zip', '.lzh'].includes(path.extname(url))
+          ? path.join(tmpDirectory, 'archive')
+          : tmpDirectory,
+      };
 
-      const opt = { overwrite: true };
-      if (isTempData) {
-        const directory = path.join(
-          app.getPath('userData'),
-          'Data/',
-          tempSubDir
-        );
-
-        if (['.zip', '.lzh'].includes(ext)) {
-          opt.directory = path.join(directory, 'archive');
-        } else {
-          opt.directory = directory;
-        }
-
-        const filePath = path.join(opt.directory, path.basename(url));
-
-        if (fs.existsSync(filePath)) {
-          if (ext === '.xml') {
-            fs.unlinkSync(filePath);
-          } else {
-            return filePath;
-          }
-        }
-      }
+      const tmpFilePath = keyText
+        ? path.join(opt.directory, getHash(keyText) + '_' + path.basename(url))
+        : path.join(opt.directory, path.basename(url));
+      if (loadCache && fs.existsSync(tmpFilePath)) return tmpFilePath;
 
       let savePath;
       if (url.startsWith('http')) {
@@ -355,16 +332,15 @@ function launch() {
         fs.copyFileSync(url, savePath);
       }
 
-      if (repositoryURI === '') {
-        return savePath;
-      } else {
+      if (keyText) {
         const renamedPath = path.join(
           path.dirname(savePath),
-          getHash(repositoryURI) + '_' + path.basename(savePath)
+          getHash(keyText) + '_' + path.basename(savePath)
         );
         fs.renameSync(savePath, renamedPath);
-        return renamedPath;
+        savePath = renamedPath;
       }
+      return savePath;
     }
   );
 
