@@ -363,13 +363,13 @@
   optionalDependencies:
     electron-installer-debian "^3.0.0"
 
-"@electron-forge/maker-rpm@^6.0.0-beta.57":
-  version "6.0.0-beta.61"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.0.0-beta.61.tgz#6499f88fadd68858abe936fb9d609d4d3dd85774"
-  integrity sha512-sF+9mEB6CvVSg7TlV3piB+cjuvHJiI7m6PbU9uvP1CXR1t0Yyg2XsfBQFASTOL6fhadqTEU7MEa2AiZIjcBuhw==
+"@electron-forge/maker-rpm@^6.0.0-beta.63":
+  version "6.0.0-beta.63"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.0.0-beta.63.tgz#ac37b05e76d00415a7e16244d7f06a383feb851d"
+  integrity sha512-htKNsA3/7nOd5PL6jjdrYCcSXrrIj43aJyOfIuFHswFpjFFmYEgsDCrN8lKZH5y1qdXQefaGOc9MapuBC0GO+w==
   dependencies:
-    "@electron-forge/maker-base" "6.0.0-beta.61"
-    "@electron-forge/shared-types" "6.0.0-beta.61"
+    "@electron-forge/maker-base" "6.0.0-beta.63"
+    "@electron-forge/shared-types" "6.0.0-beta.63"
   optionalDependencies:
     electron-installer-redhat "^3.2.0"
 
