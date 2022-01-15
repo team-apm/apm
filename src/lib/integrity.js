@@ -14,25 +14,38 @@ async function checkIntegrity(instPath, integrities) {
 
   let match = true;
   for (const integrity of integrities) {
-    const targetPath = path.join(instPath, integrity.target);
-    if (!fs.existsSync(targetPath)) {
-      match = false;
-      break;
-    }
-
-    let readStream;
-    try {
-      readStream = fs.createReadStream(targetPath);
-      await ssri.checkStream(readStream, integrity.targetIntegrity);
-    } catch {
-      match = false;
-      break;
-    } finally {
-      if (readStream) readStream.destroy();
-    }
+    match =
+      match &&
+      (await verifyFile(
+        path.join(instPath, integrity.target),
+        integrity.targetIntegrity
+      ));
   }
 
   return match;
 }
 
-module.exports = { checkIntegrity };
+/**
+ * Check the integrity of the file.
+ *
+ * @param {string} filePath - An file path.
+ * @param {string} integrity - Integrity of the file.
+ * @returns {Promise<boolean>} Integrities match or don't match.
+ */
+async function verifyFile(filePath, integrity) {
+  if (!fs.existsSync(filePath)) return false;
+
+  let readStream;
+  try {
+    readStream = fs.createReadStream(filePath);
+    await ssri.checkStream(readStream, integrity);
+  } catch {
+    return false;
+  } finally {
+    if (readStream) readStream.destroy();
+  }
+
+  return true;
+}
+
+module.exports = { checkIntegrity, verifyFile };
