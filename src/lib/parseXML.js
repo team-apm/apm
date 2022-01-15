@@ -423,7 +423,6 @@ function getMod(packagesListPath) {
 module.exports = {
   getCore,
   getPackages,
-  setPackages,
   addPackage,
   removePackage,
   getMod,
