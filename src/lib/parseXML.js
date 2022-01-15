@@ -206,7 +206,24 @@ class PackageInfo {
           if (packageItem.isContinuous) tmpItem['@_continuous'] = true;
           newPackageItem[key] = tmpItem;
         } else if (key === 'releases') {
-          throw new Error('Writing sri is not implemented.');
+          newPackageItem.releases = {
+            release: Object.entries(packageItem[key]).map(([id, release]) => {
+              return {
+                '@_version': id,
+                archiveIntegrity: release?.archiveIntegrity,
+                integrities: release?.integrities
+                  ? {
+                      integrity: release.integrities.map((i) => {
+                        return {
+                          '@_target': i.target,
+                          '#text': i.targetIntegrity,
+                        };
+                      }),
+                    }
+                  : undefined,
+              };
+            }),
+          };
         } else {
           newPackageItem[key] = packageItem[key];
         }
@@ -423,7 +440,6 @@ function getMod(packagesListPath) {
 module.exports = {
   getCore,
   getPackages,
-  setPackages,
   addPackage,
   removePackage,
   getMod,
