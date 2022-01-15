@@ -13,7 +13,11 @@ const parser = new XMLParser({
   isArray: () => true,
 });
 
-const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
+const builder = new XMLBuilder({
+  ignoreAttributes: false,
+  format: true,
+  suppressBooleanAttributes: false,
+});
 
 const defaultKeys = [
   'id',
