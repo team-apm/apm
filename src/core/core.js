@@ -318,6 +318,30 @@ async function installProgram(btn, program, version, instPath) {
         true,
         'core'
       );
+
+      const integrityForArchive =
+        coreInfo[program].releases[version]?.archiveIntegrity;
+      if (integrityForArchive) {
+        const match = await integrity.verifyFile(
+          archivePath,
+          integrityForArchive
+        );
+        if (!match) {
+          if (btn) {
+            buttonTransition.message(
+              btn,
+              'ダウンロードされたファイルが破損しています。',
+              'danger'
+            );
+            setTimeout(() => {
+              enableButton();
+            }, 3000);
+          }
+          log.error(`The downloaded archive file is corrupt. URL:${url}`);
+          return;
+        }
+      }
+
       const unzippedPath = await unzip(archivePath);
       fs.copySync(unzippedPath, instPath);
 

@@ -115,7 +115,8 @@ class CoreInfo {
       for (const release of parsedCore.releases[0].release) {
         this.releases[release.$version[0]] = {
           url: release.url[0],
-          integrities: release.integrities
+          archiveIntegrity: release?.archiveIntegrity?.[0],
+          integrities: release?.integrities
             ? release.integrities[0].integrity.map((integrity) => {
                 return {
                   target: integrity.$target[0],
@@ -157,7 +158,8 @@ class PackageInfo {
           this.releases = {};
           for (const release of parsedPackage[key][0].release) {
             this.releases[release.$version[0]] = {
-              integrities: release.integrities
+              archiveIntegrity: release?.archiveIntegrity?.[0],
+              integrities: release?.integrities
                 ? release.integrities[0].integrity.map((integrity) => {
                     return {
                       target: integrity.$target[0],
