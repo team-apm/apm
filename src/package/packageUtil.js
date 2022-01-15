@@ -116,7 +116,7 @@ async function downloadRepository(packageDataUrls) {
     await ipcRenderer.invoke(
       'download',
       packageRepository,
-      true,
+      false,
       'package',
       packageRepository
     );

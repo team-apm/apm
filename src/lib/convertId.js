@@ -16,7 +16,7 @@ async function getIdDict(update = false) {
     const convertJson = await ipcRenderer.invoke(
       'download',
       dictUrl,
-      true,
+      false,
       'package',
       dictUrl
     );

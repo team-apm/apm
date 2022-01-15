@@ -6,7 +6,7 @@ const parseXML = require('./parseXML');
  * Download mod.xml.
  */
 async function downloadData() {
-  await ipcRenderer.invoke('download', setting.getModDataUrl(), true, '');
+  await ipcRenderer.invoke('download', setting.getModDataUrl(), false, '');
 }
 
 /**

@@ -134,7 +134,7 @@ async function byFolder(instPath) {
   await ipcRenderer.invoke(
     'download',
     jsonPath,
-    true,
+    false,
     'migration1to2',
     jsonPath
   );
