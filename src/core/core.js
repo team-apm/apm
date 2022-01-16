@@ -261,15 +261,29 @@ async function selectInstallationPath(input) {
 async function changeInstallationPath(instPath) {
   store.set('installationPath', instPath);
 
+  // update 1
+  await mod.downloadData();
+  const currentMod = await mod.getInfo();
+
   // migration
   await migration.byFolder(instPath);
 
-  const currentMod = await mod.getInfo();
   if (currentMod.convert) {
     const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
     if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
       await convertId(instPath, currentMod.convert.getTime());
     }
+  }
+
+  // update 2
+  const oldCoreMod = new Date(store.get('modDate.core', 0));
+  const oldPackagesMod = new Date(store.get('modDate.packages', 0));
+
+  if (oldCoreMod.getTime() < currentMod.core.getTime()) {
+    await checkLatestVersion(instPath);
+  }
+  if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
+    await package.checkPackagesList(instPath);
   }
 
   // redraw

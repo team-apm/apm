@@ -5,10 +5,7 @@ const log = require('electron-log');
 const core = require('./core/core');
 const package = require('./package/package');
 const setting = require('./setting/setting');
-const mod = require('./lib/mod');
 const migration = require('./migration/migration1to2');
-const { convertId } = require('./lib/convertId');
-const apmJson = require('./lib/apmJson');
 
 log.catchErrors({
   onError: () => {
@@ -24,58 +21,32 @@ log.catchErrors({
 
 window.addEventListener('DOMContentLoaded', async () => {
   const installationPath = document.getElementById('installation-path');
+  // *global*
   // migration
   if (!(await migration.global())) {
     await ipcRenderer.invoke('app-quit');
     return;
   }
-  if (store.has('installationPath'))
-    await migration.byFolder(store.get('installationPath'));
 
-  // init data
+  // init
   const firstLaunch = !store.has('dataURL.main');
   await setting.initSettings();
   await core.initCore();
   installationPath.value = store.get('installationPath', '');
 
-  // update data
-  await mod.downloadData();
-  const currentMod = await mod.getInfo();
+  // *local*
+  await core.changeInstallationPath(installationPath.value);
 
-  if (currentMod.convert) {
-    const oldConvertMod = new Date(
-      apmJson.get(installationPath.value, 'convertMod', 0)
-    );
-    if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
-      await convertId(installationPath.value, currentMod.convert.getTime());
-    }
-  }
-  const oldCoreMod = new Date(store.get('modDate.core', 0));
-  const oldPackagesMod = new Date(store.get('modDate.packages', 0));
-
-  if (oldCoreMod.getTime() < currentMod.core.getTime()) {
-    await core.checkLatestVersion(installationPath.value);
-  }
-  if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
-    await package.checkPackagesList(installationPath.value);
-  }
-
-  // tutorial
+  // *UI*
+  // init
   if (firstLaunch) {
     const tutorialAlert = document.getElementById('tutorial-alert');
     tutorialAlert.classList.remove('d-none');
   }
-
-  // load data
   const dataURL = document.getElementById('data-url');
   dataURL.value = setting.getDataUrl();
   const extraDataURL = document.getElementById('extra-data-url');
   extraDataURL.value = setting.getExtraDataUrl();
-
-  await core.displayInstalledVersion(installationPath.value);
-  await core.setCoreVersions(installationPath.value);
-  await package.setPackagesList(installationPath.value);
-
   const zoomFactorSelect = document.getElementById('zoom-factor-select');
   setting.setZoomFactor(zoomFactorSelect);
 });
