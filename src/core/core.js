@@ -17,15 +17,6 @@ const integrity = require('../lib/integrity');
 const migration = require('../migration/migration1to2');
 const { convertId } = require('../lib/convertId');
 
-/**
- * Returns the default installation path
- *
- * @returns {Promise<string>} - The path where AviUtl will be installed.
- */
-async function getDefaultPath() {
-  return path.join(await ipcRenderer.invoke('app-get-path', 'home'), 'aviutl');
-}
-
 // Functions to be exported
 
 /**
@@ -34,7 +25,10 @@ async function getDefaultPath() {
  */
 async function initCore() {
   if (!store.has('installationPath')) {
-    const instPath = await getDefaultPath();
+    const instPath = path.join(
+      await ipcRenderer.invoke('app-get-path', 'home'),
+      'aviutl'
+    );
     store.set('installationPath', instPath);
     if (!fs.existsSync(instPath)) fs.mkdirSync(instPath);
   }
