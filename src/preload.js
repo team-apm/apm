@@ -20,7 +20,6 @@ log.catchErrors({
 });
 
 window.addEventListener('DOMContentLoaded', async () => {
-  const installationPath = document.getElementById('installation-path');
   // *global*
   // migration
   if (!(await migration.global())) {
@@ -32,10 +31,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   const firstLaunch = !store.has('dataURL.main');
   await setting.initSettings();
   await core.initCore();
-  installationPath.value = store.get('installationPath', '');
 
   // *local*
-  await core.changeInstallationPath(installationPath.value);
+  const instPath = store.get('installationPath', '');
+  await core.changeInstallationPath(instPath);
 
   // *UI*
   // init
@@ -43,6 +42,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const tutorialAlert = document.getElementById('tutorial-alert');
     tutorialAlert.classList.remove('d-none');
   }
+  const installationPath = document.getElementById('installation-path');
+  installationPath.value = instPath;
   const dataURL = document.getElementById('data-url');
   dataURL.value = setting.getDataUrl();
   const extraDataURL = document.getElementById('extra-data-url');
