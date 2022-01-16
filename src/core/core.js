@@ -248,20 +248,34 @@ async function selectInstallationPath(input) {
     );
   } else if (selectedPath[0] != originalPath) {
     const instPath = selectedPath[0];
-    await migration.byFolder(instPath);
-    store.set('installationPath', instPath);
-    const currentMod = await mod.getInfo();
-    if (currentMod.convert) {
-      const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
-      if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
-        await convertId(instPath, currentMod.convert.getTime());
-      }
-    }
-    await displayInstalledVersion(instPath);
-    await setCoreVersions(instPath);
-    await package.setPackagesList(instPath);
+    await changeInstallationPath(instPath);
     input.value = instPath;
   }
+}
+
+/**
+ * Change the installation path.
+ *
+ * @param {string} instPath - An installation path.
+ */
+async function changeInstallationPath(instPath) {
+  store.set('installationPath', instPath);
+
+  // migration
+  await migration.byFolder(instPath);
+
+  const currentMod = await mod.getInfo();
+  if (currentMod.convert) {
+    const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
+    if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
+      await convertId(instPath, currentMod.convert.getTime());
+    }
+  }
+
+  // redraw
+  await displayInstalledVersion(instPath);
+  await setCoreVersions(instPath);
+  await package.setPackagesList(instPath);
 }
 
 /**
@@ -435,6 +449,7 @@ module.exports = {
   setCoreVersions,
   checkLatestVersion,
   selectInstallationPath,
+  changeInstallationPath,
   installProgram,
   batchInstall,
 };
