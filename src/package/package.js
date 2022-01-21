@@ -95,13 +95,6 @@ async function setPackagesList(instPath, minorUpdate = false) {
       });
   }
 
-  // update the batch installation text
-  const batchInstallElm = document.getElementById('batch-install-packages');
-  batchInstallElm.innerText = packages
-    .filter((p) => p.info.directURL)
-    .map((p) => ' + ' + p.info.name)
-    .join('');
-
   // prepare a package list
   let tmpInstalledPackages;
   let tmpInstalledFiles;
@@ -367,6 +360,24 @@ async function setPackagesList(instPath, minorUpdate = false) {
     packagesList2.appendChild(li);
   }
 
+  // update the batch installation text
+  const batchInstallElm = document.getElementById('batch-install-packages');
+  batchInstallElm.innerHTML = null;
+  packages
+    .filter((p) => p.info.directURL)
+    .flatMap((p) => {
+      if (p.installedVersion !== packageUtil.states.notInstalled) {
+        const pTag = document.createElement('span');
+        pTag.classList.add('text-muted');
+        pTag.innerText = '✔' + p.info.name;
+        return [document.createTextNode(' + '), pTag];
+      } else {
+        return [document.createTextNode(' + ' + p.info.name)];
+      }
+    })
+    .forEach((e) => batchInstallElm.appendChild(e));
+
+  // settings page
   if (store.has('modDate.packages')) {
     const modDate = new Date(store.get('modDate.packages'));
     replaceText('packages-mod-date', modDate.toLocaleString());
