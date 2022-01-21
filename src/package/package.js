@@ -96,28 +96,8 @@ async function setPackagesList(instPath, minorUpdate = false) {
   }
 
   // prepare a package list
-  let tmpInstalledPackages;
-  let tmpInstalledFiles;
-  let tmpManuallyInstalledFiles;
-  const initLists = () => {
-    tmpInstalledPackages = apmJson.get(instPath, 'packages');
-    tmpInstalledFiles = packageUtil.getInstalledFiles(instPath);
-    tmpManuallyInstalledFiles = packageUtil.getManuallyInstalledFiles(
-      tmpInstalledFiles,
-      tmpInstalledPackages,
-      packages
-    );
-    packages.forEach((p) => {
-      p.installedVersion = packageUtil.getInstalledVersionOfPackage(
-        p,
-        tmpInstalledFiles,
-        tmpManuallyInstalledFiles,
-        tmpInstalledPackages,
-        instPath
-      );
-    });
-  };
-  initLists();
+
+  let manuallyInstalledFiles = packageUtil.getPackgesExtra(packages, instPath);
 
   // guess which packages are installed from integrity
   let modified = false;
@@ -136,9 +116,8 @@ async function setPackagesList(instPath, minorUpdate = false) {
       }
     }
   }
-  if (modified) initLists();
-
-  const manuallyInstalledFiles = tmpManuallyInstalledFiles;
+  if (modified)
+    manuallyInstalledFiles = packageUtil.getPackgesExtra(packages, instPath);
 
   let aviUtlVer = '';
   let exeditVer = '';
