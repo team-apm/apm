@@ -17,15 +17,6 @@ const integrity = require('../lib/integrity');
 const migration = require('../migration/migration1to2');
 const { convertId } = require('../lib/convertId');
 
-/**
- * Returns the default installation path
- *
- * @returns {Promise<string>} - The path where AviUtl will be installed.
- */
-async function getDefaultPath() {
-  return path.join(await ipcRenderer.invoke('app-get-path', 'home'), 'aviutl');
-}
-
 // Functions to be exported
 
 /**
@@ -34,7 +25,10 @@ async function getDefaultPath() {
  */
 async function initCore() {
   if (!store.has('installationPath')) {
-    const instPath = await getDefaultPath();
+    const instPath = path.join(
+      await ipcRenderer.invoke('app-get-path', 'home'),
+      'aviutl'
+    );
     store.set('installationPath', instPath);
     if (!fs.existsSync(instPath)) fs.mkdirSync(instPath);
   }
@@ -254,20 +248,48 @@ async function selectInstallationPath(input) {
     );
   } else if (selectedPath[0] != originalPath) {
     const instPath = selectedPath[0];
-    await migration.byFolder(instPath);
-    store.set('installationPath', instPath);
-    const currentMod = await mod.getInfo();
-    if (currentMod.convert) {
-      const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
-      if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
-        await convertId(instPath, currentMod.convert.getTime());
-      }
-    }
-    await displayInstalledVersion(instPath);
-    await setCoreVersions(instPath);
-    await package.setPackagesList(instPath);
+    await changeInstallationPath(instPath);
     input.value = instPath;
   }
+}
+
+/**
+ * Change the installation path.
+ *
+ * @param {string} instPath - An installation path.
+ */
+async function changeInstallationPath(instPath) {
+  store.set('installationPath', instPath);
+
+  // update 1
+  await mod.downloadData();
+  const currentMod = await mod.getInfo();
+
+  // migration
+  await migration.byFolder(instPath);
+
+  if (currentMod.convert) {
+    const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
+    if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
+      await convertId(instPath, currentMod.convert.getTime());
+    }
+  }
+
+  // update 2
+  const oldCoreMod = new Date(store.get('modDate.core', 0));
+  const oldPackagesMod = new Date(store.get('modDate.packages', 0));
+
+  if (oldCoreMod.getTime() < currentMod.core.getTime()) {
+    await checkLatestVersion(instPath);
+  }
+  if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
+    await package.checkPackagesList(instPath);
+  }
+
+  // redraw
+  await displayInstalledVersion(instPath);
+  await setCoreVersions(instPath);
+  await package.setPackagesList(instPath);
 }
 
 /**
@@ -441,6 +463,7 @@ module.exports = {
   setCoreVersions,
   checkLatestVersion,
   selectInstallationPath,
+  changeInstallationPath,
   installProgram,
   batchInstall,
 };
