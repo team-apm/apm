@@ -8,6 +8,7 @@ const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
 const shortcut = require('../lib/shortcut');
 const package = require('../package/package');
+const packageUtil = require('../package/packageUtil');
 const setting = require('../setting/setting');
 const buttonTransition = require('../lib/buttonTransition');
 const parseXML = require('../lib/parseXML');
@@ -438,8 +439,12 @@ async function batchInstall(instPath) {
       const progInfo = coreInfo[program];
       await installProgram(null, program, progInfo.latestVersion, instPath);
     }
-    const packages = (await package.getPackages(instPath)).filter(
-      (p) => p.info.directURL
+    const allPackages = await package.getPackages(instPath);
+    packageUtil.getPackgesExtra(allPackages, instPath);
+    const packages = allPackages.filter(
+      (p) =>
+        p.info.directURL &&
+        p.installedVersion === packageUtil.states.notInstalled
     );
     for (const packageItem of packages) {
       await package.installPackage(instPath, packageItem, true);

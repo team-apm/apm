@@ -2,6 +2,7 @@ const { ipcRenderer } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
 const parseXML = require('../lib/parseXML');
+const apmJson = require('../lib/apmJson');
 
 /** Installation state of packages */
 const states = {
@@ -246,12 +247,37 @@ function getInstalledVersionOfPackage(
   return installedVersion;
 }
 
+/**
+ * Updates the installedVersion of the packages given as argument and returns a list of manually installed files
+ *
+ * @param {object[]} packages - A list of object parsed from packages.xml
+ * @param {string} instPath - An installation path
+ * @returns {string[]} List of manually installed files
+ */
+function getPackgesExtra(packages, instPath) {
+  const tmpInstalledPackages = apmJson.get(instPath, 'packages');
+  const tmpInstalledFiles = getInstalledFiles(instPath);
+  const tmpManuallyInstalledFiles = getManuallyInstalledFiles(
+    tmpInstalledFiles,
+    tmpInstalledPackages,
+    packages
+  );
+  packages.forEach((p) => {
+    p.installedVersion = getInstalledVersionOfPackage(
+      p,
+      tmpInstalledFiles,
+      tmpManuallyInstalledFiles,
+      tmpInstalledPackages,
+      instPath
+    );
+  });
+  return tmpManuallyInstalledFiles;
+}
+
 module.exports = {
   states,
   parsePackageType,
   getPackages,
   downloadRepository,
-  getInstalledFiles,
-  getManuallyInstalledFiles,
-  getInstalledVersionOfPackage,
+  getPackgesExtra,
 };
