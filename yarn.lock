@@ -2191,6 +2191,13 @@ dot-prop@^6.0.1:
   dependencies:
     is-obj "^2.0.0"
 
+dot-prop@^7.1.1:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/dot-prop/-/dot-prop-7.1.1.tgz#15b7247eb35f0720bc82e17abcc40ad42ef1b30e"
+  integrity sha512-1Rux9sph1ofNp/Bi3+zzW7XGz7Kbz+GJMKw8ncks+zS9o/zQ/+xs1livKWfQcBLYYZjEpbpzf3RrIecwb5afFQ==
+  dependencies:
+    type-fest "^2.10.0"
+
 dotgitignore@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/dotgitignore/-/dotgitignore-2.1.0.tgz#a4b15a4e4ef3cf383598aaf1dfa4a04bcc089b7b"
@@ -6546,6 +6553,11 @@ type-fest@^1.0.2:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-1.4.0.tgz#e9fb813fe3bf1744ec359d55d1affefa76f14be1"
   integrity sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==
+
+type-fest@^2.10.0:
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.10.0.tgz#0ee9c3cd411efb3bba434065d32235592d3644cf"
+  integrity sha512-u2yreDMllFI3VCpWt0rKrGs/E2LO0YHBwiiOIj+ilQh9+ALMaa4lNBSdoDvuHN3cbKcYk9L1BXP49x9RT+o/SA==
 
 typedarray@^0.0.6:
   version "0.0.6"
