@@ -489,7 +489,25 @@ async function installPackage(instPath, packageToInstall, direct = false) {
   }
 
   try {
-    const unzippedPath = await unzip(archivePath, installedPackage.id);
+    const getUnzippedPath = async () => {
+      if (['.zip', 'lzh'].includes(path.extname(archivePath))) {
+        return await unzip(archivePath, installedPackage.id);
+      } else {
+        // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
+        const newFolder = path.join(
+          path.dirname(archivePath),
+          installedPackage.id
+        );
+        await fs.mkdir(newFolder, { recursive: true });
+        await fs.rename(
+          archivePath,
+          path.join(newFolder, path.basename(archivePath))
+        );
+        return newFolder;
+      }
+    };
+
+    const unzippedPath = await getUnzippedPath();
 
     if (installedPackage.info.installer) {
       const searchFiles = (dirName) => {
