@@ -5,27 +5,8 @@ module.exports = {
     executableName: 'apm',
     icon: 'icon/apm',
     asar: {
-      unpackDir: '{node_modules/7zip-bin,node_modules/win-7zip}',
+      unpack: '**/.webpack/**/native_modules/**/*',
     },
-    ignore: [
-      /^(?!.*node_modules).*\/\.github$/,
-      /^(?!.*node_modules).*\/\.husky$/,
-      /^(?!.*node_modules).*\/\.vscode$/,
-      /^(?!.*node_modules).*\/docs$/,
-      /^(?!.*node_modules).*\/util$/,
-      /^(?!.*node_modules).*\/\.czrc$/,
-      /^(?!.*node_modules).*\/\.editorconfig$/,
-      /^(?!.*node_modules).*\/\.eslint/,
-      /^(?!.*node_modules).*\/\.gitignore$/,
-      /^(?!.*node_modules).*\/\.prettier/,
-      /^(?!.*node_modules).*\/CHANGELOG\.md$/,
-      /^(?!.*node_modules).*\/CODE_OF_CONDUCT\.md$/,
-      /^(?!.*node_modules).*\/CONTRIBUTING(?!.*\/).*\.md$/,
-      /^(?!.*node_modules).*\/README(?!.*\/).*\.md$/,
-      /^(?!.*node_modules).*\/SECURITY\.md$/,
-      /^(?!.*node_modules).*\/ThirdPartyNotices\.txt$/,
-      /^(?!.*node_modules).*\/(?!.*\/).*config\.js$/,
-    ],
     extraResource: 'ThirdPartyNotices.txt',
   },
   makers: [
@@ -73,5 +54,51 @@ module.exports = {
         draft: true,
       },
     },
+  ],
+  plugins: [
+    [
+      '@electron-forge/plugin-webpack',
+      {
+        mainConfig: './webpack.main.config.js',
+        devServer: { liveReload: false },
+        devContentSecurityPolicy:
+          "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: https://twemoji.maxcdn.com/",
+        renderer: {
+          config: './webpack.renderer.config.js',
+          entryPoints: [
+            {
+              html: './src/index.html',
+              js: './src/renderer.js',
+              name: 'main_window',
+              preload: {
+                js: './src/preload.js',
+              },
+            },
+            {
+              html: './src/about.html',
+              js: './src/about_renderer.js',
+              name: 'about_window',
+              preload: {
+                js: './src/about_preload.js',
+              },
+            },
+            {
+              html: './src/splash.html',
+              js: './src/splash_renderer.js',
+              name: 'splash_window',
+            },
+            {
+              html: './src/package_maker.html',
+              js: './src/package_maker_renderer.js',
+              name: 'package_maker_window',
+              preload: {
+                js: './src/package_maker_preload.js',
+              },
+            },
+          ],
+        },
+      },
+    ],
+    ['@electron-forge/plugin-auto-unpack-natives'],
   ],
 };

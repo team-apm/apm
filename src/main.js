@@ -169,7 +169,7 @@ function launch() {
     splashWindow.show();
   });
 
-  splashWindow.loadFile(path.join(__dirname, 'splash.html'));
+  splashWindow.loadURL(SPLASH_WINDOW_WEBPACK_ENTRY);
 
   const mainWindowState = windowStateKeeper({
     defaultWidth: 800,
@@ -186,7 +186,7 @@ function launch() {
     show: false,
     icon: icon,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
   });
 
@@ -214,7 +214,7 @@ function launch() {
         {
           label: `${app.name}について`,
           click: () => {
-            const aboutPath = path.join(__dirname, 'about.html');
+            const aboutPath = ABOUT_WINDOW_WEBPACK_ENTRY;
             const aboutWindow = new BrowserWindow({
               width: 480,
               height: 360,
@@ -224,7 +224,7 @@ function launch() {
               parent: mainWindow,
               icon: icon,
               webPreferences: {
-                preload: path.join(__dirname, 'about_preload.js'),
+                preload: ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY,
               },
             });
             aboutWindow.once('close', () => {
@@ -235,13 +235,13 @@ function launch() {
             aboutWindow.once('ready-to-show', () => {
               aboutWindow.show();
             });
-            aboutWindow.loadFile(aboutPath);
+            aboutWindow.loadURL(aboutPath);
           },
         },
         {
           label: `インストール用データの作成`,
           click: () => {
-            const packageMakerPath = path.join(__dirname, 'package_maker.html');
+            const packageMakerPath = PACKAGE_MAKER_WINDOW_WEBPACK_ENTRY;
             const packageMakerWindow = new BrowserWindow({
               width: 480,
               height: 360,
@@ -249,7 +249,7 @@ function launch() {
               parent: mainWindow,
               icon: icon,
               webPreferences: {
-                preload: path.join(__dirname, 'package_maker_preload.js'),
+                preload: PACKAGE_MAKER_WINDOW_PRELOAD_WEBPACK_ENTRY,
               },
             });
             packageMakerWindow.once('close', () => {
@@ -260,7 +260,7 @@ function launch() {
             packageMakerWindow.once('ready-to-show', () => {
               packageMakerWindow.show();
             });
-            packageMakerWindow.loadFile(packageMakerPath);
+            packageMakerWindow.loadURL(packageMakerPath);
           },
         },
         {
@@ -424,7 +424,7 @@ function launch() {
     }, 2000);
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 }
 
 app.whenReady().then(() => {

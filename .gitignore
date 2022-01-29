@@ -103,6 +103,9 @@ dist
 # TernJS port file
 .tern-port
 
+# Webpack
+.webpack/
+
 .vscode/
 out/
 .czrc
