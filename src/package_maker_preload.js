@@ -4,8 +4,8 @@ const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
 const { XMLBuilder } = require('fast-xml-parser');
-const Sortable = require('sortablejs');
-const ClipboardJS = require('clipboard');
+const { Sortable } = require('sortablejs');
+const ClipboardJS = require('clipboard/dist/clipboard.min');
 const unzip = require('./lib/unzip');
 const buttonTransition = require('./lib/buttonTransition');
 

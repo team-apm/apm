@@ -1,16 +1,23 @@
 const path = require('path');
 const sevenBin = require('7zip-bin');
 const { extractFull } = require('node-7z');
+const isDevEnv = process.env.NODE_ENV === 'development';
 
 // https://github.com/puppeteer/puppeteer/issues/2134#issuecomment-408221446
-const pathTo7zipCross = sevenBin.path7za.replace(
-  'app.asar',
-  'app.asar.unpacked'
-);
-const pathTo7zipWin = require('win-7zip')['7z'].replace(
-  'app.asar',
-  'app.asar.unpacked'
-);
+const pathTo7zipCross = isDevEnv
+  ? path.join(
+      path.dirname(__filename),
+      'native_modules',
+      sevenBin.path7za.replace('undefined', '')
+    )
+  : sevenBin.path7za.replace('app.asar', 'app.asar.unpacked');
+const pathTo7zipWin = isDevEnv
+  ? path.join(
+      path.dirname(__filename),
+      'native_modules',
+      require('win-7zip')['7z'].replace('undefined', '')
+    )
+  : require('win-7zip')['7z'].replace('app.asar', 'app.asar.unpacked');
 
 /**
  * Unzips zip archive.
