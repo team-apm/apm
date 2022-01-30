@@ -47,6 +47,7 @@
     "fast-xml-parser": "^4.0.3",
     "fs-extra": "^10.0.0",
     "list.js": "^2.3.1",
+    "matcher": "^4.0.0",
     "node-7z": "^3.0.0",
     "sortablejs": "^1.14.0",
     "ssri": "^8.0.1",
