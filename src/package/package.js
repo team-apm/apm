@@ -361,12 +361,12 @@ async function installPackage(instPath, packageToInstall, direct = false) {
       'package'
     );
   } else {
-    archivePath = await ipcRenderer.invoke(
+    const downloadResult = await ipcRenderer.invoke(
       'open-browser',
       installedPackage.info.downloadURL,
       'package'
     );
-    if (archivePath === 'close') {
+    if (!downloadResult) {
       if (btn) {
         buttonTransition.message(
           btn,
@@ -378,6 +378,8 @@ async function installPackage(instPath, packageToInstall, direct = false) {
         }, 3000);
       }
       return;
+    } else {
+      archivePath = downloadResult.savePath;
     }
   }
 
@@ -642,8 +644,12 @@ async function installScript(instPath, url) {
     return;
   }
 
-  const archivePath = await ipcRenderer.invoke('open-browser', url, 'package');
-  if (archivePath === 'close') {
+  const downloadResult = await ipcRenderer.invoke(
+    'open-browser',
+    url,
+    'package'
+  );
+  if (!downloadResult) {
     buttonTransition.message(
       btn,
       'インストールがキャンセルされました。',
@@ -654,6 +660,7 @@ async function installScript(instPath, url) {
     }, 3000);
     return;
   }
+  const archivePath = downloadResult.savePath;
 
   const searchScriptFolders = (dirName, getFiles = false) => {
     const regex = /\.(anm|obj|cam|tra|scn)$/;

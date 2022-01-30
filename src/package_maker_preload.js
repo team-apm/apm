@@ -269,12 +269,12 @@ window.addEventListener('load', () => {
       return;
     }
 
-    const archivePath = await ipcRenderer.invoke(
+    const downloadResult = await ipcRenderer.invoke(
       'open-browser',
       xmlDownloadURL.value,
       'package'
     );
-    if (archivePath === 'close') {
+    if (!downloadResult) {
       buttonTransition.message(
         xmlDownloadURLBtn,
         'ダウンロードがキャンセルされました。',
@@ -288,7 +288,7 @@ window.addEventListener('load', () => {
 
     let unzippedPath;
     try {
-      unzippedPath = await unzip(archivePath);
+      unzippedPath = await unzip(downloadResult.savePath);
       execSync(`start "" "${unzippedPath}"`);
     } catch (e) {
       buttonTransition.message(
