@@ -277,9 +277,13 @@ async function changeInstallationPath(instPath) {
   }
 
   // update 2
+  const oldScriptsMod = new Date(store.get('modDate.scripts', 0));
   const oldCoreMod = new Date(store.get('modDate.core', 0));
   const oldPackagesMod = new Date(store.get('modDate.packages', 0));
 
+  if (oldScriptsMod.getTime() < currentMod.scripts.getTime()) {
+    await package.getScriptsList(true, currentMod.scripts.getTime());
+  }
   if (oldCoreMod.getTime() < currentMod.core.getTime()) {
     await checkLatestVersion(instPath);
   }

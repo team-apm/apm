@@ -84,14 +84,6 @@ window.addEventListener('load', () => {
     await package.installPackage(installationPath.value);
   });
 
-  const installScriptBtn = document.getElementById('install-script');
-  installScriptBtn.addEventListener('click', async (event) => {
-    await package.installScript(
-      installationPath.value,
-      'https://hal-shu-sato.github.io/apm-data/install-script.html'
-    );
-  });
-
   const uninstallPackageBtn = document.getElementById('uninstall-package');
   uninstallPackageBtn.addEventListener('click', async (event) => {
     await package.uninstallPackage(installationPath.value);
