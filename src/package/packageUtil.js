@@ -274,10 +274,111 @@ function getPackgesExtra(packages, instPath) {
   return tmpManuallyInstalledFiles;
 }
 
+/**
+ * Updates the installedVersion of the packages given as argument and returns a list of manually installed files
+ *
+ * @param {string} instPath - An installation path
+ * @param {object[]} _packages - A list of object parsed from packages.xml and getPackagesExtra()
+ * @returns {object[]} - packages
+ */
+function getPackagesStatus(instPath, _packages) {
+  const packages = [..._packages].map((p) => {
+    return { ...p };
+  });
+  let aviUtlVer = '';
+  let exeditVer = '';
+  const aviUtlR = /aviutl\d/;
+  const exeditR = /exedit\d/;
+  try {
+    aviUtlVer = apmJson.get(instPath, 'core.' + 'aviutl', '');
+    exeditVer = apmJson.get(instPath, 'core.' + 'exedit', '');
+    // eslint-disable-next-line no-empty
+  } catch {}
+  packages.forEach((p) => {
+    const doNotInstall = (p) => {
+      if (p.installedVersion === states.otherInstalled) {
+        return true;
+      }
+      if (p.info.dependencies) {
+        // Whether there is at least one package that is not installable
+        return p.info.dependencies.dependency
+          .map((ids) => {
+            // Whether all ids are not installable
+            return ids
+              .split('|')
+              .map((id) => {
+                if (aviUtlR.test(id)) {
+                  return id !== 'aviutl' + aviUtlVer;
+                }
+                if (exeditR.test(id)) {
+                  return id !== 'exedit' + exeditVer;
+                }
+                // Actually, there is no need to use a list because id is unique
+                return packages
+                  .filter((pp) => pp.id === id)
+                  .map((pp) => doNotInstall(pp))
+                  .some((e) => e);
+              })
+              .every((e) => e);
+          })
+          .some((e) => e);
+      }
+      return false;
+    };
+    p.doNotInstall = doNotInstall(p);
+  });
+  packages.forEach((p) => {
+    const isInstalled = (p) =>
+      p.installedVersion !== states.installedButBroken &&
+      p.installedVersion !== states.notInstalled &&
+      p.installedVersion !== states.otherInstalled;
+    const detached = (p) => {
+      const lists = [];
+      if (!isInstalled(p)) lists.push(p);
+      if (p.info.dependencies) {
+        lists.push(
+          ...p.info.dependencies.dependency.flatMap((ids) => {
+            // Whether all ids are detached or not
+            const isDetached = ids
+              .split('|')
+              .map((id) => {
+                if (aviUtlR.test(id) || exeditR.test(id)) return false;
+                // Actually, there is no need to use a list because id is unique
+                return packages
+                  .filter((pp) => pp.id === id)
+                  .map((pp) => detached(pp).length !== 0)
+                  .some((e) => e);
+              })
+              .every((e) => e);
+
+            if (!isDetached) return [];
+
+            // If all id's are detached, perform a list fetch for the ids
+            for (const id of ids.split('|')) {
+              if (aviUtlR.test(id) || exeditR.test(id)) {
+                continue;
+              }
+              const ps = packages
+                .filter((pp) => pp.id === id)
+                .flatMap((pp) => detached(pp).filter((p) => !p.doNotInstall));
+              if (ps.length > 0) return ps;
+            }
+            return [];
+          })
+        );
+      }
+      return lists;
+    };
+    p.detached = isInstalled(p) ? detached(p) : [];
+  });
+  return packages;
+}
+
 module.exports = {
   states,
   parsePackageType,
   getPackages,
   downloadRepository,
   getPackgesExtra,
+  getPackagesStatus,
 };
