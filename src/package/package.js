@@ -490,7 +490,7 @@ async function installPackage(instPath, packageToInstall, direct = false) {
 
   try {
     const getUnzippedPath = async () => {
-      if (['.zip', 'lzh'].includes(path.extname(archivePath))) {
+      if (['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(archivePath))) {
         return await unzip(archivePath, installedPackage.id);
       } else {
         // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
