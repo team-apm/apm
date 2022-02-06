@@ -96,7 +96,10 @@ async function setPackagesList(instPath) {
 
   // prepare a package list
 
-  let manuallyInstalledFiles = packageUtil.getPackgesExtra(packages, instPath);
+  let manuallyInstalledFiles;
+  const packagesExtra = packageUtil.getPackagesExtra(packages, instPath);
+  manuallyInstalledFiles = packagesExtra.manuallyInstalledFiles;
+  packages = packagesExtra.packages;
 
   // guess which packages are installed from integrity
   let modified = false;
@@ -115,8 +118,11 @@ async function setPackagesList(instPath) {
       }
     }
   }
-  if (modified)
-    manuallyInstalledFiles = packageUtil.getPackgesExtra(packages, instPath);
+  if (modified) {
+    const packagesExtraMod = packageUtil.getPackagesExtra(packages, instPath);
+    manuallyInstalledFiles = packagesExtraMod.manuallyInstalledFiles;
+    packages = packagesExtraMod.packages;
+  }
 
   packages = packageUtil.getPackagesStatus(instPath, packages);
 

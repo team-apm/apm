@@ -250,11 +250,14 @@ function getInstalledVersionOfPackage(
 /**
  * Updates the installedVersion of the packages given as argument and returns a list of manually installed files
  *
- * @param {object[]} packages - A list of object parsed from packages.xml
+ * @param {object[]} _packages - A list of object parsed from packages.xml
  * @param {string} instPath - An installation path
- * @returns {string[]} List of manually installed files
+ * @returns {object} List of manually installed files
  */
-function getPackgesExtra(packages, instPath) {
+function getPackagesExtra(_packages, instPath) {
+  const packages = [..._packages].map((p) => {
+    return { ...p };
+  });
   const tmpInstalledPackages = apmJson.get(instPath, 'packages');
   const tmpInstalledFiles = getInstalledFiles(instPath);
   const tmpManuallyInstalledFiles = getManuallyInstalledFiles(
@@ -271,7 +274,10 @@ function getPackgesExtra(packages, instPath) {
       instPath
     );
   });
-  return tmpManuallyInstalledFiles;
+  return {
+    manuallyInstalledFiles: tmpManuallyInstalledFiles,
+    packages: packages,
+  };
 }
 
 /**
@@ -379,6 +385,6 @@ module.exports = {
   parsePackageType,
   getPackages,
   downloadRepository,
-  getPackgesExtra,
+  getPackagesExtra,
   getPackagesStatus,
 };
