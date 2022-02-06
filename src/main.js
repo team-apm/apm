@@ -313,7 +313,7 @@ function launch() {
       const tmpDirectory = path.join(app.getPath('userData'), 'Data/', subDir);
       const opt = {
         overwrite: true,
-        directory: ['.zip', '.lzh'].includes(path.extname(url))
+        directory: ['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(url))
           ? path.join(tmpDirectory, 'archive')
           : tmpDirectory,
       };
@@ -372,7 +372,7 @@ function launch() {
 
           const ext = path.extname(item.getFilename());
           const dir = path.join(app.getPath('userData'), 'Data');
-          if (['.zip', '.lzh'].includes(ext)) {
+          if (['.zip', '.lzh', '.7z', '.rar'].includes(ext)) {
             item.setSavePath(
               path.join(dir, type, 'archive/', item.getFilename())
             );
