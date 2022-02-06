@@ -50,9 +50,8 @@ async function getPackages(instPath) {
  * Sets rows of each package in the table.
  *
  * @param {string} instPath - An installation path.
- * @param {boolean} minorUpdate - Only the installation status of the package has been updated.
  */
-async function setPackagesList(instPath, minorUpdate = false) {
+async function setPackagesList(instPath) {
   const packagesSort = document.getElementById('packages-sort');
   const packagesList = document.getElementById('packages-list');
   const packagesList2 = document.getElementById('packages-list2');
@@ -78,7 +77,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
     '解説',
     'リンク',
   ];
-  const packages = await getPackages(instPath);
+  let packages = await getPackages(instPath);
 
   // sort-buttons
   if (!packagesSort.hasChildNodes()) {
@@ -97,7 +96,10 @@ async function setPackagesList(instPath, minorUpdate = false) {
 
   // prepare a package list
 
-  let manuallyInstalledFiles = packageUtil.getPackgesExtra(packages, instPath);
+  let manuallyInstalledFiles;
+  const packagesExtra = packageUtil.getPackagesExtra(packages, instPath);
+  manuallyInstalledFiles = packagesExtra.manuallyInstalledFiles;
+  packages = packagesExtra.packages;
 
   // guess which packages are installed from integrity
   let modified = false;
@@ -116,96 +118,15 @@ async function setPackagesList(instPath, minorUpdate = false) {
       }
     }
   }
-  if (modified)
-    manuallyInstalledFiles = packageUtil.getPackgesExtra(packages, instPath);
+  if (modified) {
+    const packagesExtraMod = packageUtil.getPackagesExtra(packages, instPath);
+    manuallyInstalledFiles = packagesExtraMod.manuallyInstalledFiles;
+    packages = packagesExtraMod.packages;
+  }
 
-  let aviUtlVer = '';
-  let exeditVer = '';
-  const aviUtlR = /aviutl\d/;
-  const exeditR = /exedit\d/;
-  try {
-    aviUtlVer = apmJson.get(instPath, 'core.' + 'aviutl', '');
-    exeditVer = apmJson.get(instPath, 'core.' + 'exedit', '');
-    // eslint-disable-next-line no-empty
-  } catch {}
-  packages.forEach((p) => {
-    const doNotInstall = (p) => {
-      if (p.installedVersion === packageUtil.states.otherInstalled) {
-        return true;
-      }
-      if (p.info.dependencies) {
-        // Whether there is at least one package that is not installable
-        return p.info.dependencies.dependency
-          .map((ids) => {
-            // Whether all ids are not installable
-            return ids
-              .split('|')
-              .map((id) => {
-                if (aviUtlR.test(id)) {
-                  return id !== 'aviutl' + aviUtlVer;
-                }
-                if (exeditR.test(id)) {
-                  return id !== 'exedit' + exeditVer;
-                }
-                // Actually, there is no need to use a list because id is unique
-                return packages
-                  .filter((pp) => pp.id === id)
-                  .map((pp) => doNotInstall(pp))
-                  .some((e) => e);
-              })
-              .every((e) => e);
-          })
-          .some((e) => e);
-      }
-      return false;
-    };
-    p.doNotInstall = doNotInstall(p);
-  });
-  packages.forEach((p) => {
-    const isInstalled = (p) =>
-      p.installedVersion !== packageUtil.states.installedButBroken &&
-      p.installedVersion !== packageUtil.states.notInstalled &&
-      p.installedVersion !== packageUtil.states.otherInstalled;
-    const detached = (p) => {
-      const lists = [];
-      if (!isInstalled(p)) lists.push(p);
-      if (p.info.dependencies) {
-        lists.push(
-          ...p.info.dependencies.dependency.flatMap((ids) => {
-            // Whether all ids are detached or not
-            const isDetached = ids
-              .split('|')
-              .map((id) => {
-                if (aviUtlR.test(id) || exeditR.test(id)) return false;
-                // Actually, there is no need to use a list because id is unique
-                return packages
-                  .filter((pp) => pp.id === id)
-                  .map((pp) => detached(pp).length !== 0)
-                  .some((e) => e);
-              })
-              .every((e) => e);
+  packages = packageUtil.getPackagesStatus(instPath, packages);
 
-            if (!isDetached) return [];
-
-            // If all id's are detached, perform a list fetch for the ids
-            for (const id of ids.split('|')) {
-              if (aviUtlR.test(id) || exeditR.test(id)) {
-                continue;
-              }
-              const ps = packages
-                .filter((pp) => pp.id === id)
-                .flatMap((pp) => detached(pp).filter((p) => !p.doNotInstall));
-              if (ps.length > 0) return ps;
-            }
-            return [];
-          })
-        );
-      }
-      return lists;
-    };
-    p.detached = isInstalled(p) ? detached(p) : [];
-  });
-
+  // show the package list
   const makeLiFromArray = (columnList) => {
     const li = document.getElementById('list-template').cloneNode(true);
     li.removeAttribute('id');
@@ -215,106 +136,74 @@ async function setPackagesList(instPath, minorUpdate = false) {
     return [li].concat(divs);
   };
 
-  if (!minorUpdate) {
-    packagesList.innerHTML = null;
+  packagesList.innerHTML = null;
 
-    for (const package of packages) {
-      const [
-        li,
-        name,
-        overview,
-        developer,
-        type,
-        latestVersion,
-        installedVersion,
-        description,
-        pageURL,
-      ] = makeLiFromArray(columns);
-      li.dataset.id = package.id;
-      li.dataset.repository = package.repository;
-      li.addEventListener('click', (event) => {
-        selectedPackage = package;
-        li.getElementsByTagName('input')[0].checked = true;
-        for (const tmpli of packagesList.getElementsByTagName('li')) {
-          tmpli.classList.remove('list-group-item-secondary');
-        }
-        li.classList.add('list-group-item-secondary');
-      });
-      name.innerText = package.info.name;
-      overview.innerText = package.info.overview;
-      developer.innerText = package.info.originalDeveloper
-        ? `${package.info.developer}（オリジナル：${package.info.originalDeveloper}）`
-        : package.info.developer;
-      packageUtil.parsePackageType(package.info.type).forEach((e) => {
-        const typeItem = document
-          .getElementById('tag-template')
-          .cloneNode(true);
-        typeItem.removeAttribute('id');
-        typeItem.innerText = e;
-        type.appendChild(typeItem);
-      });
-      latestVersion.innerText = package.info.latestVersion;
-      installedVersion.innerText = package.installedVersion;
-      description.innerText = package.info.description;
-      pageURL.innerText = package.info.pageURL;
-      pageURL.href = package.info.pageURL;
-
-      packagesList.appendChild(li);
-    }
-
-    // sorting and filtering
-    if (typeof listJS === 'undefined') {
-      listJS = createList('packages', { valueNames: columns });
-    } else {
-      listJS.reIndex();
-      listJS.update();
-    }
-  }
-
-  // values() updates the installedVersion inside the listJS
-  // it will also update the text in the DOM
-  listJS.items.forEach((i) => {
-    const package = packages.filter(
-      (p) =>
-        p.id === i.elm.dataset.id && p.repository === i.elm.dataset.repository
-    );
-    if (package.length === 0) return;
-
-    const value = i.values();
-    if (value.installedVersion !== package[0].installedVersion) {
-      value.installedVersion = package[0].installedVersion;
-      i.values(value);
-    }
-  });
-
-  // update the statusInformation in the DOM
   for (const package of packages) {
-    for (const li of packagesList.getElementsByTagName('li')) {
-      if (
-        li.dataset.id === package.id &&
-        li.dataset.repository === package.repository
-      ) {
-        const statusInformation =
-          li.getElementsByClassName('statusInformation')[0];
-        statusInformation.innerText = null;
-        package.detached.forEach((p) => {
-          const aTag = document.createElement('a');
-          aTag.href = '#';
-          aTag.innerText = `❗ 要導入: ${p.info.name}\r\n`;
-          statusInformation.appendChild(aTag);
-          aTag.addEventListener('click', async (event) => {
-            await installPackage(instPath, p);
-            return false;
-          });
-        });
-        const verText = document.createElement('div');
-        verText.innerText = package.doNotInstall
-          ? '⚠️インストール不可\r\n'
-          : '';
-        statusInformation.appendChild(verText);
+    const [
+      li,
+      name,
+      overview,
+      developer,
+      type,
+      latestVersion,
+      installedVersion,
+      description,
+      pageURL,
+      statusInformation,
+    ] = makeLiFromArray([...columns, 'statusInformation']);
+    li.dataset.id = package.id;
+    li.dataset.repository = package.repository;
+    li.addEventListener('click', (event) => {
+      selectedPackage = package;
+      li.getElementsByTagName('input')[0].checked = true;
+      for (const tmpli of packagesList.getElementsByTagName('li')) {
+        tmpli.classList.remove('list-group-item-secondary');
       }
-    }
+      li.classList.add('list-group-item-secondary');
+    });
+    name.innerText = package.info.name;
+    overview.innerText = package.info.overview;
+    developer.innerText = package.info.originalDeveloper
+      ? `${package.info.developer}（オリジナル：${package.info.originalDeveloper}）`
+      : package.info.developer;
+    packageUtil.parsePackageType(package.info.type).forEach((e) => {
+      const typeItem = document.getElementById('tag-template').cloneNode(true);
+      typeItem.removeAttribute('id');
+      typeItem.innerText = e;
+      type.appendChild(typeItem);
+    });
+    latestVersion.innerText = package.info.latestVersion;
+    installedVersion.innerText = package.installedVersion;
+    description.innerText = package.info.description;
+    pageURL.innerText = package.info.pageURL;
+    pageURL.href = package.info.pageURL;
+    statusInformation.innerText = null;
+    package.detached.forEach((p) => {
+      const aTag = document.createElement('a');
+      aTag.href = '#';
+      aTag.innerText = `❗ 要導入: ${p.info.name}\r\n`;
+      statusInformation.appendChild(aTag);
+      aTag.addEventListener('click', async (event) => {
+        await installPackage(instPath, p);
+        return false;
+      });
+    });
+    const verText = document.createElement('div');
+    verText.innerText = package.doNotInstall ? '⚠️インストール不可\r\n' : '';
+    statusInformation.appendChild(verText);
+
+    packagesList.appendChild(li);
   }
+
+  // sorting and filtering
+  if (typeof listJS === 'undefined') {
+    listJS = createList('packages', { valueNames: columns });
+  } else {
+    listJS.reIndex();
+    listJS.update();
+  }
+
+  // parse emoji
   twemoji.parse(packagesList);
 
   // list manually added packages
@@ -592,7 +481,7 @@ async function installPackage(instPath, packageToInstall, direct = false) {
         latestVersion: getDate(),
       };
     apmJson.addPackage(instPath, installedPackage);
-    await setPackagesList(instPath, true);
+    await setPackagesList(instPath);
 
     if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
   } else {
@@ -661,7 +550,7 @@ async function uninstallPackage(instPath) {
   apmJson.removePackage(instPath, uninstalledPackage);
   if (filesCount === existCount) {
     if (!uninstalledPackage.id.startsWith('script_')) {
-      await setPackagesList(instPath, true);
+      await setPackagesList(instPath);
     } else {
       await parseXML.removePackage(
         setting.getLocalPackagesDataUrl(instPath),

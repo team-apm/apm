@@ -382,7 +382,7 @@ async function installProgram(btn, program, version, instPath) {
       if (filesCount === existCount) {
         apmJson.setCore(instPath, program, version);
         await displayInstalledVersion(instPath);
-        await package.setPackagesList(instPath, true);
+        await package.setPackagesList(instPath);
 
         if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
       } else {
@@ -439,8 +439,10 @@ async function batchInstall(instPath) {
       const progInfo = coreInfo[program];
       await installProgram(null, program, progInfo.latestVersion, instPath);
     }
-    const allPackages = await package.getPackages(instPath);
-    packageUtil.getPackgesExtra(allPackages, instPath);
+    const allPackages = packageUtil.getPackagesExtra(
+      await package.getPackages(instPath),
+      instPath
+    ).packages;
     const packages = allPackages.filter(
       (p) =>
         p.info.directURL &&
