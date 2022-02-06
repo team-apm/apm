@@ -5,7 +5,7 @@ const log = require('electron-log');
 const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
-const List = require('list.js');
+const createList = require('../lib/updatableList');
 const twemoji = require('twemoji');
 const replaceText = require('../lib/replaceText');
 const unzip = require('../lib/unzip');
@@ -264,7 +264,7 @@ async function setPackagesList(instPath, minorUpdate = false) {
 
     // sorting and filtering
     if (typeof listJS === 'undefined') {
-      listJS = new List('packages', { valueNames: columns });
+      listJS = createList('packages', { valueNames: columns });
     } else {
       listJS.reIndex();
       listJS.update();
