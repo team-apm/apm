@@ -6,6 +6,7 @@ const apmJson = require('../lib/apmJson');
 
 /** Installation state of packages */
 const states = {
+  installed: 'インストール済み',
   installedButBroken:
     '未インストール（ファイルの存在が確認できませんでした。）',
   manuallyInstalled: '手動インストール済み',
@@ -193,7 +194,7 @@ function getManuallyInstalledFiles(files, installedPackages, packages) {
  * @param {string[]} manuallyInstalledFiles - List of manually installed files
  * @param {object[]} installedPackages - A list of object from apmJson
  * @param {string} instPath - An installation path
- * @returns {string} Installed version or installation status of the package
+ * @returns {object} Installed version or installation status of the package
  */
 function getInstalledVersionOfPackage(
   package,
@@ -202,7 +203,8 @@ function getInstalledVersionOfPackage(
   installedPackages,
   instPath
 ) {
-  let installedVersion;
+  let installationStatus;
+  let version;
   let addedVersion = false;
   let manuallyAddedVersion = false;
   for (const file of package.info.files) {
@@ -212,7 +214,7 @@ function getInstalledVersionOfPackage(
         manuallyAddedVersion = true;
     }
   }
-  installedVersion = manuallyAddedVersion
+  installationStatus = manuallyAddedVersion
     ? states.manuallyInstalled
     : addedVersion
     ? states.otherInstalled
@@ -237,14 +239,15 @@ function getInstalledVersionOfPackage(
       }
 
       if (filesCount === existCount) {
-        installedVersion = 'インストール済み: ' + installedPackage.version;
+        installationStatus = states.installed;
+        version = installedPackage.version;
       } else {
-        installedVersion = states.installedButBroken;
+        installationStatus = states.installedButBroken;
       }
     }
   }
 
-  return installedVersion;
+  return [installationStatus, version];
 }
 
 /**
@@ -266,7 +269,7 @@ function getPackagesExtra(_packages, instPath) {
     packages
   );
   packages.forEach((p) => {
-    p.installedVersion = getInstalledVersionOfPackage(
+    [p.installationStatus, p.version] = getInstalledVersionOfPackage(
       p,
       tmpInstalledFiles,
       tmpManuallyInstalledFiles,
@@ -302,7 +305,7 @@ function getPackagesStatus(instPath, _packages) {
   } catch {}
   packages.forEach((p) => {
     const doNotInstall = (p) => {
-      if (p.installedVersion === states.otherInstalled) {
+      if (p.installationStatus === states.otherInstalled) {
         return true;
       }
       if (p.info.dependencies) {
@@ -335,9 +338,9 @@ function getPackagesStatus(instPath, _packages) {
   });
   packages.forEach((p) => {
     const isInstalled = (p) =>
-      p.installedVersion !== states.installedButBroken &&
-      p.installedVersion !== states.notInstalled &&
-      p.installedVersion !== states.otherInstalled;
+      p.installationStatus !== states.installedButBroken &&
+      p.installationStatus !== states.notInstalled &&
+      p.installationStatus !== states.otherInstalled;
     const detached = (p) => {
       const lists = [];
       if (!isInstalled(p)) lists.push(p);

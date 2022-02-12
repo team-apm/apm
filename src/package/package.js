@@ -63,7 +63,7 @@ async function setPackagesList(instPath) {
     'developer',
     'type',
     'latestVersion',
-    'installedVersion',
+    'installationStatus',
     'description',
     'pageURL',
   ];
@@ -106,7 +106,7 @@ async function setPackagesList(instPath) {
   for (const p of packages
     .filter((p) => p.info.releases)
     .filter(
-      (p) => p.installedVersion === packageUtil.states.manuallyInstalled
+      (p) => p.installationStatus === packageUtil.states.manuallyInstalled
     )) {
     for (const [version, release] of Object.entries(p.info.releases)) {
       if (await integrity.checkIntegrity(instPath, release.integrities)) {
@@ -146,7 +146,7 @@ async function setPackagesList(instPath) {
       developer,
       type,
       latestVersion,
-      installedVersion,
+      installationStatus,
       description,
       pageURL,
       statusInformation,
@@ -173,7 +173,11 @@ async function setPackagesList(instPath) {
       type.appendChild(typeItem);
     });
     latestVersion.innerText = package.info.latestVersion;
-    installedVersion.innerText = package.installedVersion;
+    installationStatus.innerText =
+      package.installationStatus +
+      (package.installationStatus === packageUtil.states.installed
+        ? ': ' + package.version
+        : '');
     description.innerText = package.info.description;
     pageURL.innerText = package.info.pageURL;
     pageURL.href = package.info.pageURL;
@@ -215,7 +219,7 @@ async function setPackagesList(instPath) {
       developer,
       type,
       latestVersion,
-      installedVersion,
+      installationStatus,
     ] = makeLiFromArray(columns);
     li.classList.add('list-group-item-secondary');
     li.getElementsByTagName('input')[0].remove(); // remove the radio button
@@ -224,7 +228,7 @@ async function setPackagesList(instPath) {
     developer.innerText = '';
     type.innerText = '';
     latestVersion.innerText = '';
-    installedVersion.innerText = '';
+    installationStatus.innerText = '';
     packagesList2.appendChild(li);
   }
 
@@ -234,7 +238,7 @@ async function setPackagesList(instPath) {
   packages
     .filter((p) => p.info.directURL)
     .flatMap((p) => {
-      if (p.installedVersion !== packageUtil.states.notInstalled) {
+      if (p.installationStatus !== packageUtil.states.notInstalled) {
         const pTag = document.createElement('span');
         pTag.classList.add('text-muted');
         pTag.innerText = '✔' + p.info.name;
@@ -813,10 +817,10 @@ function listFilter(column, btns, btn) {
           return false;
         }
       };
-    } else if (column === 'installedVersion') {
+    } else if (column === 'installationStatus') {
       const query = btn.dataset.installFilter;
       const getValue = (item) => {
-        return item.values().installedVersion;
+        return item.values().installationStatus;
       };
       if (query === 'true') {
         filterFunc = (item) => {
