@@ -17,6 +17,7 @@ const mod = require('../lib/mod');
 const { getHash } = require('../lib/getHash');
 const packageUtil = require('./packageUtil');
 const integrity = require('../lib/integrity');
+const { compareVersion } = require('../lib/compareVersion');
 
 let selectedPackage;
 let listJS;
@@ -195,6 +196,15 @@ async function setPackagesList(instPath) {
     const verText = document.createElement('div');
     verText.innerText = package.doNotInstall ? '⚠️インストール不可\r\n' : '';
     statusInformation.appendChild(verText);
+    if (
+      package.installationStatus === packageUtil.states.installed &&
+      compareVersion(package.info.latestVersion, package.version) > 0
+    ) {
+      const updateText = document.createElement('div');
+      updateText.classList.add('text-success');
+      updateText.innerText = '更新が利用可能です\r\n';
+      statusInformation.appendChild(updateText);
+    }
 
     packagesList.appendChild(li);
   }
