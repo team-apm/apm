@@ -356,6 +356,32 @@ async function installPackage(instPath, packageToInstall, direct = false) {
       true,
       'package'
     );
+
+    const integrityForArchive =
+      installedPackage.info?.releases[installedPackage.info.latestVersion]
+        ?.archiveIntegrity;
+    if (integrityForArchive) {
+      const match = await integrity.verifyFile(
+        archivePath,
+        integrityForArchive
+      );
+      if (!match) {
+        if (btn) {
+          buttonTransition.message(
+            btn,
+            'ダウンロードされたファイルが破損しています。',
+            'danger'
+          );
+          setTimeout(() => {
+            enableButton();
+          }, 3000);
+        }
+        log.error(
+          `The downloaded archive file is corrupt. URL:${installedPackage.info.directURL}`
+        );
+        return;
+      }
+    }
   } else {
     archivePath = await ipcRenderer.invoke(
       'open-browser',
