@@ -26,7 +26,7 @@ const isMatch = (input, pattern) =>
 
 let selectedEntry;
 let selectedEntryType;
-const entryType = { package: 'package', script: 'script' };
+const entryType = { package: 'package', scriptSite: 'script' };
 let listJS;
 
 /**
@@ -221,7 +221,7 @@ async function setPackagesList(instPath) {
     ] = makeLiFromArray([...columns, 'statusInformation']);
     li.addEventListener('click', (event) => {
       selectedEntry = webpage;
-      selectedEntryType = entryType.script;
+      selectedEntryType = entryType.scriptSite;
       li.getElementsByTagName('input')[0].checked = true;
       for (const tmpli of packagesList.getElementsByTagName('li')) {
         tmpli.classList.remove('list-group-item-secondary');
@@ -229,15 +229,15 @@ async function setPackagesList(instPath) {
       li.classList.add('list-group-item-secondary');
     });
     name.innerText = webpage.developer;
-    overview.innerText = '';
+    overview.innerText = '配布サイトからスクリプトをインストール';
     developer.innerText = webpage.developer;
     const typeItem = document.getElementById('tag-template').cloneNode(true);
     typeItem.removeAttribute('id');
     typeItem.innerText = 'スクリプト配布サイト';
     type.appendChild(typeItem);
-    latestVersion.innerText = '最新';
+    latestVersion.innerText = '';
     installedVersion.innerText = '';
-    description.innerText = '';
+    description.innerText = webpage?.description ?? '';
     pageURL.innerText = webpage.url;
     pageURL.href = webpage.url;
     statusInformation.innerText = '';
@@ -402,7 +402,7 @@ async function installPackage(
   direct = false,
   strArchivePath
 ) {
-  if (selectedEntryType === entryType.script) {
+  if (selectedEntryType === entryType.scriptSite) {
     installScript(instPath);
     return;
   }
@@ -439,6 +439,21 @@ async function installPackage(
       }, 3000);
     }
     log.error('A package to install is not selected.');
+    return;
+  }
+
+  if (selectedEntry?.id.startsWith('script_')) {
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'このスクリプトは上書きインストールできません。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
+    log.error('This script cannot be overwritten.');
     return;
   }
 
@@ -603,9 +618,21 @@ async function installPackage(
  * @param {string} instPath - An installation path.
  */
 async function uninstallPackage(instPath) {
-  if (selectedEntryType !== entryType.package) return;
   const btn = document.getElementById('uninstall-package');
   const enableButton = buttonTransition.loading(btn, 'アンインストール');
+
+  if (selectedEntryType !== entryType.package) {
+    buttonTransition.message(
+      btn,
+      'プラグインまたはスクリプトを選択してください。',
+      'danger'
+    );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    log.error('A package to install is not selected.');
+    return;
+  }
 
   if (!instPath) {
     buttonTransition.message(
@@ -676,12 +703,24 @@ async function uninstallPackage(instPath) {
  * Open the download folder of the package.
  */
 async function openPackageFolder() {
-  if (selectedEntryType !== entryType.package) return;
   const btn = document.getElementById('open-package-folder');
   const enableButton = buttonTransition.loading(
     btn,
     'ダウンロードフォルダを開く'
   );
+
+  if (selectedEntryType !== entryType.package) {
+    buttonTransition.message(
+      btn,
+      'プラグインまたはスクリプトを選択してください。',
+      'danger'
+    );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    log.error('A package to install is not selected.');
+    return;
+  }
 
   if (!selectedEntry) {
     buttonTransition.message(
@@ -1002,13 +1041,12 @@ function listFilter(column, btns, btn) {
         filterFunc = (item) => {
           const value = getValue(item);
           if (
-            value === packageUtil.states.notInstalled ||
-            value === packageUtil.states.manuallyInstalled ||
-            value === packageUtil.states.otherInstalled
+            value.startsWith(packageUtil.states.installed) ||
+            value === packageUtil.states.installedButBroken
           ) {
-            return false;
-          } else {
             return true;
+          } else {
+            return false;
           }
         };
       } else if (query === 'manual') {
