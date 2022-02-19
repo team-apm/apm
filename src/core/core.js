@@ -446,7 +446,7 @@ async function batchInstall(instPath) {
     const packages = allPackages.filter(
       (p) =>
         p.info.directURL &&
-        p.installedVersion === packageUtil.states.notInstalled
+        p.installationStatus === packageUtil.states.notInstalled
     );
     for (const packageItem of packages) {
       await package.installPackage(instPath, packageItem, true);

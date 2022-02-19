@@ -113,7 +113,7 @@ window.addEventListener('load', () => {
     filterDropdown.getElementsByClassName('install-filter');
   for (const element of installFilterBtns) {
     element.addEventListener('click', () => {
-      package.listFilter('installedVersion', installFilterBtns, element);
+      package.listFilter('installationStatus', installFilterBtns, element);
     });
   }
 
