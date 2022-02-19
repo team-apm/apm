@@ -537,13 +537,13 @@ async function uninstallPackage(instPath) {
   const uninstalledPackage = { ...selectedPackage };
 
   for (const file of uninstalledPackage.info.files) {
-    fs.removeSync(path.join(instPath, file.filename));
+    if (!file.isInstallOnly) fs.removeSync(path.join(instPath, file.filename));
   }
 
   let filesCount = 0;
   let existCount = 0;
   for (const file of uninstalledPackage.info.files) {
-    if (!file.isOptional) {
+    if (!file.isOptional && !file.isInstallOnly) {
       filesCount++;
       if (!fs.existsSync(path.join(instPath, file.filename))) {
         existCount++;
