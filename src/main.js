@@ -105,6 +105,22 @@ ipcMain.handle('open-err-dialog', async (event, title, message) => {
   });
 });
 
+ipcMain.handle('open-yes-no-dialog', async (event, title, message) => {
+  const win = BrowserWindow.getFocusedWindow();
+  const response = await dialog.showMessageBox(win, {
+    title: title,
+    message: message,
+    type: 'warning',
+    buttons: ['はい', `いいえ`],
+    cancelId: 1,
+  });
+  if (response.response === 0) {
+    return true;
+  } else {
+    return false;
+  }
+});
+
 const allowedHosts = [];
 
 app.on(

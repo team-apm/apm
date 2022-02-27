@@ -360,26 +360,44 @@ async function installPackage(instPath, packageToInstall, direct = false) {
     const integrityForArchive =
       installedPackage.info?.releases[installedPackage.info.latestVersion]
         ?.archiveIntegrity;
+
     if (integrityForArchive) {
-      const match = await integrity.verifyFile(
-        archivePath,
-        integrityForArchive
-      );
-      if (!match) {
-        if (btn) {
-          buttonTransition.message(
-            btn,
-            'ダウンロードされたファイルが破損しています。',
-            'danger'
+      for (;;) {
+        // Verify file integrity
+        if (await integrity.verifyFile(archivePath, integrityForArchive)) {
+          break;
+        } else {
+          const dialogResult = await ipcRenderer.invoke(
+            'open-yes-no-dialog',
+            'エラー',
+            'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
           );
-          setTimeout(() => {
-            enableButton();
-          }, 3000);
+          if (dialogResult) {
+            archivePath = await ipcRenderer.invoke(
+              'download',
+              installedPackage.info.directURL,
+              false,
+              'package'
+            );
+            continue;
+          } else {
+            log.error(
+              `The downloaded archive file is corrupt. URL:${installedPackage.info.directURL}`
+            );
+            if (btn) {
+              buttonTransition.message(
+                btn,
+                'ダウンロードされたファイルは破損しています。',
+                'danger'
+              );
+              setTimeout(() => {
+                enableButton();
+              }, 3000);
+            }
+            // Direct installation can throw an error because it is called only from within the try catch block.
+            throw new Error('The downloaded archive file is corrupt.');
+          }
         }
-        log.error(
-          `The downloaded archive file is corrupt. URL:${installedPackage.info.directURL}`
-        );
-        return;
       }
     }
   } else {
