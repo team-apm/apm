@@ -337,38 +337,53 @@ async function installProgram(btn, program, version, instPath) {
   const coreInfo = await getCoreInfo();
 
   if (coreInfo) {
-    try {
-      const url = coreInfo[program].releases[version].url;
-      const archivePath = await ipcRenderer.invoke(
-        'download',
-        url,
-        true,
-        'core'
-      );
+    const url = coreInfo[program].releases[version].url;
+    let archivePath = await ipcRenderer.invoke('download', url, true, 'core');
 
-      const integrityForArchive =
-        coreInfo[program].releases[version]?.archiveIntegrity;
-      if (integrityForArchive) {
-        const match = await integrity.verifyFile(
-          archivePath,
-          integrityForArchive
-        );
-        if (!match) {
-          if (btn) {
-            buttonTransition.message(
-              btn,
-              'ダウンロードされたファイルが破損しています。',
-              'danger'
+    const integrityForArchive =
+      coreInfo[program].releases[version]?.archiveIntegrity;
+
+    if (integrityForArchive) {
+      for (;;) {
+        // Verify file integrity
+        if (await integrity.verifyFile(archivePath, integrityForArchive)) {
+          break;
+        } else {
+          const dialogResult = await ipcRenderer.invoke(
+            'open-yes-no-dialog',
+            'エラー',
+            'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
+          );
+          if (dialogResult) {
+            archivePath = await ipcRenderer.invoke(
+              'download',
+              url,
+              false,
+              'core'
             );
-            setTimeout(() => {
-              enableButton();
-            }, 3000);
+            continue;
+          } else {
+            log.error(`The downloaded archive file is corrupt. URL:${url}`);
+            if (btn) {
+              buttonTransition.message(
+                btn,
+                'ダウンロードされたファイルは破損しています。',
+                'danger'
+              );
+              setTimeout(() => {
+                enableButton();
+              }, 3000);
+              return;
+            } else {
+              // Throw an error if not executed from the UI.
+              throw new Error('The downloaded archive file is corrupt.');
+            }
           }
-          log.error(`The downloaded archive file is corrupt. URL:${url}`);
-          return;
         }
       }
+    }
 
+    try {
       const unzippedPath = await unzip(archivePath);
       fs.copySync(unzippedPath, instPath);
 

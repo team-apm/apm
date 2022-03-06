@@ -62,6 +62,7 @@ function parseFiles(parsedData) {
     const tmpFile = {
       filename: null,
       isOptional: false,
+      isInstallOnly: false,
       isDirectory: false,
       archivePath: null,
     };
@@ -70,6 +71,8 @@ function parseFiles(parsedData) {
     } else if (typeof file === 'object') {
       tmpFile.filename = file._;
       if (file.$optional) tmpFile.isOptional = Boolean(file.$optional[0]);
+      if (file.$installOnly)
+        tmpFile.isInstallOnly = Boolean(file.$installOnly[0]);
       if (file.$directory) tmpFile.isDirectory = Boolean(file.$directory[0]);
       if (file.$archivePath) tmpFile.archivePath = file.$archivePath[0];
     } else {
@@ -90,6 +93,7 @@ function parseFilesInverse(parsedData) {
   for (const file of parsedData.files) {
     const ret = { '#text': file.filename };
     if (file.isOptional) ret['@_optional'] = true;
+    if (file.isInstallOnly) ret['@_installOnly'] = true;
     if (file.isDirectory) ret['@_directory'] = true;
     if (file.archivePath) ret['@_archivePath'] = file.archivePath;
     files.push(ret);

@@ -18,6 +18,7 @@ const mod = require('../lib/mod');
 const { getHash } = require('../lib/getHash');
 const packageUtil = require('./packageUtil');
 const integrity = require('../lib/integrity');
+const { compareVersion } = require('../lib/compareVersion');
 
 // To avoid a bug in the library
 // https://github.com/sindresorhus/matcher/issues/32
@@ -202,6 +203,15 @@ async function setPackagesList(instPath) {
     const verText = document.createElement('div');
     verText.innerText = package.doNotInstall ? '⚠️インストール不可\r\n' : '';
     statusInformation.appendChild(verText);
+    if (
+      package.installationStatus === packageUtil.states.installed &&
+      compareVersion(package.info.latestVersion, package.version) > 0
+    ) {
+      const updateText = document.createElement('div');
+      updateText.classList.add('text-success');
+      updateText.innerText = '更新が利用可能です\r\n';
+      statusInformation.appendChild(updateText);
+    }
 
     packagesList.appendChild(li);
   }
@@ -471,6 +481,50 @@ async function installPackage(
       true,
       'package'
     );
+
+    const integrityForArchive =
+      installedPackage.info?.releases[installedPackage.info.latestVersion]
+        ?.archiveIntegrity;
+
+    if (integrityForArchive) {
+      for (;;) {
+        // Verify file integrity
+        if (await integrity.verifyFile(archivePath, integrityForArchive)) {
+          break;
+        } else {
+          const dialogResult = await ipcRenderer.invoke(
+            'open-yes-no-dialog',
+            'エラー',
+            'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
+          );
+          if (dialogResult) {
+            archivePath = await ipcRenderer.invoke(
+              'download',
+              installedPackage.info.directURL,
+              false,
+              'package'
+            );
+            continue;
+          } else {
+            log.error(
+              `The downloaded archive file is corrupt. URL:${installedPackage.info.directURL}`
+            );
+            if (btn) {
+              buttonTransition.message(
+                btn,
+                'ダウンロードされたファイルは破損しています。',
+                'danger'
+              );
+              setTimeout(() => {
+                enableButton();
+              }, 3000);
+            }
+            // Direct installation can throw an error because it is called only from within the try catch block.
+            throw new Error('The downloaded archive file is corrupt.');
+          }
+        }
+      }
+    }
   } else {
     const downloadResult = await ipcRenderer.invoke(
       'open-browser',
@@ -663,13 +717,13 @@ async function uninstallPackage(instPath) {
   const uninstalledPackage = { ...selectedEntry };
 
   for (const file of uninstalledPackage.info.files) {
-    fs.removeSync(path.join(instPath, file.filename));
+    if (!file.isInstallOnly) fs.removeSync(path.join(instPath, file.filename));
   }
 
   let filesCount = 0;
   let existCount = 0;
   for (const file of uninstalledPackage.info.files) {
-    if (!file.isOptional) {
+    if (!file.isOptional && !file.isInstallOnly) {
       filesCount++;
       if (!fs.existsSync(path.join(instPath, file.filename))) {
         existCount++;
