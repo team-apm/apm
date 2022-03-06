@@ -412,7 +412,27 @@ async function installPackage(
   direct = false,
   strArchivePath
 ) {
-  if (selectedEntryType === entryType.scriptSite) {
+  const roles = {
+    Event_Handler: 'Event_Handler',
+    Internal_Local_File: 'Internal_Local_File',
+    Internal_Direct_Link: 'Internal_Direct_Link',
+    Internal_Browser: 'Internal_Browser',
+  };
+  let role;
+  if (strArchivePath) {
+    role = roles.Internal_Local_File;
+  } else if (direct) {
+    role = roles.Internal_Direct_Link;
+  } else if (packageToInstall) {
+    role = roles.Internal_Browser;
+  } else {
+    role = roles.Event_Handler;
+  }
+
+  if (
+    role === roles.Event_Handler &&
+    selectedEntryType === entryType.scriptSite
+  ) {
     installScript(instPath);
     return;
   }
@@ -452,7 +472,7 @@ async function installPackage(
     return;
   }
 
-  if (selectedEntry?.id.startsWith('script_')) {
+  if (selectedEntry?.id?.startsWith('script_')) {
     if (btn) {
       buttonTransition.message(
         btn,
@@ -472,9 +492,9 @@ async function installPackage(
     : { ...selectedEntry };
 
   let archivePath = '';
-  if (strArchivePath) {
+  if (role === roles.Internal_Local_File) {
     archivePath = strArchivePath;
-  } else if (direct) {
+  } else if (role === roles.Internal_Direct_Link) {
     archivePath = await ipcRenderer.invoke(
       'download',
       installedPackage.info.directURL,
@@ -526,6 +546,8 @@ async function installPackage(
       }
     }
   } else {
+    // if (role === roles.Internal_Browser || role === roles.Event_Handler)
+
     const downloadResult = await ipcRenderer.invoke(
       'open-browser',
       installedPackage.info.downloadURL,
