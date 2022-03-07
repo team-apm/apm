@@ -2771,10 +2771,10 @@ fast-levenshtein@^2.0.6:
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
 
-fast-xml-parser@^4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.0.4.tgz#a7a74546d4d1213d0a8e31a8b3aa54570affab6d"
-  integrity sha512-3drDiRcLD22vJ95YH9yhPQaHA8JAWwfJDZhXIFxKYp32EuhACgnOdS5cQIGVtaCH2VvygmYFDk79QEaeskGlaA==
+fast-xml-parser@^4.0.5:
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.0.5.tgz#583bdca78e99d29b46a4f88fb560d8fa240964c3"
+  integrity sha512-B3eG9unGn4SqG6Fdwhc4eaIFBSN/0CdqUKG1nzjLuojhMyq4qMxNShzng0QjOW3swE3MhERMf70u7C/XnzmshA==
   dependencies:
     strnum "^1.0.5"
 
