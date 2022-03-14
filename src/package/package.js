@@ -621,9 +621,20 @@ async function installPackage(
           .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
       execSync(command);
     } else {
+      // Delete obsolete files
+      for (const file of installedPackage.info.files) {
+        if (
+          file.isObsolete &&
+          fs.existsSync(path.join(instPath, file.filename))
+        ) {
+          await fs.remove(path.join(instPath, file.filename));
+        }
+      }
+
+      // Copying files (main body of the installation)
       const filesToCopy = [];
       for (const file of installedPackage.info.files) {
-        if (!file.isOptional) {
+        if (!file.isOptional && !file.isObsolete) {
           if (file.archivePath === null) {
             filesToCopy.push([
               path.join(unzippedPath, path.basename(file.filename)),
@@ -659,7 +670,7 @@ async function installPackage(
   let filesCount = 0;
   let existCount = 0;
   for (const file of installedPackage.info.files) {
-    if (!file.isOptional) {
+    if (!file.isOptional && !file.isObsolete) {
       filesCount++;
       if (fs.existsSync(path.join(instPath, file.filename))) {
         existCount++;
@@ -743,18 +754,18 @@ async function uninstallPackage(instPath) {
   }
 
   let filesCount = 0;
-  let existCount = 0;
+  let notExistCount = 0;
   for (const file of uninstalledPackage.info.files) {
-    if (!file.isOptional && !file.isInstallOnly) {
+    if (!file.isInstallOnly) {
       filesCount++;
       if (!fs.existsSync(path.join(instPath, file.filename))) {
-        existCount++;
+        notExistCount++;
       }
     }
   }
 
   apmJson.removePackage(instPath, uninstalledPackage);
-  if (filesCount === existCount) {
+  if (filesCount === notExistCount) {
     if (!uninstalledPackage.id.startsWith('script_')) {
       await setPackagesList(instPath);
     } else {

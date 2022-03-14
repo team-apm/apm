@@ -64,6 +64,7 @@ function parseFiles(parsedData) {
       isOptional: false,
       isInstallOnly: false,
       isDirectory: false,
+      isObsolete: false,
       archivePath: null,
     };
     if (typeof file === 'string') {
@@ -74,6 +75,7 @@ function parseFiles(parsedData) {
       if (file.$installOnly)
         tmpFile.isInstallOnly = Boolean(file.$installOnly[0]);
       if (file.$directory) tmpFile.isDirectory = Boolean(file.$directory[0]);
+      if (file.$obsolete) tmpFile.isObsolete = Boolean(file.$obsolete[0]);
       if (file.$archivePath) tmpFile.archivePath = file.$archivePath[0];
     } else {
       continue;
@@ -95,6 +97,7 @@ function parseFilesInverse(parsedData) {
     if (file.isOptional) ret['@_optional'] = true;
     if (file.isInstallOnly) ret['@_installOnly'] = true;
     if (file.isDirectory) ret['@_directory'] = true;
+    if (file.isObsolete) ret['@_obsolete'] = true;
     if (file.archivePath) ret['@_archivePath'] = file.archivePath;
     files.push(ret);
   }
