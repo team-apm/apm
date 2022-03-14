@@ -70,7 +70,7 @@
     "cz-conventional-changelog": "3.3.0",
     "cz-conventional-changelog-ja": "^0.0.2",
     "electron": "^15.4.1",
-    "eslint": "^8.10.0",
+    "eslint": "^8.11.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jsdoc": "^38.0.2",
