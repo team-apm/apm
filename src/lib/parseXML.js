@@ -331,6 +331,8 @@ class ModInfo extends Object {
         }
         if (modInfo.mod[0].convert)
           this.convert = new Date(modInfo.mod[0].convert[0]);
+        if (modInfo.mod[0].scripts)
+          this.scripts = new Date(modInfo.mod[0].scripts[0]);
       } else {
         throw new Error('The list is invalid.');
       }

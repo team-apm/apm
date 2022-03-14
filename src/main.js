@@ -381,6 +381,12 @@ function launch() {
     browserWindow.loadURL(url);
 
     return await new Promise((resolve) => {
+      const history = [];
+
+      browserWindow.webContents.on('did-navigate', (e, url) => {
+        history.push(url);
+      });
+
       browserWindow.webContents.session.once(
         'will-download',
         (event, item, webContents) => {
@@ -397,14 +403,15 @@ function launch() {
           }
 
           item.once('done', (e, state) => {
-            resolve(item.getSavePath());
+            history.push(...item.getURLChain(), item.getFilename());
+            resolve({ savePath: item.getSavePath(), history: history });
             browserWindow.destroy();
           });
         }
       );
 
       browserWindow.once('closed', (event) => {
-        resolve('close');
+        resolve();
       });
     });
   });
