@@ -205,18 +205,16 @@ function getInstalledVersionOfPackage(
 ) {
   let installationStatus;
   let version;
-  let addedVersion = false;
-  let manuallyAddedVersion = false;
+  let isInstalledPackage = false;
+  let isManuallyInstalledPackage = false;
   for (const file of package.info.files) {
-    if (!file.isOptional) {
-      if (installedFiles.includes(file.filename)) addedVersion = true;
-      if (manuallyInstalledFiles.includes(file.filename))
-        manuallyAddedVersion = true;
-    }
+    if (installedFiles.includes(file.filename)) isInstalledPackage = true;
+    if (manuallyInstalledFiles.includes(file.filename))
+      isManuallyInstalledPackage = true;
   }
-  installationStatus = manuallyAddedVersion
+  installationStatus = isManuallyInstalledPackage
     ? states.manuallyInstalled
-    : addedVersion
+    : isInstalledPackage
     ? states.otherInstalled
     : states.notInstalled;
 
@@ -227,22 +225,29 @@ function getInstalledVersionOfPackage(
       installedId === package.id &&
       installedPackage.repository === package.repository
     ) {
-      let filesCount = 0;
-      let existCount = 0;
-      for (const file of package.info.files) {
-        if (!file.isOptional) {
-          filesCount++;
-          if (fs.existsSync(path.join(instPath, file.filename))) {
-            existCount++;
-          }
-        }
-      }
-
-      if (filesCount === existCount) {
+      if (package.info.files.some((file) => file.isObsolete)) {
+        // There is no way to determine if a package that contains obsolete files is corrupt.
         installationStatus = states.installed;
         version = installedPackage.version;
       } else {
-        installationStatus = states.installedButBroken;
+        // Determine if the package has been installed properly.
+        let filesCount = 0;
+        let existCount = 0;
+        for (const file of package.info.files) {
+          if (!file.isOptional) {
+            filesCount++;
+            if (fs.existsSync(path.join(instPath, file.filename))) {
+              existCount++;
+            }
+          }
+        }
+
+        if (filesCount === existCount) {
+          installationStatus = states.installed;
+          version = installedPackage.version;
+        } else {
+          installationStatus = states.installedButBroken;
+        }
       }
     }
   }
