@@ -31,7 +31,6 @@ async function initCore() {
       'aviutl'
     );
     store.set('installationPath', instPath);
-    if (!fs.existsSync(instPath)) fs.mkdirSync(instPath);
   }
 }
 
@@ -266,13 +265,15 @@ async function changeInstallationPath(instPath) {
   await mod.downloadData();
   const currentMod = await mod.getInfo();
 
-  // migration
-  await migration.byFolder(instPath);
+  if (fs.existsSync(instPath)) {
+    // migration
+    await migration.byFolder(instPath);
 
-  if (currentMod.convert) {
-    const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
-    if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
-      await convertId(instPath, currentMod.convert.getTime());
+    if (currentMod.convert) {
+      const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
+      if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
+        await convertId(instPath, currentMod.convert.getTime());
+      }
     }
   }
 
