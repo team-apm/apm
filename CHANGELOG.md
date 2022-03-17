@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/hal-shu-sato/apm/compare/v2.0.0...v2.1.0) (2022-03-17)
+
+### Features
+
+- add error handling ([46d8fe4](https://github.com/hal-shu-sato/apm/commit/46d8fe48e78ffa7070cf5588513174452cad629c))
+- add the history of the browser to the return value ([37c7617](https://github.com/hal-shu-sato/apm/commit/37c761711d92d2c66bf54cfc3f66d2336c095790))
+- **core:** verify the integrity of the downloaded files ([3af0a28](https://github.com/hal-shu-sato/apm/commit/3af0a285e96efc78c129a5587fccc3974a591429))
+- indicating updatable packages ([7e0e086](https://github.com/hal-shu-sato/apm/commit/7e0e0864c4aa3812b1b6e33828ac61b414897898))
+- **package.js:** detection of falsified files ([4caa182](https://github.com/hal-shu-sato/apm/commit/4caa182926e5cf7710fd2bc2a67ea6bc58648646))
+- **package.js:** mark installed packages in the batch installation list ([8fe9df4](https://github.com/hal-shu-sato/apm/commit/8fe9df47eab0304bfb1b43bdc6d7e0f7707acda3))
+- **packages.js:** support for non-archived packages ([c841bef](https://github.com/hal-shu-sato/apm/commit/c841bef5b8967994032129fa72880161d3b531d9))
+- **parseXML:** implement the output of sri ([6af289d](https://github.com/hal-shu-sato/apm/commit/6af289d7ddeb9de6a49b8762cbcea482cf4b3341))
+- **parseXML:** parsing the archiveIntegrity ([e7f6071](https://github.com/hal-shu-sato/apm/commit/e7f6071e5adeadd8006c80b8837bfc9f657e885f))
+- precise automatic installation of the scripts ([09115d6](https://github.com/hal-shu-sato/apm/commit/09115d663d905cad74da9ecce62df48cd6131964))
+- show a dialog that suggests re-downloading ([28eb8c8](https://github.com/hal-shu-sato/apm/commit/28eb8c85f7a5eca5579d3dd8d7e2db28ea7ea226))
+- support 7z and rar ([5e4c367](https://github.com/hal-shu-sato/apm/commit/5e4c3673fd6f55db261b1e66767057d602081712))
+- support for installation-only attributes ([7fe8664](https://github.com/hal-shu-sato/apm/commit/7fe8664ac06912b197c61351c36c5dced73678cd))
+- support obsolete flag of files ([19ada0d](https://github.com/hal-shu-sato/apm/commit/19ada0d56ac982748a52afa554299d8edffe5571))
+
+### Bug Fixes
+
+- **core.js:** prevent package overwriting ([58c7c8a](https://github.com/hal-shu-sato/apm/commit/58c7c8a6f757a096d227f918cadb4097213f54f8))
+- **core.js:** support for old mod.xml ([7121935](https://github.com/hal-shu-sato/apm/commit/7121935bbcde358ec16797836566de7030201565))
+- fix for cache reuse conditions ([29e4b73](https://github.com/hal-shu-sato/apm/commit/29e4b731be7ac9f58d9d6f039eaea56d02495174))
+- **index.html:** fixed affected layouts ([4000f24](https://github.com/hal-shu-sato/apm/commit/4000f241555310ba2f1be46e477d6e3e8cd68d79))
+- **list.js:** patch for update function in list.js ([0975e25](https://github.com/hal-shu-sato/apm/commit/0975e254001a92f8b1033af8f3cf057cfe16085d))
+- make an installation directory just before installing ([1098baa](https://github.com/hal-shu-sato/apm/commit/1098baa7f27e4eaedc85818922a67592a2354ea6)), closes [#388](https://github.com/hal-shu-sato/apm/issues/388)
+- **package.js:** clarify the role of installPackage() ([834c5fa](https://github.com/hal-shu-sato/apm/commit/834c5fa93cac0b55db2304a298b44d1fa024bd86))
+- **package.js:** simplify the redraw method ([77f09ca](https://github.com/hal-shu-sato/apm/commit/77f09ca8b7230f0274c5b7f7423667e1239123e2))
+- **parseXML:** change the options for XMLbuilder ([529546d](https://github.com/hal-shu-sato/apm/commit/529546dfa227348169b7814c7bc7400bcf77204a))
+- remove temporary patches for parser bugs ([260bd15](https://github.com/hal-shu-sato/apm/commit/260bd153c5fbeb42c43817413f54007c62940e3f))
+- support for fast-xml-parser v4 ([32d944b](https://github.com/hal-shu-sato/apm/commit/32d944b150ba9bff42f5986154494a2d414ae35b))
+
 ## [2.0.0](https://github.com/hal-shu-sato/apm/compare/v1.3.0...v2.0.0) (2022-01-03)
 
 ### ⚠ BREAKING CHANGES
