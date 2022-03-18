@@ -4,7 +4,7 @@
   "version": "2.1.1",
   "description": "A package manager for AviUtl",
   "main": ".webpack/main",
-  "repository": "https://github.com/hal-shu-sato/apm.git",
+  "repository": "https://github.com/team-apm/apm.git",
   "author": "ato lash <hal-shu-sato@users.noreply.github.com>",
   "license": "MIT",
   "scripts": {
