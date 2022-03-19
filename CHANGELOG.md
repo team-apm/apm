@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.1](https://github.com/hal-shu-sato/apm/compare/v2.1.0...v2.1.1) (2022-03-19)
+
+### Bug Fixes
+
+- **package.js:** fixed installation of dependent libraries ([c89a12b](https://github.com/hal-shu-sato/apm/commit/c89a12b1fdd008add8010fbfa1a9877aa773c285))
+
 ## [2.1.0](https://github.com/hal-shu-sato/apm/compare/v2.0.0...v2.1.0) (2022-03-17)
 
 ### Features
