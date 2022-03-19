@@ -457,39 +457,43 @@ async function installPackage(
     return;
   }
 
-  if (!packageToInstall && !selectedEntry) {
-    if (btn) {
-      buttonTransition.message(
-        btn,
-        'プラグインまたはスクリプトを選択してください。',
-        'danger'
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-    }
-    log.error('A package to install is not selected.');
-    return;
-  }
+  let installedPackage;
 
-  if (selectedEntry?.id?.startsWith('script_')) {
-    if (btn) {
-      buttonTransition.message(
-        btn,
-        'このスクリプトは上書きインストールできません。',
-        'danger'
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
+  if (packageToInstall) {
+    installedPackage = { ...packageToInstall };
+  } else {
+    if (!selectedEntry) {
+      if (btn) {
+        buttonTransition.message(
+          btn,
+          'プラグインまたはスクリプトを選択してください。',
+          'danger'
+        );
+        setTimeout(() => {
+          enableButton();
+        }, 3000);
+      }
+      log.error('A package to install is not selected.');
+      return;
     }
-    log.error('This script cannot be overwritten.');
-    return;
-  }
 
-  const installedPackage = packageToInstall
-    ? { ...packageToInstall }
-    : { ...selectedEntry };
+    if (selectedEntry.id?.startsWith('script_')) {
+      if (btn) {
+        buttonTransition.message(
+          btn,
+          'このスクリプトは上書きインストールできません。',
+          'danger'
+        );
+        setTimeout(() => {
+          enableButton();
+        }, 3000);
+      }
+      log.error('This script cannot be overwritten.');
+      return;
+    }
+
+    installedPackage = { ...selectedEntry };
+  }
 
   let archivePath = '';
   if (role === roles.Internal_Local_File) {
