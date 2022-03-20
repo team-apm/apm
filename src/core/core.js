@@ -1,22 +1,22 @@
-const { ipcRenderer } = require('electron');
-const fs = require('fs-extra');
-const path = require('path');
-const Store = require('electron-store');
+import { ipcRenderer } from 'electron';
+import fs from 'fs-extra';
+import path from 'path';
+import Store from 'electron-store';
 const store = new Store();
-const log = require('electron-log');
-const replaceText = require('../lib/replaceText');
-const unzip = require('../lib/unzip');
-const shortcut = require('../lib/shortcut');
-const package = require('../package/package');
-const packageUtil = require('../package/packageUtil');
-const setting = require('../setting/setting');
-const buttonTransition = require('../lib/buttonTransition');
-const parseXML = require('../lib/parseXML');
-const apmJson = require('../lib/apmJson');
-const mod = require('../lib/mod');
-const integrity = require('../lib/integrity');
-const migration = require('../migration/migration1to2');
-const { convertId } = require('../lib/convertId');
+import log from 'electron-log';
+import replaceText from '../lib/replaceText';
+import unzip from '../lib/unzip';
+import shortcut from '../lib/shortcut';
+import packageMain from '../package/package';
+import packageUtil from '../package/packageUtil';
+import setting from '../setting/setting';
+import buttonTransition from '../lib/buttonTransition';
+import parseXML from '../lib/parseXML';
+import apmJson from '../lib/apmJson';
+import mod from '../lib/mod';
+import integrity from '../lib/integrity';
+import migration1to2 from '../migration/migration1to2';
+import { convertId } from '../lib/convertId';
 
 // Functions to be exported
 
@@ -267,7 +267,7 @@ async function changeInstallationPath(instPath) {
 
   if (fs.existsSync(instPath)) {
     // migration
-    await migration.byFolder(instPath);
+    await migration1to2.byFolder(instPath);
 
     if (currentMod.convert) {
       const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
@@ -283,19 +283,19 @@ async function changeInstallationPath(instPath) {
   const oldPackagesMod = new Date(store.get('modDate.packages', 0));
 
   if (oldScriptsMod.getTime() < currentMod.scripts?.getTime()) {
-    await package.getScriptsList(true, currentMod.scripts.getTime());
+    await packageMain.getScriptsList(true, currentMod.scripts.getTime());
   }
   if (oldCoreMod.getTime() < currentMod.core.getTime()) {
     await checkLatestVersion(instPath);
   }
   if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
-    await package.checkPackagesList(instPath);
+    await packageMain.checkPackagesList(instPath);
   }
 
   // redraw
   await displayInstalledVersion(instPath);
   await setCoreVersions(instPath);
-  await package.setPackagesList(instPath);
+  await packageMain.setPackagesList(instPath);
 }
 
 /**
@@ -402,7 +402,7 @@ async function installProgram(btn, program, version, instPath) {
       if (filesCount === existCount) {
         apmJson.setCore(instPath, program, version);
         await displayInstalledVersion(instPath);
-        await package.setPackagesList(instPath);
+        await packageMain.setPackagesList(instPath);
 
         if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
       } else {
@@ -460,7 +460,7 @@ async function batchInstall(instPath) {
       await installProgram(null, program, progInfo.latestVersion, instPath);
     }
     const allPackages = packageUtil.getPackagesExtra(
-      await package.getPackages(instPath),
+      await packageMain.getPackages(instPath),
       instPath
     ).packages;
     const packages = allPackages.filter(
@@ -469,7 +469,7 @@ async function batchInstall(instPath) {
         p.installationStatus === packageUtil.states.notInstalled
     );
     for (const packageItem of packages) {
-      await package.installPackage(instPath, packageItem, true);
+      await packageMain.installPackage(instPath, packageItem, true);
     }
 
     buttonTransition.message(btn, 'インストール完了', 'success');
@@ -483,7 +483,7 @@ async function batchInstall(instPath) {
   }, 3000);
 }
 
-module.exports = {
+const core = {
   initCore,
   displayInstalledVersion,
   getCoreInfo,
@@ -494,3 +494,4 @@ module.exports = {
   installProgram,
   batchInstall,
 };
+export default core;

@@ -65,4 +65,5 @@ function message(btn, message, type = null) {
   btn.innerText = message;
 }
 
-module.exports = { loading, message };
+const buttonTransition = { loading, message };
+export default buttonTransition;

@@ -1,11 +1,11 @@
-const { ipcRenderer } = require('electron');
-const Store = require('electron-store');
+import { ipcRenderer } from 'electron';
+import Store from 'electron-store';
 const store = new Store();
-const log = require('electron-log');
-const core = require('./core/core');
-const package = require('./package/package');
-const setting = require('./setting/setting');
-const migration = require('./migration/migration1to2');
+import log from 'electron-log';
+import core from './core/core';
+import packageMain from './package/package';
+import setting from './setting/setting';
+import migration1to2 from './migration/migration1to2';
 
 log.catchErrors({
   onError: () => {
@@ -22,7 +22,7 @@ log.catchErrors({
 window.addEventListener('DOMContentLoaded', async () => {
   // *global*
   // migration
-  if (!(await migration.global())) {
+  if (!(await migration1to2.global())) {
     await ipcRenderer.invoke('app-quit');
     return;
   }
@@ -76,36 +76,36 @@ window.addEventListener('load', () => {
   // packages
   const checkPackagesListBtn = document.getElementById('check-packages-list');
   checkPackagesListBtn.addEventListener('click', async (event) => {
-    await package.checkPackagesList(installationPath.value);
+    await packageMain.checkPackagesList(installationPath.value);
   });
 
   const installPackageBtn = document.getElementById('install-package');
   installPackageBtn.addEventListener('click', async (event) => {
-    await package.installPackage(installationPath.value);
+    await packageMain.installPackage(installationPath.value);
   });
 
   const uninstallPackageBtn = document.getElementById('uninstall-package');
   uninstallPackageBtn.addEventListener('click', async (event) => {
-    await package.uninstallPackage(installationPath.value);
+    await packageMain.uninstallPackage(installationPath.value);
   });
 
   const openPackageFolderBtn = document.getElementById('open-package-folder');
   openPackageFolderBtn.addEventListener('click', async (event) => {
-    await package.openPackageFolder();
+    await packageMain.openPackageFolder();
   });
 
   const filterDropdown = document.getElementById('filter').parentElement;
   const typeFilterBtns = filterDropdown.getElementsByClassName('type-filter');
   for (const element of typeFilterBtns) {
     element.addEventListener('click', () => {
-      package.listFilter('type', typeFilterBtns, element);
+      packageMain.listFilter('type', typeFilterBtns, element);
     });
   }
   const installFilterBtns =
     filterDropdown.getElementsByClassName('install-filter');
   for (const element of installFilterBtns) {
     element.addEventListener('click', () => {
-      package.listFilter('installationStatus', installFilterBtns, element);
+      packageMain.listFilter('installationStatus', installFilterBtns, element);
     });
   }
 
