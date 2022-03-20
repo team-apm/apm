@@ -23,6 +23,7 @@
   "parser": "@typescript-eslint/parser",
   "rules": {
     "prefer-arrow-callback": "error",
-    "valid-jsdoc": "off"
+    "valid-jsdoc": "off",
+    "@typescript-eslint/no-var-requires": "off"
   }
 }
