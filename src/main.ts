@@ -1,21 +1,22 @@
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  dialog,
-  ipcMain,
-  shell,
-} = require('electron');
-const { download } = require('electron-dl');
-const log = require('electron-log');
-const debug = require('electron-debug');
-const windowStateKeeper = require('electron-window-state');
-const fs = require('fs-extra');
-const path = require('path');
-const { execSync } = require('child_process');
-const prompt = require('electron-prompt');
-const { getHash } = require('./lib/getHash');
-const shortcut = require('./lib/shortcut');
+import { app, BrowserWindow, Menu, dialog, ipcMain, shell } from 'electron';
+import { download } from 'electron-dl';
+import log from 'electron-log';
+import debug from 'electron-debug';
+import windowStateKeeper from 'electron-window-state';
+import fs from 'fs-extra';
+import path from 'path';
+import { execSync } from 'child_process';
+import prompt from 'electron-prompt';
+import { getHash } from './lib/getHash';
+import shortcut from './lib/shortcut';
+
+declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+declare const ABOUT_WINDOW_WEBPACK_ENTRY: string;
+declare const ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+declare const PACKAGE_MAKER_WINDOW_WEBPACK_ENTRY: string;
+declare const PACKAGE_MAKER_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 log.catchErrors({
   showDialog: false,
@@ -40,13 +41,14 @@ log.catchErrors({
 shortcut.uninstaller(app.getPath('appData'));
 if (require('electron-squirrel-startup')) app.quit();
 
-require('update-electron-app')();
+import updateElectronApp from 'update-electron-app';
+updateElectronApp();
 
 const isDevEnv = process.env.NODE_ENV === 'development';
 if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Dev');
 debug({ showDevTools: false }); // Press F12 to open DevTools
 
-const Store = require('electron-store');
+import Store from 'electron-store';
 Store.initRenderer();
 
 log.debug(process.versions);
@@ -121,7 +123,7 @@ ipcMain.handle('open-yes-no-dialog', async (event, title, message) => {
   }
 });
 
-const allowedHosts = [];
+const allowedHosts: string[] = [];
 
 app.on(
   'certificate-error',
@@ -366,7 +368,7 @@ function launch() {
       height: 600,
       minWidth: 240,
       minHeight: 320,
-      sandbox: true,
+      webPreferences: { sandbox: true },
       parent: mainWindow,
       modal: true,
       icon: icon,
@@ -381,7 +383,7 @@ function launch() {
     browserWindow.loadURL(url);
 
     return await new Promise((resolve) => {
-      const history = [];
+      const history: string[] = [];
 
       browserWindow.webContents.on('did-navigate', (e, url) => {
         history.push(url);
@@ -411,7 +413,7 @@ function launch() {
       );
 
       browserWindow.once('closed', (event) => {
-        resolve();
+        resolve(null);
       });
     });
   });

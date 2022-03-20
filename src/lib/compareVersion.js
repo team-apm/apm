@@ -1,4 +1,4 @@
-const compareVersions = require('compare-versions');
+import compareVersions from 'compare-versions';
 
 /**
  *  Compare the two given versions.
@@ -43,4 +43,4 @@ function compareVersion(firstVersion, secondVersion) {
   }
 }
 
-module.exports = { compareVersion };
+export { compareVersion };

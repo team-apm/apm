@@ -1,13 +1,13 @@
-const { ipcRenderer } = require('electron');
-const log = require('electron-log');
-const fs = require('fs-extra');
-const path = require('path');
-const { execSync } = require('child_process');
-const { XMLBuilder } = require('fast-xml-parser');
-const { Sortable } = require('sortablejs');
-const ClipboardJS = require('clipboard/dist/clipboard.min');
-const unzip = require('./lib/unzip');
-const buttonTransition = require('./lib/buttonTransition');
+import { ipcRenderer } from 'electron';
+import log from 'electron-log';
+import fs from 'fs-extra';
+import path from 'path';
+import { execSync } from 'child_process';
+import { XMLBuilder } from 'fast-xml-parser';
+import { Sortable } from 'sortablejs';
+import ClipboardJS from 'clipboard/dist/clipboard.min';
+import unzip from './lib/unzip';
+import buttonTransition from './lib/buttonTransition';
 
 log.catchErrors({
   onError: () => {

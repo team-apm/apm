@@ -1,7 +1,7 @@
-const path = require('path');
-const fs = require('fs-extra');
-const { XMLParser, XMLBuilder, XMLValidator } = require('fast-xml-parser');
-const { getIdDict } = require('./convertId');
+import path from 'path';
+import fs from 'fs-extra';
+import { XMLParser, XMLBuilder, XMLValidator } from 'fast-xml-parser';
+import { getIdDict } from './convertId';
 
 const parser = new XMLParser({
   attributeNamePrefix: '$',
@@ -373,9 +373,9 @@ async function getPackages(packagesListPath) {
 
     // For compatibility with data v1
     const convDict = await getIdDict();
-    for (const [oldId, package] of Object.entries(packages)) {
+    for (const [oldId, packageItem] of Object.entries(packages)) {
       if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
-        const newId = convDict[package.id];
+        const newId = convDict[packageItem.id];
         packages[newId] = packages[oldId];
         delete packages[oldId];
         packages[newId].id = newId;
@@ -446,10 +446,11 @@ function getMod(packagesListPath) {
   }
 }
 
-module.exports = {
+const parseXML = {
   getCore,
   getPackages,
   addPackage,
   removePackage,
   getMod,
 };
+export default parseXML;

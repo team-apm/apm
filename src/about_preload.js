@@ -1,6 +1,6 @@
-const { ipcRenderer } = require('electron');
-const log = require('electron-log');
-const replaceText = require('./lib/replaceText');
+import { ipcRenderer } from 'electron';
+import log from 'electron-log';
+import replaceText from './lib/replaceText';
 
 log.catchErrors({
   onError: () => {

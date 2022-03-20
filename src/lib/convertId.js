@@ -1,8 +1,8 @@
-const { ipcRenderer } = require('electron');
-const fs = require('fs-extra');
-const path = require('path');
-const setting = require('../setting/setting');
-const apmJson = require('./apmJson');
+import { ipcRenderer } from 'electron';
+import fs from 'fs-extra';
+import path from 'path';
+import setting from '../setting/setting';
+import apmJson from './apmJson';
 
 /**
  * Returns the id conversion dictionary.
@@ -45,9 +45,9 @@ async function convertId(instPath, modTime) {
   const packages = apmJson.get(instPath, 'packages');
 
   const convDict = await getIdDict(true);
-  for (const [oldId, package] of Object.entries(packages)) {
+  for (const [oldId, packageItem] of Object.entries(packages)) {
     if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
-      const newId = convDict[package.id];
+      const newId = convDict[packageItem.id];
       packages[newId] = packages[oldId];
       delete packages[oldId];
       packages[newId].id = newId;
@@ -58,4 +58,4 @@ async function convertId(instPath, modTime) {
   apmJson.set(instPath, 'convertMod', modTime);
 }
 
-module.exports = { getIdDict, convertId };
+export { getIdDict, convertId };
