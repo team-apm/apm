@@ -237,24 +237,24 @@ window.addEventListener('load', () => {
     e.addEventListener('input', makeXML);
   });
 
-  xmlInstallerSwitch.addEventListener('change', (event) => {
+  xmlInstallerSwitch.addEventListener('change', () => {
     collapseInstallerElement();
     makeXML();
   });
 
-  xmlIntegritySwitch.addEventListener('change', (event) => {
+  xmlIntegritySwitch.addEventListener('change', () => {
     makeXML();
   });
 
   // click event
   new ClipboardJS('.btn-copy');
 
-  clearTextBtn.addEventListener('click', async (event) => {
+  clearTextBtn.addEventListener('click', async () => {
     clearText();
     makeXML();
   });
 
-  xmlDownloadURLBtn.addEventListener('click', async (event) => {
+  xmlDownloadURLBtn.addEventListener('click', async () => {
     const enableButton = buttonTransition.loading(xmlDownloadURLBtn);
 
     if (xmlDownloadURL.value === '') {

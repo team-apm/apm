@@ -58,7 +58,7 @@ const icon =
     ? path.join(__dirname, '../icon/apm1024.png')
     : undefined;
 
-ipcMain.handle('get-app-version', (event) => {
+ipcMain.handle('get-app-version', () => {
   return app.getVersion();
 });
 
@@ -66,7 +66,7 @@ ipcMain.handle('app-get-path', (event, name) => {
   return app.getPath(name);
 });
 
-ipcMain.handle('app-quit', (event) => {
+ipcMain.handle('app-quit', () => {
   app.quit();
 });
 
@@ -292,7 +292,7 @@ function launch() {
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 
-  ipcMain.handle('migration1to2-confirm-dialog', async (event) => {
+  ipcMain.handle('migration1to2-confirm-dialog', async () => {
     return (
       await dialog.showMessageBox(mainWindow, {
         title: '確認',
@@ -308,7 +308,7 @@ function launch() {
     ).response;
   });
 
-  ipcMain.handle('migration1to2-dataurl-input-dialog', async (event) => {
+  ipcMain.handle('migration1to2-dataurl-input-dialog', async () => {
     return await prompt(
       {
         title: '新しいデータ取得先の入力',
@@ -374,7 +374,7 @@ function launch() {
       icon: icon,
     });
 
-    mainWindow.once('closed', (event) => {
+    mainWindow.once('closed', () => {
       if (!browserWindow.isDestroyed()) {
         browserWindow.destroy();
       }
@@ -389,30 +389,27 @@ function launch() {
         history.push(url);
       });
 
-      browserWindow.webContents.session.once(
-        'will-download',
-        (event, item, webContents) => {
-          if (!browserWindow.isDestroyed()) browserWindow.hide();
+      browserWindow.webContents.session.once('will-download', (event, item) => {
+        if (!browserWindow.isDestroyed()) browserWindow.hide();
 
-          const ext = path.extname(item.getFilename());
-          const dir = path.join(app.getPath('userData'), 'Data');
-          if (['.zip', '.lzh', '.7z', '.rar'].includes(ext)) {
-            item.setSavePath(
-              path.join(dir, type, 'archive/', item.getFilename())
-            );
-          } else {
-            item.setSavePath(path.join(dir, type, item.getFilename()));
-          }
-
-          item.once('done', (e, state) => {
-            history.push(...item.getURLChain(), item.getFilename());
-            resolve({ savePath: item.getSavePath(), history: history });
-            browserWindow.destroy();
-          });
+        const ext = path.extname(item.getFilename());
+        const dir = path.join(app.getPath('userData'), 'Data');
+        if (['.zip', '.lzh', '.7z', '.rar'].includes(ext)) {
+          item.setSavePath(
+            path.join(dir, type, 'archive/', item.getFilename())
+          );
+        } else {
+          item.setSavePath(path.join(dir, type, item.getFilename()));
         }
-      );
 
-      browserWindow.once('closed', (event) => {
+        item.once('done', () => {
+          history.push(...item.getURLChain(), item.getFilename());
+          resolve({ savePath: item.getSavePath(), history: history });
+          browserWindow.destroy();
+        });
+      });
+
+      browserWindow.once('closed', () => {
         resolve(null);
       });
     });

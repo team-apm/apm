@@ -91,7 +91,7 @@ async function setPackagesList(instPath) {
   // sort-buttons
   if (!packagesSort.hasChildNodes()) {
     Array.from(columns.entries())
-      .filter(([n, s]) => ['name', 'developer'].includes(s))
+      .filter(([, s]) => ['name', 'developer'].includes(s))
       .forEach(([i, columnName]) => {
         const sortBtn = document
           .getElementById('sort-template')
@@ -160,7 +160,7 @@ async function setPackagesList(instPath) {
       pageURL,
       statusInformation,
     ] = makeLiFromArray([...columns, 'statusInformation']);
-    li.addEventListener('click', (event) => {
+    li.addEventListener('click', () => {
       selectedEntry = packageItem;
       selectedEntryType = entryType.package;
       li.getElementsByTagName('input')[0].checked = true;
@@ -195,7 +195,7 @@ async function setPackagesList(instPath) {
       aTag.href = '#';
       aTag.innerText = `❗ 要導入: ${p.info.name}\r\n`;
       statusInformation.appendChild(aTag);
-      aTag.addEventListener('click', async (event) => {
+      aTag.addEventListener('click', async () => {
         await installPackage(instPath, p);
         return false;
       });
@@ -231,7 +231,7 @@ async function setPackagesList(instPath) {
       pageURL,
       statusInformation,
     ] = makeLiFromArray([...columns, 'statusInformation']);
-    li.addEventListener('click', (event) => {
+    li.addEventListener('click', () => {
       selectedEntry = webpage;
       selectedEntryType = entryType.scriptSite;
       li.getElementsByTagName('input')[0].checked = true;
@@ -1096,6 +1096,7 @@ const filterButtons = new Set();
 /**
  * Filter the list.
  *
+ * @typedef {HTMLCollection} HTMLCollectionOf
  * @param {string} column - A column name to filter
  * @param {HTMLCollectionOf<HTMLButtonElement>} btns - A list of buttons
  * @param {HTMLButtonElement} btn - A button selected

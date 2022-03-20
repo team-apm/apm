@@ -172,12 +172,12 @@ async function setCoreVersions(instPath) {
         li.appendChild(anchor);
 
         if (program === 'aviutl') {
-          anchor.addEventListener('click', async (event) => {
+          anchor.addEventListener('click', async () => {
             await installProgram(installAviutlBtn, program, version, instPath);
           });
           aviutlVersionSelect.appendChild(li);
         } else if (program === 'exedit') {
-          anchor.addEventListener('click', async (event) => {
+          anchor.addEventListener('click', async () => {
             await installProgram(installExeditBtn, program, version, instPath);
           });
           exeditVersionSelect.appendChild(li);
