@@ -9,13 +9,25 @@ const getShortcutPath = (appDataPath) =>
  * Add a shortcut to the Start menu
  *
  * @param {string} appDataPath - The path to AppData
+ * @param {string} apmPath - The path to apm.exe
  * @param {string} targetEXE - The path to aviutl.exe
  */
-function addAviUtlShortcut(appDataPath, targetEXE) {
+function addAviUtlShortcut(appDataPath, apmPath, targetEXE) {
   if (process.platform === 'win32') {
-    shell.writeShortcutLink(getShortcutPath(appDataPath), {
-      target: targetEXE,
-    });
+    // appDataPath: %AppData%\Roaming
+    // dirname(appDataPath): %AppData%
+    // apmPath (if installed): %AppData%\Local\**\*.*
+
+    if (apmPath.includes(path.dirname(appDataPath))) {
+      // Verify that it is the installed version of apm
+
+      shell.writeShortcutLink(getShortcutPath(appDataPath), {
+        target: targetEXE,
+      });
+    } else {
+      // Removal of shortcuts introduced by previous versions of apm
+      removeAviUtlShortcut(appDataPath);
+    }
   }
 }
 

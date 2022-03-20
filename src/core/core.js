@@ -106,9 +106,10 @@ async function displayInstalledVersion(instPath) {
   // Add a shortcut to the Start menu
   if (process.platform === 'win32') {
     const appDataPath = await ipcRenderer.invoke('app-get-path', 'appData');
+    const apmPath = await ipcRenderer.invoke('app-get-path', 'exe');
     const aviutlPath = path.join(instPath, 'aviutl.exe');
     if (fs.existsSync(aviutlPath)) {
-      shortcut.addAviUtlShortcut(appDataPath, aviutlPath);
+      shortcut.addAviUtlShortcut(appDataPath, apmPath, aviutlPath);
     } else {
       shortcut.removeAviUtlShortcut(appDataPath);
     }
