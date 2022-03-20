@@ -59,3 +59,4 @@ logo: /images/apm1024.png
 show_downloads: true
 github:
   exe_url: https://github.com/hal-shu-sato/apm/releases/download/v2.1.1/AviUtl.Package.Manager-2.1.1.Setup.exe
+  zip_url: https://github.com/hal-shu-sato/apm/releases/download/v2.1.1/AviUtl.Package.Manager-win32-x64-2.1.1.zip
