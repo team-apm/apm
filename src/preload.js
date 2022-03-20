@@ -57,40 +57,40 @@ window.addEventListener('load', () => {
 
   // core
   const checkCoreVersionBtn = document.getElementById('check-core-version');
-  checkCoreVersionBtn.addEventListener('click', async (event) => {
+  checkCoreVersionBtn.addEventListener('click', async () => {
     await core.checkLatestVersion(installationPath.value);
   });
 
   const selectInstallationPathBtn = document.getElementById(
     'select-installation-path'
   );
-  selectInstallationPathBtn.addEventListener('click', async (event) => {
+  selectInstallationPathBtn.addEventListener('click', async () => {
     await core.selectInstallationPath(installationPath);
   });
 
   const batchInstallBtn = document.getElementById('batch-install');
-  batchInstallBtn.addEventListener('click', async (event) => {
+  batchInstallBtn.addEventListener('click', async () => {
     await core.batchInstall(installationPath.value);
   });
 
   // packages
   const checkPackagesListBtn = document.getElementById('check-packages-list');
-  checkPackagesListBtn.addEventListener('click', async (event) => {
+  checkPackagesListBtn.addEventListener('click', async () => {
     await packageMain.checkPackagesList(installationPath.value);
   });
 
   const installPackageBtn = document.getElementById('install-package');
-  installPackageBtn.addEventListener('click', async (event) => {
+  installPackageBtn.addEventListener('click', async () => {
     await packageMain.installPackage(installationPath.value);
   });
 
   const uninstallPackageBtn = document.getElementById('uninstall-package');
-  uninstallPackageBtn.addEventListener('click', async (event) => {
+  uninstallPackageBtn.addEventListener('click', async () => {
     await packageMain.uninstallPackage(installationPath.value);
   });
 
   const openPackageFolderBtn = document.getElementById('open-package-folder');
-  openPackageFolderBtn.addEventListener('click', async (event) => {
+  openPackageFolderBtn.addEventListener('click', async () => {
     await packageMain.openPackageFolder();
   });
 
@@ -113,12 +113,12 @@ window.addEventListener('load', () => {
   const setDataUrlBtn = document.getElementById('set-data-url');
   const dataURL = document.getElementById('data-url');
   const extraDataURL = document.getElementById('extra-data-url');
-  setDataUrlBtn.addEventListener('click', async (event) => {
+  setDataUrlBtn.addEventListener('click', async () => {
     await setting.setDataUrl(dataURL, extraDataURL.value);
   });
 
   const zoomFactorSelect = document.getElementById('zoom-factor-select');
-  zoomFactorSelect.addEventListener('input', (event) => {
+  zoomFactorSelect.addEventListener('input', () => {
     setting.changeZoomFactor(zoomFactorSelect.value);
   });
 });
