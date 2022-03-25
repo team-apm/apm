@@ -52,7 +52,7 @@
     "node-7z": "^3.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "sortablejs": "^1.14.0",
+    "sortablejs": "^1.15.0",
     "ssri": "^8.0.1",
     "twemoji": "^14.0.1",
     "update-electron-app": "^2.0.1",
