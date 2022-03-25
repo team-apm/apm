@@ -1,21 +1,22 @@
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  dialog,
-  ipcMain,
-  shell,
-} = require('electron');
-const { download } = require('electron-dl');
-const log = require('electron-log');
-const debug = require('electron-debug');
-const windowStateKeeper = require('electron-window-state');
-const fs = require('fs-extra');
-const path = require('path');
-const { execSync } = require('child_process');
-const prompt = require('electron-prompt');
-const { getHash } = require('./lib/getHash');
-const shortcut = require('./lib/shortcut');
+import { app, BrowserWindow, Menu, dialog, ipcMain, shell } from 'electron';
+import { download } from 'electron-dl';
+import log from 'electron-log';
+import debug from 'electron-debug';
+import windowStateKeeper from 'electron-window-state';
+import fs from 'fs-extra';
+import path from 'path';
+import { execSync } from 'child_process';
+import prompt from 'electron-prompt';
+import { getHash } from './lib/getHash';
+import shortcut from './lib/shortcut';
+
+declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+declare const ABOUT_WINDOW_WEBPACK_ENTRY: string;
+declare const ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+declare const PACKAGE_MAKER_WINDOW_WEBPACK_ENTRY: string;
+declare const PACKAGE_MAKER_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 log.catchErrors({
   showDialog: false,
@@ -40,13 +41,14 @@ log.catchErrors({
 shortcut.uninstaller(app.getPath('appData'));
 if (require('electron-squirrel-startup')) app.quit();
 
-require('update-electron-app')();
+import updateElectronApp from 'update-electron-app';
+updateElectronApp();
 
 const isDevEnv = process.env.NODE_ENV === 'development';
 if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Dev');
 debug({ showDevTools: false }); // Press F12 to open DevTools
 
-const Store = require('electron-store');
+import Store from 'electron-store';
 Store.initRenderer();
 
 log.debug(process.versions);
@@ -56,7 +58,7 @@ const icon =
     ? path.join(__dirname, '../icon/apm1024.png')
     : undefined;
 
-ipcMain.handle('get-app-version', (event) => {
+ipcMain.handle('get-app-version', () => {
   return app.getVersion();
 });
 
@@ -64,7 +66,7 @@ ipcMain.handle('app-get-path', (event, name) => {
   return app.getPath(name);
 });
 
-ipcMain.handle('app-quit', (event) => {
+ipcMain.handle('app-quit', () => {
   app.quit();
 });
 
@@ -121,7 +123,7 @@ ipcMain.handle('open-yes-no-dialog', async (event, title, message) => {
   }
 });
 
-const allowedHosts = [];
+const allowedHosts: string[] = [];
 
 app.on(
   'certificate-error',
@@ -169,7 +171,7 @@ function launch() {
     splashWindow.show();
   });
 
-  splashWindow.loadFile(path.join(__dirname, 'splash.html'));
+  splashWindow.loadURL(SPLASH_WINDOW_WEBPACK_ENTRY);
 
   const mainWindowState = windowStateKeeper({
     defaultWidth: 800,
@@ -186,7 +188,7 @@ function launch() {
     show: false,
     icon: icon,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
   });
 
@@ -214,7 +216,7 @@ function launch() {
         {
           label: `${app.name}について`,
           click: () => {
-            const aboutPath = path.join(__dirname, 'about.html');
+            const aboutPath = ABOUT_WINDOW_WEBPACK_ENTRY;
             const aboutWindow = new BrowserWindow({
               width: 480,
               height: 360,
@@ -224,7 +226,7 @@ function launch() {
               parent: mainWindow,
               icon: icon,
               webPreferences: {
-                preload: path.join(__dirname, 'about_preload.js'),
+                preload: ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY,
               },
             });
             aboutWindow.once('close', () => {
@@ -235,13 +237,13 @@ function launch() {
             aboutWindow.once('ready-to-show', () => {
               aboutWindow.show();
             });
-            aboutWindow.loadFile(aboutPath);
+            aboutWindow.loadURL(aboutPath);
           },
         },
         {
           label: `インストール用データの作成`,
           click: () => {
-            const packageMakerPath = path.join(__dirname, 'package_maker.html');
+            const packageMakerPath = PACKAGE_MAKER_WINDOW_WEBPACK_ENTRY;
             const packageMakerWindow = new BrowserWindow({
               width: 480,
               height: 360,
@@ -249,7 +251,7 @@ function launch() {
               parent: mainWindow,
               icon: icon,
               webPreferences: {
-                preload: path.join(__dirname, 'package_maker_preload.js'),
+                preload: PACKAGE_MAKER_WINDOW_PRELOAD_WEBPACK_ENTRY,
               },
             });
             packageMakerWindow.once('close', () => {
@@ -260,7 +262,7 @@ function launch() {
             packageMakerWindow.once('ready-to-show', () => {
               packageMakerWindow.show();
             });
-            packageMakerWindow.loadFile(packageMakerPath);
+            packageMakerWindow.loadURL(packageMakerPath);
           },
         },
         {
@@ -290,7 +292,7 @@ function launch() {
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 
-  ipcMain.handle('migration1to2-confirm-dialog', async (event) => {
+  ipcMain.handle('migration1to2-confirm-dialog', async () => {
     return (
       await dialog.showMessageBox(mainWindow, {
         title: '確認',
@@ -306,7 +308,7 @@ function launch() {
     ).response;
   });
 
-  ipcMain.handle('migration1to2-dataurl-input-dialog', async (event) => {
+  ipcMain.handle('migration1to2-dataurl-input-dialog', async () => {
     return await prompt(
       {
         title: '新しいデータ取得先の入力',
@@ -366,13 +368,13 @@ function launch() {
       height: 600,
       minWidth: 240,
       minHeight: 320,
-      sandbox: true,
+      webPreferences: { sandbox: true },
       parent: mainWindow,
       modal: true,
       icon: icon,
     });
 
-    mainWindow.once('closed', (event) => {
+    mainWindow.once('closed', () => {
       if (!browserWindow.isDestroyed()) {
         browserWindow.destroy();
       }
@@ -381,37 +383,34 @@ function launch() {
     browserWindow.loadURL(url);
 
     return await new Promise((resolve) => {
-      const history = [];
+      const history: string[] = [];
 
       browserWindow.webContents.on('did-navigate', (e, url) => {
         history.push(url);
       });
 
-      browserWindow.webContents.session.once(
-        'will-download',
-        (event, item, webContents) => {
-          if (!browserWindow.isDestroyed()) browserWindow.hide();
+      browserWindow.webContents.session.once('will-download', (event, item) => {
+        if (!browserWindow.isDestroyed()) browserWindow.hide();
 
-          const ext = path.extname(item.getFilename());
-          const dir = path.join(app.getPath('userData'), 'Data');
-          if (['.zip', '.lzh', '.7z', '.rar'].includes(ext)) {
-            item.setSavePath(
-              path.join(dir, type, 'archive/', item.getFilename())
-            );
-          } else {
-            item.setSavePath(path.join(dir, type, item.getFilename()));
-          }
-
-          item.once('done', (e, state) => {
-            history.push(...item.getURLChain(), item.getFilename());
-            resolve({ savePath: item.getSavePath(), history: history });
-            browserWindow.destroy();
-          });
+        const ext = path.extname(item.getFilename());
+        const dir = path.join(app.getPath('userData'), 'Data');
+        if (['.zip', '.lzh', '.7z', '.rar'].includes(ext)) {
+          item.setSavePath(
+            path.join(dir, type, 'archive/', item.getFilename())
+          );
+        } else {
+          item.setSavePath(path.join(dir, type, item.getFilename()));
         }
-      );
 
-      browserWindow.once('closed', (event) => {
-        resolve();
+        item.once('done', () => {
+          history.push(...item.getURLChain(), item.getFilename());
+          resolve({ savePath: item.getSavePath(), history: history });
+          browserWindow.destroy();
+        });
+      });
+
+      browserWindow.once('closed', () => {
+        resolve(null);
       });
     });
   });
@@ -424,7 +423,7 @@ function launch() {
     }, 2000);
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 }
 
 app.whenReady().then(() => {

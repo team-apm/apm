@@ -1,6 +1,6 @@
-const path = require('path');
-const { shell } = require('electron');
-const fs = require('fs');
+import path from 'path';
+import { shell } from 'electron';
+import fs from 'fs';
 
 const getShortcutPath = (appDataPath) =>
   path.join(appDataPath, 'Microsoft/Windows/Start Menu/Programs', 'AviUtl.lnk');
@@ -46,8 +46,9 @@ function uninstaller(appDataPath) {
   }
 }
 
-module.exports = {
+const shortcut = {
   addAviUtlShortcut,
   removeAviUtlShortcut,
   uninstaller,
 };
+export default shortcut;

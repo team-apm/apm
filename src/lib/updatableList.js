@@ -1,4 +1,4 @@
-const List = require('list.js');
+import List from 'list.js';
 
 /**
  * Keep the state of the table even after update() is executed
@@ -51,4 +51,4 @@ function createList(element, options, values) {
   return updatableList;
 }
 
-module.exports = createList;
+export default createList;

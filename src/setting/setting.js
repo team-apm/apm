@@ -1,9 +1,9 @@
-const { ipcRenderer } = require('electron');
-const fs = require('fs-extra');
-const Store = require('electron-store');
-const path = require('path');
+import { ipcRenderer } from 'electron';
+import fs from 'fs-extra';
+import Store from 'electron-store';
+import path from 'path';
 const store = new Store();
-const buttonTransition = require('../lib/buttonTransition');
+import buttonTransition from '../lib/buttonTransition';
 
 /**
  * Initializes settings
@@ -179,7 +179,7 @@ function changeZoomFactor(zoomFactor) {
   ipcRenderer.invoke('change-main-zoom-factor', parseInt(zoomFactor) / 100);
 }
 
-module.exports = {
+const setting = {
   initSettings,
   setDataUrl,
   getDataUrl,
@@ -191,3 +191,4 @@ module.exports = {
   setZoomFactor,
   changeZoomFactor,
 };
+export default setting;

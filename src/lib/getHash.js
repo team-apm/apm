@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 /**
  *  Returns the hash value of the text.
@@ -13,4 +13,4 @@ function getHash(text, limit = 7) {
   return shasum.digest('hex').substr(0, limit);
 }
 
-module.exports = { getHash };
+export { getHash };

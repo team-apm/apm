@@ -1,8 +1,8 @@
-const { ipcRenderer } = require('electron');
-const fs = require('fs-extra');
-const path = require('path');
-const parseXML = require('../lib/parseXML');
-const apmJson = require('../lib/apmJson');
+import { ipcRenderer } from 'electron';
+import fs from 'fs-extra';
+import path from 'path';
+import parseXML from '../lib/parseXML';
+import apmJson from '../lib/apmJson';
 
 /** Installation state of packages */
 const states = {
@@ -165,15 +165,15 @@ function getInstalledFiles(instPath) {
  */
 function getManuallyInstalledFiles(files, installedPackages, packages) {
   let retFiles = [...files];
-  for (const package of packages) {
+  for (const packageItem of packages) {
     for (const [installedId, installedPackage] of Object.entries(
       installedPackages
     )) {
       if (
-        installedId === package.id &&
-        installedPackage.repository === package.repository
+        installedId === packageItem.id &&
+        installedPackage.repository === packageItem.repository
       ) {
-        for (const file of package.info.files) {
+        for (const file of packageItem.info.files) {
           if (!file.isDirectory) {
             retFiles = retFiles.filter((ef) => ef !== file.filename);
           } else {
@@ -189,7 +189,7 @@ function getManuallyInstalledFiles(files, installedPackages, packages) {
 /**
  * Returns the installed version or installation status of the package.
  *
- * @param {object} package - A Package
+ * @param {object} packageItem - A Package
  * @param {string[]} installedFiles - List of installed files
  * @param {string[]} manuallyInstalledFiles - List of manually installed files
  * @param {object[]} installedPackages - A list of object from apmJson
@@ -197,7 +197,7 @@ function getManuallyInstalledFiles(files, installedPackages, packages) {
  * @returns {object} Installed version or installation status of the package
  */
 function getInstalledVersionOfPackage(
-  package,
+  packageItem,
   installedFiles,
   manuallyInstalledFiles,
   installedPackages,
@@ -207,7 +207,7 @@ function getInstalledVersionOfPackage(
   let version;
   let isInstalledPackage = false;
   let isManuallyInstalledPackage = false;
-  for (const file of package.info.files) {
+  for (const file of packageItem.info.files) {
     if (installedFiles.includes(file.filename)) isInstalledPackage = true;
     if (manuallyInstalledFiles.includes(file.filename))
       isManuallyInstalledPackage = true;
@@ -222,10 +222,10 @@ function getInstalledVersionOfPackage(
     installedPackages
   )) {
     if (
-      installedId === package.id &&
-      installedPackage.repository === package.repository
+      installedId === packageItem.id &&
+      installedPackage.repository === packageItem.repository
     ) {
-      if (package.info.files.some((file) => file.isObsolete)) {
+      if (packageItem.info.files.some((file) => file.isObsolete)) {
         // There is no way to determine if a package that contains obsolete files is corrupt.
         installationStatus = states.installed;
         version = installedPackage.version;
@@ -233,7 +233,7 @@ function getInstalledVersionOfPackage(
         // Determine if the package has been installed properly.
         let filesCount = 0;
         let existCount = 0;
-        for (const file of package.info.files) {
+        for (const file of packageItem.info.files) {
           if (!file.isOptional) {
             filesCount++;
             if (fs.existsSync(path.join(instPath, file.filename))) {
@@ -388,7 +388,7 @@ function getPackagesStatus(instPath, _packages) {
   return packages;
 }
 
-module.exports = {
+const packageUtil = {
   states,
   parsePackageType,
   getPackages,
@@ -396,3 +396,4 @@ module.exports = {
   getPackagesExtra,
   getPackagesStatus,
 };
+export default packageUtil;

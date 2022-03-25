@@ -1,6 +1,6 @@
-const fs = require('fs-extra');
-const path = require('path');
-const ssri = require('ssri');
+import fs from 'fs-extra';
+import path from 'path';
+import ssri from 'ssri';
 
 /**
  * Check for integrity.
@@ -48,4 +48,5 @@ async function verifyFile(filePath, integrity) {
   return true;
 }
 
-module.exports = { checkIntegrity, verifyFile };
+const integrity = { checkIntegrity, verifyFile };
+export default integrity;

@@ -1,24 +1,24 @@
-const { ipcRenderer } = require('electron');
-const Store = require('electron-store');
+import { ipcRenderer } from 'electron';
+import Store from 'electron-store';
 const store = new Store();
-const log = require('electron-log');
-const fs = require('fs-extra');
-const path = require('path');
-const { execSync } = require('child_process');
-const createList = require('../lib/updatableList');
-const twemoji = require('twemoji');
-const matcher = require('matcher');
-const replaceText = require('../lib/replaceText');
-const unzip = require('../lib/unzip');
-const setting = require('../setting/setting');
-const buttonTransition = require('../lib/buttonTransition');
-const parseXML = require('../lib/parseXML');
-const apmJson = require('../lib/apmJson');
-const mod = require('../lib/mod');
-const { getHash } = require('../lib/getHash');
-const packageUtil = require('./packageUtil');
-const integrity = require('../lib/integrity');
-const { compareVersion } = require('../lib/compareVersion');
+import log from 'electron-log';
+import fs from 'fs-extra';
+import path from 'path';
+import { execSync } from 'child_process';
+import createList from '../lib/updatableList';
+import twemoji from 'twemoji';
+import matcher from 'matcher';
+import replaceText from '../lib/replaceText';
+import unzip from '../lib/unzip';
+import setting from '../setting/setting';
+import buttonTransition from '../lib/buttonTransition';
+import parseXML from '../lib/parseXML';
+import apmJson from '../lib/apmJson';
+import mod from '../lib/mod';
+import { getHash } from '../lib/getHash';
+import packageUtil from './packageUtil';
+import integrity from '../lib/integrity';
+import { compareVersion } from '../lib/compareVersion';
 
 // To avoid a bug in the library
 // https://github.com/sindresorhus/matcher/issues/32
@@ -91,7 +91,7 @@ async function setPackagesList(instPath) {
   // sort-buttons
   if (!packagesSort.hasChildNodes()) {
     Array.from(columns.entries())
-      .filter(([n, s]) => ['name', 'developer'].includes(s))
+      .filter(([, s]) => ['name', 'developer'].includes(s))
       .forEach(([i, columnName]) => {
         const sortBtn = document
           .getElementById('sort-template')
@@ -147,7 +147,7 @@ async function setPackagesList(instPath) {
 
   packagesList.innerHTML = null;
 
-  for (const package of packages) {
+  for (const packageItem of packages) {
     const [
       li,
       name,
@@ -160,8 +160,8 @@ async function setPackagesList(instPath) {
       pageURL,
       statusInformation,
     ] = makeLiFromArray([...columns, 'statusInformation']);
-    li.addEventListener('click', (event) => {
-      selectedEntry = package;
+    li.addEventListener('click', () => {
+      selectedEntry = packageItem;
       selectedEntryType = entryType.package;
       li.getElementsByTagName('input')[0].checked = true;
       for (const tmpli of packagesList.getElementsByTagName('li')) {
@@ -169,43 +169,45 @@ async function setPackagesList(instPath) {
       }
       li.classList.add('list-group-item-secondary');
     });
-    name.innerText = package.info.name;
-    overview.innerText = package.info.overview;
-    developer.innerText = package.info.originalDeveloper
-      ? `${package.info.developer}（オリジナル：${package.info.originalDeveloper}）`
-      : package.info.developer;
-    packageUtil.parsePackageType(package.info.type).forEach((e) => {
+    name.innerText = packageItem.info.name;
+    overview.innerText = packageItem.info.overview;
+    developer.innerText = packageItem.info.originalDeveloper
+      ? `${packageItem.info.developer}（オリジナル：${packageItem.info.originalDeveloper}）`
+      : packageItem.info.developer;
+    packageUtil.parsePackageType(packageItem.info.type).forEach((e) => {
       const typeItem = document.getElementById('tag-template').cloneNode(true);
       typeItem.removeAttribute('id');
       typeItem.innerText = e;
       type.appendChild(typeItem);
     });
-    latestVersion.innerText = package.info.latestVersion;
+    latestVersion.innerText = packageItem.info.latestVersion;
     installationStatus.innerText =
-      package.installationStatus +
-      (package.installationStatus === packageUtil.states.installed
-        ? ': ' + package.version
+      packageItem.installationStatus +
+      (packageItem.installationStatus === packageUtil.states.installed
+        ? ': ' + packageItem.version
         : '');
-    description.innerText = package.info.description;
-    pageURL.innerText = package.info.pageURL;
-    pageURL.href = package.info.pageURL;
+    description.innerText = packageItem.info.description;
+    pageURL.innerText = packageItem.info.pageURL;
+    pageURL.href = packageItem.info.pageURL;
     statusInformation.innerText = null;
-    package.detached.forEach((p) => {
+    packageItem.detached.forEach((p) => {
       const aTag = document.createElement('a');
       aTag.href = '#';
       aTag.innerText = `❗ 要導入: ${p.info.name}\r\n`;
       statusInformation.appendChild(aTag);
-      aTag.addEventListener('click', async (event) => {
+      aTag.addEventListener('click', async () => {
         await installPackage(instPath, p);
         return false;
       });
     });
     const verText = document.createElement('div');
-    verText.innerText = package.doNotInstall ? '⚠️インストール不可\r\n' : '';
+    verText.innerText = packageItem.doNotInstall
+      ? '⚠️インストール不可\r\n'
+      : '';
     statusInformation.appendChild(verText);
     if (
-      package.installationStatus === packageUtil.states.installed &&
-      compareVersion(package.info.latestVersion, package.version) > 0
+      packageItem.installationStatus === packageUtil.states.installed &&
+      compareVersion(packageItem.info.latestVersion, packageItem.version) > 0
     ) {
       const updateText = document.createElement('div');
       updateText.classList.add('text-success');
@@ -229,7 +231,7 @@ async function setPackagesList(instPath) {
       pageURL,
       statusInformation,
     ] = makeLiFromArray([...columns, 'statusInformation']);
-    li.addEventListener('click', (event) => {
+    li.addEventListener('click', () => {
       selectedEntry = webpage;
       selectedEntryType = entryType.scriptSite;
       li.getElementsByTagName('input')[0].checked = true;
@@ -1047,7 +1049,7 @@ async function installScript(instPath) {
     fs.renameSync(unzippedPath, newPath);
 
     // Save package information
-    const package = {
+    const packageItem = {
       id: id,
       name: name,
       overview: 'スクリプト',
@@ -1066,12 +1068,12 @@ async function installScript(instPath) {
 
     await parseXML.addPackage(
       setting.getLocalPackagesDataUrl(instPath),
-      package
+      packageItem
     );
     apmJson.addPackage(instPath, {
-      id: package.id,
+      id: packageItem.id,
       repository: setting.getLocalPackagesDataUrl(instPath),
-      info: package,
+      info: packageItem,
     });
     await checkPackagesList(instPath);
   } catch (e) {
@@ -1094,6 +1096,7 @@ const filterButtons = new Set();
 /**
  * Filter the list.
  *
+ * @typedef {HTMLCollection} HTMLCollectionOf
  * @param {string} column - A column name to filter
  * @param {HTMLCollectionOf<HTMLButtonElement>} btns - A list of buttons
  * @param {HTMLButtonElement} btn - A button selected
@@ -1169,7 +1172,7 @@ function listFilter(column, btns, btn) {
   }
 }
 
-module.exports = {
+const packageMain = {
   getPackages,
   setPackagesList,
   checkPackagesList,
@@ -1180,3 +1183,4 @@ module.exports = {
   installScript,
   listFilter,
 };
+export default packageMain;
