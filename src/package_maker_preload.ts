@@ -4,8 +4,10 @@ import fs from 'fs-extra';
 import path from 'path';
 import { execSync } from 'child_process';
 import { XMLBuilder } from 'fast-xml-parser';
-import { Sortable } from 'sortablejs';
-import ClipboardJS from 'clipboard/dist/clipboard.min';
+// 'Sortable' is not actually exported as ESModules. So, ignore the warning.
+// eslint-disable-next-line import/no-named-as-default
+import Sortable from 'sortablejs';
+import ClipboardJS from 'clipboard';
 import unzip from './lib/unzip';
 import buttonTransition from './lib/buttonTransition';
 
@@ -32,7 +34,7 @@ const imageExtention = [
   '.webp',
   '.svg',
 ];
-const searchFiles = (dirName, directory = false, ignoreExtention = []) => {
+const searchFiles = (dirName: string, directory = false): string[] => {
   const dirents = fs.readdirSync(dirName, {
     withFileTypes: true,
   });
@@ -41,18 +43,16 @@ const searchFiles = (dirName, directory = false, ignoreExtention = []) => {
       ? [dirName]
       : dirents
           .filter((i) => i.isFile())
-          .filter((i) => !ignoreExtention.includes(path.extname(i.name)))
+          .filter((i) => !imageExtention.includes(path.extname(i.name)))
           .map((i) => path.join(dirName, i.name)),
     dirents
       .filter((i) => i.isDirectory())
-      .flatMap((i) =>
-        searchFiles(path.join(dirName, i.name), directory, ignoreExtention)
-      )
+      .flatMap((i) => searchFiles(path.join(dirName, i.name), directory))
   );
 };
 
-const pathRelated = (pathA, pathB) => {
-  const isParent = (parent, child) => {
+const pathRelated = (pathA: string, pathB: string) => {
+  const isParent = (parent: string, child: string) => {
     const relative = path.relative(parent, child);
     return relative && relative !== '' && !relative.startsWith('..');
   };
@@ -60,23 +60,41 @@ const pathRelated = (pathA, pathB) => {
 };
 
 window.addEventListener('load', () => {
-  const xmlId = document.getElementById('xml-id');
-  const xmlName = document.getElementById('xml-name');
-  const xmlOverview = document.getElementById('xml-overview');
-  const xmlDescription = document.getElementById('xml-description');
-  const xmlDeveloper = document.getElementById('xml-developer');
+  const xmlId = document.getElementById('xml-id') as HTMLInputElement;
+  const xmlName = document.getElementById('xml-name') as HTMLInputElement;
+  const xmlOverview = document.getElementById(
+    'xml-overview'
+  ) as HTMLInputElement;
+  const xmlDescription = document.getElementById(
+    'xml-description'
+  ) as HTMLInputElement;
+  const xmlDeveloper = document.getElementById(
+    'xml-developer'
+  ) as HTMLInputElement;
   const xmlOriginalDeveloper = document.getElementById(
     'xml-original-developer'
-  );
-  const xmlLatestVersion = document.getElementById('xml-latest-version');
-  const xmlPageURL = document.getElementById('xml-page-url');
-  const xmlDownloadURL = document.getElementById('xml-download-url');
+  ) as HTMLInputElement;
+  const xmlLatestVersion = document.getElementById(
+    'xml-latest-version'
+  ) as HTMLInputElement;
+  const xmlPageURL = document.getElementById(
+    'xml-page-url'
+  ) as HTMLInputElement;
+  const xmlDownloadURL = document.getElementById(
+    'xml-download-url'
+  ) as HTMLInputElement;
   const xmlDownloadMirrorURL = document.getElementById(
     'xml-download-mirror-url'
-  );
-  const xmlInstaller = document.getElementById('xml-installer');
-  const xmlInstallArg = document.getElementById('xml-install-arg');
-  const xmlDependencies = document.getElementById('xml-dependencies');
+  ) as HTMLInputElement;
+  const xmlInstaller = document.getElementById(
+    'xml-installer'
+  ) as HTMLInputElement;
+  const xmlInstallArg = document.getElementById(
+    'xml-install-arg'
+  ) as HTMLInputElement;
+  const xmlDependencies = document.getElementById(
+    'xml-dependencies'
+  ) as HTMLInputElement;
   const xmlTexts = [
     xmlId,
     xmlName,
@@ -93,15 +111,29 @@ window.addEventListener('load', () => {
     xmlDependencies,
   ];
 
-  const xmlIdValidate = document.getElementById('xml-id-validate');
-  const xmlNameValidate = document.getElementById('xml-name-validate');
-  const xmlOverviewValidate = document.getElementById('xml-overview-validate');
+  const xmlIdValidate = document.getElementById(
+    'xml-id-validate'
+  ) as HTMLInputElement;
+  const xmlNameValidate = document.getElementById(
+    'xml-name-validate'
+  ) as HTMLInputElement;
+  const xmlOverviewValidate = document.getElementById(
+    'xml-overview-validate'
+  ) as HTMLInputElement;
 
-  const xmlDownloadURLBtn = document.getElementById('xml-download-url-button');
-  const clearTextBtn = document.getElementById('clear-text-button');
+  const xmlDownloadURLBtn = document.getElementById(
+    'xml-download-url-button'
+  ) as HTMLInputElement;
+  const clearTextBtn = document.getElementById(
+    'clear-text-button'
+  ) as HTMLInputElement;
 
-  const xmlInstallerSwitch = document.getElementById('xml-installer-switch');
-  const xmlIntegritySwitch = document.getElementById('xml-integrity-switch');
+  const xmlInstallerSwitch = document.getElementById(
+    'xml-installer-switch'
+  ) as HTMLInputElement;
+  const xmlIntegritySwitch = document.getElementById(
+    'xml-integrity-switch'
+  ) as HTMLInputElement;
 
   const listDownload = document.getElementById('list-download');
   const listAviutl = document.getElementById('list-aviutl');
@@ -112,8 +144,8 @@ window.addEventListener('load', () => {
 
   const clearList = () => {
     listDownload.innerHTML = null;
-    [...listAviutl.children]
-      .filter((e) => e.dataset.id !== 'exclude')
+    Array.from(listAviutl.children)
+      .filter((e: HTMLElement) => e.dataset.id !== 'exclude')
       .forEach((e) => e.parentNode.removeChild(e));
     listPlugins.innerHTML = null;
     listScript.innerHTML = null;
@@ -129,9 +161,8 @@ window.addEventListener('load', () => {
 
   const collapseInstallerElement = () => {
     [xmlInstaller, xmlInstallArg].forEach((e) => {
-      e.parentNode.parentNode.style.display = xmlInstallerSwitch.checked
-        ? ''
-        : 'none';
+      (e.parentNode.parentNode as HTMLElement).style.display =
+        xmlInstallerSwitch.checked ? '' : 'none';
     });
   };
 
@@ -140,13 +171,13 @@ window.addEventListener('load', () => {
       ? ''
       : 'idは"{作者名(半角英数)}/{プラグイン名(半角英数)}"の形式です';
     xmlNameValidate.innerText =
-      `${[...xmlName.value].length}/25文字` +
-      ([...xmlName.value].length <= 25
+      `${Array.from(xmlName.value).length}/25文字` +
+      (Array.from(xmlName.value).length <= 25
         ? ''
         : ' 名前は25文字以内である必要があります');
     xmlOverviewValidate.innerText =
-      `${[...xmlOverview.value].length}/35文字` +
-      ([...xmlOverview.value].length <= 35
+      `${Array.from(xmlOverview.value).length}/35文字` +
+      (Array.from(xmlOverview.value).length <= 35
         ? ''
         : ' 概要は35文字以内である必要があります');
 
@@ -176,7 +207,12 @@ window.addEventListener('load', () => {
           baseItem = baseItem.replace('?', '');
           isDirectory = true;
         }
-        const ret = { '#text': baseItem };
+        interface FileObj {
+          '#text': string;
+          '@_archivePath'?: string;
+          '@_directory'?: boolean;
+        }
+        const ret: FileObj = { '#text': baseItem };
         if (dirItem !== '.' && !xmlInstallerSwitch.checked)
           ret['@_archivePath'] = dirItem;
         if (isDirectory) ret['@_directory'] = true;
@@ -226,8 +262,7 @@ window.addEventListener('load', () => {
           : undefined,
       },
     };
-    output.innerText = builder
-      .build(xmlObject)
+    output.innerText = (builder.build(xmlObject) as string)
       .trim()
       .replaceAll(/^(\s+)/gm, (str) => '\t'.repeat(Math.floor(str.length / 2)));
   };
@@ -286,7 +321,7 @@ window.addEventListener('load', () => {
       return;
     }
 
-    let unzippedPath;
+    let unzippedPath: string;
     try {
       unzippedPath = await unzip(downloadResult.savePath);
       execSync(`start "" "${unzippedPath}"`);
@@ -324,7 +359,7 @@ window.addEventListener('load', () => {
       });
 
     // file
-    searchFiles(unzippedPath, false, imageExtention)
+    searchFiles(unzippedPath, false)
       .filter((i) => i !== unzippedPath)
       .map((i) => path.relative(unzippedPath, i).replaceAll('\\', '/'))
       .forEach((f) => {
@@ -342,18 +377,18 @@ window.addEventListener('load', () => {
   });
 
   // sortable list
-  const usedPath = new Set();
+  const usedPath = new Set<string>();
 
   const updateMovableEntry = () => {
-    for (const node of listDownload.children) {
+    Array.from(listDownload.children).forEach((node: HTMLElement) => {
       const nodePath = node.dataset.id.replace('?', '');
       if (!['plugins', 'script'].includes(path.basename(nodePath))) {
         node.classList.remove('list-group-item-dark');
         node.classList.remove('ignore-elements');
       }
-    }
+    });
 
-    for (const node of listDownload.children) {
+    Array.from(listDownload.children).forEach((node: HTMLElement) => {
       const nodePath = node.dataset.id.replace('?', '');
       usedPath.forEach((used) => {
         if (pathRelated(nodePath, used)) {
@@ -361,7 +396,7 @@ window.addEventListener('load', () => {
           node.classList.add('ignore-elements');
         }
       });
-    }
+    });
   };
 
   new Sortable(listDownload, {

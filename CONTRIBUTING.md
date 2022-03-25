@@ -79,7 +79,8 @@ Under `src`, place HTML, CSS, and preloaded JavaScript for each screen, and cut 
     │   └── setting.js
     ├── some_window.html
     ├── some_window.css
-    └── some_window_preload.js
+    ├── some_window_preload.ts
+    └── some_window_renderer.ts
 ```
 
 ## Commit Message Convention
