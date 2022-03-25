@@ -509,7 +509,7 @@ async function installPackage(
     );
 
     const integrityForArchive =
-      installedPackage.info?.releases[installedPackage.info.latestVersion]
+      installedPackage.info.releases?.[installedPackage.info.latestVersion]
         ?.archiveIntegrity;
 
     if (integrityForArchive) {
