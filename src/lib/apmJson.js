@@ -1,6 +1,6 @@
-const fs = require('fs-extra');
-const path = require('path');
-const dotProp = require('dot-prop');
+import fs from 'fs-extra';
+import path from 'path';
+import dotProp from 'dot-prop';
 
 /**
  * Gets the object parsed from `apm.json`.
@@ -95,13 +95,13 @@ function setCore(instPath, program, version) {
  * Adds the information of the package to `apm.json`.
  *
  * @param {string} instPath - An installation path
- * @param {object} package - An information of a package
+ * @param {object} packageItem - An information of a package
  */
-function addPackage(instPath, package) {
-  set(instPath, `packages.${package.id}`, {
-    id: package.id,
-    repository: package.repository,
-    version: package.info.latestVersion,
+function addPackage(instPath, packageItem) {
+  set(instPath, `packages.${packageItem.id}`, {
+    id: packageItem.id,
+    repository: packageItem.repository,
+    version: packageItem.info.latestVersion,
   });
 }
 
@@ -109,13 +109,13 @@ function addPackage(instPath, package) {
  * Removes the information of the package from `apm.json`.
  *
  * @param {string} instPath - An installation path
- * @param {object} package - An information of a package
+ * @param {object} packageItem - An information of a package
  */
-function removePackage(instPath, package) {
-  deleteItem(instPath, `packages.${package.id}`);
+function removePackage(instPath, packageItem) {
+  deleteItem(instPath, `packages.${packageItem.id}`);
 }
 
-module.exports = {
+const apmJson = {
   has,
   get,
   set,
@@ -124,3 +124,4 @@ module.exports = {
   addPackage,
   removePackage,
 };
+export default apmJson;

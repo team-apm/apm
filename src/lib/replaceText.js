@@ -9,4 +9,4 @@ function replaceText(selector, text) {
   if (element) element.innerText = text;
 }
 
-module.exports = replaceText;
+export default replaceText;

@@ -1,6 +1,6 @@
-const { ipcRenderer } = require('electron');
-const setting = require('../setting/setting');
-const parseXML = require('./parseXML');
+import { ipcRenderer } from 'electron';
+import setting from '../setting/setting';
+import parseXML from './parseXML';
 
 /**
  * Download mod.xml.
@@ -27,4 +27,5 @@ async function getInfo() {
   }
 }
 
-module.exports = { downloadData, getInfo };
+const mod = { downloadData, getInfo };
+export default mod;

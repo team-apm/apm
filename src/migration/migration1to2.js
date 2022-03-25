@@ -1,10 +1,10 @@
-const { ipcRenderer } = require('electron');
-const fs = require('fs-extra');
-const path = require('path');
-const Store = require('electron-store');
+import { ipcRenderer } from 'electron';
+import fs from 'fs-extra';
+import path from 'path';
+import Store from 'electron-store';
 const store = new Store();
-const log = require('electron-log');
-const apmJson = require('../lib/apmJson');
+import log from 'electron-log';
+import apmJson from '../lib/apmJson';
 
 /**
  * Migration of common settings.
@@ -185,7 +185,8 @@ async function byFolder(instPath) {
   log.info(`End of migration: migration1to2.byFolder(${instPath})`);
 }
 
-module.exports = {
+const migration1to2 = {
   global,
   byFolder,
 };
+export default migration1to2;
