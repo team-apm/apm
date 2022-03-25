@@ -108,8 +108,11 @@ async function displayInstalledVersion(instPath) {
     const appDataPath = await ipcRenderer.invoke('app-get-path', 'appData');
     const apmPath = await ipcRenderer.invoke('app-get-path', 'exe');
     const aviutlPath = path.join(instPath, 'aviutl.exe');
-    if (fs.existsSync(aviutlPath)) {
-      shortcut.addAviUtlShortcut(appDataPath, apmPath, aviutlPath);
+    if (
+      fs.existsSync(aviutlPath) &&
+      apmPath.includes(path.dirname(appDataPath)) // Verify that it is the installed version of apm
+    ) {
+      shortcut.addAviUtlShortcut(appDataPath, aviutlPath);
     } else {
       shortcut.removeAviUtlShortcut(appDataPath);
     }
