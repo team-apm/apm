@@ -24,7 +24,7 @@ const pathTo7zipWin = isDevEnv
  * Unzips zip archive.
  *
  * @param {string} zipPath - A path to zip archive.
- * @param {string} folderName - Name of the extracted folder.
+ * @param {string} [folderName] - Name of the extracted folder.
  * @returns {Promise<string>} A path to unzipped directory.
  */
 async function unzip(zipPath, folderName) {

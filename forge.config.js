@@ -68,31 +68,31 @@ module.exports = {
           entryPoints: [
             {
               html: './src/index.html',
-              js: './src/renderer.js',
+              js: './src/renderer.ts',
               name: 'main_window',
               preload: {
-                js: './src/preload.js',
+                js: './src/preload.ts',
               },
             },
             {
               html: './src/about.html',
-              js: './src/about_renderer.js',
+              js: './src/about_renderer.ts',
               name: 'about_window',
               preload: {
-                js: './src/about_preload.js',
+                js: './src/about_preload.ts',
               },
             },
             {
               html: './src/splash.html',
-              js: './src/splash_renderer.js',
+              js: './src/splash_renderer.ts',
               name: 'splash_window',
             },
             {
               html: './src/package_maker.html',
-              js: './src/package_maker_renderer.js',
+              js: './src/package_maker_renderer.ts',
               name: 'package_maker_window',
               preload: {
-                js: './src/package_maker_preload.js',
+                js: './src/package_maker_preload.ts',
               },
             },
           ],

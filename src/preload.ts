@@ -33,7 +33,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   await core.initCore();
 
   // *local*
-  const instPath = store.get('installationPath', '');
+  const instPath = store.get('installationPath', '') as string;
   await core.changeInstallationPath(instPath);
 
   // *UI*
@@ -42,18 +42,26 @@ window.addEventListener('DOMContentLoaded', async () => {
     const tutorialAlert = document.getElementById('tutorial-alert');
     tutorialAlert.classList.remove('d-none');
   }
-  const installationPath = document.getElementById('installation-path');
+  const installationPath = document.getElementById(
+    'installation-path'
+  ) as HTMLInputElement;
   installationPath.value = instPath;
-  const dataURL = document.getElementById('data-url');
+  const dataURL = document.getElementById('data-url') as HTMLInputElement;
   dataURL.value = setting.getDataUrl();
-  const extraDataURL = document.getElementById('extra-data-url');
+  const extraDataURL = document.getElementById(
+    'extra-data-url'
+  ) as HTMLInputElement;
   extraDataURL.value = setting.getExtraDataUrl();
-  const zoomFactorSelect = document.getElementById('zoom-factor-select');
+  const zoomFactorSelect = document.getElementById(
+    'zoom-factor-select'
+  ) as HTMLSelectElement;
   setting.setZoomFactor(zoomFactorSelect);
 });
 
 window.addEventListener('load', () => {
-  const installationPath = document.getElementById('installation-path');
+  const installationPath = document.getElementById(
+    'installation-path'
+  ) as HTMLInputElement;
 
   // core
   const checkCoreVersionBtn = document.getElementById('check-core-version');
@@ -96,28 +104,32 @@ window.addEventListener('load', () => {
 
   const filterDropdown = document.getElementById('filter').parentElement;
   const typeFilterBtns = filterDropdown.getElementsByClassName('type-filter');
-  for (const element of typeFilterBtns) {
+  Array.from(typeFilterBtns).forEach((element: HTMLButtonElement) => {
     element.addEventListener('click', () => {
       packageMain.listFilter('type', typeFilterBtns, element);
     });
-  }
+  });
   const installFilterBtns =
     filterDropdown.getElementsByClassName('install-filter');
-  for (const element of installFilterBtns) {
+  Array.from(installFilterBtns).forEach((element: HTMLButtonElement) => {
     element.addEventListener('click', () => {
       packageMain.listFilter('installationStatus', installFilterBtns, element);
     });
-  }
+  });
 
   // settings
   const setDataUrlBtn = document.getElementById('set-data-url');
-  const dataURL = document.getElementById('data-url');
-  const extraDataURL = document.getElementById('extra-data-url');
+  const dataURL = document.getElementById('data-url') as HTMLInputElement;
+  const extraDataURL = document.getElementById(
+    'extra-data-url'
+  ) as HTMLInputElement;
   setDataUrlBtn.addEventListener('click', async () => {
     await setting.setDataUrl(dataURL, extraDataURL.value);
   });
 
-  const zoomFactorSelect = document.getElementById('zoom-factor-select');
+  const zoomFactorSelect = document.getElementById(
+    'zoom-factor-select'
+  ) as HTMLInputElement;
   zoomFactorSelect.addEventListener('input', () => {
     setting.changeZoomFactor(zoomFactorSelect.value);
   });

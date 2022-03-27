@@ -404,9 +404,9 @@ async function getScriptsList(update = false, modTime) {
  * Installs a package to installation path.
  *
  * @param {string} instPath - An installation path.
- * @param {object} packageToInstall - A package to install.
- * @param {boolean} direct - Install from the direct link to the zip.
- * @param {string} strArchivePath - Path to the downloaded archive.
+ * @param {object} [packageToInstall] - A package to install.
+ * @param {boolean} [direct] - Install from the direct link to the zip.
+ * @param {string} [strArchivePath] - Path to the downloaded archive.
  */
 async function installPackage(
   instPath,
