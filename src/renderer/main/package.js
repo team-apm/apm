@@ -5,20 +5,20 @@ import log from 'electron-log';
 import fs from 'fs-extra';
 import path from 'path';
 import { execSync } from 'child_process';
-import createList from '../lib/updatableList';
 import twemoji from 'twemoji';
 import matcher from 'matcher';
-import replaceText from '../lib/replaceText';
-import unzip from '../lib/unzip';
-import setting from '../setting/setting';
-import buttonTransition from '../lib/buttonTransition';
-import parseXML from '../lib/parseXML';
-import apmJson from '../lib/apmJson';
-import mod from '../lib/mod';
-import { getHash } from '../lib/getHash';
+import setting from './setting';
+import createList from '../../lib/updatableList';
+import replaceText from '../../lib/replaceText';
+import unzip from '../../lib/unzip';
+import buttonTransition from '../../lib/buttonTransition';
+import parseXML from '../../lib/parseXML';
+import apmJson from '../../lib/apmJson';
+import mod from './lib/mod';
+import { getHash } from '../../lib/getHash';
 import packageUtil from './packageUtil';
-import integrity from '../lib/integrity';
-import { compareVersion } from '../lib/compareVersion';
+import integrity from '../../lib/integrity';
+import { compareVersion } from '../../lib/compareVersion';
 
 // To avoid a bug in the library
 // https://github.com/sindresorhus/matcher/issues/32

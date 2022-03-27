@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 import log from 'electron-log';
-import replaceText from './lib/replaceText';
+import replaceText from '../../lib/replaceText';
 
 log.catchErrors({
   onError: () => {

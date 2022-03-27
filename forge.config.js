@@ -67,32 +67,32 @@ module.exports = {
           config: './webpack.renderer.config.js',
           entryPoints: [
             {
-              html: './src/index.html',
-              js: './src/renderer.ts',
+              html: './src/renderer/main/index.html',
+              js: './src/renderer/main/renderer.ts',
               name: 'main_window',
               preload: {
-                js: './src/preload.ts',
+                js: './src/renderer/main/preload.ts',
               },
             },
             {
-              html: './src/about.html',
-              js: './src/about_renderer.ts',
+              html: './src/renderer/about/about.html',
+              js: './src/renderer/about/about_renderer.ts',
               name: 'about_window',
               preload: {
-                js: './src/about_preload.ts',
+                js: './src/renderer/about/about_preload.ts',
               },
             },
             {
-              html: './src/splash.html',
-              js: './src/splash_renderer.ts',
+              html: './src/renderer/splash/splash.html',
+              js: './src/renderer/splash/splash_renderer.ts',
               name: 'splash_window',
             },
             {
-              html: './src/package_maker.html',
-              js: './src/package_maker_renderer.ts',
+              html: './src/renderer/package_maker/package_maker.html',
+              js: './src/renderer/package_maker/package_maker_renderer.ts',
               name: 'package_maker_window',
               preload: {
-                js: './src/package_maker_preload.ts',
+                js: './src/renderer/package_maker/package_maker_preload.ts',
               },
             },
           ],

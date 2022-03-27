@@ -4,19 +4,19 @@ import path from 'path';
 import Store from 'electron-store';
 const store = new Store();
 import log from 'electron-log';
-import replaceText from '../lib/replaceText';
-import unzip from '../lib/unzip';
-import shortcut from '../lib/shortcut';
-import packageMain from '../package/package';
-import packageUtil from '../package/packageUtil';
-import setting from '../setting/setting';
-import buttonTransition from '../lib/buttonTransition';
-import parseXML from '../lib/parseXML';
-import apmJson from '../lib/apmJson';
-import mod from '../lib/mod';
-import integrity from '../lib/integrity';
-import migration1to2 from '../migration/migration1to2';
-import { convertId } from '../lib/convertId';
+import packageMain from './package';
+import packageUtil from './packageUtil';
+import setting from './setting';
+import replaceText from '../../lib/replaceText';
+import unzip from '../../lib/unzip';
+import shortcut from '../../lib/shortcut';
+import buttonTransition from '../../lib/buttonTransition';
+import parseXML from '../../lib/parseXML';
+import apmJson from '../../lib/apmJson';
+import mod from './lib/mod';
+import integrity from '../../lib/integrity';
+import { convertId } from './lib/convertId';
+import migration1to2 from '../../migration/migration1to2';
 
 // Functions to be exported
 

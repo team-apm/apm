@@ -1,8 +1,8 @@
 import { ipcRenderer } from 'electron';
 import fs from 'fs-extra';
 import path from 'path';
-import parseXML from '../lib/parseXML';
-import apmJson from '../lib/apmJson';
+import parseXML from '../../lib/parseXML';
+import apmJson from '../../lib/apmJson';
 
 /** Installation state of packages */
 const states = {
