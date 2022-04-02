@@ -79,7 +79,7 @@
     "@types/react-dom": "^17.0.14",
     "@types/sortablejs": "^1.10.7",
     "@types/ssri": "^7.1.1",
-    "@types/twemoji": "^12.1.2",
+    "@types/twemoji": "^13.1.2",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
     "@vercel/webpack-asset-relocator-loader": "1.7.0",
