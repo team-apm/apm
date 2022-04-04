@@ -1,6 +1,11 @@
 import fs from 'fs-extra';
 import path from 'path';
-import dotProp from 'dot-prop';
+import {
+  hasProperty,
+  getProperty,
+  setProperty,
+  deleteProperty,
+} from 'dot-prop';
 
 /**
  * Gets the object parsed from `apm.json`.
@@ -41,7 +46,7 @@ function setApmJson(instPath, object) {
  * @returns {boolean} Whether `apm.json` has the property.
  */
 function has(instPath, path) {
-  return dotProp.has(getApmJson(instPath), path);
+  return hasProperty(getApmJson(instPath), path);
 }
 
 /**
@@ -53,7 +58,7 @@ function has(instPath, path) {
  * @returns {any} The property selected by key.
  */
 function get(instPath, path = '', defaultValue) {
-  return dotProp.get(getApmJson(instPath), path, defaultValue);
+  return getProperty(getApmJson(instPath), path, defaultValue);
 }
 
 /**
@@ -64,7 +69,7 @@ function get(instPath, path = '', defaultValue) {
  * @param {any} [value] - A value to set
  */
 function set(instPath, path, value) {
-  const object = dotProp.set(getApmJson(instPath), path, value);
+  const object = setProperty(getApmJson(instPath), path, value);
   setApmJson(instPath, object);
 }
 
@@ -76,7 +81,7 @@ function set(instPath, path, value) {
  */
 function deleteItem(instPath, path) {
   const object = getApmJson(instPath);
-  dotProp.delete(object, path);
+  deleteProperty(object, path);
   setApmJson(instPath, object);
 }
 
