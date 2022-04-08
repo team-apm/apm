@@ -8,8 +8,8 @@ import { XMLBuilder } from 'fast-xml-parser';
 // eslint-disable-next-line import/no-named-as-default
 import Sortable from 'sortablejs';
 import ClipboardJS from 'clipboard';
-import unzip from './lib/unzip';
-import buttonTransition from './lib/buttonTransition';
+import unzip from '../../lib/unzip';
+import buttonTransition from '../../lib/buttonTransition';
 
 log.catchErrors({
   onError: () => {

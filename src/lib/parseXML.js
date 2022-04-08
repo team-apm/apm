@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs-extra';
 import { XMLParser, XMLBuilder, XMLValidator } from 'fast-xml-parser';
-import { getIdDict } from './convertId';
+import { getIdDict } from '../renderer/main/lib/convertId';
 
 const parser = new XMLParser({
   attributeNamePrefix: '$',

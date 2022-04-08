@@ -2,10 +2,10 @@ import { ipcRenderer } from 'electron';
 import Store from 'electron-store';
 const store = new Store();
 import log from 'electron-log';
-import core from './core/core';
-import packageMain from './package/package';
-import setting from './setting/setting';
-import migration1to2 from './migration/migration1to2';
+import core from './core';
+import packageMain from './package';
+import setting from './setting';
+import migration1to2 from '../../migration/migration1to2';
 
 log.catchErrors({
   onError: () => {

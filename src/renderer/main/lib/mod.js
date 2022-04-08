@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
-import setting from '../setting/setting';
-import parseXML from './parseXML';
+import setting from '../setting';
+import parseXML from '../../../lib/parseXML';
 
 /**
  * Download mod.xml.

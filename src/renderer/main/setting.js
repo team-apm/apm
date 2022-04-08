@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import Store from 'electron-store';
 import path from 'path';
 const store = new Store();
-import buttonTransition from '../lib/buttonTransition';
+import buttonTransition from '../../lib/buttonTransition';
 
 /**
  * Initializes settings
