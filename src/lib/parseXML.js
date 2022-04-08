@@ -2,6 +2,30 @@ import path from 'path';
 import fs from 'fs-extra';
 import { XMLParser, XMLBuilder, XMLValidator } from 'fast-xml-parser';
 import { getIdDict } from '../renderer/main/lib/convertId';
+import { compareVersion } from './compareVersion';
+
+// eslint-disable-next-line require-jsdoc
+/**
+ *
+ * @param key
+ * @param value
+ */
+function replacer(key, value) {
+  if (
+    [
+      'archivePath',
+      'isUninstallOnly',
+      'isInstallOnly',
+      'isDirectory',
+      'isObsolete',
+    ].includes(key) &&
+    !value
+  ) {
+    return undefined;
+  }
+
+  return value;
+}
 
 const parser = new XMLParser({
   attributeNamePrefix: '$',
@@ -259,6 +283,44 @@ class CoreList extends Object {
         for (const program of ['aviutl', 'exedit']) {
           this[program] = new CoreInfo(coreInfo.core[0][program][0]);
         }
+
+        try {
+          const v3 = JSON.parse(
+            JSON.stringify(this).replaceAll('isOptional', 'isUninstallOnly')
+          );
+          v3.version = 3;
+          console.log(v3);
+          for (const program of [v3.aviutl, v3.exedit]) {
+            if (program.releases) {
+              program.releases = Object.entries(program.releases).map(
+                ([k, v]) => {
+                  return { ...v, version: k };
+                }
+              );
+              program.releases = program.releases
+                .sort((r1, r2) => compareVersion(r1.version, r2.version))
+                .reverse();
+              for (const release of program.releases) {
+                if (release.integrities) {
+                  release.integrity = { file: release.integrities };
+                  delete release.integrities;
+                  for (const file of release.integrity.file) {
+                    file.hash = file.targetIntegrity;
+                    delete file.targetIntegrity;
+                  }
+                }
+                if (release.archiveIntegrity) {
+                  release.integrity.archive = release.archiveIntegrity;
+                  delete release.archiveIntegrity;
+                }
+              }
+            }
+          }
+
+          console.log('ProgramList', JSON.stringify(v3, replacer));
+        } catch (e) {
+          console.log(e);
+        }
       } else {
         throw new Error('The list is invalid.');
       }
@@ -286,6 +348,51 @@ class PackagesList extends Object {
       if (packagesInfo.packages) {
         for (const packageItem of packagesInfo.packages[0].package) {
           this[packageItem.id[0]] = new PackageInfo(packageItem);
+        }
+
+        try {
+          let v3Packages = JSON.parse(
+            JSON.stringify(Object.values(this)).replaceAll(
+              'isOptional',
+              'isUninstallOnly'
+            )
+          );
+          v3Packages = v3Packages.map((p) => {
+            if (p?.dependencies?.dependency)
+              p.dependencies = p.dependencies.dependency;
+            if (p?.releases)
+              p.releases = Object.entries(p.releases).map(([k, v]) => {
+                return { ...v, version: k };
+              });
+            delete p.type;
+            return p;
+          });
+          v3Packages = v3Packages.map((p) => {
+            if (p.releases) {
+              p.releases = p.releases
+                .sort((r1, r2) => compareVersion(r1.version, r2.version))
+                .reverse();
+              for (const release of p.releases) {
+                if (release.integrities) {
+                  release.integrity = { file: release.integrities };
+                  delete release.integrities;
+                  for (const file of release.integrity.file) {
+                    file.hash = file.targetIntegrity;
+                    delete file.targetIntegrity;
+                  }
+                }
+                if (release.archiveIntegrity) {
+                  release.integrity.archive = release.archiveIntegrity;
+                  delete release.archiveIntegrity;
+                }
+              }
+            }
+            return p;
+          });
+          const newData = { version: 3, packages: v3Packages };
+          console.log('PackagesList', JSON.stringify(newData, replacer));
+        } catch (e) {
+          console.log(e);
         }
       } else {
         throw new Error('The list is invalid.');
