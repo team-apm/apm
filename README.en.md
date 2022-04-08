@@ -53,8 +53,8 @@ After launching the AviUtl Package Manager, please perform the following setting
 ### Other
 
 - If a package cannot be installed using the above method, it can be installed using the traditional method of manually copying the files
-- We have tested the Windows version only; we do not guarantee the operation of the Mac or Linux versions
-  - But if you encounter any problems, please create an Issue and report it to us
+- We have tested the Windows version only; we are not supporting the operation of the Mac or Linux versions
+  - If you encounter any problems, regardless of OS, please create an Issue and report it to us
 - If you have any requests for additions, updates or deletions to the list of plugins and scripts, please contact [apm-data](https://github.com/hal-shu-sato/apm-data/issues)
 
 ## Contribution
