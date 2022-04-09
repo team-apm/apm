@@ -56,6 +56,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     'zoom-factor-select'
   ) as HTMLSelectElement;
   setting.setZoomFactor(zoomFactorSelect);
+
+  const appName = document.getElementsByClassName('app-name');
+  for (let i = 0; i < appName.length; i++) {
+    const element = appName.item(i) as HTMLSpanElement;
+    element.innerText = await ipcRenderer.invoke('get-app-name');
+  }
 });
 
 window.addEventListener('load', () => {
@@ -132,5 +138,31 @@ window.addEventListener('load', () => {
   ) as HTMLInputElement;
   zoomFactorSelect.addEventListener('input', () => {
     setting.changeZoomFactor(zoomFactorSelect.value);
+  });
+
+  // About / Others
+  const openAboutWindonBtn = document.getElementById('open-about-window');
+  openAboutWindonBtn.addEventListener('click', () => {
+    ipcRenderer.invoke('open-about-window');
+  });
+
+  const openGithubIssueBtn = document.getElementById('open-github-issue');
+  openGithubIssueBtn.addEventListener('click', () => {
+    ipcRenderer.invoke('open-github-issue');
+  });
+
+  const openGoogleFormBtn = document.getElementById('open-google-form');
+  openGoogleFormBtn.addEventListener('click', () => {
+    ipcRenderer.invoke('open-google-form');
+  });
+
+  const openPackageMakerBtn = document.getElementById('open-package-maker');
+  openPackageMakerBtn.addEventListener('click', () => {
+    ipcRenderer.invoke('open-package-maker');
+  });
+
+  const exitAppBtn = document.getElementById('quit-app');
+  exitAppBtn.addEventListener('click', () => {
+    ipcRenderer.invoke('app-quit');
   });
 });

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, dialog, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { download } from 'electron-dl';
 import log from 'electron-log';
 import debug from 'electron-debug';
@@ -57,6 +57,10 @@ const icon =
   process.platform === 'linux'
     ? path.join(__dirname, '../icon/apm1024.png')
     : undefined;
+
+ipcMain.handle('get-app-name', () => {
+  return app.name;
+});
 
 ipcMain.handle('get-app-version', () => {
   return app.getVersion();
@@ -192,6 +196,8 @@ function launch() {
     },
   });
 
+  mainWindow.removeMenu();
+
   mainWindow.webContents.on('will-navigate', (event, url) => {
     if (url.match(/^http/)) {
       event.preventDefault();
@@ -209,88 +215,63 @@ function launch() {
     mainWindowState.manage(mainWindow);
   });
 
-  const template = [
-    {
-      label: 'apm',
-      submenu: [
-        {
-          label: `${app.name}について`,
-          click: () => {
-            const aboutPath = ABOUT_WINDOW_WEBPACK_ENTRY;
-            const aboutWindow = new BrowserWindow({
-              width: 480,
-              height: 360,
-              frame: false,
-              resizable: false,
-              modal: true,
-              parent: mainWindow,
-              icon: icon,
-              webPreferences: {
-                preload: ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY,
-              },
-            });
-            aboutWindow.once('close', () => {
-              if (!aboutWindow.isDestroyed()) {
-                aboutWindow.destroy();
-              }
-            });
-            aboutWindow.once('ready-to-show', () => {
-              aboutWindow.show();
-            });
-            aboutWindow.loadURL(aboutPath);
-          },
-        },
-        {
-          label: `インストール用データの作成`,
-          click: () => {
-            const packageMakerPath = PACKAGE_MAKER_WINDOW_WEBPACK_ENTRY;
-            const packageMakerWindow = new BrowserWindow({
-              width: 480,
-              height: 360,
-              modal: true,
-              parent: mainWindow,
-              icon: icon,
-              webPreferences: {
-                preload: PACKAGE_MAKER_WINDOW_PRELOAD_WEBPACK_ENTRY,
-              },
-            });
-            packageMakerWindow.once('close', () => {
-              if (!packageMakerWindow.isDestroyed()) {
-                packageMakerWindow.destroy();
-              }
-            });
-            packageMakerWindow.once('ready-to-show', () => {
-              packageMakerWindow.show();
-            });
-            packageMakerWindow.loadURL(packageMakerPath);
-          },
-        },
-        {
-          label: 'フィードバックを送る（GitHub）（外部ブラウザが開きます）',
-          click: () => {
-            shell.openExternal('https://github.com/hal-shu-sato/apm/issues');
-          },
-        },
-        {
-          label:
-            'フィードバックを送る（Googleフォーム）（外部ブラウザが開きます）',
-          click: () => {
-            shell.openExternal(
-              'https://docs.google.com/forms/d/e/1FAIpQLSf0N-X_u_abi8rrWHVDdiK3YeYuQ7J1f8bQAy6QTD-OR94DWQ/viewform?usp=sf_link'
-            );
-          },
-        },
-        {
-          label: '終了',
-          click: () => {
-            app.quit();
-          },
-        },
-      ],
-    },
-  ];
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
+  ipcMain.handle('open-about-window', () => {
+    const aboutPath = ABOUT_WINDOW_WEBPACK_ENTRY;
+    const aboutWindow = new BrowserWindow({
+      width: 480,
+      height: 360,
+      frame: false,
+      resizable: false,
+      modal: true,
+      parent: mainWindow,
+      icon: icon,
+      webPreferences: {
+        preload: ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      },
+    });
+    aboutWindow.once('close', () => {
+      if (!aboutWindow.isDestroyed()) {
+        aboutWindow.destroy();
+      }
+    });
+    aboutWindow.once('ready-to-show', () => {
+      aboutWindow.show();
+    });
+    aboutWindow.loadURL(aboutPath);
+  });
+
+  ipcMain.handle('open-github-issue', () => {
+    shell.openExternal('https://github.com/hal-shu-sato/apm/issues');
+  });
+
+  ipcMain.handle('open-google-form', () => {
+    shell.openExternal(
+      'https://docs.google.com/forms/d/e/1FAIpQLSf0N-X_u_abi8rrWHVDdiK3YeYuQ7J1f8bQAy6QTD-OR94DWQ/viewform?usp=sf_link'
+    );
+  });
+
+  ipcMain.handle('open-package-maker', () => {
+    const packageMakerPath = PACKAGE_MAKER_WINDOW_WEBPACK_ENTRY;
+    const packageMakerWindow = new BrowserWindow({
+      width: 480,
+      height: 360,
+      modal: true,
+      parent: mainWindow,
+      icon: icon,
+      webPreferences: {
+        preload: PACKAGE_MAKER_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      },
+    });
+    packageMakerWindow.once('close', () => {
+      if (!packageMakerWindow.isDestroyed()) {
+        packageMakerWindow.destroy();
+      }
+    });
+    packageMakerWindow.once('ready-to-show', () => {
+      packageMakerWindow.show();
+    });
+    packageMakerWindow.loadURL(packageMakerPath);
+  });
 
   ipcMain.handle('migration1to2-confirm-dialog', async () => {
     return (

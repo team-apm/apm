@@ -12,7 +12,7 @@
 		<meta name="color-scheme" content="light dark" />
 	</head>
 
-	<body>
+	<body class="pt-1">
 		<nav>
 			<div class="nav nav-tabs" id="nav-tab" role="tablist">
 				<button
@@ -50,6 +50,18 @@
 					aria-selected="false"
 				>
 					Settings
+				</button>
+				<button
+					class="nav-link"
+					id="others-tab"
+					data-bs-toggle="tab"
+					data-bs-target="#others"
+					type="button"
+					role="tab"
+					aria-controls="others"
+					aria-selected="false"
+				>
+					About / Others
 				</button>
 			</div>
 		</nav>
@@ -587,6 +599,86 @@
 											</tr>
 										</tbody>
 									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section
+				class="tab-pane fade"
+				id="others"
+				role="tabpanel"
+				aria-labelledby="others"
+			>
+				<div class="container-lg py-2">
+					<div class="row my-2">
+						<div class="card">
+							<div class="card-body">
+								<h3 class="card-title">
+									<span class="app-name"></span>について / その他
+								</h3>
+								<div class="row mb-3">
+									<div class="col">
+										<button
+											type="button"
+											class="btn btn-outline-primary w-100"
+											id="open-about-window"
+										>
+											<span class="app-name"></span>について見る
+										</button>
+									</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-sm-6">
+										<button
+											type="button"
+											class="btn btn-outline-primary w-100"
+											id="open-github-issue"
+										>
+											フィードバックを送る<span class="d-inline-block"
+												>（GitHub）</span
+											><span class="d-inline-block"
+												>（外部ブラウザが開きます）</span
+											>
+										</button>
+									</div>
+									<div class="col-sm-6">
+										<button
+											type="button"
+											class="btn btn-outline-primary w-100"
+											id="open-google-form"
+										>
+											フィードバックを送る<span class="d-inline-block"
+												>（Googleフォーム）</span
+											><span class="d-inline-block"
+												>（外部ブラウザが開きます）</span
+											>
+										</button>
+									</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col">
+										<button
+											type="button"
+											class="btn btn-outline-primary w-100"
+											id="open-package-maker"
+										>
+											インストールデータの作成
+										</button>
+									</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col">
+										<button
+											type="button"
+											class="btn btn-outline-primary w-100"
+											id="quit-app"
+										>
+											終了
+										</button>
+									</div>
 								</div>
 							</div>
 						</div>
