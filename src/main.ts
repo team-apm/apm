@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, Menu, dialog, ipcMain, shell } from 'electron';
 import { download } from 'electron-dl';
 import log from 'electron-log';
 import debug from 'electron-debug';
@@ -196,7 +196,7 @@ function launch() {
     },
   });
 
-  mainWindow.removeMenu();
+  Menu.setApplicationMenu(null);
 
   mainWindow.webContents.on('will-navigate', (event, url) => {
     if (url.match(/^http/)) {
