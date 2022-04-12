@@ -84,8 +84,10 @@ import updateElectronApp from 'update-electron-app';
 
 /**
  * Checks whether a newer version is available.
+ *
+ * @param {boolean} [silent] - Whether the dialog is not shown if apm is up to date.
  */
-function checkUpdate() {
+function checkUpdate(silent = true) {
   const server = 'https://update.electronjs.org';
 
   const pkg = fs.readJsonSync(path.join(app.getAppPath(), 'package.json'));
@@ -103,8 +105,17 @@ function checkUpdate() {
     app.whenReady().then(() => {
       const request = net.request(feed);
       request.on('response', (response) => {
+        const icon = path.join(__dirname, '../icon/apm1024.png');
         if (response.statusCode === 204) {
           log.debug('It is up to date.');
+          if (!silent) {
+            dialog.showMessageBox({
+              title: '更新確認完了',
+              message: 'apmは最新のバージョンです。',
+              type: 'info',
+              icon: icon,
+            });
+          }
         } else {
           let body = '';
           response.on('data', (chunk) => {
@@ -125,7 +136,7 @@ function checkUpdate() {
                 buttons: ['開く', 'キャンセル'],
                 cancelId: 1,
                 type: 'info',
-                icon: path.join(__dirname, '../icon/apm1024.png'),
+                icon: icon,
               });
               if (res === 0) {
                 const releasePage = `https://github.com/${repo}/releases/latest`;
@@ -175,6 +186,10 @@ ipcMain.handle('app-quit', () => {
 
 ipcMain.handle('is-exe-version', () => {
   return isExeVersion();
+});
+
+ipcMain.handle('check-update', () => {
+  checkUpdate(false);
 });
 
 ipcMain.handle('open-path', (event, relativePath) => {

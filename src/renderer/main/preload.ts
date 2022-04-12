@@ -154,6 +154,11 @@ window.addEventListener('load', () => {
     setting.changeZoomFactor(zoomFactorSelect.value);
   });
 
+  const checkApmUpdateBtn = document.getElementById('check-apm-update');
+  checkApmUpdateBtn.addEventListener('click', () => {
+    ipcRenderer.invoke('check-update');
+  });
+
   const autoUpdateRadios = document.getElementsByName('auto-update');
   autoUpdateRadios.forEach((element: HTMLInputElement) => {
     element.addEventListener('change', () => {
