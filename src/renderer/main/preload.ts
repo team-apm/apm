@@ -57,6 +57,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   ) as HTMLSelectElement;
   setting.setZoomFactor(zoomFactorSelect);
 
+  const doAutoUpdate = store.get('autoUpdate');
+  const autoUpdateRadios = document.getElementsByName('auto-update');
+  autoUpdateRadios.forEach((element: HTMLInputElement) => {
+    if (element.value === doAutoUpdate) {
+      element.checked = true;
+    }
+  });
+
   const appName = document.getElementsByClassName('app-name');
   for (let i = 0; i < appName.length; i++) {
     const element = appName.item(i) as HTMLSpanElement;
@@ -138,6 +146,13 @@ window.addEventListener('load', () => {
   ) as HTMLInputElement;
   zoomFactorSelect.addEventListener('input', () => {
     setting.changeZoomFactor(zoomFactorSelect.value);
+  });
+
+  const autoUpdateRadios = document.getElementsByName('auto-update');
+  autoUpdateRadios.forEach((element: HTMLInputElement) => {
+    element.addEventListener('change', () => {
+      store.set('autoUpdate', element.value);
+    });
   });
 
   // About / Others
