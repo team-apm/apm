@@ -64,6 +64,12 @@ window.addEventListener('DOMContentLoaded', async () => {
       element.checked = true;
     }
   });
+  if (!(await ipcRenderer.invoke('is-exe-version'))) {
+    const e = document.getElementById(
+      'auto-update-download'
+    ) as HTMLInputElement;
+    e.disabled = true;
+  }
 
   const appName = document.getElementsByClassName('app-name');
   for (let i = 0; i < appName.length; i++) {

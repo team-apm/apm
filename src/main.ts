@@ -57,16 +57,25 @@ import Store from 'electron-store';
 Store.initRenderer();
 const store = new Store();
 
-if (!store.has('autoUpdate')) {
-  let doAutoUpdate = 'notify';
+/**
+ * Checks whether it is the installed version of apm.
+ *
+ * @returns {boolean} Whether it is the installed version of apm.
+ */
+function isExeVersion() {
   if (process.platform === 'win32') {
     const appDataPath = app.getPath('appData');
     const apmPath = app.getPath('exe');
-    if (
-      apmPath.includes(path.dirname(appDataPath)) // Verify that it is the installed version of apm
-    ) {
-      doAutoUpdate = 'download';
-    }
+    return apmPath.includes(path.dirname(appDataPath)); // Verify that it is the installed version of apm
+  } else {
+    return false;
+  }
+}
+
+if (!store.has('autoUpdate')) {
+  let doAutoUpdate = 'notify';
+  if (isExeVersion()) {
+    doAutoUpdate = 'download';
   }
   store.set('autoUpdate', doAutoUpdate);
 }
@@ -162,6 +171,10 @@ ipcMain.handle('app-get-path', (event, name) => {
 
 ipcMain.handle('app-quit', () => {
   app.quit();
+});
+
+ipcMain.handle('is-exe-version', () => {
+  return isExeVersion();
 });
 
 ipcMain.handle('open-path', (event, relativePath) => {
