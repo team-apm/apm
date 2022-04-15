@@ -60,15 +60,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   const doAutoUpdate = store.get('autoUpdate');
   const autoUpdateRadios = document.getElementsByName('auto-update');
   autoUpdateRadios.forEach((element: HTMLInputElement) => {
-    if (element.value === doAutoUpdate) {
-      element.checked = true;
-    }
+    if (element instanceof HTMLInputElement)
+      if (element.value === doAutoUpdate) {
+        element.checked = true;
+      }
   });
   if (!(await ipcRenderer.invoke('is-exe-version'))) {
     const e = document.getElementById(
       'auto-update-download'
     ) as HTMLInputElement;
-    e.disabled = true;
+    if (e instanceof HTMLInputElement) e.disabled = true;
   }
 
   const appName = document.getElementsByClassName('app-name');
