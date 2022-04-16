@@ -8,7 +8,7 @@
   "parserOptions": {
     "ecmaVersion": 2020
   },
-  "plugins": ["jsdoc"],
+  "plugins": ["jsdoc", "import"],
   "extends": [
     "eslint:recommended",
     "google",
@@ -25,5 +25,12 @@
     "prefer-arrow-callback": "error",
     "valid-jsdoc": "off",
     "@typescript-eslint/no-var-requires": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "project": "node_modules"
+      }
+    }
   }
 }
