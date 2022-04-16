@@ -152,8 +152,8 @@ function checkUpdate(silent = true) {
   }
 }
 
-const doAutoUpdate = store.get('autoUpdate') as string;
-if (!isDevEnv) {
+const doAutoUpdate = store.get('autoUpdate');
+if (!isDevEnv && typeof doAutoUpdate === 'string') {
   if (doAutoUpdate === 'download') {
     updateElectronApp();
   } else if (doAutoUpdate === 'notify') {

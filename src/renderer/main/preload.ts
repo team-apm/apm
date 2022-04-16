@@ -66,9 +66,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
   });
   if (!(await ipcRenderer.invoke('is-exe-version'))) {
-    const e = document.getElementById(
-      'auto-update-download'
-    ) as HTMLInputElement;
+    const e = document.getElementById('auto-update-download');
     if (e instanceof HTMLInputElement) e.disabled = true;
   }
 
