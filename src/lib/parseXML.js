@@ -387,6 +387,12 @@ class PackagesList extends Object {
                 }
               }
             }
+            p.downloadURLs = [p.downloadURL];
+            delete p.downloadURL;
+            if (p.downloadMirrorURL) {
+              p.downloadURLs.push(p.downloadMirrorURL);
+              delete p.downloadMirrorURL;
+            }
             return p;
           });
           const newData = { version: 3, packages: v3Packages };
