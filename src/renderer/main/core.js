@@ -11,12 +11,14 @@ import replaceText from '../../lib/replaceText';
 import unzip from '../../lib/unzip';
 import shortcut from '../../lib/shortcut';
 import buttonTransition from '../../lib/buttonTransition';
-import parseXML from '../../lib/parseXML';
+import parseJson from '../../lib/parseJson';
 import apmJson from '../../lib/apmJson';
 import mod from './lib/mod';
 import integrity from '../../lib/integrity';
 import { convertId } from './lib/convertId';
 import migration1to2 from '../../migration/migration1to2';
+/** @typedef {import("apm-data").Core} Core */
+/** @typedef {import("apm-data").Program} Program */
 
 // Functions to be exported
 
@@ -45,8 +47,10 @@ async function displayInstalledVersion(instPath) {
     for (const program of ['aviutl', 'exedit']) {
       let filesCount = 0;
       let existCount = 0;
-      for (const file of coreInfo[program].files) {
-        if (!file.isOptional) {
+      /** @type {Program} */
+      const progInfo = coreInfo[program];
+      for (const file of progInfo.files) {
+        if (!file.isUninstallOnly) {
           filesCount++;
           if (fs.existsSync(path.join(instPath, file.filename))) {
             existCount++;
@@ -56,11 +60,9 @@ async function displayInstalledVersion(instPath) {
 
       // Set the version of the manually installed program
       if (!apmJson.has(instPath, 'core.' + program)) {
-        for (const [version, release] of Object.entries(
-          coreInfo[program].releases
-        )) {
-          if (await integrity.checkIntegrity(instPath, release.integrities))
-            apmJson.setCore(instPath, program, version);
+        for (const release of progInfo.releases) {
+          if (await integrity.checkIntegrity(instPath, release.integrity.file))
+            apmJson.setCore(instPath, program, release.version);
         }
       }
 
@@ -122,22 +124,24 @@ async function displayInstalledVersion(instPath) {
 /**
  * Returns an object parsed from core.xml.
  *
- * @returns {Promise<object>} - An object parsed from core.xml.
+ * @returns {Promise<Core>} - An object parsed from core.xml.
  */
 async function getCoreInfo() {
   const coreFile = await ipcRenderer.invoke(
     'exists-temp-file',
-    'core/core.xml'
+    'core/core.json'
   );
   if (coreFile.exists) {
     try {
-      return parseXML.getCore(coreFile.path);
+      return await parseJson.getCore(
+        coreFile.path.replace('v2', 'v3').replace('xml', 'json')
+      ); // temporary implementation
     } catch (e) {
       log.error(e);
       return null;
     }
   } else {
-    return false;
+    return null;
   }
 }
 
@@ -161,28 +165,39 @@ async function setCoreVersions(instPath) {
   const coreInfo = await getCoreInfo();
   if (coreInfo) {
     for (const program of ['aviutl', 'exedit']) {
+      /** @type {Program} */
       const progInfo = coreInfo[program];
       replaceText(`${program}-latest-version`, progInfo.latestVersion);
 
-      for (const version of Object.keys(progInfo.releases)) {
+      for (const release of progInfo.releases) {
         const li = document.createElement('li');
         const anchor = document.createElement('a');
         anchor.classList.add('dropdown-item');
         anchor.href = '#';
         anchor.innerText =
-          version +
-          (version.includes('rc') ? '（テスト版）' : '') +
-          (version === progInfo.latestVersion ? '（最新版）' : '');
+          release.version +
+          (release.version.includes('rc') ? '（テスト版）' : '') +
+          (release.version === progInfo.latestVersion ? '（最新版）' : '');
         li.appendChild(anchor);
 
         if (program === 'aviutl') {
           anchor.addEventListener('click', async () => {
-            await installProgram(installAviutlBtn, program, version, instPath);
+            await installProgram(
+              installAviutlBtn,
+              program,
+              release.version,
+              instPath
+            );
           });
           aviutlVersionSelect.appendChild(li);
         } else if (program === 'exedit') {
           anchor.addEventListener('click', async () => {
-            await installProgram(installExeditBtn, program, version, instPath);
+            await installProgram(
+              installExeditBtn,
+              program,
+              release.version,
+              instPath
+            );
           });
           exeditVersionSelect.appendChild(li);
         }
@@ -207,7 +222,7 @@ async function checkLatestVersion(instPath) {
   try {
     await ipcRenderer.invoke(
       'download',
-      setting.getCoreDataUrl(),
+      setting.getCoreDataUrl().replace('v2', 'v3').replace('xml', 'json'), // temporary implementation
       false,
       'core'
     );
@@ -342,11 +357,14 @@ async function installProgram(btn, program, version, instPath) {
   const coreInfo = await getCoreInfo();
 
   if (coreInfo) {
-    const url = coreInfo[program].releases[version].url;
+    /** @type {Program} */
+    const progInfo = coreInfo[program];
+    const url = progInfo.releases.find((r) => r.version === version).url;
     let archivePath = await ipcRenderer.invoke('download', url, true, 'core');
 
-    const integrityForArchive =
-      coreInfo[program].releases[version]?.archiveIntegrity;
+    const integrityForArchive = progInfo.releases.find(
+      (r) => r.version === version
+    ).integrity.archive;
 
     if (integrityForArchive) {
       for (;;) {
@@ -394,8 +412,8 @@ async function installProgram(btn, program, version, instPath) {
 
       let filesCount = 0;
       let existCount = 0;
-      for (const file of coreInfo[program].files) {
-        if (!file.isOptional) {
+      for (const file of progInfo.files) {
+        if (!file.isUninstallOnly) {
           filesCount++;
           if (fs.existsSync(path.join(instPath, file.filename))) {
             existCount++;
@@ -460,6 +478,7 @@ async function batchInstall(instPath) {
   try {
     const coreInfo = await getCoreInfo();
     for (const program of ['aviutl', 'exedit']) {
+      /** @type {Program} */
       const progInfo = coreInfo[program];
       await installProgram(null, program, progInfo.latestVersion, instPath);
     }
