@@ -57,6 +57,19 @@ window.addEventListener('DOMContentLoaded', async () => {
   ) as HTMLSelectElement;
   setting.setZoomFactor(zoomFactorSelect);
 
+  const doAutoUpdate = store.get('autoUpdate');
+  const autoUpdateRadios = document.getElementsByName('auto-update');
+  autoUpdateRadios.forEach((element: HTMLInputElement) => {
+    if (element instanceof HTMLInputElement)
+      if (element.value === doAutoUpdate) {
+        element.checked = true;
+      }
+  });
+  if (!(await ipcRenderer.invoke('is-exe-version'))) {
+    const e = document.getElementById('auto-update-download');
+    if (e instanceof HTMLInputElement) e.disabled = true;
+  }
+
   const appName = document.getElementsByClassName('app-name');
   for (let i = 0; i < appName.length; i++) {
     const element = appName.item(i) as HTMLSpanElement;
@@ -138,6 +151,18 @@ window.addEventListener('load', () => {
   ) as HTMLInputElement;
   zoomFactorSelect.addEventListener('input', () => {
     setting.changeZoomFactor(zoomFactorSelect.value);
+  });
+
+  const checkApmUpdateBtn = document.getElementById('check-apm-update');
+  checkApmUpdateBtn.addEventListener('click', () => {
+    ipcRenderer.invoke('check-update');
+  });
+
+  const autoUpdateRadios = document.getElementsByName('auto-update');
+  autoUpdateRadios.forEach((element: HTMLInputElement) => {
+    element.addEventListener('change', () => {
+      store.set('autoUpdate', element.value);
+    });
   });
 
   // About / Others
