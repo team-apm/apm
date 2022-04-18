@@ -108,41 +108,60 @@ function checkUpdate(silent = true) {
         const icon = path.join(__dirname, '../icon/apm1024.png');
         if (response.statusCode === 204) {
           log.debug('It is up to date.');
-          if (!silent) {
+          if (!silent)
             dialog.showMessageBox({
               title: '更新確認完了',
               message: 'apmは最新のバージョンです。',
               type: 'info',
               icon: icon,
             });
-          }
+        } else if (response.statusCode === 404) {
+          log.debug('No updates are found');
+          if (!silent)
+            dialog.showMessageBox({
+              title: '更新確認失敗',
+              message: 'apmの更新が見つかりませんでした。',
+              type: 'warning',
+              icon: icon,
+            });
         } else {
           let body = '';
           response.on('data', (chunk) => {
             body += chunk;
           });
           response.on('end', async () => {
-            const data = JSON.parse(body);
-            if ('name' in data) {
-              const res = dialog.showMessageBoxSync({
-                title: 'アップデート',
-                message:
-                  `${data.name}が公開されています。\n` +
-                  `現在のバージョン: v${app.getVersion()}\n` +
-                  'apmを終了して、ダウンロードページを開きますか？',
-                detail: data?.notes
-                  ? 'リリースノート:\n' + data?.notes
-                  : undefined,
-                buttons: ['開く', 'キャンセル'],
-                cancelId: 1,
-                type: 'info',
-                icon: icon,
-              });
-              if (res === 0) {
-                const releasePage = `https://github.com/${repo}/releases/latest`;
-                shell.openExternal(releasePage);
-                app.quit();
+            try {
+              const data = JSON.parse(body);
+              if ('name' in data) {
+                const res = dialog.showMessageBoxSync({
+                  title: 'アップデート',
+                  message:
+                    `${data.name}が公開されています。\n` +
+                    `現在のバージョン: v${app.getVersion()}\n` +
+                    'apmを終了して、ダウンロードページを開きますか？',
+                  detail: data?.notes
+                    ? 'リリースノート:\n' + data?.notes
+                    : undefined,
+                  buttons: ['開く', 'キャンセル'],
+                  cancelId: 1,
+                  type: 'info',
+                  icon: icon,
+                });
+                if (res === 0) {
+                  const releasePage = `https://github.com/${repo}/releases/latest`;
+                  shell.openExternal(releasePage);
+                  app.quit();
+                }
               }
+            } catch (e) {
+              log.error(e);
+              if (!silent)
+                dialog.showMessageBox({
+                  title: '更新確認失敗',
+                  message: 'apmの更新を解析できませんでした。',
+                  type: 'error',
+                  icon: icon,
+                });
             }
           });
         }

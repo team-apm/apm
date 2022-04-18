@@ -48,7 +48,7 @@ module.exports = {
       name: '@electron-forge/publisher-github',
       config: {
         repository: {
-          owner: 'hal-shu-sato',
+          owner: 'team-apm',
           name: 'apm',
         },
         draft: true,
