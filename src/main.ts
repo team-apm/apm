@@ -95,7 +95,8 @@ function checkUpdate(silent = true) {
   const repoURL = new URL(repoString);
   const dirs = repoURL.pathname.split('/');
   dirs.shift();
-  const repo = `${dirs[0]}/${dirs[1].split('.')[0]}`;
+  // const repo = `${dirs[0]}/${dirs[1].split('.')[0]}`;
+  const repo = 'team-apm/apm';
 
   const feed = `${server}/${repo}/${process.platform}-${
     process.arch
@@ -174,7 +175,7 @@ function checkUpdate(silent = true) {
 const doAutoUpdate = store.get('autoUpdate');
 if (!isDevEnv && typeof doAutoUpdate === 'string') {
   if (doAutoUpdate === 'download') {
-    updateElectronApp();
+    updateElectronApp({ repo: 'team-apm/apm' });
   } else if (doAutoUpdate === 'notify') {
     checkUpdate();
   }
