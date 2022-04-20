@@ -6,18 +6,10 @@ const isDevEnv = process.env.NODE_ENV === 'development';
 
 // https://github.com/puppeteer/puppeteer/issues/2134#issuecomment-408221446
 const pathTo7zipCross = isDevEnv
-  ? path.join(
-      path.dirname(__filename),
-      'native_modules',
-      sevenBin.path7za.replace('undefined', '')
-    )
+  ? sevenBin.path7za
   : sevenBin.path7za.replace('app.asar', 'app.asar.unpacked');
 const pathTo7zipWin = isDevEnv
-  ? path.join(
-      path.dirname(__filename),
-      'native_modules',
-      win7zip['7z'].replace('undefined', '')
-    )
+  ? win7zip['7z']
   : win7zip['7z'].replace('app.asar', 'app.asar.unpacked');
 
 /**

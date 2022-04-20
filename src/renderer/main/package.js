@@ -6,7 +6,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { execSync } from 'child_process';
 import twemoji from 'twemoji';
-import matcher from 'matcher';
+import * as matcher from 'matcher';
 import setting from './setting';
 import createList from '../../lib/updatableList';
 import replaceText from '../../lib/replaceText';
