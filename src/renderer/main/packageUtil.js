@@ -1,8 +1,22 @@
 import { ipcRenderer } from 'electron';
 import fs from 'fs-extra';
 import path from 'path';
-import parseXML from '../../lib/parseXML';
+import parseJson from '../../lib/parseJson';
 import apmJson from '../../lib/apmJson';
+/** @typedef {import("apm-data").Packages} Packages */
+
+const typeForExtention = {
+  '.auf': 'filter',
+  '.aui': 'input',
+  '.auo': 'output',
+  '.auc': 'color',
+  '.aul': 'language',
+  '.anm': 'animation',
+  '.obj': 'object',
+  '.cam': 'camera',
+  '.tra': 'track',
+  '.scn': 'scene',
+};
 
 /** Installation state of packages */
 const states = {
@@ -81,7 +95,7 @@ async function getPackages(packageDataUrls) {
     );
     if (packagesListFile.exists) {
       try {
-        xmlList[packageRepository] = await parseXML.getPackages(
+        xmlList[packageRepository] = await parseJson.getPackages(
           packagesListFile.path
         );
       } catch {
@@ -99,11 +113,22 @@ async function getPackages(packageDataUrls) {
 
   const packages = [];
   for (const [packagesRepository, packagesInfo] of Object.entries(xmlList)) {
-    for (const [id, packageInfo] of Object.entries(packagesInfo)) {
+    for (const packageInfo of packagesInfo) {
+      // Detect package type
+      const types = packageInfo.files.flatMap((f) => {
+        const extention = path.extname(f.filename);
+        if (extention in typeForExtention) {
+          return [typeForExtention[extention]];
+        } else {
+          return [];
+        }
+      });
+
       packages.push({
         repository: packagesRepository,
-        id: id,
+        id: packageInfo.id,
         info: packageInfo,
+        type: Array.from(new Set(types)),
       });
     }
   }
@@ -234,7 +259,7 @@ function getInstalledVersionOfPackage(
         let filesCount = 0;
         let existCount = 0;
         for (const file of packageItem.info.files) {
-          if (!file.isOptional) {
+          if (!file.isUninstallOnly) {
             filesCount++;
             if (fs.existsSync(path.join(instPath, file.filename))) {
               existCount++;
@@ -315,7 +340,7 @@ function getPackagesStatus(instPath, _packages) {
       }
       if (p.info.dependencies) {
         // Whether there is at least one package that is not installable
-        return p.info.dependencies.dependency
+        return p.info.dependencies
           .map((ids) => {
             // Whether all ids are not installable
             return ids
@@ -351,7 +376,7 @@ function getPackagesStatus(instPath, _packages) {
       if (!isInstalled(p)) lists.push(p);
       if (p.info.dependencies) {
         lists.push(
-          ...p.info.dependencies.dependency.flatMap((ids) => {
+          ...p.info.dependencies.flatMap((ids) => {
             // Whether all ids are detached or not
             const isDetached = ids
               .split('|')

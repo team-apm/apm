@@ -141,7 +141,7 @@ function getPackagesDataUrl(instPath) {
  * @returns {string} - Package data files URL.
  */
 function getLocalPackagesDataUrl(instPath) {
-  return path.join(instPath, 'packages.xml');
+  return path.join(instPath, 'packages.json');
 }
 
 /**
