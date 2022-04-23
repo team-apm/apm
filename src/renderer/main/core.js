@@ -273,7 +273,7 @@ async function changeInstallationPath(instPath) {
     // migration
     await migration1to2.byFolder(instPath);
 
-    if (currentMod.convert) {
+    if (fs.existsSync(apmJson.getPath(instPath)) && currentMod.convert) {
       const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
       if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
         await convertId(instPath, currentMod.convert.getTime());
