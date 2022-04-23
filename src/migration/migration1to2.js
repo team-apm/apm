@@ -120,7 +120,7 @@ async function global() {
  */
 async function byFolder(instPath) {
   // Guard condition
-  const jsonPath = path.join(instPath, 'apm.json');
+  const jsonPath = apmJson.getPath(instPath);
   const jsonExists = fs.existsSync(jsonPath);
   if (!jsonExists) return;
 
