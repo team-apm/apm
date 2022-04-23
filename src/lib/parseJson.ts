@@ -73,7 +73,7 @@ async function addPackage(
     );
   }
   packages.push(packageItem);
-  setPackages(packagesListPath, packages);
+  await setPackages(packagesListPath, packages);
 }
 
 /**
@@ -90,7 +90,7 @@ async function removePackage(
     (p) => p.id !== packageItem.id
   );
   if (packages.length > 0) {
-    setPackages(packagesListPath, packages);
+    await setPackages(packagesListPath, packages);
   } else {
     fs.unlinkSync(packagesListPath);
   }

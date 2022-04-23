@@ -18,7 +18,7 @@ async function getInfo() {
   const modFile = await ipcRenderer.invoke('exists-temp-file', 'list.json');
   if (modFile.exists) {
     try {
-      return parseJson.getMod(modFile.path);
+      return await parseJson.getMod(modFile.path);
     } catch {
       return null;
     }
