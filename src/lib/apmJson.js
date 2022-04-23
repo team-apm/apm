@@ -8,6 +8,16 @@ import {
 } from 'dot-prop';
 
 /**
+ * Returns the path of `apm.json`.
+ *
+ * @param {string} instPath - An installation path
+ * @returns {string} The path of `apm.json`
+ */
+function getPath(instPath) {
+  return path.join(instPath, 'apm.json');
+}
+
+/**
  * Gets the object parsed from `apm.json`.
  *
  * @param {string} instPath - An installation path
@@ -15,7 +25,7 @@ import {
  */
 function getApmJson(instPath) {
   try {
-    const value = fs.readJsonSync(path.join(instPath, 'apm.json'));
+    const value = fs.readJsonSync(getPath(instPath));
     if (typeof value === 'object') {
       return value;
     } else {
@@ -33,7 +43,7 @@ function getApmJson(instPath) {
  * @param {object} object - An object to write
  */
 function setApmJson(instPath, object) {
-  fs.writeJsonSync(path.join(instPath, 'apm.json'), object, { spaces: 2 });
+  fs.writeJsonSync(getPath(instPath), object, { spaces: 2 });
 }
 
 // Functions to be exported
@@ -121,6 +131,7 @@ function removePackage(instPath, packageItem) {
 }
 
 const apmJson = {
+  getPath,
   has,
   get,
   set,
