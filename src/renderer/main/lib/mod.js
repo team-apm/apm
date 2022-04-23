@@ -3,16 +3,16 @@ import setting from '../setting';
 import parseJson from '../../../lib/parseJson';
 
 /**
- * Download mod.xml.
+ * Download mod.json.
  */
 async function downloadData() {
   await ipcRenderer.invoke('download', setting.getModDataUrl(), false, '');
 }
 
 /**
- * Returns an object parsed from mod.xml.
+ * Returns an object parsed from mod.json.
  *
- * @returns {Promise<object>} - An object parsed from core.xml.
+ * @returns {Promise<object>} - An object parsed from core.json.
  */
 async function getInfo() {
   const modFile = await ipcRenderer.invoke('exists-temp-file', 'list.json');

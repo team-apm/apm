@@ -79,13 +79,13 @@ function parsePackageType(packageType) {
 }
 
 /**
- * Returns an object parsed from packages.xml
+ * Returns an object parsed from packages.json
  *
  * @param {string[]} packageDataUrls - URLs of the repository
- * @returns {Promise<object[]>} - A list of object parsed from packages.xml
+ * @returns {Promise<object[]>} - A list of object parsed from packages.json
  */
 async function getPackages(packageDataUrls) {
-  const xmlList = {};
+  const jsonList = {};
 
   for (const packageRepository of packageDataUrls) {
     const packagesListFile = await ipcRenderer.invoke(
@@ -95,7 +95,7 @@ async function getPackages(packageDataUrls) {
     );
     if (packagesListFile.exists) {
       try {
-        xmlList[packageRepository] = await parseJson.getPackages(
+        jsonList[packageRepository] = await parseJson.getPackages(
           packagesListFile.path
         );
       } catch {
@@ -112,7 +112,7 @@ async function getPackages(packageDataUrls) {
   }
 
   const packages = [];
-  for (const [packagesRepository, packagesInfo] of Object.entries(xmlList)) {
+  for (const [packagesRepository, packagesInfo] of Object.entries(jsonList)) {
     for (const packageInfo of packagesInfo) {
       // Detect package type
       const types = packageInfo.files.flatMap((f) => {
@@ -185,7 +185,7 @@ function getInstalledFiles(instPath) {
  *
  * @param {string[]} files - List of installed files
  * @param {object[]} installedPackages - A list of object from apmJson
- * @param {object[]} packages - A list of object parsed from packages.xml
+ * @param {object[]} packages - A list of object parsed from packages.json
  * @returns {string[]} List of manually installed files
  */
 function getManuallyInstalledFiles(files, installedPackages, packages) {
@@ -283,7 +283,7 @@ function getInstalledVersionOfPackage(
 /**
  * Updates the installedVersion of the packages given as argument and returns a list of manually installed files
  *
- * @param {object[]} _packages - A list of object parsed from packages.xml
+ * @param {object[]} _packages - A list of object parsed from packages.json
  * @param {string} instPath - An installation path
  * @returns {object} List of manually installed files
  */
@@ -317,7 +317,7 @@ function getPackagesExtra(_packages, instPath) {
  * Updates the installedVersion of the packages given as argument and returns a list of manually installed files
  *
  * @param {string} instPath - An installation path
- * @param {object[]} _packages - A list of object parsed from packages.xml and getPackagesExtra()
+ * @param {object[]} _packages - A list of object parsed from packages.json and getPackagesExtra()
  * @returns {object[]} - packages
  */
 function getPackagesStatus(instPath, _packages) {

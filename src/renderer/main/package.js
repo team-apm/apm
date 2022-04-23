@@ -52,11 +52,7 @@ function getDate() {
  * @returns {Promise.<object[]>} An object of packages
  */
 async function getPackages(instPath) {
-  return await packageUtil.getPackages(
-    setting
-      .getPackagesDataUrl(instPath)
-      .map((s) => s.replace('v2', 'v3').replace('xml', 'json'))
-  );
+  return await packageUtil.getPackages(setting.getPackagesDataUrl(instPath));
 }
 
 /**
@@ -345,11 +341,7 @@ async function checkPackagesList(instPath) {
   }
 
   try {
-    await packageUtil.downloadRepository(
-      setting
-        .getPackagesDataUrl(instPath)
-        .map((s) => s.replace('v2', 'v3').replace('xml', 'json'))
-    );
+    await packageUtil.downloadRepository(setting.getPackagesDataUrl(instPath));
     await mod.downloadData();
     store.set('checkDate.packages', Date.now());
     const modInfo = await mod.getInfo();

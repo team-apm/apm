@@ -59,15 +59,11 @@ async function setDataUrl(dataUrl, extraDataUrls) {
         );
         break;
       }
-      if (
-        !['packages.json', 'packages_list.json'].includes(
-          path.basename(extraDataUrl)
-        )
-      ) {
+      if (!['packages.json'].includes(path.basename(extraDataUrl))) {
         await ipcRenderer.invoke(
           'open-err-dialog',
           'エラー',
-          `有効なxmlファイルのURLまたは場所を入力してください。(${extraDataUrl})`
+          `有効なJsonファイルのURLまたは場所を入力してください。(${extraDataUrl})`
         );
         break;
       }

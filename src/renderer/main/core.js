@@ -122,9 +122,9 @@ async function displayInstalledVersion(instPath) {
 }
 
 /**
- * Returns an object parsed from core.xml.
+ * Returns an object parsed from core.json.
  *
- * @returns {Promise<Core>} - An object parsed from core.xml.
+ * @returns {Promise<Core>} - An object parsed from core.json.
  */
 async function getCoreInfo() {
   const coreFile = await ipcRenderer.invoke(
@@ -133,9 +133,7 @@ async function getCoreInfo() {
   );
   if (coreFile.exists) {
     try {
-      return await parseJson.getCore(
-        coreFile.path.replace('v2', 'v3').replace('xml', 'json')
-      ); // temporary implementation
+      return await parseJson.getCore(coreFile.path);
     } catch (e) {
       log.error(e);
       return null;
@@ -222,7 +220,7 @@ async function checkLatestVersion(instPath) {
   try {
     await ipcRenderer.invoke(
       'download',
-      setting.getCoreDataUrl().replace('v2', 'v3').replace('xml', 'json'), // temporary implementation
+      setting.getCoreDataUrl(),
       false,
       'core'
     );
