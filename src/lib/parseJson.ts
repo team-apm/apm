@@ -1,7 +1,6 @@
 // import path from 'path';
 import fs, { readJSON, writeJson } from 'fs-extra';
 import { getIdDict } from '../renderer/main/lib/convertId';
-// import { compareVersion } from './compareVersion';
 import { Core, Packages } from 'apm-schema';
 
 // Functions to be exported
@@ -97,25 +96,25 @@ async function removePackage(
   }
 }
 
-// /**
-//  * Returns an object which contains mod dates.
-//  *
-//  * @param {string} packagesListPath - A path of Json file.
-//  * @returns {ModInfo} An object which contains mod dates.
-//  */
-// function getMod(packagesListPath) {
-//   if (fs.existsSync(packagesListPath)) {
-//     return new ModInfo(packagesListPath);
-//   } else {
-//     throw new Error('The version file does not exist.');
-//   }
-// }
+/**
+ * Returns an object which contains mod dates.
+ *
+ * @param {string} packagesListPath - A path of Json file.
+ * @returns {ModInfo} An object which contains mod dates.
+ */
+async function getMod(packagesListPath: string) {
+  if (fs.existsSync(packagesListPath)) {
+    return await readJSON(packagesListPath);
+  } else {
+    throw new Error('The version file does not exist.');
+  }
+}
 
 const parseJson = {
   getCore,
   getPackages,
   addPackage,
   removePackage,
-  // getMod,
+  getMod,
 };
 export default parseJson;

@@ -229,7 +229,7 @@ async function checkLatestVersion(instPath) {
     await mod.downloadData();
     store.set('checkDate.core', Date.now());
     const modInfo = await mod.getInfo();
-    store.set('modDate.core', modInfo.core.getTime());
+    store.set('modDate.core', new Date(modInfo.core.modified).getTime());
     await displayInstalledVersion(instPath);
     await setCoreVersions(instPath);
   } catch (e) {
@@ -290,8 +290,14 @@ async function changeInstallationPath(instPath) {
 
     if (fs.existsSync(apmJson.getPath(instPath)) && currentMod.convert) {
       const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
-      if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
-        await convertId(instPath, currentMod.convert.getTime());
+      if (
+        oldConvertMod.getTime() <
+        new Date(currentMod.convert.modified).getTime()
+      ) {
+        await convertId(
+          instPath,
+          new Date(currentMod.convert.modified).getTime()
+        );
       }
     }
   }
@@ -301,13 +307,21 @@ async function changeInstallationPath(instPath) {
   const oldCoreMod = new Date(store.get('modDate.core', 0));
   const oldPackagesMod = new Date(store.get('modDate.packages', 0));
 
-  if (oldScriptsMod.getTime() < currentMod.scripts?.getTime()) {
-    await packageMain.getScriptsList(true, currentMod.scripts.getTime());
+  if (
+    oldScriptsMod.getTime() < new Date(currentMod.scripts[0].modified).getTime()
+  ) {
+    await packageMain.getScriptsList(
+      true,
+      new Date(currentMod.scripts[0].modified).getTime()
+    );
   }
-  if (oldCoreMod.getTime() < currentMod.core.getTime()) {
+  if (oldCoreMod.getTime() < new Date(currentMod.core.modified).getTime()) {
     await checkLatestVersion(instPath);
   }
-  if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
+  if (
+    oldPackagesMod.getTime() <
+    new Date(currentMod.packages[0].modified).getTime()
+  ) {
     await packageMain.checkPackagesList(instPath);
   }
 

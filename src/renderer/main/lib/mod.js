@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 import setting from '../setting';
-import parseXML from '../../../lib/parseXML';
+import parseJson from '../../../lib/parseJson';
 
 /**
  * Download mod.xml.
@@ -15,10 +15,10 @@ async function downloadData() {
  * @returns {Promise<object>} - An object parsed from core.xml.
  */
 async function getInfo() {
-  const modFile = await ipcRenderer.invoke('exists-temp-file', 'mod.xml');
+  const modFile = await ipcRenderer.invoke('exists-temp-file', 'list.json');
   if (modFile.exists) {
     try {
-      return parseXML.getMod(modFile.path);
+      return parseJson.getMod(modFile.path);
     } catch {
       return null;
     }
