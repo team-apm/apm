@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/hal-shu-sato/apm/compare/v2.1.1...v2.2.0) (2022-04-23)
+
+### Features
+
+- add the button to check update ([6b085e0](https://github.com/hal-shu-sato/apm/commit/6b085e0bcda4cdc4da56746afe9fe198f4126a45)), closes [#417](https://github.com/hal-shu-sato/apm/issues/417)
+- add the feature to check update on startup ([a06b6b0](https://github.com/hal-shu-sato/apm/commit/a06b6b0f596721c3c689c8f4761286b605ada485)), closes [#417](https://github.com/hal-shu-sato/apm/issues/417)
+- disable the automatic download option in the zip version ([c72ff95](https://github.com/hal-shu-sato/apm/commit/c72ff95eb21899bc417ca1e6d829322a09b675fd)), closes [#417](https://github.com/hal-shu-sato/apm/issues/417)
+- move apm menu to tabs ([1751b56](https://github.com/hal-shu-sato/apm/commit/1751b5609eb05e67feaeea3bac60eeb400532f31)), closes [#418](https://github.com/hal-shu-sato/apm/issues/418)
+- update the development environment ([d913871](https://github.com/hal-shu-sato/apm/commit/d9138710691f067aba3667a8f187f51c536132d3))
+
+### Bug Fixes
+
+- **apmJson.js:** change import method ([a6c3ade](https://github.com/hal-shu-sato/apm/commit/a6c3ade44a9bccd32a301e105b98707db8ddb707))
+- fix conditional branching ([b7d2be3](https://github.com/hal-shu-sato/apm/commit/b7d2be3677bdaea85d288c6f3ebf8eaefbb4199b))
+- fix installing a script ([c2a2dc2](https://github.com/hal-shu-sato/apm/commit/c2a2dc2beb3db08db4f3ed034cd812451dff7810))
+- **package.js:** direct installation of packages without integrity ([0340fe5](https://github.com/hal-shu-sato/apm/commit/0340fe593e184897e410b764ee96c665ecfa857f))
+- **shortcut.js:** don't create shortcuts in zip version of apm ([5fc2275](https://github.com/hal-shu-sato/apm/commit/5fc22759e83a7f77379142b38516e2eb13346508))
+
 ### [2.1.1](https://github.com/hal-shu-sato/apm/compare/v2.1.0...v2.1.1) (2022-03-19)
 
 ### Bug Fixes
