@@ -66,12 +66,11 @@ async function addPackage(
   packagesListPath: string,
   packageItem: Packages['packages'][number]
 ) {
-  let packages: Packages['packages'] = [];
-  if (fs.existsSync(packagesListPath)) {
-    packages = (await getPackages(packagesListPath)).filter(
-      (p) => p.id !== packageItem.id
-    );
-  }
+  const packages: Packages['packages'] = fs.existsSync(packagesListPath)
+    ? (await getPackages(packagesListPath)).filter(
+        (p) => p.id !== packageItem.id
+      )
+    : [];
   packages.push(packageItem);
   await setPackages(packagesListPath, packages);
 }
