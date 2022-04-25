@@ -1,7 +1,5 @@
-import path from 'path';
 import fs from 'fs-extra';
-import { XMLParser, XMLBuilder, XMLValidator } from 'fast-xml-parser';
-import { getIdDict } from '../renderer/main/lib/convertId';
+import { XMLParser, XMLValidator } from 'fast-xml-parser';
 
 const parser = new XMLParser({
   attributeNamePrefix: '$',
@@ -11,12 +9,6 @@ const parser = new XMLParser({
   parseAttributeValue: false,
   trimValues: true,
   isArray: () => true,
-});
-
-const builder = new XMLBuilder({
-  ignoreAttributes: false,
-  format: true,
-  suppressBooleanAttributes: false,
 });
 
 const defaultKeys = [
@@ -38,19 +30,6 @@ const defaultKeys = [
   'installArg',
   'releases',
 ];
-
-const typeForExtention = {
-  '.auf': 'filter',
-  '.aui': 'input',
-  '.auo': 'output',
-  '.auc': 'color',
-  '.aul': 'language',
-  '.anm': 'animation',
-  '.obj': 'object',
-  '.cam': 'camera',
-  '.tra': 'track',
-  '.scn': 'scene',
-};
 
 /**
  * @param {object} parsedData - A object parsed from XML.
@@ -84,62 +63,6 @@ function parseFiles(parsedData) {
     files.push(tmpFile);
   }
   return files;
-}
-
-/**
- * @param {object} parsedData - An object to parse into XML.
- * @returns {Array} An array of files.
- */
-function parseFilesInverse(parsedData) {
-  const files = [];
-  for (const file of parsedData.files) {
-    const ret = { '#text': file.filename };
-    if (file.isOptional) ret['@_optional'] = true;
-    if (file.isInstallOnly) ret['@_installOnly'] = true;
-    if (file.isDirectory) ret['@_directory'] = true;
-    if (file.isObsolete) ret['@_obsolete'] = true;
-    if (file.archivePath) ret['@_archivePath'] = file.archivePath;
-    files.push(ret);
-  }
-  return files;
-}
-
-/**
- *
- */
-class CoreInfo {
-  /**
-   * Returns the core program's information.
-   *
-   * @param {object} parsedCore - An object parsed from XML.
-   */
-  constructor(parsedCore) {
-    if (parsedCore.files) {
-      this.files = parseFiles(parsedCore);
-    }
-    if (parsedCore.latestVersion) {
-      if (typeof parsedCore.latestVersion[0] === 'string')
-        this.latestVersion = parsedCore.latestVersion[0];
-    }
-    if (parsedCore.releases) {
-      this.releases = {};
-      for (const release of parsedCore.releases[0].release) {
-        this.releases[release.$version[0]] = {
-          url: release.url[0],
-          archiveIntegrity: release?.archiveIntegrity?.[0],
-          integrities: release?.integrities
-            ? release.integrities[0].integrity.map((integrity) => {
-                return {
-                  target: integrity.$target[0],
-                  targetIntegrity: integrity._,
-                };
-              })
-            : [],
-        };
-      }
-    }
-    Object.freeze(this);
-  }
 }
 
 /**
@@ -185,86 +108,7 @@ class PackageInfo {
         }
       }
     }
-    const types = this.files.flatMap((f) => {
-      const extention = path.extname(f.filename);
-      if (extention in typeForExtention) {
-        return [typeForExtention[extention]];
-      } else {
-        return [];
-      }
-    });
-    this.type = [...new Set(types)];
     Object.freeze(this);
-  }
-
-  /**
-   *
-   * @param {object} packageItem - An object to be parsed into xml
-   * @returns {object} package item ready to parse.
-   */
-  static inverse(packageItem) {
-    const newPackageItem = {};
-    for (const key of defaultKeys) {
-      if (packageItem[key]) {
-        if (key === 'files') {
-          newPackageItem.files = { file: parseFilesInverse(packageItem) };
-        } else if (key === 'latestVersion') {
-          const tmpItem = { '#text': packageItem[key] };
-          if (packageItem.isContinuous) tmpItem['@_continuous'] = true;
-          newPackageItem[key] = tmpItem;
-        } else if (key === 'releases') {
-          newPackageItem.releases = {
-            release: Object.entries(packageItem[key]).map(([id, release]) => {
-              return {
-                '@_version': id,
-                archiveIntegrity: release?.archiveIntegrity,
-                integrities: release?.integrities
-                  ? {
-                      integrity: release.integrities.map((i) => {
-                        return {
-                          '@_target': i.target,
-                          '#text': i.targetIntegrity,
-                        };
-                      }),
-                    }
-                  : undefined,
-              };
-            }),
-          };
-        } else {
-          newPackageItem[key] = packageItem[key];
-        }
-      }
-    }
-    return newPackageItem;
-  }
-}
-
-/**
- * An object which contains core list.
- */
-class CoreList extends Object {
-  /**
-   *
-   * @param {string} xmlPath - The path of the XML file.
-   * @returns {CoreList} A list of core programs.
-   */
-  constructor(xmlPath) {
-    super();
-    const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-    const valid = XMLValidator.validate(xmlData);
-    if (valid === true) {
-      const coreInfo = parser.parse(xmlData);
-      if (coreInfo.core) {
-        for (const program of ['aviutl', 'exedit']) {
-          this[program] = new CoreInfo(coreInfo.core[0][program][0]);
-        }
-      } else {
-        throw new Error('The list is invalid.');
-      }
-    } else {
-      throw valid;
-    }
   }
 }
 
@@ -294,71 +138,6 @@ class PackagesList extends Object {
       throw valid;
     }
   }
-
-  /**
-   *
-   * @param {string} xmlPath - The path of the XML file.
-   * @param {object} packages - A path of xml file.
-   */
-  static write(xmlPath, packages) {
-    const xmlObject = [];
-    for (const packageItem of packages) {
-      xmlObject.push(PackageInfo.inverse(packageItem));
-    }
-    const innerText = builder
-      .build({ packages: { package: xmlObject } })
-      .trim()
-      .replaceAll(/^(\s+)/gm, (str) => '\t'.repeat(Math.floor(str.length / 2)));
-    fs.writeFileSync(xmlPath, innerText);
-  }
-}
-
-/**
- * An object which contains mod dates.
- */
-class ModInfo extends Object {
-  /**
-   *
-   * @param {string} xmlPath - The path of the XML file.
-   * @returns {ModInfo} An object which contains mod dates.
-   */
-  constructor(xmlPath) {
-    super();
-    const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-    const valid = XMLValidator.validate(xmlData);
-    if (valid === true) {
-      const modInfo = parser.parse(xmlData);
-      if (modInfo.mod) {
-        for (const filename of ['core', 'packages']) {
-          this[filename] = new Date(modInfo.mod[0][filename][0]);
-        }
-        if (modInfo.mod[0].convert)
-          this.convert = new Date(modInfo.mod[0].convert[0]);
-        if (modInfo.mod[0].scripts)
-          this.scripts = new Date(modInfo.mod[0].scripts[0]);
-      } else {
-        throw new Error('The list is invalid.');
-      }
-    } else {
-      throw valid;
-    }
-  }
-}
-
-// Functions to be exported
-
-/**
- * Returns a list of core programs.
- *
- * @param {string} coreListPath - A path of xml file.
- * @returns {CoreList} A list of core programs.
- */
-function getCore(coreListPath) {
-  if (fs.existsSync(coreListPath)) {
-    return new CoreList(coreListPath);
-  } else {
-    throw new Error('The version file does not exist.');
-  }
 }
 
 /**
@@ -370,87 +149,13 @@ function getCore(coreListPath) {
 async function getPackages(packagesListPath) {
   if (fs.existsSync(packagesListPath)) {
     const packages = new PackagesList(packagesListPath);
-
-    // For compatibility with data v1
-    const convDict = await getIdDict();
-    for (const [oldId, packageItem] of Object.entries(packages)) {
-      if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
-        const newId = convDict[packageItem.id];
-        packages[newId] = packages[oldId];
-        delete packages[oldId];
-        packages[newId].id = newId;
-      }
-    }
-
     return packages;
   } else {
     throw new Error('The version file does not exist.');
   }
 }
 
-/**
- * Write the packages in XML.
- *
- * @param {string} packagesListPath - A path of xml file.
- * @param {object} packages - A list of packages.
- */
-function setPackages(packagesListPath, packages) {
-  PackagesList.write(packagesListPath, packages);
-}
-
-/**
- * Add the packages to XML.
- *
- * @param {string} packagesListPath - A path of xml file.
- * @param {object} packageItem - A package.
- */
-async function addPackage(packagesListPath, packageItem) {
-  let packages = [];
-  if (fs.existsSync(packagesListPath)) {
-    packages = Object.values(await getPackages(packagesListPath)).filter(
-      (p) => p.id !== packageItem.id
-    );
-  }
-  packages.push(packageItem);
-  setPackages(packagesListPath, packages);
-}
-
-/**
- * Remove the packages in XML.
- *
- * @param {string} packagesListPath - A path of xml file.
- * @param {object} packageItem - A package.
- */
-async function removePackage(packagesListPath, packageItem) {
-  const packages = Object.values(await getPackages(packagesListPath)).filter(
-    (p) => p.id !== packageItem.id
-  );
-  if (packages.length > 0) {
-    setPackages(packagesListPath, packages);
-  } else {
-    fs.unlinkSync(packagesListPath);
-  }
-}
-
-/**
- * Returns an object which contains mod dates.
- *
- * @param {string} packagesListPath - A path of xml file.
- * @returns {ModInfo} An object which contains mod dates.
- */
-function getMod(packagesListPath) {
-  if (fs.existsSync(packagesListPath)) {
-    return new ModInfo(packagesListPath);
-  } else {
-    throw new Error('The version file does not exist.');
-  }
-}
-
 const parseXML = {
-  getCore,
   getPackages,
-  addPackage,
-  removePackage,
-  getMod,
 };
 export default parseXML;

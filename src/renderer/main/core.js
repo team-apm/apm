@@ -16,7 +16,7 @@ import apmJson from '../../lib/apmJson';
 import mod from './lib/mod';
 import integrity from '../../lib/integrity';
 import { convertId } from './lib/convertId';
-import migration1to2 from '../../migration/migration1to2';
+import migration2to3 from '../../migration/migration2to3';
 /** @typedef {import("apm-data").Core} Core */
 /** @typedef {import("apm-data").Program} Program */
 
@@ -284,7 +284,7 @@ async function changeInstallationPath(instPath) {
 
   if (fs.existsSync(instPath)) {
     // migration
-    await migration1to2.byFolder(instPath);
+    await migration2to3.byFolder(instPath);
 
     if (fs.existsSync(apmJson.getPath(instPath)) && currentMod.convert) {
       const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
