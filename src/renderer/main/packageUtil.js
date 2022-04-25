@@ -85,7 +85,7 @@ function parsePackageType(packageType) {
  * @returns {Promise<object[]>} - A list of object parsed from packages.json
  */
 async function getPackages(packageDataUrls) {
-  const jsonList = {};
+  const jsonList = [];
 
   for (const packageRepository of packageDataUrls) {
     const packagesListFile = await ipcRenderer.invoke(
@@ -95,9 +95,7 @@ async function getPackages(packageDataUrls) {
     );
     if (packagesListFile.exists) {
       try {
-        jsonList[packageRepository] = await parseJson.getPackages(
-          packagesListFile.path
-        );
+        jsonList.push(await parseJson.getPackages(packagesListFile.path));
       } catch {
         ipcRenderer.invoke(
           'open-err-dialog',
@@ -112,7 +110,7 @@ async function getPackages(packageDataUrls) {
   }
 
   const packages = [];
-  for (const [packagesRepository, packagesInfo] of Object.entries(jsonList)) {
+  for (const packagesInfo of jsonList) {
     for (const packageInfo of packagesInfo) {
       // Detect package type
       const types = packageInfo.files.flatMap((f) => {
@@ -125,7 +123,6 @@ async function getPackages(packageDataUrls) {
       });
 
       packages.push({
-        repository: packagesRepository,
         id: packageInfo.id,
         info: packageInfo,
         type: Array.from(new Set(types)),
@@ -191,13 +188,8 @@ function getInstalledFiles(instPath) {
 function getManuallyInstalledFiles(files, installedPackages, packages) {
   let retFiles = [...files];
   for (const packageItem of packages) {
-    for (const [installedId, installedPackage] of Object.entries(
-      installedPackages
-    )) {
-      if (
-        installedId === packageItem.id &&
-        installedPackage.repository === packageItem.repository
-      ) {
+    for (const installedId of Object.keys(installedPackages)) {
+      if (installedId === packageItem.id) {
         for (const file of packageItem.info.files) {
           if (!file.isDirectory) {
             retFiles = retFiles.filter((ef) => ef !== file.filename);
@@ -246,10 +238,7 @@ function getInstalledVersionOfPackage(
   for (const [installedId, installedPackage] of Object.entries(
     installedPackages
   )) {
-    if (
-      installedId === packageItem.id &&
-      installedPackage.repository === packageItem.repository
-    ) {
+    if (installedId === packageItem.id) {
       if (packageItem.info.files.some((file) => file.isObsolete)) {
         // There is no way to determine if a package that contains obsolete files is corrupt.
         installationStatus = states.installed;

@@ -115,7 +115,6 @@ function setCore(instPath, program, version) {
 function addPackage(instPath, packageItem) {
   set(instPath, `packages.${packageItem.id}`, {
     id: packageItem.id,
-    repository: packageItem.repository,
     version: packageItem.info.latestVersion,
   });
 }

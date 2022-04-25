@@ -1073,7 +1073,6 @@ async function installScript(instPath) {
     );
     apmJson.addPackage(instPath, {
       id: packageItem.id,
-      repository: setting.getLocalPackagesDataUrl(instPath),
       info: packageItem,
     });
     await checkPackagesList(instPath);
