@@ -51,7 +51,7 @@
     "matcher": "^5.0.0",
     "node-7z": "^3.0.0",
     "react": "^18.1.0",
-    "react-dom": "^18.0.0",
+    "react-dom": "^18.1.0",
     "sortablejs": "^1.15.0",
     "ssri": "^9.0.0",
     "twemoji": "^14.0.2",
