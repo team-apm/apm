@@ -6,14 +6,13 @@ const store = new Store();
 import log from 'electron-log';
 import packageMain from './package';
 import packageUtil from './packageUtil';
-import setting from './setting';
 import replaceText from '../../lib/replaceText';
 import unzip from '../../lib/unzip';
 import shortcut from '../../lib/shortcut';
 import buttonTransition from '../../lib/buttonTransition';
 import parseJson from '../../lib/parseJson';
 import apmJson from '../../lib/apmJson';
-import mod from './lib/mod';
+import mod from '../../lib/mod';
 import integrity from '../../lib/integrity';
 import { convertId } from './lib/convertId';
 import migration2to3 from '../../migration/migration2to3';
@@ -218,12 +217,7 @@ async function checkLatestVersion(instPath) {
   const enableButton = buttonTransition.loading(btn, '更新');
 
   try {
-    await ipcRenderer.invoke(
-      'download',
-      setting.getCoreDataUrl(),
-      false,
-      'core'
-    );
+    await ipcRenderer.invoke('download', mod.getCoreDataUrl(), false, 'core');
     await mod.downloadData();
     store.set('checkDate.core', Date.now());
     const modInfo = await mod.getInfo();

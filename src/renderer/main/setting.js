@@ -84,72 +84,6 @@ async function setDataUrl(dataUrl, extraDataUrls) {
 }
 
 /**
- * Returns a data files URL.
- *
- * @returns {string} - A data files URL.
- */
-function getDataUrl() {
-  return store.get('dataURL.main');
-}
-
-/**
- * Returns extra data files URLs.
- *
- * @returns {string} - Data files URLs.
- */
-function getExtraDataUrl() {
-  return store.get('dataURL.extra');
-}
-
-/**
- * Returns a core data file URL.
- *
- * @returns {string} - A core data file URL.
- */
-function getCoreDataUrl() {
-  const dataUrl = getDataUrl();
-  return path.join(dataUrl, 'core.json');
-}
-
-/**
- * Returns package data files URLs.
- *
- * @param {string} instPath - An installation path.
- * @returns {Array.<string>} -Package data files URLs.
- */
-function getPackagesDataUrl(instPath) {
-  return store
-    .get('dataURL.packages')
-    .concat(
-      instPath &&
-        instPath.length > 0 &&
-        fs.existsSync(getLocalPackagesDataUrl(instPath))
-        ? [getLocalPackagesDataUrl(instPath)]
-        : []
-    );
-}
-
-/**
- * Returns local package data files URL.
- *
- * @param {string} instPath - An installation path.
- * @returns {string} - Package data files URL.
- */
-function getLocalPackagesDataUrl(instPath) {
-  return path.join(instPath, 'packages.json');
-}
-
-/**
- * Returns a mod data file URL.
- *
- * @returns {string} - A mod data file URL.
- */
-function getModDataUrl() {
-  const dataUrl = getDataUrl();
-  return path.join(dataUrl, 'list.json');
-}
-
-/**
  * Sets a zoom factor.
  *
  * @param {HTMLSelectElement} zoomFactorSelect - A zoom factor select to change value.
@@ -177,12 +111,6 @@ function changeZoomFactor(zoomFactor) {
 const setting = {
   initSettings,
   setDataUrl,
-  getDataUrl,
-  getExtraDataUrl,
-  getCoreDataUrl,
-  getPackagesDataUrl,
-  getLocalPackagesDataUrl,
-  getModDataUrl,
   setZoomFactor,
   changeZoomFactor,
 };
