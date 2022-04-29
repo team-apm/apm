@@ -5,7 +5,7 @@ import log from 'electron-log';
 import core from './core';
 import packageMain from './package';
 import setting from './setting';
-import mod from '../../lib/mod';
+import modList from '../../lib/modList';
 import migration2to3 from '../../migration/migration2to3';
 
 log.catchErrors({
@@ -48,11 +48,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   ) as HTMLInputElement;
   installationPath.value = instPath;
   const dataURL = document.getElementById('data-url') as HTMLInputElement;
-  dataURL.value = mod.getDataUrl();
+  dataURL.value = modList.getDataUrl();
   const extraDataURL = document.getElementById(
     'extra-data-url'
   ) as HTMLInputElement;
-  extraDataURL.value = mod.getExtraDataUrl();
+  extraDataURL.value = modList.getExtraDataUrl();
   const zoomFactorSelect = document.getElementById(
     'zoom-factor-select'
   ) as HTMLSelectElement;

@@ -13,7 +13,7 @@ import unzip from '../../lib/unzip';
 import buttonTransition from '../../lib/buttonTransition';
 import parseJson from '../../lib/parseJson';
 import apmJson from '../../lib/apmJson';
-import mod from '../../lib/mod';
+import modList from '../../lib/modList';
 import { getHash } from '../../lib/getHash';
 import packageUtil from './packageUtil';
 import integrity from '../../lib/integrity';
@@ -51,7 +51,7 @@ function getDate() {
  * @returns {Promise.<object[]>} An object of packages
  */
 async function getPackages(instPath) {
-  return await packageUtil.getPackages(mod.getPackagesDataUrl(instPath));
+  return await packageUtil.getPackages(modList.getPackagesDataUrl(instPath));
 }
 
 /**
@@ -340,10 +340,10 @@ async function checkPackagesList(instPath) {
   }
 
   try {
-    await packageUtil.downloadRepository(mod.getPackagesDataUrl(instPath));
-    await mod.downloadData();
+    await packageUtil.downloadRepository(modList.getPackagesDataUrl(instPath));
+    await modList.downloadData();
     store.set('checkDate.packages', Date.now());
-    const modInfo = await mod.getInfo();
+    const modInfo = await modList.getInfo();
     store.set(
       'modDate.packages',
       new Date(modInfo.packages[0].modified).getTime()
@@ -376,7 +376,7 @@ async function checkPackagesList(instPath) {
  * @returns {Promise<object>} - An object parsed from scripts.json.
  */
 async function getScriptsList(update = false, modTime) {
-  const dictUrl = path.join(mod.getDataUrl(), 'scripts.json');
+  const dictUrl = path.join(modList.getDataUrl(), 'scripts.json');
   if (update) {
     store.set('modDate.scripts', modTime);
 
@@ -778,7 +778,7 @@ async function uninstallPackage(instPath) {
       await setPackagesList(instPath);
     } else {
       await parseJson.removePackage(
-        mod.getLocalPackagesDataUrl(instPath),
+        modList.getLocalPackagesDataUrl(instPath),
         uninstalledPackage
       );
       await checkPackagesList(instPath);
@@ -1067,7 +1067,7 @@ async function installScript(instPath) {
     };
 
     await parseJson.addPackage(
-      mod.getLocalPackagesDataUrl(instPath),
+      modList.getLocalPackagesDataUrl(instPath),
       packageItem
     );
     apmJson.addPackage(instPath, {

@@ -11,19 +11,22 @@ import buttonTransition from '../../lib/buttonTransition';
 async function initSettings() {
   if (!store.has('dataURL.extra')) store.set('dataURL.extra', '');
   if (!store.has('dataURL.main'))
-    await setDataUrl({ value: '' }, store.get('dataURL.extra'));
+    await setDataUrl({ value: '' }, store.get('dataURL.extra') as string);
 }
 
 /**
  * Sets a data files URL.
  *
  * @param {HTMLInputElement} dataUrl - An input element that contains a data files URL to set.
+ * @param {string} dataUrl.value - value
  * @param {string} extraDataUrls - Data files URLs to set.
  */
-async function setDataUrl(dataUrl, extraDataUrls) {
+async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
   const btn = document.getElementById('set-data-url');
-  let enableButton;
-  if (btn !== null) enableButton = buttonTransition.loading(btn, '設定');
+  const enableButton =
+    btn instanceof HTMLButtonElement
+      ? buttonTransition.loading(btn, '設定')
+      : undefined;
 
   if (!dataUrl.value) {
     dataUrl.value = 'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/v3/';
@@ -75,7 +78,7 @@ async function setDataUrl(dataUrl, extraDataUrls) {
     store.set('dataURL.packages', packages);
   }
 
-  if (btn !== null) {
+  if (btn instanceof HTMLButtonElement) {
     buttonTransition.message(btn, '設定完了', 'success');
     setTimeout(() => {
       enableButton();
@@ -88,9 +91,9 @@ async function setDataUrl(dataUrl, extraDataUrls) {
  *
  * @param {HTMLSelectElement} zoomFactorSelect - A zoom factor select to change value.
  */
-function setZoomFactor(zoomFactorSelect) {
+function setZoomFactor(zoomFactorSelect: HTMLSelectElement) {
   const zoomFactor = store.get('zoomFactor');
-  for (const optionElement of zoomFactorSelect.options) {
+  for (const optionElement of Array.from(zoomFactorSelect.options)) {
     if (optionElement.getAttribute('value') === zoomFactor) {
       optionElement.selected = true;
       break;
@@ -103,7 +106,7 @@ function setZoomFactor(zoomFactorSelect) {
  *
  * @param {string} zoomFactor - A zoom factor to change.
  */
-function changeZoomFactor(zoomFactor) {
+function changeZoomFactor(zoomFactor: string) {
   store.set('zoomFactor', zoomFactor);
   ipcRenderer.invoke('change-main-zoom-factor', parseInt(zoomFactor) / 100);
 }

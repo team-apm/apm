@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 import * as fs from 'fs-extra';
 import path from 'path';
-import mod from '../../../lib/mod';
+import modList from '../../../lib/modList';
 import apmJson from '../../../lib/apmJson';
 
 /**
@@ -11,7 +11,7 @@ import apmJson from '../../../lib/apmJson';
  * @returns {Promise<object>} Dictionary of id relationships.
  */
 async function getIdDict(update = false): Promise<{ [key: string]: string }> {
-  const dictUrl = path.join(mod.getDataUrl(), 'convert.json');
+  const dictUrl = path.join(modList.getDataUrl(), 'convert.json');
   if (update) {
     const convertJson = await ipcRenderer.invoke(
       'download',
