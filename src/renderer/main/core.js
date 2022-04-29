@@ -14,7 +14,7 @@ import parseJson from '../../lib/parseJson';
 import apmJson from '../../lib/apmJson';
 import modList from '../../lib/modList';
 import integrity from '../../lib/integrity';
-import { convertId } from './lib/convertId';
+import { convertId } from '../../lib/convertId';
 import migration2to3 from '../../migration/migration2to3';
 /** @typedef {import("apm-data").Core} Core */
 /** @typedef {import("apm-data").Program} Program */
