@@ -23,7 +23,7 @@ async function getInfo() {
       return null;
     }
   } else {
-    return false;
+    return null;
   }
 }
 

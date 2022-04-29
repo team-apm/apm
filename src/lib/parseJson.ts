@@ -1,7 +1,7 @@
 // import path from 'path';
 import fs, { readJSON, writeJson } from 'fs-extra';
 import { getIdDict } from '../renderer/main/lib/convertId';
-import { Core, Packages } from 'apm-schema';
+import { Core, Packages, List } from 'apm-schema';
 
 // Functions to be exported
 
@@ -99,11 +99,11 @@ async function removePackage(
  * Returns an object which contains mod dates.
  *
  * @param {string} packagesListPath - A path of Json file.
- * @returns {ModInfo} An object which contains mod dates.
+ * @returns {List} An object which contains mod dates.
  */
 async function getMod(packagesListPath: string) {
   if (fs.existsSync(packagesListPath)) {
-    return await readJSON(packagesListPath);
+    return (await readJSON(packagesListPath)) as List;
   } else {
     throw new Error('The version file does not exist.');
   }
