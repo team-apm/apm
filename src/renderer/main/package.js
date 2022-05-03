@@ -376,7 +376,7 @@ async function checkPackagesList(instPath) {
  * @returns {Promise<object>} - An object parsed from scripts.json.
  */
 async function getScriptsList(update = false, modTime) {
-  const dictUrl = path.join(modList.getDataUrl(), 'scripts.json');
+  const dictUrl = modList.getScriptsDataUrl();
   if (update) {
     store.set('modDate.scripts', modTime);
 

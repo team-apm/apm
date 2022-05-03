@@ -5,11 +5,18 @@ import path from 'path';
 const store = new Store();
 import parseJson from './parseJson';
 
+// Functions to be exported
+
 /**
  * Download mod.json.
  */
 async function downloadData() {
-  await ipcRenderer.invoke('download', getModDataUrl(), false, '');
+  await ipcRenderer.invoke(
+    'download',
+    path.join(getDataUrl(), 'list.json'),
+    false,
+    ''
+  );
 }
 
 /**
@@ -54,8 +61,7 @@ function getExtraDataUrl() {
  * @returns {string} - A core data file URL.
  */
 function getCoreDataUrl() {
-  const dataUrl = getDataUrl();
-  return path.join(dataUrl, 'core.json');
+  return path.join(getDataUrl(), 'core.json');
 }
 
 /**
@@ -75,23 +81,31 @@ function getPackagesDataUrl(instPath: string) {
 }
 
 /**
- * Returns local package data files URL.
+ * Returns a local package data file URL.
  *
  * @param {string} instPath - An installation path.
- * @returns {string} - Package data files URL.
+ * @returns {string} - A package data file URL.
  */
 function getLocalPackagesDataUrl(instPath: string) {
   return path.join(instPath, 'packages.json');
 }
 
 /**
- * Returns a mod data file URL.
+ * Returns a convert data file URL.
  *
- * @returns {string} - A mod data file URL.
+ * @returns {string} - A convert data file URL.
  */
-function getModDataUrl() {
-  const dataUrl = getDataUrl();
-  return path.join(dataUrl, 'list.json');
+function getConvertDataUrl() {
+  return path.join(getDataUrl(), 'convert.json');
+}
+
+/**
+ * Returns a scripts data file URL.
+ *
+ * @returns {string} - A scripts data file URL.
+ */
+function getScriptsDataUrl() {
+  return path.join(getDataUrl(), 'scripts.json');
 }
 
 const mod = {
@@ -102,6 +116,7 @@ const mod = {
   getCoreDataUrl,
   getPackagesDataUrl,
   getLocalPackagesDataUrl,
-  getModDataUrl,
+  getConvertDataUrl,
+  getScriptsDataUrl,
 };
 export default mod;
