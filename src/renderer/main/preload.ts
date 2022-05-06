@@ -5,7 +5,7 @@ import log from 'electron-log';
 import core from './core';
 import packageMain from './package';
 import setting from './setting';
-import migration1to2 from '../../migration/migration1to2';
+import migration2to3 from '../../migration/migration2to3';
 
 log.catchErrors({
   onError: () => {
@@ -22,7 +22,7 @@ log.catchErrors({
 window.addEventListener('DOMContentLoaded', async () => {
   // *global*
   // migration
-  if (!(await migration1to2.global())) {
+  if (!(await migration2to3.global())) {
     await ipcRenderer.invoke('app-quit');
     return;
   }

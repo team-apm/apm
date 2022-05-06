@@ -26,8 +26,7 @@ async function setDataUrl(dataUrl, extraDataUrls) {
   if (btn !== null) enableButton = buttonTransition.loading(btn, '設定');
 
   if (!dataUrl.value) {
-    dataUrl.value =
-      'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/v2/data/';
+    dataUrl.value = 'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/v3/';
   }
 
   const value = dataUrl.value;
@@ -37,7 +36,7 @@ async function setDataUrl(dataUrl, extraDataUrls) {
       'エラー',
       '有効なURLまたは場所を入力してください。'
     );
-  } else if (path.extname(value) === '.xml') {
+  } else if (path.extname(value) === '.json') {
     ipcRenderer.invoke(
       'open-err-dialog',
       'エラー',
@@ -46,7 +45,7 @@ async function setDataUrl(dataUrl, extraDataUrls) {
   } else {
     store.set('dataURL.main', value);
 
-    const packages = [path.join(value, 'packages.xml')];
+    const packages = [path.join(value, 'packages.json')];
 
     for (const tmpDataUrl of extraDataUrls.split(/\r?\n/)) {
       const extraDataUrl = tmpDataUrl.trim();
@@ -60,15 +59,11 @@ async function setDataUrl(dataUrl, extraDataUrls) {
         );
         break;
       }
-      if (
-        !['packages.xml', 'packages_list.xml'].includes(
-          path.basename(extraDataUrl)
-        )
-      ) {
+      if (!['packages.json'].includes(path.basename(extraDataUrl))) {
         await ipcRenderer.invoke(
           'open-err-dialog',
           'エラー',
-          `有効なxmlファイルのURLまたは場所を入力してください。(${extraDataUrl})`
+          `有効なJsonファイルのURLまたは場所を入力してください。(${extraDataUrl})`
         );
         break;
       }
@@ -113,7 +108,7 @@ function getExtraDataUrl() {
  */
 function getCoreDataUrl() {
   const dataUrl = getDataUrl();
-  return path.join(dataUrl, 'core.xml');
+  return path.join(dataUrl, 'core.json');
 }
 
 /**
@@ -141,7 +136,7 @@ function getPackagesDataUrl(instPath) {
  * @returns {string} - Package data files URL.
  */
 function getLocalPackagesDataUrl(instPath) {
-  return path.join(instPath, 'packages.xml');
+  return path.join(instPath, 'packages.json');
 }
 
 /**
@@ -151,7 +146,7 @@ function getLocalPackagesDataUrl(instPath) {
  */
 function getModDataUrl() {
   const dataUrl = getDataUrl();
-  return path.join(dataUrl, 'mod.xml');
+  return path.join(dataUrl, 'list.json');
 }
 
 /**

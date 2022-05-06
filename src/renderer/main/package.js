@@ -12,7 +12,7 @@ import createList from '../../lib/updatableList';
 import replaceText from '../../lib/replaceText';
 import unzip from '../../lib/unzip';
 import buttonTransition from '../../lib/buttonTransition';
-import parseXML from '../../lib/parseXML';
+import parseJson from '../../lib/parseJson';
 import apmJson from '../../lib/apmJson';
 import mod from './lib/mod';
 import { getHash } from '../../lib/getHash';
@@ -117,11 +117,11 @@ async function setPackagesList(instPath) {
     .filter(
       (p) => p.installationStatus === packageUtil.states.manuallyInstalled
     )) {
-    for (const [version, release] of Object.entries(p.info.releases)) {
-      if (await integrity.checkIntegrity(instPath, release.integrities)) {
+    for (const release of p.info.releases) {
+      if (await integrity.checkIntegrity(instPath, release.integrity.file)) {
         apmJson.addPackage(instPath, {
           ...p,
-          info: { ...p.info, latestVersion: version },
+          info: { ...p.info, latestVersion: release.version },
         });
         modified = true;
       }
@@ -174,7 +174,7 @@ async function setPackagesList(instPath) {
     developer.innerText = packageItem.info.originalDeveloper
       ? `${packageItem.info.developer}（オリジナル：${packageItem.info.originalDeveloper}）`
       : packageItem.info.developer;
-    packageUtil.parsePackageType(packageItem.info.type).forEach((e) => {
+    packageUtil.parsePackageType(packageItem.type).forEach((e) => {
       const typeItem = document.getElementById('tag-template').cloneNode(true);
       typeItem.removeAttribute('id');
       typeItem.innerText = e;
@@ -345,7 +345,10 @@ async function checkPackagesList(instPath) {
     await mod.downloadData();
     store.set('checkDate.packages', Date.now());
     const modInfo = await mod.getInfo();
-    store.set('modDate.packages', modInfo.packages.getTime());
+    store.set(
+      'modDate.packages',
+      new Date(modInfo.packages[0].modified).getTime()
+    );
     await setPackagesList(instPath);
 
     if (btn) buttonTransition.message(btn, '更新完了', 'success');
@@ -508,9 +511,9 @@ async function installPackage(
       'package'
     );
 
-    const integrityForArchive =
-      installedPackage.info.releases?.[installedPackage.info.latestVersion]
-        ?.archiveIntegrity;
+    const integrityForArchive = installedPackage.info.releases?.find(
+      (r) => r.version === installedPackage.info.latestVersion
+    )?.integrity?.archive;
 
     if (integrityForArchive) {
       for (;;) {
@@ -556,7 +559,7 @@ async function installPackage(
 
     const downloadResult = await ipcRenderer.invoke(
       'open-browser',
-      installedPackage.info.downloadURL,
+      installedPackage.info.downloadURLs[0],
       'package'
     );
     if (!downloadResult) {
@@ -640,8 +643,8 @@ async function installPackage(
       // Copying files (main body of the installation)
       const filesToCopy = [];
       for (const file of installedPackage.info.files) {
-        if (!file.isOptional && !file.isObsolete) {
-          if (file.archivePath === null) {
+        if (!file.isUninstallOnly && !file.isObsolete) {
+          if (!file.archivePath) {
             filesToCopy.push([
               path.join(unzippedPath, path.basename(file.filename)),
               path.join(instPath, file.filename),
@@ -676,7 +679,7 @@ async function installPackage(
   let filesCount = 0;
   let existCount = 0;
   for (const file of installedPackage.info.files) {
-    if (!file.isOptional && !file.isObsolete) {
+    if (!file.isUninstallOnly && !file.isObsolete) {
       filesCount++;
       if (fs.existsSync(path.join(instPath, file.filename))) {
         existCount++;
@@ -775,7 +778,7 @@ async function uninstallPackage(instPath) {
     if (!uninstalledPackage.id.startsWith('script_')) {
       await setPackagesList(instPath);
     } else {
-      await parseXML.removePackage(
+      await parseJson.removePackage(
         setting.getLocalPackagesDataUrl(instPath),
         uninstalledPackage
       );
@@ -1057,22 +1060,19 @@ async function installScript(instPath) {
         'スクリプト一覧: ' +
         filteredFiles.map((f) => path.basename(f.filename)).join(', '),
       developer: matchInfo?.developer ? matchInfo.developer : '-',
-      dependencies: matchInfo?.dependencies
-        ? { dependency: matchInfo.dependencies }
-        : undefined,
+      dependencies: matchInfo?.dependencies,
       pageURL: url,
-      downloadURL: url,
+      downloadURLs: [url],
       latestVersion: getDate(),
       files: files,
     };
 
-    await parseXML.addPackage(
+    await parseJson.addPackage(
       setting.getLocalPackagesDataUrl(instPath),
       packageItem
     );
     apmJson.addPackage(instPath, {
       id: packageItem.id,
-      repository: setting.getLocalPackagesDataUrl(instPath),
       info: packageItem,
     });
     await checkPackagesList(instPath);

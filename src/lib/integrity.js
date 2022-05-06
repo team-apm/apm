@@ -16,10 +16,7 @@ async function checkIntegrity(instPath, integrities) {
   for (const integrity of integrities) {
     match =
       match &&
-      (await verifyFile(
-        path.join(instPath, integrity.target),
-        integrity.targetIntegrity
-      ));
+      (await verifyFile(path.join(instPath, integrity.target), integrity.hash));
   }
 
   return match;

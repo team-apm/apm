@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import fs from 'fs-extra';
+import * as fs from 'fs-extra';
 import path from 'path';
 import setting from '../setting';
 import apmJson from '../../../lib/apmJson';
@@ -10,7 +10,7 @@ import apmJson from '../../../lib/apmJson';
  * @param {boolean} update - Download the json file.
  * @returns {Promise<object>} Dictionary of id relationships.
  */
-async function getIdDict(update = false) {
+async function getIdDict(update = false): Promise<{ [key: string]: string }> {
   const dictUrl = path.join(setting.getDataUrl(), 'convert.json');
   if (update) {
     const convertJson = await ipcRenderer.invoke(
@@ -41,8 +41,10 @@ async function getIdDict(update = false) {
  * @param {string} instPath - An installation path
  * @param {number} modTime - A mod time.
  */
-async function convertId(instPath, modTime) {
-  const packages = apmJson.get(instPath, 'packages');
+async function convertId(instPath: string, modTime: number) {
+  const packages = apmJson.get(instPath, 'packages') as {
+    [key: string]: { id: string };
+  };
 
   const convDict = await getIdDict(true);
   for (const [oldId, packageItem] of Object.entries(packages)) {

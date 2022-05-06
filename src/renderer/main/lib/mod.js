@@ -1,24 +1,24 @@
 import { ipcRenderer } from 'electron';
 import setting from '../setting';
-import parseXML from '../../../lib/parseXML';
+import parseJson from '../../../lib/parseJson';
 
 /**
- * Download mod.xml.
+ * Download mod.json.
  */
 async function downloadData() {
   await ipcRenderer.invoke('download', setting.getModDataUrl(), false, '');
 }
 
 /**
- * Returns an object parsed from mod.xml.
+ * Returns an object parsed from mod.json.
  *
- * @returns {Promise<object>} - An object parsed from core.xml.
+ * @returns {Promise<object>} - An object parsed from core.json.
  */
 async function getInfo() {
-  const modFile = await ipcRenderer.invoke('exists-temp-file', 'mod.xml');
+  const modFile = await ipcRenderer.invoke('exists-temp-file', 'list.json');
   if (modFile.exists) {
     try {
-      return parseXML.getMod(modFile.path);
+      return await parseJson.getMod(modFile.path);
     } catch {
       return null;
     }

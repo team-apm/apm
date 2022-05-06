@@ -1,8 +1,22 @@
 import { ipcRenderer } from 'electron';
 import fs from 'fs-extra';
 import path from 'path';
-import parseXML from '../../lib/parseXML';
+import parseJson from '../../lib/parseJson';
 import apmJson from '../../lib/apmJson';
+/** @typedef {import("apm-data").Packages} Packages */
+
+const typeForExtention = {
+  '.auf': 'filter',
+  '.aui': 'input',
+  '.auo': 'output',
+  '.auc': 'color',
+  '.aul': 'language',
+  '.anm': 'animation',
+  '.obj': 'object',
+  '.cam': 'camera',
+  '.tra': 'track',
+  '.scn': 'scene',
+};
 
 /** Installation state of packages */
 const states = {
@@ -65,13 +79,13 @@ function parsePackageType(packageType) {
 }
 
 /**
- * Returns an object parsed from packages.xml
+ * Returns an object parsed from packages.json
  *
  * @param {string[]} packageDataUrls - URLs of the repository
- * @returns {Promise<object[]>} - A list of object parsed from packages.xml
+ * @returns {Promise<object[]>} - A list of object parsed from packages.json
  */
 async function getPackages(packageDataUrls) {
-  const xmlList = {};
+  const jsonList = [];
 
   for (const packageRepository of packageDataUrls) {
     const packagesListFile = await ipcRenderer.invoke(
@@ -81,9 +95,7 @@ async function getPackages(packageDataUrls) {
     );
     if (packagesListFile.exists) {
       try {
-        xmlList[packageRepository] = await parseXML.getPackages(
-          packagesListFile.path
-        );
+        jsonList.push(await parseJson.getPackages(packagesListFile.path));
       } catch {
         ipcRenderer.invoke(
           'open-err-dialog',
@@ -98,12 +110,22 @@ async function getPackages(packageDataUrls) {
   }
 
   const packages = [];
-  for (const [packagesRepository, packagesInfo] of Object.entries(xmlList)) {
-    for (const [id, packageInfo] of Object.entries(packagesInfo)) {
+  for (const packagesInfo of jsonList) {
+    for (const packageInfo of packagesInfo) {
+      // Detect package type
+      const types = packageInfo.files.flatMap((f) => {
+        const extention = path.extname(f.filename);
+        if (extention in typeForExtention) {
+          return [typeForExtention[extention]];
+        } else {
+          return [];
+        }
+      });
+
       packages.push({
-        repository: packagesRepository,
-        id: id,
+        id: packageInfo.id,
         info: packageInfo,
+        type: Array.from(new Set(types)),
       });
     }
   }
@@ -160,19 +182,14 @@ function getInstalledFiles(instPath) {
  *
  * @param {string[]} files - List of installed files
  * @param {object[]} installedPackages - A list of object from apmJson
- * @param {object[]} packages - A list of object parsed from packages.xml
+ * @param {object[]} packages - A list of object parsed from packages.json
  * @returns {string[]} List of manually installed files
  */
 function getManuallyInstalledFiles(files, installedPackages, packages) {
   let retFiles = [...files];
   for (const packageItem of packages) {
-    for (const [installedId, installedPackage] of Object.entries(
-      installedPackages
-    )) {
-      if (
-        installedId === packageItem.id &&
-        installedPackage.repository === packageItem.repository
-      ) {
+    for (const installedId of Object.keys(installedPackages)) {
+      if (installedId === packageItem.id) {
         for (const file of packageItem.info.files) {
           if (!file.isDirectory) {
             retFiles = retFiles.filter((ef) => ef !== file.filename);
@@ -221,10 +238,7 @@ function getInstalledVersionOfPackage(
   for (const [installedId, installedPackage] of Object.entries(
     installedPackages
   )) {
-    if (
-      installedId === packageItem.id &&
-      installedPackage.repository === packageItem.repository
-    ) {
+    if (installedId === packageItem.id) {
       if (packageItem.info.files.some((file) => file.isObsolete)) {
         // There is no way to determine if a package that contains obsolete files is corrupt.
         installationStatus = states.installed;
@@ -234,7 +248,7 @@ function getInstalledVersionOfPackage(
         let filesCount = 0;
         let existCount = 0;
         for (const file of packageItem.info.files) {
-          if (!file.isOptional) {
+          if (!file.isUninstallOnly) {
             filesCount++;
             if (fs.existsSync(path.join(instPath, file.filename))) {
               existCount++;
@@ -258,7 +272,7 @@ function getInstalledVersionOfPackage(
 /**
  * Updates the installedVersion of the packages given as argument and returns a list of manually installed files
  *
- * @param {object[]} _packages - A list of object parsed from packages.xml
+ * @param {object[]} _packages - A list of object parsed from packages.json
  * @param {string} instPath - An installation path
  * @returns {object} List of manually installed files
  */
@@ -292,7 +306,7 @@ function getPackagesExtra(_packages, instPath) {
  * Updates the installedVersion of the packages given as argument and returns a list of manually installed files
  *
  * @param {string} instPath - An installation path
- * @param {object[]} _packages - A list of object parsed from packages.xml and getPackagesExtra()
+ * @param {object[]} _packages - A list of object parsed from packages.json and getPackagesExtra()
  * @returns {object[]} - packages
  */
 function getPackagesStatus(instPath, _packages) {
@@ -315,7 +329,7 @@ function getPackagesStatus(instPath, _packages) {
       }
       if (p.info.dependencies) {
         // Whether there is at least one package that is not installable
-        return p.info.dependencies.dependency
+        return p.info.dependencies
           .map((ids) => {
             // Whether all ids are not installable
             return ids
@@ -351,7 +365,7 @@ function getPackagesStatus(instPath, _packages) {
       if (!isInstalled(p)) lists.push(p);
       if (p.info.dependencies) {
         lists.push(
-          ...p.info.dependencies.dependency.flatMap((ids) => {
+          ...p.info.dependencies.flatMap((ids) => {
             // Whether all ids are detached or not
             const isDetached = ids
               .split('|')

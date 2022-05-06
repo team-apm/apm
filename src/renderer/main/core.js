@@ -11,12 +11,14 @@ import replaceText from '../../lib/replaceText';
 import unzip from '../../lib/unzip';
 import shortcut from '../../lib/shortcut';
 import buttonTransition from '../../lib/buttonTransition';
-import parseXML from '../../lib/parseXML';
+import parseJson from '../../lib/parseJson';
 import apmJson from '../../lib/apmJson';
 import mod from './lib/mod';
 import integrity from '../../lib/integrity';
 import { convertId } from './lib/convertId';
-import migration1to2 from '../../migration/migration1to2';
+import migration2to3 from '../../migration/migration2to3';
+/** @typedef {import("apm-data").Core} Core */
+/** @typedef {import("apm-data").Program} Program */
 
 // Functions to be exported
 
@@ -45,8 +47,10 @@ async function displayInstalledVersion(instPath) {
     for (const program of ['aviutl', 'exedit']) {
       let filesCount = 0;
       let existCount = 0;
-      for (const file of coreInfo[program].files) {
-        if (!file.isOptional) {
+      /** @type {Program} */
+      const progInfo = coreInfo[program];
+      for (const file of progInfo.files) {
+        if (!file.isUninstallOnly) {
           filesCount++;
           if (fs.existsSync(path.join(instPath, file.filename))) {
             existCount++;
@@ -56,11 +60,9 @@ async function displayInstalledVersion(instPath) {
 
       // Set the version of the manually installed program
       if (!apmJson.has(instPath, 'core.' + program)) {
-        for (const [version, release] of Object.entries(
-          coreInfo[program].releases
-        )) {
-          if (await integrity.checkIntegrity(instPath, release.integrities))
-            apmJson.setCore(instPath, program, version);
+        for (const release of progInfo.releases) {
+          if (await integrity.checkIntegrity(instPath, release.integrity.file))
+            apmJson.setCore(instPath, program, release.version);
         }
       }
 
@@ -120,24 +122,24 @@ async function displayInstalledVersion(instPath) {
 }
 
 /**
- * Returns an object parsed from core.xml.
+ * Returns an object parsed from core.json.
  *
- * @returns {Promise<object>} - An object parsed from core.xml.
+ * @returns {Promise<Core>} - An object parsed from core.json.
  */
 async function getCoreInfo() {
   const coreFile = await ipcRenderer.invoke(
     'exists-temp-file',
-    'core/core.xml'
+    'core/core.json'
   );
   if (coreFile.exists) {
     try {
-      return parseXML.getCore(coreFile.path);
+      return await parseJson.getCore(coreFile.path);
     } catch (e) {
       log.error(e);
       return null;
     }
   } else {
-    return false;
+    return null;
   }
 }
 
@@ -161,28 +163,39 @@ async function setCoreVersions(instPath) {
   const coreInfo = await getCoreInfo();
   if (coreInfo) {
     for (const program of ['aviutl', 'exedit']) {
+      /** @type {Program} */
       const progInfo = coreInfo[program];
       replaceText(`${program}-latest-version`, progInfo.latestVersion);
 
-      for (const version of Object.keys(progInfo.releases)) {
+      for (const release of progInfo.releases) {
         const li = document.createElement('li');
         const anchor = document.createElement('a');
         anchor.classList.add('dropdown-item');
         anchor.href = '#';
         anchor.innerText =
-          version +
-          (version.includes('rc') ? '（テスト版）' : '') +
-          (version === progInfo.latestVersion ? '（最新版）' : '');
+          release.version +
+          (release.version.includes('rc') ? '（テスト版）' : '') +
+          (release.version === progInfo.latestVersion ? '（最新版）' : '');
         li.appendChild(anchor);
 
         if (program === 'aviutl') {
           anchor.addEventListener('click', async () => {
-            await installProgram(installAviutlBtn, program, version, instPath);
+            await installProgram(
+              installAviutlBtn,
+              program,
+              release.version,
+              instPath
+            );
           });
           aviutlVersionSelect.appendChild(li);
         } else if (program === 'exedit') {
           anchor.addEventListener('click', async () => {
-            await installProgram(installExeditBtn, program, version, instPath);
+            await installProgram(
+              installExeditBtn,
+              program,
+              release.version,
+              instPath
+            );
           });
           exeditVersionSelect.appendChild(li);
         }
@@ -214,7 +227,7 @@ async function checkLatestVersion(instPath) {
     await mod.downloadData();
     store.set('checkDate.core', Date.now());
     const modInfo = await mod.getInfo();
-    store.set('modDate.core', modInfo.core.getTime());
+    store.set('modDate.core', new Date(modInfo.core.modified).getTime());
     await displayInstalledVersion(instPath);
     await setCoreVersions(instPath);
   } catch (e) {
@@ -271,12 +284,18 @@ async function changeInstallationPath(instPath) {
 
   if (fs.existsSync(instPath)) {
     // migration
-    await migration1to2.byFolder(instPath);
+    await migration2to3.byFolder(instPath);
 
     if (fs.existsSync(apmJson.getPath(instPath)) && currentMod.convert) {
       const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
-      if (oldConvertMod.getTime() < currentMod.convert.getTime()) {
-        await convertId(instPath, currentMod.convert.getTime());
+      if (
+        oldConvertMod.getTime() <
+        new Date(currentMod.convert.modified).getTime()
+      ) {
+        await convertId(
+          instPath,
+          new Date(currentMod.convert.modified).getTime()
+        );
       }
     }
   }
@@ -286,13 +305,21 @@ async function changeInstallationPath(instPath) {
   const oldCoreMod = new Date(store.get('modDate.core', 0));
   const oldPackagesMod = new Date(store.get('modDate.packages', 0));
 
-  if (oldScriptsMod.getTime() < currentMod.scripts?.getTime()) {
-    await packageMain.getScriptsList(true, currentMod.scripts.getTime());
+  if (
+    oldScriptsMod.getTime() < new Date(currentMod.scripts[0].modified).getTime()
+  ) {
+    await packageMain.getScriptsList(
+      true,
+      new Date(currentMod.scripts[0].modified).getTime()
+    );
   }
-  if (oldCoreMod.getTime() < currentMod.core.getTime()) {
+  if (oldCoreMod.getTime() < new Date(currentMod.core.modified).getTime()) {
     await checkLatestVersion(instPath);
   }
-  if (oldPackagesMod.getTime() < currentMod.packages.getTime()) {
+  if (
+    oldPackagesMod.getTime() <
+    new Date(currentMod.packages[0].modified).getTime()
+  ) {
     await packageMain.checkPackagesList(instPath);
   }
 
@@ -342,11 +369,14 @@ async function installProgram(btn, program, version, instPath) {
   const coreInfo = await getCoreInfo();
 
   if (coreInfo) {
-    const url = coreInfo[program].releases[version].url;
+    /** @type {Program} */
+    const progInfo = coreInfo[program];
+    const url = progInfo.releases.find((r) => r.version === version).url;
     let archivePath = await ipcRenderer.invoke('download', url, true, 'core');
 
-    const integrityForArchive =
-      coreInfo[program].releases[version]?.archiveIntegrity;
+    const integrityForArchive = progInfo.releases.find(
+      (r) => r.version === version
+    ).integrity.archive;
 
     if (integrityForArchive) {
       for (;;) {
@@ -394,8 +424,8 @@ async function installProgram(btn, program, version, instPath) {
 
       let filesCount = 0;
       let existCount = 0;
-      for (const file of coreInfo[program].files) {
-        if (!file.isOptional) {
+      for (const file of progInfo.files) {
+        if (!file.isUninstallOnly) {
           filesCount++;
           if (fs.existsSync(path.join(instPath, file.filename))) {
             existCount++;
@@ -460,6 +490,7 @@ async function batchInstall(instPath) {
   try {
     const coreInfo = await getCoreInfo();
     for (const program of ['aviutl', 'exedit']) {
+      /** @type {Program} */
       const progInfo = coreInfo[program];
       await installProgram(null, program, progInfo.latestVersion, instPath);
     }
