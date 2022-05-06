@@ -10,7 +10,7 @@ import apmJson from './apmJson';
  * @returns {Promise<object>} Dictionary of id relationships.
  */
 async function getIdDict(update = false): Promise<{ [key: string]: string }> {
-  const dictUrl = modList.getConvertDataUrl();
+  const dictUrl = await modList.getConvertDataUrl();
   if (update) {
     const convertJson = await ipcRenderer.invoke(
       'download',

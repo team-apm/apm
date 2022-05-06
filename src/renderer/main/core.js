@@ -219,7 +219,7 @@ async function checkLatestVersion(instPath) {
   try {
     await ipcRenderer.invoke(
       'download',
-      modList.getCoreDataUrl(),
+      await modList.getCoreDataUrl(),
       false,
       'core'
     );
