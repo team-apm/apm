@@ -16,8 +16,8 @@ import modList from '../../lib/modList';
 import integrity from '../../lib/integrity';
 import { convertId } from '../../lib/convertId';
 import migration2to3 from '../../migration/migration2to3';
-/** @typedef {import("apm-data").Core} Core */
-/** @typedef {import("apm-data").Program} Program */
+/** @typedef {import("apm-schema").Core} Core */
+/** @typedef {import("apm-schema").Program} Program */
 
 // Functions to be exported
 
@@ -305,11 +305,12 @@ async function changeInstallationPath(instPath) {
   const oldPackagesMod = new Date(store.get('modDate.packages', 0));
 
   if (
-    oldScriptsMod.getTime() < new Date(currentMod.scripts[0].modified).getTime()
+    oldScriptsMod.getTime() <
+    Math.max(...currentMod.scripts.map((p) => new Date(p.modified).getTime()))
   ) {
     await packageMain.getScriptsList(
       true,
-      new Date(currentMod.scripts[0].modified).getTime()
+      Math.max(...currentMod.scripts.map((p) => new Date(p.modified).getTime()))
     );
   }
   if (oldCoreMod.getTime() < new Date(currentMod.core.modified).getTime()) {
@@ -317,7 +318,7 @@ async function changeInstallationPath(instPath) {
   }
   if (
     oldPackagesMod.getTime() <
-    new Date(currentMod.packages[0].modified).getTime()
+    Math.max(...currentMod.packages.map((p) => new Date(p.modified).getTime()))
   ) {
     await packageMain.checkPackagesList(instPath);
   }
