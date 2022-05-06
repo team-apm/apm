@@ -391,7 +391,7 @@ async function getScriptsList(update = false, modTime) {
   } else {
     const scriptsJson = await ipcRenderer.invoke(
       'exists-temp-file',
-      'package/scripts.json',
+      path.join('package', path.basename(dictUrl)),
       dictUrl
     );
     if (scriptsJson.exists) {

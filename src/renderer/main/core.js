@@ -128,7 +128,7 @@ async function displayInstalledVersion(instPath) {
 async function getCoreInfo() {
   const coreFile = await ipcRenderer.invoke(
     'exists-temp-file',
-    'core/core.json'
+    path.join('core', path.basename(await modList.getCoreDataUrl()))
   );
   if (coreFile.exists) {
     try {

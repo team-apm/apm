@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron';
+import path from 'path';
 import * as fs from 'fs-extra';
 import modList from './modList';
 import apmJson from './apmJson';
@@ -23,7 +24,7 @@ async function getIdDict(update = false): Promise<{ [key: string]: string }> {
   } else {
     const convertJson = await ipcRenderer.invoke(
       'exists-temp-file',
-      'package/convert.json',
+      path.join('package', path.basename(dictUrl)),
       dictUrl
     );
     if (convertJson.exists) {
