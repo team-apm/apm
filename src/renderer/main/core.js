@@ -6,16 +6,15 @@ const store = new Store();
 import log from 'electron-log';
 import packageMain from './package';
 import packageUtil from './packageUtil';
-import setting from './setting';
 import replaceText from '../../lib/replaceText';
 import unzip from '../../lib/unzip';
 import shortcut from '../../lib/shortcut';
 import buttonTransition from '../../lib/buttonTransition';
 import parseJson from '../../lib/parseJson';
 import apmJson from '../../lib/apmJson';
-import mod from './lib/mod';
+import modList from '../../lib/modList';
 import integrity from '../../lib/integrity';
-import { convertId } from './lib/convertId';
+import { convertId } from '../../lib/convertId';
 import migration2to3 from '../../migration/migration2to3';
 /** @typedef {import("apm-data").Core} Core */
 /** @typedef {import("apm-data").Program} Program */
@@ -220,13 +219,13 @@ async function checkLatestVersion(instPath) {
   try {
     await ipcRenderer.invoke(
       'download',
-      setting.getCoreDataUrl(),
+      modList.getCoreDataUrl(),
       false,
       'core'
     );
-    await mod.downloadData();
+    await modList.downloadData();
     store.set('checkDate.core', Date.now());
-    const modInfo = await mod.getInfo();
+    const modInfo = await modList.getInfo();
     store.set('modDate.core', new Date(modInfo.core.modified).getTime());
     await displayInstalledVersion(instPath);
     await setCoreVersions(instPath);
@@ -279,8 +278,8 @@ async function changeInstallationPath(instPath) {
   store.set('installationPath', instPath);
 
   // update 1
-  await mod.downloadData();
-  const currentMod = await mod.getInfo();
+  await modList.downloadData();
+  const currentMod = await modList.getInfo();
 
   if (fs.existsSync(instPath)) {
     // migration

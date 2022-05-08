@@ -11,19 +11,22 @@ import buttonTransition from '../../lib/buttonTransition';
 async function initSettings() {
   if (!store.has('dataURL.extra')) store.set('dataURL.extra', '');
   if (!store.has('dataURL.main'))
-    await setDataUrl({ value: '' }, store.get('dataURL.extra'));
+    await setDataUrl({ value: '' }, store.get('dataURL.extra') as string);
 }
 
 /**
  * Sets a data files URL.
  *
  * @param {HTMLInputElement} dataUrl - An input element that contains a data files URL to set.
+ * @param {string} dataUrl.value - value
  * @param {string} extraDataUrls - Data files URLs to set.
  */
-async function setDataUrl(dataUrl, extraDataUrls) {
+async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
   const btn = document.getElementById('set-data-url');
-  let enableButton;
-  if (btn !== null) enableButton = buttonTransition.loading(btn, '設定');
+  const enableButton =
+    btn instanceof HTMLButtonElement
+      ? buttonTransition.loading(btn, '設定')
+      : undefined;
 
   if (!dataUrl.value) {
     dataUrl.value = 'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/v3/';
@@ -75,7 +78,7 @@ async function setDataUrl(dataUrl, extraDataUrls) {
     store.set('dataURL.packages', packages);
   }
 
-  if (btn !== null) {
+  if (btn instanceof HTMLButtonElement) {
     buttonTransition.message(btn, '設定完了', 'success');
     setTimeout(() => {
       enableButton();
@@ -84,79 +87,13 @@ async function setDataUrl(dataUrl, extraDataUrls) {
 }
 
 /**
- * Returns a data files URL.
- *
- * @returns {string} - A data files URL.
- */
-function getDataUrl() {
-  return store.get('dataURL.main');
-}
-
-/**
- * Returns extra data files URLs.
- *
- * @returns {string} - Data files URLs.
- */
-function getExtraDataUrl() {
-  return store.get('dataURL.extra');
-}
-
-/**
- * Returns a core data file URL.
- *
- * @returns {string} - A core data file URL.
- */
-function getCoreDataUrl() {
-  const dataUrl = getDataUrl();
-  return path.join(dataUrl, 'core.json');
-}
-
-/**
- * Returns package data files URLs.
- *
- * @param {string} instPath - An installation path.
- * @returns {Array.<string>} -Package data files URLs.
- */
-function getPackagesDataUrl(instPath) {
-  return store
-    .get('dataURL.packages')
-    .concat(
-      instPath &&
-        instPath.length > 0 &&
-        fs.existsSync(getLocalPackagesDataUrl(instPath))
-        ? [getLocalPackagesDataUrl(instPath)]
-        : []
-    );
-}
-
-/**
- * Returns local package data files URL.
- *
- * @param {string} instPath - An installation path.
- * @returns {string} - Package data files URL.
- */
-function getLocalPackagesDataUrl(instPath) {
-  return path.join(instPath, 'packages.json');
-}
-
-/**
- * Returns a mod data file URL.
- *
- * @returns {string} - A mod data file URL.
- */
-function getModDataUrl() {
-  const dataUrl = getDataUrl();
-  return path.join(dataUrl, 'list.json');
-}
-
-/**
  * Sets a zoom factor.
  *
  * @param {HTMLSelectElement} zoomFactorSelect - A zoom factor select to change value.
  */
-function setZoomFactor(zoomFactorSelect) {
+function setZoomFactor(zoomFactorSelect: HTMLSelectElement) {
   const zoomFactor = store.get('zoomFactor');
-  for (const optionElement of zoomFactorSelect.options) {
+  for (const optionElement of Array.from(zoomFactorSelect.options)) {
     if (optionElement.getAttribute('value') === zoomFactor) {
       optionElement.selected = true;
       break;
@@ -169,7 +106,7 @@ function setZoomFactor(zoomFactorSelect) {
  *
  * @param {string} zoomFactor - A zoom factor to change.
  */
-function changeZoomFactor(zoomFactor) {
+function changeZoomFactor(zoomFactor: string) {
   store.set('zoomFactor', zoomFactor);
   ipcRenderer.invoke('change-main-zoom-factor', parseInt(zoomFactor) / 100);
 }
@@ -177,12 +114,6 @@ function changeZoomFactor(zoomFactor) {
 const setting = {
   initSettings,
   setDataUrl,
-  getDataUrl,
-  getExtraDataUrl,
-  getCoreDataUrl,
-  getPackagesDataUrl,
-  getLocalPackagesDataUrl,
-  getModDataUrl,
   setZoomFactor,
   changeZoomFactor,
 };
