@@ -23,9 +23,9 @@ email: hal-shu-sato@users.noreply.github.com
 description: >- # this means to ignore newlines until "baseurl:"
   AviUtl本体やプラグイン・スクリプトの導入を補助するソフトウェア
 baseurl: /apm # the subpath of your site, e.g. /blog
-url: https://hal-shu-sato.github.io # the base hostname & protocol for your site, e.g. http://example.com
+url: https://team-apm.github.io # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: hal_shu_sato
-github_username: hal-shu-sato
+github_username: team-apm
 
 # Build settings
 theme: jekyll-theme-cayman
@@ -58,5 +58,5 @@ lang: ja
 logo: /images/apm1024.png
 show_downloads: true
 github:
-  exe_url: https://github.com/hal-shu-sato/apm/releases/download/v2.1.1/AviUtl.Package.Manager-2.1.1.Setup.exe
-  zip_url: https://github.com/hal-shu-sato/apm/releases/download/v2.1.1/AviUtl.Package.Manager-win32-x64-2.1.1.zip
+  exe_url: https://github.com/team-apm/apm/releases/download/v2.2.0/AviUtl.Package.Manager-2.2.0.Setup.exe
+  zip_url: https://github.com/team-apm/apm/releases/download/v2.2.0/AviUtl.Package.Manager-win32-x64-2.2.0.zip
