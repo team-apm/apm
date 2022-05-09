@@ -4,6 +4,7 @@ import Store from 'electron-store';
 import path from 'path';
 const store = new Store();
 import parseJson from './parseJson';
+import apmPath from './apmPath';
 
 /**
  * Resolve paths.
@@ -14,9 +15,25 @@ import parseJson from './parseJson';
  */
 function resolvePath(base: string, relative: string) {
   if (base.startsWith('http')) {
-    return new URL(relative, base).href;
+    const retURL = new URL(relative, base);
+    const baseURL = new URL(base);
+    if (retURL.origin !== baseURL.origin) {
+      throw new Error('list.json can only specify files from the same origin.');
+    }
+    if (!apmPath.isParent(baseURL.pathname, retURL.pathname)) {
+      throw new Error(
+        'list.json can only specify files in the same or child directories.'
+      );
+    }
+    return retURL.href;
   } else {
-    return path.resolve(base, relative);
+    const retStr = path.resolve(base, relative);
+    if (!apmPath.isParent(base, retStr)) {
+      throw new Error(
+        'list.json can only specify files in the same or child directories.'
+      );
+    }
+    return retStr;
   }
 }
 

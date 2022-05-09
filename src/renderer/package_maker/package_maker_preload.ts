@@ -10,6 +10,7 @@ import Sortable from 'sortablejs';
 import ClipboardJS from 'clipboard';
 import unzip from '../../lib/unzip';
 import buttonTransition from '../../lib/buttonTransition';
+import apmPath from '../../lib/apmPath';
 
 log.catchErrors({
   onError: () => {
@@ -49,14 +50,6 @@ const searchFiles = (dirName: string, directory = false): string[] => {
       .filter((i) => i.isDirectory())
       .flatMap((i) => searchFiles(path.join(dirName, i.name), directory))
   );
-};
-
-const pathRelated = (pathA: string, pathB: string) => {
-  const isParent = (parent: string, child: string) => {
-    const relative = path.relative(parent, child);
-    return relative && relative !== '' && !relative.startsWith('..');
-  };
-  return isParent(pathA, pathB) || isParent(pathB, pathA);
 };
 
 window.addEventListener('load', () => {
@@ -391,7 +384,7 @@ window.addEventListener('load', () => {
     Array.from(listDownload.children).forEach((node: HTMLElement) => {
       const nodePath = node.dataset.id.replace('?', '');
       usedPath.forEach((used) => {
-        if (pathRelated(nodePath, used)) {
+        if (apmPath.pathRelated(nodePath, used)) {
           node.classList.add('list-group-item-dark');
           node.classList.add('ignore-elements');
         }
