@@ -15,6 +15,7 @@ function addAviUtlShortcut(appDataPath, targetEXE) {
   if (process.platform === 'win32') {
     shell.writeShortcutLink(getShortcutPath(appDataPath), {
       target: targetEXE,
+      cwd: path.dirname(targetEXE),
     });
   }
 }
