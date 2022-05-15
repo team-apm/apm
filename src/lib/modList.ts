@@ -4,11 +4,43 @@ import Store from 'electron-store';
 import path from 'path';
 const store = new Store();
 import parseJson from './parseJson';
+import apmPath from './apmPath';
+
+/**
+ * Resolve paths.
+ *
+ * @param {string} base - base path
+ * @param {string} relative - relative path
+ * @returns {string} - absolute path
+ */
+function resolvePath(base: string, relative: string) {
+  if (base.startsWith('http')) {
+    const retURL = new URL(relative, base);
+    const baseURL = new URL(base);
+    if (retURL.origin !== baseURL.origin) {
+      throw new Error('list.json can only specify files from the same origin.');
+    }
+    if (!apmPath.isParent(baseURL.pathname, retURL.pathname)) {
+      throw new Error(
+        'list.json can only specify files in the same or child directories.'
+      );
+    }
+    return retURL.href;
+  } else {
+    const retStr = path.resolve(base, relative);
+    if (!apmPath.isParent(base, retStr)) {
+      throw new Error(
+        'list.json can only specify files in the same or child directories.'
+      );
+    }
+    return retStr;
+  }
+}
 
 // Functions to be exported
 
 /**
- * Download mod.json.
+ * Download list.json.
  */
 async function downloadData() {
   await ipcRenderer.invoke(
@@ -20,9 +52,9 @@ async function downloadData() {
 }
 
 /**
- * Returns an object parsed from mod.json.
+ * Returns an object parsed from list.json.
  *
- * @returns {Promise<object>} - An object parsed from core.json.
+ * @returns {Promise<object>} - An object parsed from list.json.
  */
 async function getInfo() {
   const modFile = await ipcRenderer.invoke('exists-temp-file', 'list.json');
@@ -35,6 +67,21 @@ async function getInfo() {
   } else {
     return null;
   }
+}
+
+/**
+ * Sets package data files URLs.
+ *
+ * @param {string[]} URLs - URLs for additionally specified packages.
+ */
+async function setPackagesDataUrl(URLs: string[]) {
+  const packages = ([] as string[]).concat(
+    (await getInfo()).packages.map((packageItem) =>
+      resolvePath(getDataUrl(), packageItem.path)
+    ),
+    URLs
+  );
+  store.set('dataURL.packages', packages);
 }
 
 /**
@@ -60,8 +107,8 @@ function getExtraDataUrl() {
  *
  * @returns {string} - A core data file URL.
  */
-function getCoreDataUrl() {
-  return path.join(getDataUrl(), 'core.json');
+async function getCoreDataUrl() {
+  return resolvePath(getDataUrl(), (await getInfo()).core.path);
 }
 
 /**
@@ -95,17 +142,19 @@ function getLocalPackagesDataUrl(instPath: string) {
  *
  * @returns {string} - A convert data file URL.
  */
-function getConvertDataUrl() {
-  return path.join(getDataUrl(), 'convert.json');
+async function getConvertDataUrl() {
+  return resolvePath(getDataUrl(), (await getInfo()).convert.path);
 }
 
 /**
  * Returns a scripts data file URL.
  *
- * @returns {string} - A scripts data file URL.
+ * @returns {string[]} - A scripts data file URL.
  */
-function getScriptsDataUrl() {
-  return path.join(getDataUrl(), 'scripts.json');
+async function getScriptsDataUrl() {
+  return (await getInfo()).scripts.map((script) =>
+    resolvePath(getDataUrl(), script.path)
+  );
 }
 
 const mod = {
@@ -114,6 +163,7 @@ const mod = {
   getDataUrl,
   getExtraDataUrl,
   getCoreDataUrl,
+  setPackagesDataUrl,
   getPackagesDataUrl,
   getLocalPackagesDataUrl,
   getConvertDataUrl,

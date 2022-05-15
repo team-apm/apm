@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron';
+import path from 'path';
 import * as fs from 'fs-extra';
 import modList from './modList';
 import apmJson from './apmJson';
@@ -10,7 +11,7 @@ import apmJson from './apmJson';
  * @returns {Promise<object>} Dictionary of id relationships.
  */
 async function getIdDict(update = false): Promise<{ [key: string]: string }> {
-  const dictUrl = modList.getConvertDataUrl();
+  const dictUrl = await modList.getConvertDataUrl();
   if (update) {
     const convertJson = await ipcRenderer.invoke(
       'download',
@@ -23,7 +24,7 @@ async function getIdDict(update = false): Promise<{ [key: string]: string }> {
   } else {
     const convertJson = await ipcRenderer.invoke(
       'exists-temp-file',
-      'package/convert.json',
+      path.join('package', path.basename(dictUrl)),
       dictUrl
     );
     if (convertJson.exists) {

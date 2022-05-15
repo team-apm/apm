@@ -18,6 +18,7 @@ import { getHash } from '../../lib/getHash';
 import packageUtil from './packageUtil';
 import integrity from '../../lib/integrity';
 import { compareVersion } from '../../lib/compareVersion';
+/** @typedef {import("apm-schema").Scripts} Scripts */
 
 // To avoid a bug in the library
 // https://github.com/sindresorhus/matcher/issues/32
@@ -346,7 +347,7 @@ async function checkPackagesList(instPath) {
     const modInfo = await modList.getInfo();
     store.set(
       'modDate.packages',
-      new Date(modInfo.packages[0].modified).getTime()
+      Math.max(...modInfo.packages.map((p) => new Date(p.modified).getTime()))
     );
     await setPackagesList(instPath);
 
@@ -373,33 +374,47 @@ async function checkPackagesList(instPath) {
  *
  * @param {boolean} update - Download the json file.
  * @param {number} modTime - A mod time.
- * @returns {Promise<object>} - An object parsed from scripts.json.
+ * @returns {Promise<Scripts>} - An object parsed from scripts.json.
  */
 async function getScriptsList(update = false, modTime) {
-  const dictUrl = modList.getScriptsDataUrl();
+  const dictUrl = await modList.getScriptsDataUrl();
+  /** @type {Scripts} */
+  const tmpScripts = {
+    webpage: [],
+    scripts: [],
+  };
+
   if (update) {
     store.set('modDate.scripts', modTime);
-
-    const scriptsJson = await ipcRenderer.invoke(
-      'download',
-      dictUrl,
-      false,
-      'package',
-      dictUrl
-    );
-    return fs.readJsonSync(scriptsJson);
+    for (const url of dictUrl) {
+      const scriptsJson = await ipcRenderer.invoke(
+        'download',
+        url,
+        false,
+        'package',
+        url
+      );
+      /** @type {Scripts} */
+      const json = fs.readJsonSync(scriptsJson);
+      tmpScripts.webpage = tmpScripts.webpage.concat(json.webpage);
+      tmpScripts.scripts = tmpScripts.scripts.concat(json.scripts);
+    }
   } else {
-    const scriptsJson = await ipcRenderer.invoke(
-      'exists-temp-file',
-      'package/scripts.json',
-      dictUrl
-    );
-    if (scriptsJson.exists) {
-      return fs.readJsonSync(scriptsJson.path);
-    } else {
-      return { webpage: [], scripts: [] };
+    for (const url of dictUrl) {
+      const scriptsJson = await ipcRenderer.invoke(
+        'exists-temp-file',
+        path.join('package', path.basename(url)),
+        url
+      );
+      if (scriptsJson.exists) {
+        /** @type {Scripts} */
+        const json = fs.readJsonSync(scriptsJson.path);
+        tmpScripts.webpage = tmpScripts.webpage.concat(json.webpage);
+        tmpScripts.scripts = tmpScripts.scripts.concat(json.scripts);
+      }
     }
   }
+  return tmpScripts;
 }
 
 /**

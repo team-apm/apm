@@ -4,6 +4,7 @@ import Store from 'electron-store';
 import path from 'path';
 const store = new Store();
 import buttonTransition from '../../lib/buttonTransition';
+import modList from '../../lib/modList';
 
 /**
  * Initializes settings
@@ -31,58 +32,68 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
   if (!dataUrl.value) {
     dataUrl.value = 'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/v3/';
   }
-
   const value = dataUrl.value;
+
+  let error = false;
   if (!value.startsWith('http') && !fs.existsSync(value)) {
-    ipcRenderer.invoke(
+    await ipcRenderer.invoke(
       'open-err-dialog',
       'エラー',
       '有効なURLまたは場所を入力してください。'
     );
-  } else if (path.extname(value) === '.json') {
-    ipcRenderer.invoke(
+    error = true;
+  }
+  if (path.extname(value) === '.json') {
+    await ipcRenderer.invoke(
       'open-err-dialog',
       'エラー',
       'フォルダのURLを入力してください。'
     );
-  } else {
-    store.set('dataURL.main', value);
-
-    const packages = [path.join(value, 'packages.json')];
-
-    for (const tmpDataUrl of extraDataUrls.split(/\r?\n/)) {
-      const extraDataUrl = tmpDataUrl.trim();
-      if (extraDataUrl === '') continue;
-
-      if (!extraDataUrl.startsWith('http') && !fs.existsSync(extraDataUrl)) {
-        await ipcRenderer.invoke(
-          'open-err-dialog',
-          'エラー',
-          `有効なURLまたは場所を入力してください。(${extraDataUrl})`
-        );
-        break;
-      }
-      if (!['packages.json'].includes(path.basename(extraDataUrl))) {
-        await ipcRenderer.invoke(
-          'open-err-dialog',
-          'エラー',
-          `有効なJsonファイルのURLまたは場所を入力してください。(${extraDataUrl})`
-        );
-        break;
-      }
-
-      packages.push(extraDataUrl);
-    }
-
-    store.set('dataURL.extra', extraDataUrls);
-    store.set('dataURL.packages', packages);
+    error = true;
   }
 
-  if (btn instanceof HTMLButtonElement) {
-    buttonTransition.message(btn, '設定完了', 'success');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+  const tmpExtraUrls = extraDataUrls
+    .split(/\r?\n/)
+    .map((url) => url.trim())
+    .filter((url) => url !== '');
+
+  for (const tmpDataUrl of tmpExtraUrls) {
+    if (!tmpDataUrl.startsWith('http') && !fs.existsSync(tmpDataUrl)) {
+      await ipcRenderer.invoke(
+        'open-err-dialog',
+        'エラー',
+        `有効なURLまたは場所を入力してください。(${tmpDataUrl})`
+      );
+      error = true;
+    }
+    if (path.extname(tmpDataUrl) !== '.json') {
+      await ipcRenderer.invoke(
+        'open-err-dialog',
+        'エラー',
+        `有効なJsonファイルのURLまたは場所を入力してください。(${tmpDataUrl})`
+      );
+      error = true;
+    }
+  }
+
+  if (!error) {
+    store.set('dataURL.main', value);
+    store.set('dataURL.extra', extraDataUrls);
+    await modList.setPackagesDataUrl(tmpExtraUrls);
+
+    if (btn instanceof HTMLButtonElement) {
+      buttonTransition.message(btn, '設定完了', 'success');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
+  } else {
+    if (btn instanceof HTMLButtonElement) {
+      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
   }
 }
 
