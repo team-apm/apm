@@ -308,10 +308,7 @@ async function changeInstallationPath(instPath) {
     oldScriptsMod.getTime() <
     Math.max(...currentMod.scripts.map((p) => new Date(p.modified).getTime()))
   ) {
-    await packageMain.getScriptsList(
-      true,
-      Math.max(...currentMod.scripts.map((p) => new Date(p.modified).getTime()))
-    );
+    await packageMain.getScriptsList(true);
   }
   if (oldCoreMod.getTime() < new Date(currentMod.core.modified).getTime()) {
     await checkLatestVersion(instPath);
