@@ -373,10 +373,9 @@ async function checkPackagesList(instPath) {
  * Checks the scripts list.
  *
  * @param {boolean} update - Download the json file.
- * @param {number} modTime - A mod time.
  * @returns {Promise<Scripts>} - An object parsed from scripts.json.
  */
-async function getScriptsList(update = false, modTime) {
+async function getScriptsList(update = false) {
   const dictUrl = await modList.getScriptsDataUrl();
   /** @type {Scripts} */
   const tmpScripts = {
@@ -385,7 +384,11 @@ async function getScriptsList(update = false, modTime) {
   };
 
   if (update) {
-    store.set('modDate.scripts', modTime);
+    const currentMod = await modList.getInfo();
+    store.set(
+      'modDate.scripts',
+      Math.max(...currentMod.scripts.map((p) => new Date(p.modified).getTime()))
+    );
     for (const url of dictUrl) {
       const scriptsJson = await ipcRenderer.invoke(
         'download',
@@ -402,16 +405,16 @@ async function getScriptsList(update = false, modTime) {
   } else {
     for (const url of dictUrl) {
       const scriptsJson = await ipcRenderer.invoke(
-        'exists-temp-file',
-        path.join('package', path.basename(url)),
+        'download',
+        url,
+        true,
+        'package',
         url
       );
-      if (scriptsJson.exists) {
-        /** @type {Scripts} */
-        const json = fs.readJsonSync(scriptsJson.path);
-        tmpScripts.webpage = tmpScripts.webpage.concat(json.webpage);
-        tmpScripts.scripts = tmpScripts.scripts.concat(json.scripts);
-      }
+      /** @type {Scripts} */
+      const json = fs.readJsonSync(scriptsJson);
+      tmpScripts.webpage = tmpScripts.webpage.concat(json.webpage);
+      tmpScripts.scripts = tmpScripts.scripts.concat(json.scripts);
     }
   }
   return tmpScripts;
