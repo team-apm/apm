@@ -79,7 +79,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-window.addEventListener('load', async () => {
+window.addEventListener('load', () => {
   const installationPath = document.getElementById(
     'installation-path'
   ) as HTMLInputElement;
