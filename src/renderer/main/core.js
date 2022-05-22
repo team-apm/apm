@@ -223,7 +223,7 @@ async function checkLatestVersion(instPath) {
       false,
       'core'
     );
-    await modList.downloadData();
+    await modList.updateInfo();
     store.set('checkDate.core', Date.now());
     const modInfo = await modList.getInfo();
     store.set('modDate.core', new Date(modInfo.core.modified).getTime());
@@ -278,7 +278,7 @@ async function changeInstallationPath(instPath) {
   store.set('installationPath', instPath);
 
   // update 1
-  await modList.downloadData();
+  await modList.updateInfo();
   const currentMod = await modList.getInfo();
 
   if (fs.existsSync(instPath)) {

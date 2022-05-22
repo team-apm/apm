@@ -342,7 +342,7 @@ async function checkPackagesList(instPath) {
 
   try {
     await packageUtil.downloadRepository(modList.getPackagesDataUrl(instPath));
-    await modList.downloadData();
+    await modList.updateInfo();
     store.set('checkDate.packages', Date.now());
     const modInfo = await modList.getInfo();
     store.set(

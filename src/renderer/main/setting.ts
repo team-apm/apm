@@ -80,7 +80,7 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
   if (!error) {
     store.set('dataURL.main', value);
     store.set('dataURL.extra', tmpExtraUrls.join(os.EOL));
-    await modList.downloadData();
+    await modList.updateInfo();
 
     if (btn instanceof HTMLButtonElement) {
       buttonTransition.message(btn, '設定完了', 'success');

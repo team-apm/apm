@@ -59,7 +59,7 @@ async function setPackagesDataUrl() {
 /**
  * Download list.json.
  */
-async function downloadData() {
+async function updateInfo() {
   await ipcRenderer.invoke(
     'download',
     path.join(getDataUrl(), 'list.json'),
@@ -83,7 +83,7 @@ async function getInfo() {
       return null;
     }
   } else {
-    await downloadData();
+    await updateInfo();
     const downloadedModFile = await ipcRenderer.invoke(
       'exists-temp-file',
       'list.json'
@@ -170,7 +170,7 @@ async function getScriptsDataUrl() {
 }
 
 const mod = {
-  downloadData,
+  updateInfo,
   getInfo,
   getDataUrl,
   getExtraDataUrl,
