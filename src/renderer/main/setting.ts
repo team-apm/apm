@@ -2,6 +2,7 @@ import { ipcRenderer } from 'electron';
 import fs from 'fs-extra';
 import Store from 'electron-store';
 import path from 'path';
+import * as os from 'os';
 const store = new Store();
 import buttonTransition from '../../lib/buttonTransition';
 import modList from '../../lib/modList';
@@ -78,8 +79,8 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
 
   if (!error) {
     store.set('dataURL.main', value);
-    store.set('dataURL.extra', extraDataUrls);
-    await modList.setPackagesDataUrl(tmpExtraUrls);
+    store.set('dataURL.extra', tmpExtraUrls.join(os.EOL));
+    await modList.downloadData();
 
     if (btn instanceof HTMLButtonElement) {
       buttonTransition.message(btn, '設定完了', 'success');

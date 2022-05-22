@@ -2,6 +2,7 @@ import { ipcRenderer } from 'electron';
 import fs from 'fs-extra';
 import Store from 'electron-store';
 import path from 'path';
+import * as os from 'os';
 const store = new Store();
 import parseJson from './parseJson';
 import apmPath from './apmPath';
@@ -37,6 +38,22 @@ function resolvePath(base: string, relative: string) {
   }
 }
 
+/**
+ * Sets package data files URLs.
+ */
+async function setPackagesDataUrl() {
+  const URLs = (store.get('dataURL.extra') as string)
+    .split(os.EOL)
+    .filter((url) => url !== '');
+  const packages = ([] as string[]).concat(
+    (await getInfo()).packages.map((packageItem) =>
+      resolvePath(getDataUrl(), packageItem.path)
+    ),
+    URLs
+  );
+  store.set('dataURL.packages', packages);
+}
+
 // Functions to be exported
 
 /**
@@ -49,6 +66,7 @@ async function downloadData() {
     false,
     ''
   );
+  await setPackagesDataUrl();
 }
 
 /**
@@ -65,23 +83,17 @@ async function getInfo() {
       return null;
     }
   } else {
-    return null;
+    await downloadData();
+    const downloadedModFile = await ipcRenderer.invoke(
+      'exists-temp-file',
+      'list.json'
+    );
+    try {
+      return await parseJson.getMod(downloadedModFile.path);
+    } catch {
+      return null;
+    }
   }
-}
-
-/**
- * Sets package data files URLs.
- *
- * @param {string[]} URLs - URLs for additionally specified packages.
- */
-async function setPackagesDataUrl(URLs: string[]) {
-  const packages = ([] as string[]).concat(
-    (await getInfo()).packages.map((packageItem) =>
-      resolvePath(getDataUrl(), packageItem.path)
-    ),
-    URLs
-  );
-  store.set('dataURL.packages', packages);
 }
 
 /**
@@ -163,7 +175,6 @@ const mod = {
   getDataUrl,
   getExtraDataUrl,
   getCoreDataUrl,
-  setPackagesDataUrl,
   getPackagesDataUrl,
   getLocalPackagesDataUrl,
   getConvertDataUrl,
