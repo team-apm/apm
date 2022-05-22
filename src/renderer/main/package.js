@@ -350,6 +350,7 @@ async function checkPackagesList(instPath) {
       Math.max(...modInfo.packages.map((p) => new Date(p.modified).getTime()))
     );
     await setPackagesList(instPath);
+    await displayNicommonsIdList(instPath);
 
     if (btn) buttonTransition.message(btn, '更新完了', 'success');
   } catch (e) {
@@ -712,6 +713,7 @@ async function installPackage(
       };
     apmJson.addPackage(instPath, installedPackage);
     await setPackagesList(instPath);
+    await displayNicommonsIdList(instPath);
 
     if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
   } else {
@@ -794,6 +796,7 @@ async function uninstallPackage(instPath) {
   if (filesCount === notExistCount) {
     if (!uninstalledPackage.id.startsWith('script_')) {
       await setPackagesList(instPath);
+      await displayNicommonsIdList(instPath);
     } else {
       await parseJson.removePackage(
         modList.getLocalPackagesDataUrl(instPath),
@@ -1189,6 +1192,99 @@ function listFilter(column, btns, btn) {
   }
 }
 
+/**
+ * Returns a nicommonsID list separated by space.
+ *
+ * @param {string} instPath - An installation path.
+ */
+async function displayNicommonsIdList(instPath) {
+  const packages = [
+    {
+      info: { name: 'AviUtl', developer: 'KENくん', nicommons: 'im1696493' },
+      type: [],
+    },
+    {
+      info: {
+        name: 'AviUtl Package Manager',
+        developer: 'Team apm',
+        nicommons: 'nc251912',
+      },
+      type: [],
+    },
+    ...(await getPackages(instPath)),
+  ];
+  const installedPackages = packages.filter((value, index) => {
+    if (index <= 1) return true;
+    return apmJson.has(instPath, 'packages.' + value.id);
+  });
+  const packagesWithNicommonsId = installedPackages.filter(
+    (value) => value.info.nicommons
+  );
+
+  // show the package list
+  const columns = ['thumbnail', 'name', 'developer', 'type', 'nicommons'];
+  const makeLiFromArray = (columnList) => {
+    const li = document.getElementById('nicommons-id-template').cloneNode(true);
+    li.removeAttribute('id');
+    const divs = columnList.map(
+      (tdName) => li.getElementsByClassName(tdName)[0]
+    );
+    return [li].concat(divs);
+  };
+
+  const updateTextarea = () => {
+    const checkedId = [];
+    document.getElementsByName('nicommons-id').forEach((checkbox) => {
+      if (checkbox.checked) checkedId.push(checkbox.value);
+    });
+
+    const nicommonsIdTextarea = document.getElementById(
+      'nicommons-id-textarea'
+    );
+    nicommonsIdTextarea.value = checkedId.join(' ');
+  };
+
+  const nicommonsIdList = document.getElementById('nicommons-id-list');
+  nicommonsIdList.innerHTML = null;
+
+  for (const packageItem of packagesWithNicommonsId) {
+    const [li, thumbnail, name, developer, type, nicommons] =
+      makeLiFromArray(columns);
+
+    const checkbox = li.getElementsByTagName('input')[0];
+    checkbox.value = packageItem.info.nicommons;
+    checkbox.checked = true;
+    checkbox.addEventListener('change', updateTextarea);
+
+    name.innerText = packageItem.info.name;
+    developer.innerText = packageItem.info.originalDeveloper
+      ? `${packageItem.info.developer}（オリジナル：${packageItem.info.originalDeveloper}）`
+      : packageItem.info.developer;
+    packageUtil.parsePackageType(packageItem.type).forEach((e) => {
+      const typeItem = document.getElementById('tag-template').cloneNode(true);
+      typeItem.removeAttribute('id');
+      typeItem.innerText = e;
+      type.appendChild(typeItem);
+    });
+    nicommons.innerText = packageItem.info.nicommons;
+
+    const nicommonsData = await ipcRenderer.invoke(
+      'get-nicommons-data',
+      packageItem.info.nicommons
+    );
+    if (nicommonsData && 'node' in nicommonsData) {
+      const img = document.createElement('img');
+      img.src = nicommonsData.node.thumbnailURL.replace('size=l', 'size=s');
+      img.classList.add('img-fluid');
+      thumbnail.appendChild(img);
+    }
+
+    nicommonsIdList.appendChild(li);
+  }
+
+  updateTextarea();
+}
+
 const packageMain = {
   getPackages,
   setPackagesList,
@@ -1199,5 +1295,6 @@ const packageMain = {
   openPackageFolder,
   installScript,
   listFilter,
+  displayNicommonsIdList,
 };
 export default packageMain;

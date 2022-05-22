@@ -7,6 +7,7 @@ import packageMain from './package';
 import setting from './setting';
 import modList from '../../lib/modList';
 import migration2to3 from '../../migration/migration2to3';
+import ClipboardJS from 'clipboard';
 
 log.catchErrors({
   onError: () => {
@@ -78,7 +79,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   const installationPath = document.getElementById(
     'installation-path'
   ) as HTMLInputElement;
@@ -136,6 +137,9 @@ window.addEventListener('load', () => {
       packageMain.listFilter('installationStatus', installFilterBtns, element);
     });
   });
+
+  // nicommons ID
+  new ClipboardJS('#copy-nicommons-id-textarea');
 
   // settings
   const setDataUrlBtn = document.getElementById('set-data-url');

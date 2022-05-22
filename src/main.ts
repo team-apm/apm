@@ -265,6 +265,39 @@ ipcMain.handle('open-yes-no-dialog', async (event, title, message) => {
   }
 });
 
+ipcMain.handle('get-nicommons-data', (event, id) => {
+  const request = net.request(
+    `https://public-api.commons.nicovideo.jp/v1/tree/node/${id}?with_meta=1`
+  );
+  return new Promise((resolve) => {
+    request.on('response', (response) => {
+      if (response.statusCode === 404) {
+        log.debug('No data are found in nicommons API.');
+        resolve(false);
+      } else {
+        let body = '';
+        response.on('data', (chunk) => {
+          body += chunk;
+        });
+        response.on('end', () => {
+          try {
+            const data = JSON.parse(body);
+            if ('data' in data) {
+              resolve(data.data);
+            } else {
+              resolve(false);
+            }
+          } catch (e) {
+            log.error(e);
+            resolve(false);
+          }
+        });
+      }
+    });
+    request.end();
+  });
+});
+
 const allowedHosts: string[] = [];
 
 app.on(
