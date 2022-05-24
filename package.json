@@ -69,7 +69,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^6.0.0-beta.63",
     "@electron-forge/plugin-webpack": "6.0.0-beta.63",
     "@electron-forge/publisher-github": "^6.0.0-beta.63",
-    "@types/bootstrap": "^5.1.11",
+    "@types/bootstrap": "^5.1.12",
     "@types/electron-prompt": "^1.6.1",
     "@types/electron-window-state": "^5.0.0",
     "@types/fs-extra": "^9.0.13",

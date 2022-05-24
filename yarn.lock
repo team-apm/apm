@@ -793,13 +793,12 @@
   dependencies:
     "@types/node" "*"
 
-"@types/bootstrap@^5.1.11":
-  version "5.1.11"
-  resolved "https://registry.yarnpkg.com/@types/bootstrap/-/bootstrap-5.1.11.tgz#afe61b5f63063cbda9474c122b7d7d3a21ae1a20"
-  integrity sha512-hto/seRZl0aKqZgSZJC9GrtTzT3e1fDPQ80wBPDogj4Zn9tC9sStkQEdn+wXw1wjAz3LoGDR0ievgJx/a42t3w==
+"@types/bootstrap@^5.1.12":
+  version "5.1.12"
+  resolved "https://registry.yarnpkg.com/@types/bootstrap/-/bootstrap-5.1.12.tgz#4d704f6385fda2f1a56cc458f1f4cafab6e9f7e3"
+  integrity sha512-pSS5BGEgepwzdbsBGswBWFmgrnYpp7c4UfuYe1FJWwkrcjm/JVwfG4gBkOYtd92Otd3RdJK0ByBWMkBROfLEPw==
   dependencies:
     "@popperjs/core" "^2.9.2"
-    "@types/jquery" "*"
 
 "@types/cacheable-request@^6.0.1":
   version "6.0.2"
@@ -919,13 +918,6 @@
   integrity sha512-5kPLG5BKpWYkw/LVOGWpiq3nEVqxiN32rTgI53Sk12/xHFQ2rG3ehI9IO+O3W2QoKeyB92dJkoka8SUm6BX1pA==
   dependencies:
     "@types/node" "*"
-
-"@types/jquery@*":
-  version "3.5.13"
-  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.5.13.tgz#5482d3ee325d5862f77a91c09369ae0a5b082bf3"
-  integrity sha512-ZxJrup8nz/ZxcU0vantG+TPdboMhB24jad2uSap50zE7Q9rUeYlCF25kFMSmHR33qoeOgqcdHEp3roaookC0Sg==
-  dependencies:
-    "@types/sizzle" "*"
 
 "@types/json-schema@*", "@types/json-schema@^7.0.8", "@types/json-schema@^7.0.9":
   version "7.0.9"
@@ -1053,11 +1045,6 @@
   dependencies:
     "@types/mime" "^1"
     "@types/node" "*"
-
-"@types/sizzle@*":
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.3.tgz#ff5e2f1902969d305225a047c8a0fd5c915cebef"
-  integrity sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==
 
 "@types/sockjs@^0.3.33":
   version "0.3.33"
