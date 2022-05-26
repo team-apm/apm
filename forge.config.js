@@ -62,7 +62,7 @@ module.exports = {
         mainConfig: './webpack.main.config.js',
         devServer: { liveReload: false },
         devContentSecurityPolicy:
-          "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: https://twemoji.maxcdn.com/ *.nicovideo.jp *.nicoseiga.jp nicovideo.cdn.nimg.jp",
+          "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: https://twemoji.maxcdn.com/ https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp",
         renderer: {
           config: './webpack.renderer.config.js',
           entryPoints: [
