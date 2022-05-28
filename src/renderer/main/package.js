@@ -1198,7 +1198,8 @@ function listFilter(column, btns, btn) {
  * @param {string} instPath - An installation path.
  */
 async function displayNicommonsIdList(instPath) {
-  const packages = [
+  const packages = await getPackages(instPath);
+  const packagesWithNicommonsId = [
     {
       info: { name: 'AviUtl', developer: 'KENくん', nicommons: 'im1696493' },
       type: [],
@@ -1211,15 +1212,12 @@ async function displayNicommonsIdList(instPath) {
       },
       type: [],
     },
-    ...(await getPackages(instPath)),
+    ...packages.filter((value) => {
+      return (
+        apmJson.has(instPath, 'packages.' + value.id) && value.info.nicommons
+      );
+    }),
   ];
-  const installedPackages = packages.filter((value, index) => {
-    if (index <= 1) return true;
-    return apmJson.has(instPath, 'packages.' + value.id);
-  });
-  const packagesWithNicommonsId = installedPackages.filter(
-    (value) => value.info.nicommons
-  );
 
   // show the package list
   const columns = ['thumbnail', 'name', 'developer', 'type', 'nicommons'];
