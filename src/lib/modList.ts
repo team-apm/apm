@@ -77,22 +77,16 @@ async function updateInfo() {
 async function getInfo() {
   const modFile = await ipcRenderer.invoke('exists-temp-file', 'list.json');
   if (modFile.exists) {
-    try {
-      return await parseJson.getMod(modFile.path);
-    } catch {
-      return null;
-    }
+    return await parseJson.getMod(modFile.path).catch((): null => null);
   } else {
     await updateInfo();
     const downloadedModFile = await ipcRenderer.invoke(
       'exists-temp-file',
       'list.json'
     );
-    try {
-      return await parseJson.getMod(downloadedModFile.path);
-    } catch {
-      return null;
-    }
+    return await parseJson
+      .getMod(downloadedModFile.path)
+      .catch((): null => null);
   }
 }
 
