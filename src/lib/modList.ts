@@ -2,6 +2,7 @@ import { ipcRenderer } from 'electron';
 import fs from 'fs-extra';
 import Store from 'electron-store';
 import path from 'path';
+import * as os from 'os';
 const store = new Store();
 import parseJson from './parseJson';
 import apmPath from './apmPath';
@@ -37,18 +38,35 @@ function resolvePath(base: string, relative: string) {
   }
 }
 
+/**
+ * Sets package data files URLs.
+ */
+async function setPackagesDataUrl() {
+  const URLs = (store.get('dataURL.extra') as string)
+    .split(os.EOL)
+    .filter((url) => url !== '');
+  const packages = ([] as string[]).concat(
+    (await getInfo()).packages.map((packageItem) =>
+      resolvePath(getDataUrl(), packageItem.path)
+    ),
+    URLs
+  );
+  store.set('dataURL.packages', packages);
+}
+
 // Functions to be exported
 
 /**
  * Download list.json.
  */
-async function downloadData() {
+async function updateInfo() {
   await ipcRenderer.invoke(
     'download',
     path.join(getDataUrl(), 'list.json'),
     false,
     ''
   );
+  await setPackagesDataUrl();
 }
 
 /**
@@ -59,29 +77,17 @@ async function downloadData() {
 async function getInfo() {
   const modFile = await ipcRenderer.invoke('exists-temp-file', 'list.json');
   if (modFile.exists) {
-    try {
-      return await parseJson.getMod(modFile.path);
-    } catch {
-      return null;
-    }
+    return await parseJson.getMod(modFile.path).catch((): null => null);
   } else {
-    return null;
+    await updateInfo();
+    const downloadedModFile = await ipcRenderer.invoke(
+      'exists-temp-file',
+      'list.json'
+    );
+    return await parseJson
+      .getMod(downloadedModFile.path)
+      .catch((): null => null);
   }
-}
-
-/**
- * Sets package data files URLs.
- *
- * @param {string[]} URLs - URLs for additionally specified packages.
- */
-async function setPackagesDataUrl(URLs: string[]) {
-  const packages = ([] as string[]).concat(
-    (await getInfo()).packages.map((packageItem) =>
-      resolvePath(getDataUrl(), packageItem.path)
-    ),
-    URLs
-  );
-  store.set('dataURL.packages', packages);
 }
 
 /**
@@ -158,12 +164,11 @@ async function getScriptsDataUrl() {
 }
 
 const mod = {
-  downloadData,
+  updateInfo,
   getInfo,
   getDataUrl,
   getExtraDataUrl,
   getCoreDataUrl,
-  setPackagesDataUrl,
   getPackagesDataUrl,
   getLocalPackagesDataUrl,
   getConvertDataUrl,
