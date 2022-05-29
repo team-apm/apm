@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 import log from 'electron-log';
 import Store from 'electron-store';
-import fs from 'fs-extra';
+import fs, { copySync } from 'fs-extra';
 import path from 'path';
 import apmJson from '../../lib/apmJson';
 import buttonTransition from '../../lib/buttonTransition';
@@ -451,7 +451,7 @@ async function installProgram(btn, program, version, instPath) {
 
     try {
       const unzippedPath = await unzip(archivePath);
-      fs.copySync(unzippedPath, instPath);
+      copySync(unzippedPath, instPath);
 
       let filesCount = 0;
       let existCount = 0;

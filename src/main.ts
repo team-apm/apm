@@ -14,7 +14,7 @@ import log from 'electron-log';
 import prompt from 'electron-prompt';
 import Store from 'electron-store';
 import windowStateKeeper from 'electron-window-state';
-import fs from 'fs-extra';
+import fs, { mkdir, readJsonSync } from 'fs-extra';
 import path from 'path';
 import updateElectronApp from 'update-electron-app';
 import { getHash } from './lib/getHash';
@@ -89,7 +89,7 @@ if (!store.has('autoUpdate')) {
 function checkUpdate(silent = true) {
   const server = 'https://update.electronjs.org';
 
-  const pkg = fs.readJsonSync(path.join(app.getAppPath(), 'package.json'));
+  const pkg = readJsonSync(path.join(app.getAppPath(), 'package.json'));
   const repoString = (pkg.repository && pkg.repository.url) || pkg.repository;
   const repoURL = new URL(repoString);
   const dirs = repoURL.pathname.split('/');
@@ -498,7 +498,7 @@ function launch() {
           savePath = (await download(mainWindow, url, opt)).getSavePath();
         } else {
           savePath = path.join(opt.directory, path.basename(url));
-          fs.mkdir(path.dirname(savePath), { recursive: true });
+          mkdir(path.dirname(savePath), { recursive: true });
           fs.copyFileSync(url, savePath);
         }
 

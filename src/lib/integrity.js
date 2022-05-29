@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-import ssri from 'ssri';
+import { checkStream } from 'ssri';
 
 /**
  * Check for integrity.
@@ -35,7 +35,7 @@ async function verifyFile(filePath, integrity) {
   let readStream;
   try {
     readStream = fs.createReadStream(filePath);
-    await ssri.checkStream(readStream, integrity);
+    await checkStream(readStream, integrity);
   } catch {
     return false;
   } finally {

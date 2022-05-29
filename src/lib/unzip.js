@@ -1,4 +1,4 @@
-import sevenBin from '7zip-bin';
+import { path7za } from '7zip-bin';
 import { extractFull } from 'node-7z';
 import path from 'path';
 import win7zip from 'win-7zip';
@@ -6,8 +6,8 @@ const isDevEnv = process.env.NODE_ENV === 'development';
 
 // https://github.com/puppeteer/puppeteer/issues/2134#issuecomment-408221446
 const pathTo7zipCross = isDevEnv
-  ? sevenBin.path7za
-  : sevenBin.path7za.replace('app.asar', 'app.asar.unpacked');
+  ? path7za
+  : path7za.replace('app.asar', 'app.asar.unpacked');
 const pathTo7zipWin = isDevEnv
   ? win7zip['7z']
   : win7zip['7z'].replace('app.asar', 'app.asar.unpacked');
