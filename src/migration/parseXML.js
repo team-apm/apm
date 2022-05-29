@@ -1,5 +1,5 @@
-import fs from 'fs-extra';
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
+import fs from 'fs-extra';
 
 const parser = new XMLParser({
   attributeNamePrefix: '$',

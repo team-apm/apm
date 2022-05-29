@@ -1,8 +1,8 @@
 import { ipcRenderer } from 'electron';
 import fs from 'fs-extra';
 import path from 'path';
-import parseJson from '../../lib/parseJson';
 import apmJson from '../../lib/apmJson';
+import parseJson from '../../lib/parseJson';
 /** @typedef {import("apm-data").Packages} Packages */
 
 const typeForExtention = {

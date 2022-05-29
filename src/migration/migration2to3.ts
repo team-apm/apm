@@ -1,12 +1,12 @@
 import { ipcRenderer } from 'electron';
+import log from 'electron-log';
+import Store from 'electron-store';
 import fs from 'fs-extra';
 import path from 'path';
-import Store from 'electron-store';
-const store = new Store();
-import log from 'electron-log';
 import apmJson from '../lib/apmJson';
 import migration1to2 from './migration1to2';
 import parseXML from './parseXML';
+const store = new Store();
 
 /**
  * Migration of common settings.

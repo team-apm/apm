@@ -1,8 +1,8 @@
 import { ipcRenderer } from 'electron';
-import path from 'path';
 import * as fs from 'fs-extra';
-import modList from './modList';
+import path from 'path';
 import apmJson from './apmJson';
+import modList from './modList';
 
 /**
  * Returns the id conversion dictionary.

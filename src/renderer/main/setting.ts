@@ -1,11 +1,11 @@
 import { ipcRenderer } from 'electron';
-import fs from 'fs-extra';
 import Store from 'electron-store';
-import path from 'path';
+import fs from 'fs-extra';
 import * as os from 'os';
-const store = new Store();
+import path from 'path';
 import buttonTransition from '../../lib/buttonTransition';
 import modList from '../../lib/modList';
+const store = new Store();
 
 /**
  * Initializes settings

@@ -1,23 +1,23 @@
-import { ipcRenderer } from 'electron';
-import Store from 'electron-store';
-const store = new Store();
-import log from 'electron-log';
-import fs from 'fs-extra';
-import path from 'path';
 import { execSync } from 'child_process';
-import twemoji from 'twemoji';
+import { ipcRenderer } from 'electron';
+import log from 'electron-log';
+import Store from 'electron-store';
+import fs from 'fs-extra';
 import * as matcher from 'matcher';
-import createList from '../../lib/updatableList';
+import path from 'path';
+import twemoji from 'twemoji';
+import apmJson from '../../lib/apmJson';
+import buttonTransition from '../../lib/buttonTransition';
+import { compareVersion } from '../../lib/compareVersion';
+import { getHash } from '../../lib/getHash';
+import integrity from '../../lib/integrity';
+import modList from '../../lib/modList';
+import parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
 import unzip from '../../lib/unzip';
-import buttonTransition from '../../lib/buttonTransition';
-import parseJson from '../../lib/parseJson';
-import apmJson from '../../lib/apmJson';
-import modList from '../../lib/modList';
-import { getHash } from '../../lib/getHash';
+import createList from '../../lib/updatableList';
 import packageUtil from './packageUtil';
-import integrity from '../../lib/integrity';
-import { compareVersion } from '../../lib/compareVersion';
+const store = new Store();
 /** @typedef {import("apm-schema").Scripts} Scripts */
 
 // To avoid a bug in the library

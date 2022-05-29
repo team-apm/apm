@@ -1,21 +1,21 @@
 import { ipcRenderer } from 'electron';
+import log from 'electron-log';
+import Store from 'electron-store';
 import fs from 'fs-extra';
 import path from 'path';
-import Store from 'electron-store';
-const store = new Store();
-import log from 'electron-log';
+import apmJson from '../../lib/apmJson';
+import buttonTransition from '../../lib/buttonTransition';
+import { convertId } from '../../lib/convertId';
+import integrity from '../../lib/integrity';
+import modList from '../../lib/modList';
+import parseJson from '../../lib/parseJson';
+import replaceText from '../../lib/replaceText';
+import shortcut from '../../lib/shortcut';
+import unzip from '../../lib/unzip';
+import migration2to3 from '../../migration/migration2to3';
 import packageMain from './package';
 import packageUtil from './packageUtil';
-import replaceText from '../../lib/replaceText';
-import unzip from '../../lib/unzip';
-import shortcut from '../../lib/shortcut';
-import buttonTransition from '../../lib/buttonTransition';
-import parseJson from '../../lib/parseJson';
-import apmJson from '../../lib/apmJson';
-import modList from '../../lib/modList';
-import integrity from '../../lib/integrity';
-import { convertId } from '../../lib/convertId';
-import migration2to3 from '../../migration/migration2to3';
+const store = new Store();
 /** @typedef {import("apm-schema").Core} Core */
 /** @typedef {import("apm-schema").Program} Program */
 

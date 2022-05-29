@@ -1,11 +1,11 @@
 import { ipcRenderer } from 'electron';
-import fs from 'fs-extra';
 import Store from 'electron-store';
-import path from 'path';
+import fs from 'fs-extra';
 import * as os from 'os';
-const store = new Store();
-import parseJson from './parseJson';
+import path from 'path';
 import apmPath from './apmPath';
+import parseJson from './parseJson';
+const store = new Store();
 
 /**
  * Resolve paths.

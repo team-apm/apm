@@ -1,11 +1,11 @@
+import {
+  deleteProperty,
+  getProperty,
+  hasProperty,
+  setProperty,
+} from 'dot-prop';
 import fs from 'fs-extra';
 import path from 'path';
-import {
-  hasProperty,
-  getProperty,
-  setProperty,
-  deleteProperty,
-} from 'dot-prop';
 
 /**
  * Returns the path of `apm.json`.

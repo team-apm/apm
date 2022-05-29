@@ -1,16 +1,16 @@
+import { execSync } from 'child_process';
+import ClipboardJS from 'clipboard/src/clipboard';
 import { ipcRenderer } from 'electron';
 import log from 'electron-log';
+import { XMLBuilder } from 'fast-xml-parser';
 import fs from 'fs-extra';
 import path from 'path';
-import { execSync } from 'child_process';
-import { XMLBuilder } from 'fast-xml-parser';
 // 'Sortable' is not actually exported as ESModules. So, ignore the warning.
 // eslint-disable-next-line import/no-named-as-default
 import Sortable from 'sortablejs';
-import ClipboardJS from 'clipboard/src/clipboard';
-import unzip from '../../lib/unzip';
-import buttonTransition from '../../lib/buttonTransition';
 import apmPath from '../../lib/apmPath';
+import buttonTransition from '../../lib/buttonTransition';
+import unzip from '../../lib/unzip';
 
 log.catchErrors({
   onError: () => {
