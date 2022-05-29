@@ -7,7 +7,7 @@ import { XMLBuilder } from 'fast-xml-parser';
 // 'Sortable' is not actually exported as ESModules. So, ignore the warning.
 // eslint-disable-next-line import/no-named-as-default
 import Sortable from 'sortablejs';
-import ClipboardJS from 'clipboard';
+import ClipboardJS from 'clipboard/src/clipboard';
 import unzip from '../../lib/unzip';
 import buttonTransition from '../../lib/buttonTransition';
 import apmPath from '../../lib/apmPath';

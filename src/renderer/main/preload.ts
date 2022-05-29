@@ -7,7 +7,7 @@ import packageMain from './package';
 import setting from './setting';
 import modList from '../../lib/modList';
 import migration2to3 from '../../migration/migration2to3';
-import ClipboardJS from 'clipboard';
+import ClipboardJS from 'clipboard/src/clipboard';
 
 log.catchErrors({
   onError: () => {
