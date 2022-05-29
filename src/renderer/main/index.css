@@ -3,7 +3,10 @@ body,
 section,
 section#packages .container-lg,
 section#packages .container-lg > .card,
-section#packages .container-lg > .card > .card-body {
+section#packages .container-lg > .card > .card-body,
+section#nicommons .container-lg,
+section#nicommons .container-lg > .card,
+section#nicommons .container-lg > .card > .card-body {
   height: 100%;
 }
 main {
@@ -67,4 +70,13 @@ img.emoji {
   width: 1em;
   margin: 0 0.05em 0 0.1em;
   vertical-align: -0.1em;
+}
+
+section#nicommons img {
+  max-height: 64px;
+}
+@media screen and (min-width: 576px) {
+  section#nicommons img {
+    max-height: 96px;
+  }
 }

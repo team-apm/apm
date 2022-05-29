@@ -324,6 +324,7 @@ async function changeInstallationPath(instPath) {
   await displayInstalledVersion(instPath);
   await setCoreVersions(instPath);
   await packageMain.setPackagesList(instPath);
+  await packageMain.displayNicommonsIdList(instPath);
 }
 
 /**
@@ -434,6 +435,7 @@ async function installProgram(btn, program, version, instPath) {
         apmJson.setCore(instPath, program, version);
         await displayInstalledVersion(instPath);
         await packageMain.setPackagesList(instPath);
+        await packageMain.displayNicommonsIdList(instPath);
 
         if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
       } else {
