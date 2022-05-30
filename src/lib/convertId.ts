@@ -20,7 +20,7 @@ async function getIdDict(update = false): Promise<{ [key: string]: string }> {
       'package',
       dictUrl
     );
-    return fs.readJsonSync(convertJson);
+    return convertJson ? fs.readJsonSync(convertJson) : {};
   } else {
     const convertJson = await ipcRenderer.invoke(
       'exists-temp-file',
