@@ -398,6 +398,7 @@ async function getScriptsList(update = false) {
         'package',
         url
       );
+      if (!scriptsJson) continue;
       /** @type {Scripts} */
       const json = fs.readJsonSync(scriptsJson);
       tmpScripts.webpage = tmpScripts.webpage.concat(json.webpage);
@@ -412,6 +413,7 @@ async function getScriptsList(update = false) {
         'package',
         url
       );
+      if (!scriptsJson) continue;
       /** @type {Scripts} */
       const json = fs.readJsonSync(scriptsJson);
       tmpScripts.webpage = tmpScripts.webpage.concat(json.webpage);
@@ -529,6 +531,21 @@ async function installPackage(
       'package'
     );
 
+    if (!archivePath) {
+      if (btn) {
+        buttonTransition.message(
+          btn,
+          'ダウンロード中にエラーが発生しました。',
+          'danger'
+        );
+        setTimeout(() => {
+          enableButton();
+        }, 3000);
+      }
+      log.error('Failed downloading a file.');
+      return;
+    }
+
     const integrityForArchive = installedPackage.info.releases?.find(
       (r) => r.version === installedPackage.info.latestVersion
     )?.integrity?.archive;
@@ -551,7 +568,25 @@ async function installPackage(
               false,
               'package'
             );
-            continue;
+            if (archivePath) {
+              continue;
+            } else {
+              log.error(
+                `Failed downloading the archive file. URL:${installedPackage.info.directURL}`
+              );
+              if (btn) {
+                buttonTransition.message(
+                  btn,
+                  'ファイルのダウンロードに失敗しました。',
+                  'danger'
+                );
+                setTimeout(() => {
+                  enableButton();
+                }, 3000);
+              }
+              // Direct installation can throw an error because it is called only from within the try catch block.
+              throw new Error('Failed downloading the archive file.');
+            }
           } else {
             log.error(
               `The downloaded archive file is corrupt. URL:${installedPackage.info.directURL}`

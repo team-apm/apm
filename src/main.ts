@@ -493,24 +493,29 @@ function launch() {
         : path.join(opt.directory, path.basename(url));
       if (loadCache && fs.existsSync(tmpFilePath)) return tmpFilePath;
 
-      let savePath;
-      if (url.startsWith('http')) {
-        savePath = (await download(mainWindow, url, opt)).getSavePath();
-      } else {
-        savePath = path.join(opt.directory, path.basename(url));
-        fs.mkdir(path.dirname(savePath), { recursive: true });
-        fs.copyFileSync(url, savePath);
-      }
+      try {
+        let savePath;
+        if (url.startsWith('http')) {
+          savePath = (await download(mainWindow, url, opt)).getSavePath();
+        } else {
+          savePath = path.join(opt.directory, path.basename(url));
+          fs.mkdir(path.dirname(savePath), { recursive: true });
+          fs.copyFileSync(url, savePath);
+        }
 
-      if (keyText) {
-        const renamedPath = path.join(
-          path.dirname(savePath),
-          getHash(keyText) + '_' + path.basename(savePath)
-        );
-        fs.renameSync(savePath, renamedPath);
-        savePath = renamedPath;
+        if (keyText) {
+          const renamedPath = path.join(
+            path.dirname(savePath),
+            getHash(keyText) + '_' + path.basename(savePath)
+          );
+          fs.renameSync(savePath, renamedPath);
+          savePath = renamedPath;
+        }
+        return savePath;
+      } catch (e) {
+        log.error(e);
+        return undefined;
       }
-      return savePath;
     }
   );
 

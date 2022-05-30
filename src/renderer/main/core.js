@@ -372,6 +372,21 @@ async function installProgram(btn, program, version, instPath) {
     const url = progInfo.releases.find((r) => r.version === version).url;
     let archivePath = await ipcRenderer.invoke('download', url, true, 'core');
 
+    if (!archivePath) {
+      if (btn) {
+        buttonTransition.message(
+          btn,
+          'ダウンロード中にエラーが発生しました。',
+          'danger'
+        );
+        setTimeout(() => {
+          enableButton();
+        }, 3000);
+      }
+      log.error('Failed downloading a file.');
+      return;
+    }
+
     const integrityForArchive = progInfo.releases.find(
       (r) => r.version === version
     ).integrity.archive;
@@ -394,7 +409,25 @@ async function installProgram(btn, program, version, instPath) {
               false,
               'core'
             );
-            continue;
+            if (archivePath) {
+              continue;
+            } else {
+              log.error(`Failed downloading the archive file. URL:${url}`);
+              if (btn) {
+                buttonTransition.message(
+                  btn,
+                  'ファイルのダウンロードに失敗しました。',
+                  'danger'
+                );
+                setTimeout(() => {
+                  enableButton();
+                }, 3000);
+                return;
+              } else {
+                // Throw an error if not executed from the UI.
+                throw new Error('Failed downloading the archive file.');
+              }
+            }
           } else {
             log.error(`The downloaded archive file is corrupt. URL:${url}`);
             if (btn) {
