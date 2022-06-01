@@ -155,7 +155,7 @@ function getInstalledFiles(instPath) {
       return fs.readdirSync(path, option);
     } catch (e) {
       if (e.code === 'ENOENT') return [];
-      else throw e;
+      throw e;
     }
   };
   const readdir = (dir) =>
