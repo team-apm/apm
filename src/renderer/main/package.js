@@ -3,14 +3,12 @@ import log from 'electron-log';
 import Store from 'electron-store';
 import {
   copy,
-  copySync,
   existsSync,
   mkdir,
   readdir,
   readdirSync,
   readJsonSync,
   remove,
-  removeSync,
   rename,
   renameSync,
   rmdirSync,
@@ -35,6 +33,7 @@ import parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
 import unzip from '../../lib/unzip';
 import createList from '../../lib/updatableList';
+import { install, verifyFilesByCount } from './common';
 import packageUtil from './packageUtil';
 const store = new Store();
 /** @typedef {import("apm-schema").Scripts} Scripts */
@@ -626,6 +625,8 @@ async function installPackage(
     archivePath = downloadResult.savePath;
   }
 
+  let installResult = false;
+
   try {
     const getUnzippedPath = async () => {
       if (['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(archivePath))) {
@@ -676,62 +677,21 @@ async function installPackage(
           .replace('"$instpath"', '$instpath')
           .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
       execSync(command);
-    } else {
-      // Delete obsolete files
-      for (const file of installedPackage.info.files) {
-        if (file.isObsolete && existsSync(path.join(instPath, file.filename))) {
-          await remove(path.join(instPath, file.filename));
-        }
-      }
 
-      // Copying files (main body of the installation)
-      const filesToCopy = [];
-      for (const file of installedPackage.info.files) {
-        if (!file.isUninstallOnly && !file.isObsolete) {
-          if (!file.archivePath) {
-            filesToCopy.push([
-              path.join(unzippedPath, path.basename(file.filename)),
-              path.join(instPath, file.filename),
-            ]);
-          } else {
-            filesToCopy.push([
-              path.join(
-                unzippedPath,
-                file.archivePath,
-                path.basename(file.filename)
-              ),
-              path.join(instPath, file.filename),
-            ]);
-          }
-        }
-      }
-      for (const filePath of filesToCopy) {
-        copySync(filePath[0], filePath[1]);
-      }
+      installResult = verifyFilesByCount(instPath, installedPackage.info.files);
+    } else {
+      installResult = await install(
+        unzippedPath,
+        instPath,
+        installedPackage.info.files
+      );
     }
   } catch (e) {
     log.error(e);
-    if (btn) {
-      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-    }
-    return;
+    installResult = false;
   }
 
-  let filesCount = 0;
-  let existCount = 0;
-  for (const file of installedPackage.info.files) {
-    if (!file.isUninstallOnly && !file.isObsolete) {
-      filesCount++;
-      if (existsSync(path.join(instPath, file.filename))) {
-        existCount++;
-      }
-    }
-  }
-
-  if (filesCount === existCount) {
+  if (installResult) {
     if (installedPackage.info.isContinuous)
       installedPackage.info = {
         ...installedPackage.info,
@@ -803,9 +763,12 @@ async function uninstallPackage(instPath) {
 
   const uninstalledPackage = { ...selectedEntry };
 
+  const filesToRemove = [];
   for (const file of uninstalledPackage.info.files) {
-    if (!file.isInstallOnly) removeSync(path.join(instPath, file.filename));
+    if (!file.isInstallOnly)
+      filesToRemove.push(path.join(instPath, file.filename));
   }
+  await Promise.all(filesToRemove.map((filePath) => remove(filePath)));
 
   let filesCount = 0;
   let notExistCount = 0;
@@ -1074,9 +1037,9 @@ async function installScript(instPath) {
     await mkdir(path.join(instPath, 'script', matchInfo.folder), {
       recursive: true,
     });
-    for (const filePath of entriesToCopy) {
-      await copy(filePath[0], filePath[1]);
-    }
+    Promise.all(
+      entriesToCopy.map((filePath) => copy(filePath[0], filePath[1]))
+    );
 
     // Constructing package information
     const files = entriesToCopy.map((i) => {
