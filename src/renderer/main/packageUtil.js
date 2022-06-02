@@ -1,7 +1,7 @@
-import { ipcRenderer } from 'electron';
 import fs from 'fs-extra';
 import path from 'path';
 import apmJson from '../../lib/apmJson';
+import { download, existsTempFile, openErrDialog } from '../../lib/ipcWrapper';
 import parseJson from '../../lib/parseJson';
 /** @typedef {import("apm-data").Packages} Packages */
 
@@ -88,8 +88,7 @@ async function getPackages(packageDataUrls) {
   const jsonList = [];
 
   for (const packageRepository of packageDataUrls) {
-    const packagesListFile = await ipcRenderer.invoke(
-      'exists-temp-file',
+    const packagesListFile = await existsTempFile(
       `package/${path.basename(packageRepository)}`,
       packageRepository
     );
@@ -97,8 +96,7 @@ async function getPackages(packageDataUrls) {
       try {
         jsonList.push(await parseJson.getPackages(packagesListFile.path));
       } catch {
-        ipcRenderer.invoke(
-          'open-err-dialog',
+        openErrDialog(
           'データ解析エラー',
           '取得したデータの処理に失敗しました。' +
             '\n' +
@@ -137,13 +135,10 @@ async function getPackages(packageDataUrls) {
  */
 async function downloadRepository(packageDataUrls) {
   for (const packageRepository of packageDataUrls) {
-    await ipcRenderer.invoke(
-      'download',
-      packageRepository,
-      false,
-      'package',
-      packageRepository
-    );
+    await download(packageRepository, {
+      subDir: 'package',
+      keyText: packageRepository,
+    });
   }
 }
 

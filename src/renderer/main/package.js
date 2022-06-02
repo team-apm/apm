@@ -1,5 +1,4 @@
 import { execSync } from 'child_process';
-import { ipcRenderer } from 'electron';
 import log from 'electron-log';
 import Store from 'electron-store';
 import {
@@ -24,6 +23,13 @@ import buttonTransition from '../../lib/buttonTransition';
 import { compareVersion } from '../../lib/compareVersion';
 import { getHash } from '../../lib/getHash';
 import integrity from '../../lib/integrity';
+import {
+  download,
+  getNicommonsData,
+  openBrowser,
+  openPath,
+  openYesNoDialog,
+} from '../../lib/ipcWrapper';
 import modList from '../../lib/modList';
 import parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
@@ -404,13 +410,10 @@ async function getScriptsList(update = false) {
       Math.max(...currentMod.scripts.map((p) => new Date(p.modified).getTime()))
     );
     for (const url of dictUrl) {
-      const scriptsJson = await ipcRenderer.invoke(
-        'download',
-        url,
-        false,
-        'package',
-        url
-      );
+      const scriptsJson = await download(url, {
+        subDir: 'package',
+        keyText: url,
+      });
       if (!scriptsJson) continue;
       /** @type {Scripts} */
       const json = readJsonSync(scriptsJson);
@@ -419,13 +422,11 @@ async function getScriptsList(update = false) {
     }
   } else {
     for (const url of dictUrl) {
-      const scriptsJson = await ipcRenderer.invoke(
-        'download',
-        url,
-        true,
-        'package',
-        url
-      );
+      const scriptsJson = await download(url, {
+        loadCache: true,
+        subDir: 'package',
+        keyText: url,
+      });
       if (!scriptsJson) continue;
       /** @type {Scripts} */
       const json = readJsonSync(scriptsJson);
@@ -537,12 +538,10 @@ async function installPackage(
   if (role === roles.Internal_Local_File) {
     archivePath = strArchivePath;
   } else if (role === roles.Internal_Direct_Link) {
-    archivePath = await ipcRenderer.invoke(
-      'download',
-      installedPackage.info.directURL,
-      true,
-      'package'
-    );
+    archivePath = await download(installedPackage.info.directURL, {
+      loadCache: true,
+      subDir: 'package',
+    });
 
     if (!archivePath) {
       if (btn) {
@@ -569,18 +568,15 @@ async function installPackage(
         if (await integrity.verifyFile(archivePath, integrityForArchive)) {
           break;
         } else {
-          const dialogResult = await ipcRenderer.invoke(
-            'open-yes-no-dialog',
+          const dialogResult = await openYesNoDialog(
             'エラー',
             'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
           );
           if (dialogResult) {
-            archivePath = await ipcRenderer.invoke(
-              'download',
-              installedPackage.info.directURL,
-              false,
-              'package'
-            );
+            archivePath = await download(installedPackage.info.directURL, {
+              loadCache: false,
+              subDir: 'package',
+            });
             if (archivePath) {
               continue;
             } else {
@@ -623,8 +619,7 @@ async function installPackage(
   } else {
     // if (role === roles.Internal_Browser || role === roles.Event_Handler)
 
-    const downloadResult = await ipcRenderer.invoke(
-      'open-browser',
+    const downloadResult = await openBrowser(
       installedPackage.info.downloadURLs[0],
       'package'
     );
@@ -896,10 +891,7 @@ async function openPackageFolder() {
     return;
   }
 
-  const exists = await ipcRenderer.invoke(
-    'open-path',
-    `package/${selectedEntry.id}`
-  );
+  const exists = await openPath(`package/${selectedEntry.id}`);
 
   if (!exists) {
     buttonTransition.message(
@@ -942,11 +934,7 @@ async function installScript(instPath) {
     return;
   }
 
-  const downloadResult = await ipcRenderer.invoke(
-    'open-browser',
-    url,
-    'package'
-  );
+  const downloadResult = await openBrowser(url, 'package');
   if (!downloadResult) {
     buttonTransition.message(
       btn,
@@ -1311,10 +1299,7 @@ async function displayNicommonsIdList(instPath) {
     });
     nicommons.innerText = packageItem.info.nicommons;
 
-    const nicommonsData = await ipcRenderer.invoke(
-      'get-nicommons-data',
-      packageItem.info.nicommons
-    );
+    const nicommonsData = await getNicommonsData(packageItem.info.nicommons);
     if (nicommonsData && 'node' in nicommonsData) {
       const img = document.createElement('img');
       img.src = nicommonsData.node.thumbnailURL.replace('size=l', 'size=s');

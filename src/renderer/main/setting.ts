@@ -1,9 +1,9 @@
-import { ipcRenderer } from 'electron';
 import Store from 'electron-store';
 import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
 import buttonTransition from '../../lib/buttonTransition';
+import { changeMainZoomFactor, openErrDialog } from '../../lib/ipcWrapper';
 import modList from '../../lib/modList';
 const store = new Store();
 
@@ -37,19 +37,11 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
 
   let error = false;
   if (!value.startsWith('http') && !fs.existsSync(value)) {
-    await ipcRenderer.invoke(
-      'open-err-dialog',
-      'エラー',
-      '有効なURLまたは場所を入力してください。'
-    );
+    await openErrDialog('エラー', '有効なURLまたは場所を入力してください。');
     error = true;
   }
   if (path.extname(value) === '.json') {
-    await ipcRenderer.invoke(
-      'open-err-dialog',
-      'エラー',
-      'フォルダのURLを入力してください。'
-    );
+    await openErrDialog('エラー', 'フォルダのURLを入力してください。');
     error = true;
   }
 
@@ -60,16 +52,14 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
 
   for (const tmpDataUrl of tmpExtraUrls) {
     if (!tmpDataUrl.startsWith('http') && !fs.existsSync(tmpDataUrl)) {
-      await ipcRenderer.invoke(
-        'open-err-dialog',
+      await openErrDialog(
         'エラー',
         `有効なURLまたは場所を入力してください。(${tmpDataUrl})`
       );
       error = true;
     }
     if (path.extname(tmpDataUrl) !== '.json') {
-      await ipcRenderer.invoke(
-        'open-err-dialog',
+      await openErrDialog(
         'エラー',
         `有効なJsonファイルのURLまたは場所を入力してください。(${tmpDataUrl})`
       );
@@ -120,7 +110,7 @@ function setZoomFactor(zoomFactorSelect: HTMLSelectElement) {
  */
 function changeZoomFactor(zoomFactor: string) {
   store.set('zoomFactor', zoomFactor);
-  ipcRenderer.invoke('change-main-zoom-factor', parseInt(zoomFactor) / 100);
+  changeMainZoomFactor(parseInt(zoomFactor) / 100);
 }
 
 const setting = {

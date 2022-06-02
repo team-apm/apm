@@ -1,9 +1,9 @@
-import { ipcRenderer } from 'electron';
 import log from 'electron-log';
 import Store from 'electron-store';
 import fs, { writeJson } from 'fs-extra';
 import path from 'path';
 import apmJson from '../lib/apmJson';
+import { download } from '../lib/ipcWrapper';
 import migration1to2 from './migration1to2';
 import parseXML from './parseXML';
 const store = new Store();
@@ -60,13 +60,7 @@ async function byFolder(instPath: string) {
   log.info(`Start migration: migration2to3.byFolder(${instPath})`);
 
   // 1. Backup apm.json
-  await ipcRenderer.invoke(
-    'download',
-    jsonPath,
-    false,
-    'migration2to3',
-    jsonPath
-  );
+  await download(jsonPath, { subDir: 'migration2to3', keyText: jsonPath });
 
   // 2. Update the path to the online and local xml files.
   const packages = apmJson.get(instPath, 'packages');

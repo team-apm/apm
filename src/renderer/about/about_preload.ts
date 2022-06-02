@@ -1,11 +1,10 @@
-import { ipcRenderer } from 'electron';
 import log from 'electron-log';
+import { app, openErrDialog } from '../../lib/ipcWrapper';
 import replaceText from '../../lib/replaceText';
 
 log.catchErrors({
   onError: () => {
-    ipcRenderer.invoke(
-      'open-err-dialog',
+    openErrDialog(
       'エラー',
       `予期しないエラーが発生しました。\nログファイル: ${
         log.transports.file.getFile().path
@@ -19,7 +18,7 @@ window.addEventListener('click', () => {
 });
 
 window.addEventListener('DOMContentLoaded', async () => {
-  const appVersion = await ipcRenderer.invoke('get-app-version');
+  const appVersion = await app.getVersion();
   replaceText('app-version', appVersion);
   for (const dependency of ['chrome', 'node', 'electron']) {
     replaceText(`${dependency}-version`, process.versions[dependency]);

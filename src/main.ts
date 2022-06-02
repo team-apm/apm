@@ -478,7 +478,7 @@ function launch() {
 
   ipcMain.handle(
     'download',
-    async (event, url, loadCache = false, subDir = '', keyText) => {
+    async (event, url, { loadCache = false, subDir = '', keyText } = {}) => {
       const tmpDirectory = path.join(app.getPath('userData'), 'Data/', subDir);
       const opt = {
         overwrite: true,

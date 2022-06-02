@@ -1,7 +1,16 @@
 import ClipboardJS from 'clipboard/src/clipboard';
-import { ipcRenderer } from 'electron';
 import log from 'electron-log';
 import Store from 'electron-store';
+import {
+  app,
+  checkUpdate,
+  isExeVersion,
+  openAboutWindow,
+  openErrDialog,
+  openGitHubIssue,
+  openGoogleForm,
+  openPackageMaker,
+} from '../../lib/ipcWrapper';
 import modList from '../../lib/modList';
 import migration2to3 from '../../migration/migration2to3';
 import core from './core';
@@ -11,8 +20,7 @@ const store = new Store();
 
 log.catchErrors({
   onError: () => {
-    ipcRenderer.invoke(
-      'open-err-dialog',
+    openErrDialog(
       'エラー',
       `予期しないエラーが発生しました。\nログファイル: ${
         log.transports.file.getFile().path
@@ -25,7 +33,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // *global*
   // migration
   if (!(await migration2to3.global())) {
-    await ipcRenderer.invoke('app-quit');
+    await app.quit();
     return;
   }
 
@@ -67,7 +75,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         element.checked = true;
       }
   });
-  if (!(await ipcRenderer.invoke('is-exe-version'))) {
+  if (!(await isExeVersion())) {
     const e = document.getElementById('auto-update-download');
     if (e instanceof HTMLInputElement) e.disabled = true;
   }
@@ -75,7 +83,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const appName = document.getElementsByClassName('app-name');
   for (let i = 0; i < appName.length; i++) {
     const element = appName.item(i) as HTMLSpanElement;
-    element.innerText = await ipcRenderer.invoke('get-app-name');
+    element.innerText = await app.getName();
   }
 });
 
@@ -160,7 +168,7 @@ window.addEventListener('load', () => {
 
   const checkApmUpdateBtn = document.getElementById('check-apm-update');
   checkApmUpdateBtn.addEventListener('click', () => {
-    ipcRenderer.invoke('check-update');
+    checkUpdate();
   });
 
   const autoUpdateRadios = document.getElementsByName('auto-update');
@@ -173,26 +181,26 @@ window.addEventListener('load', () => {
   // About / Others
   const openAboutWindonBtn = document.getElementById('open-about-window');
   openAboutWindonBtn.addEventListener('click', () => {
-    ipcRenderer.invoke('open-about-window');
+    openAboutWindow();
   });
 
   const openGithubIssueBtn = document.getElementById('open-github-issue');
   openGithubIssueBtn.addEventListener('click', () => {
-    ipcRenderer.invoke('open-github-issue');
+    openGitHubIssue();
   });
 
   const openGoogleFormBtn = document.getElementById('open-google-form');
   openGoogleFormBtn.addEventListener('click', () => {
-    ipcRenderer.invoke('open-google-form');
+    openGoogleForm();
   });
 
   const openPackageMakerBtn = document.getElementById('open-package-maker');
   openPackageMakerBtn.addEventListener('click', () => {
-    ipcRenderer.invoke('open-package-maker');
+    openPackageMaker();
   });
 
   const exitAppBtn = document.getElementById('quit-app');
   exitAppBtn.addEventListener('click', () => {
-    ipcRenderer.invoke('app-quit');
+    app.quit();
   });
 });
