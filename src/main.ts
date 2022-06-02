@@ -174,7 +174,7 @@ function checkUpdate(silent = true) {
 const doAutoUpdate = store.get('autoUpdate');
 if (!isDevEnv && typeof doAutoUpdate === 'string') {
   if (doAutoUpdate === 'download') {
-    updateElectronApp({ repo: 'team-apm/apm' });
+    updateElectronApp({ repo: 'team-apm/apm', logger: log });
   } else if (doAutoUpdate === 'notify') {
     checkUpdate();
   }

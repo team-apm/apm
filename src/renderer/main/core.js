@@ -11,7 +11,6 @@ import {
   download,
   existsTempFile,
   openDirDialog,
-  openErrDialog,
   openYesNoDialog,
 } from '../../lib/ipcWrapper';
 import modList from '../../lib/modList';
@@ -48,24 +47,25 @@ async function displayInstalledVersion(instPath) {
   const coreInfo = await getCoreInfo();
   if (instPath && coreInfo) {
     for (const program of ['aviutl', 'exedit']) {
-      let filesCount = 0;
-      let existCount = 0;
       /** @type {Program} */
       const progInfo = coreInfo[program];
-      for (const file of progInfo.files) {
-        if (!file.isUninstallOnly) {
-          filesCount++;
-          if (fs.existsSync(path.join(instPath, file.filename))) {
-            existCount++;
-          }
-        }
-      }
 
       // Set the version of the manually installed program
       if (!apmJson.has(instPath, 'core.' + program)) {
         for (const release of progInfo.releases) {
           if (await integrity.checkIntegrity(instPath, release.integrity.file))
             apmJson.setCore(instPath, program, release.version);
+        }
+      }
+
+      let filesCount = 0;
+      let existCount = 0;
+      for (const file of progInfo.files) {
+        if (!file.isUninstallOnly) {
+          filesCount++;
+          if (fs.existsSync(path.join(instPath, file.filename))) {
+            existCount++;
+          }
         }
       }
 
@@ -133,14 +133,12 @@ async function getCoreInfo() {
   const coreFile = await existsTempFile(
     path.join('core', path.basename(await modList.getCoreDataUrl()))
   );
-  if (coreFile.exists) {
-    try {
-      return await parseJson.getCore(coreFile.path);
-    } catch (e) {
-      log.error(e);
-      return null;
-    }
-  } else {
+  if (!coreFile.exists) return null;
+
+  try {
+    return await parseJson.getCore(coreFile.path);
+  } catch (e) {
+    log.error(e);
     return null;
   }
 }
@@ -151,8 +149,6 @@ async function getCoreInfo() {
  * @param {string} instPath - An installation path.
  */
 async function setCoreVersions(instPath) {
-  const installAviutlBtn = document.getElementById('install-aviutl');
-  const installExeditBtn = document.getElementById('install-exedit');
   const aviutlVersionSelect = document.getElementById('aviutl-version-select');
   const exeditVersionSelect = document.getElementById('exedit-version-select');
   while (aviutlVersionSelect.childElementCount > 0) {
@@ -163,49 +159,52 @@ async function setCoreVersions(instPath) {
   }
 
   const coreInfo = await getCoreInfo();
-  if (coreInfo) {
-    for (const program of ['aviutl', 'exedit']) {
-      /** @type {Program} */
-      const progInfo = coreInfo[program];
-      replaceText(`${program}-latest-version`, progInfo.latestVersion);
-
-      for (const release of progInfo.releases) {
-        const li = document.createElement('li');
-        const anchor = document.createElement('a');
-        anchor.classList.add('dropdown-item');
-        anchor.href = '#';
-        anchor.innerText =
-          release.version +
-          (release.version.includes('rc') ? '（テスト版）' : '') +
-          (release.version === progInfo.latestVersion ? '（最新版）' : '');
-        li.appendChild(anchor);
-
-        if (program === 'aviutl') {
-          anchor.addEventListener('click', async () => {
-            await installProgram(
-              installAviutlBtn,
-              program,
-              release.version,
-              instPath
-            );
-          });
-          aviutlVersionSelect.appendChild(li);
-        } else if (program === 'exedit') {
-          anchor.addEventListener('click', async () => {
-            await installProgram(
-              installExeditBtn,
-              program,
-              release.version,
-              instPath
-            );
-          });
-          exeditVersionSelect.appendChild(li);
-        }
-      }
-    }
-  } else {
+  if (!coreInfo) {
     for (const program of ['aviutl', 'exedit']) {
       replaceText(`${program}-latest-version`, '未取得');
+    }
+    return;
+  }
+
+  const installAviutlBtn = document.getElementById('install-aviutl');
+  const installExeditBtn = document.getElementById('install-exedit');
+  for (const program of ['aviutl', 'exedit']) {
+    /** @type {Program} */
+    const progInfo = coreInfo[program];
+    replaceText(`${program}-latest-version`, progInfo.latestVersion);
+
+    for (const release of progInfo.releases) {
+      const li = document.createElement('li');
+      const anchor = document.createElement('a');
+      anchor.classList.add('dropdown-item');
+      anchor.href = '#';
+      anchor.innerText =
+        release.version +
+        (release.version.includes('rc') ? '（テスト版）' : '') +
+        (release.version === progInfo.latestVersion ? '（最新版）' : '');
+      li.appendChild(anchor);
+
+      if (program === 'aviutl') {
+        anchor.addEventListener('click', async () => {
+          await installProgram(
+            installAviutlBtn,
+            program,
+            release.version,
+            instPath
+          );
+        });
+        aviutlVersionSelect.appendChild(li);
+      } else if (program === 'exedit') {
+        anchor.addEventListener('click', async () => {
+          await installProgram(
+            installExeditBtn,
+            program,
+            release.version,
+            instPath
+          );
+        });
+        exeditVersionSelect.appendChild(li);
+      }
     }
   }
 }
@@ -229,16 +228,12 @@ async function checkLatestVersion(instPath) {
     store.set('modDate.core', new Date(modInfo.core.modified).getTime());
     await displayInstalledVersion(instPath);
     await setCoreVersions(instPath);
+    buttonTransition.message(btn, '更新完了', 'success');
   } catch (e) {
-    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
     log.error(e);
-    return;
+    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
   }
 
-  buttonTransition.message(btn, '更新完了', 'success');
   setTimeout(() => {
     enableButton();
   }, 3000);
@@ -255,9 +250,7 @@ async function selectInstallationPath(input) {
     'インストール先フォルダを選択',
     originalPath
   );
-  if (!selectedPath || selectedPath.length === 0) {
-    await openErrDialog('エラー', 'インストール先フォルダを選択してください。');
-  } else if (selectedPath[0] != originalPath) {
+  if (selectedPath.length !== 0 && selectedPath[0] !== originalPath) {
     const instPath = selectedPath[0];
     await changeInstallationPath(instPath);
     input.value = instPath;
@@ -282,15 +275,10 @@ async function changeInstallationPath(instPath) {
 
     if (fs.existsSync(apmJson.getPath(instPath)) && currentMod.convert) {
       const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
-      if (
-        oldConvertMod.getTime() <
-        new Date(currentMod.convert.modified).getTime()
-      ) {
-        await convertId(
-          instPath,
-          new Date(currentMod.convert.modified).getTime()
-        );
-      }
+      const currentConvertMod = new Date(currentMod.convert.modified).getTime();
+
+      if (oldConvertMod.getTime() < currentConvertMod)
+        await convertId(instPath, currentConvertMod);
     }
   }
 
@@ -334,6 +322,7 @@ async function installProgram(btn, program, version, instPath) {
   const enableButton = btn ? buttonTransition.loading(btn) : null;
 
   if (!instPath) {
+    log.error('An installation path is not selected.');
     if (btn) {
       buttonTransition.message(
         btn,
@@ -344,138 +333,133 @@ async function installProgram(btn, program, version, instPath) {
         enableButton();
       }, 3000);
     }
-    log.error('An installation path is not selected.');
     return;
   }
 
   if (!version) {
+    log.error('A version is not selected.');
     if (btn) {
       buttonTransition.message(btn, 'バージョンを指定してください。', 'danger');
       setTimeout(() => {
         enableButton();
       }, 3000);
     }
-    log.error('A version is not selected.');
     return;
   }
 
   const coreInfo = await getCoreInfo();
 
-  if (coreInfo) {
-    /** @type {Program} */
-    const progInfo = coreInfo[program];
-    const url = progInfo.releases.find((r) => r.version === version).url;
-    let archivePath = await download(url, { loadCache: true, subDir: 'core' });
-
-    if (!archivePath) {
-      if (btn) {
-        buttonTransition.message(
-          btn,
-          'ダウンロード中にエラーが発生しました。',
-          'danger'
-        );
-        setTimeout(() => {
-          enableButton();
-        }, 3000);
-      }
-      log.error('Failed downloading a file.');
-      return;
-    }
-
-    const integrityForArchive = progInfo.releases.find(
-      (r) => r.version === version
-    ).integrity.archive;
-
-    if (integrityForArchive) {
-      for (;;) {
-        // Verify file integrity
-        if (await integrity.verifyFile(archivePath, integrityForArchive)) {
-          break;
-        } else {
-          const dialogResult = await openYesNoDialog(
-            'エラー',
-            'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
-          );
-          if (dialogResult) {
-            archivePath = await download(url, { subDir: 'core' });
-            if (archivePath) {
-              continue;
-            } else {
-              log.error(`Failed downloading the archive file. URL:${url}`);
-              if (btn) {
-                buttonTransition.message(
-                  btn,
-                  'ファイルのダウンロードに失敗しました。',
-                  'danger'
-                );
-                setTimeout(() => {
-                  enableButton();
-                }, 3000);
-                return;
-              } else {
-                // Throw an error if not executed from the UI.
-                throw new Error('Failed downloading the archive file.');
-              }
-            }
-          } else {
-            log.error(`The downloaded archive file is corrupt. URL:${url}`);
-            if (btn) {
-              buttonTransition.message(
-                btn,
-                'ダウンロードされたファイルは破損しています。',
-                'danger'
-              );
-              setTimeout(() => {
-                enableButton();
-              }, 3000);
-              return;
-            } else {
-              // Throw an error if not executed from the UI.
-              throw new Error('The downloaded archive file is corrupt.');
-            }
-          }
-        }
-      }
-    }
-
-    try {
-      const unzippedPath = await unzip(archivePath);
-      copySync(unzippedPath, instPath);
-
-      let filesCount = 0;
-      let existCount = 0;
-      for (const file of progInfo.files) {
-        if (!file.isUninstallOnly) {
-          filesCount++;
-          if (fs.existsSync(path.join(instPath, file.filename))) {
-            existCount++;
-          }
-        }
-      }
-
-      if (filesCount === existCount) {
-        apmJson.setCore(instPath, program, version);
-        await displayInstalledVersion(instPath);
-        await packageMain.setPackagesList(instPath);
-        await packageMain.displayNicommonsIdList(instPath);
-
-        if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
-      } else {
-        if (btn)
-          buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-      }
-    } catch (e) {
-      if (btn)
-        buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-      log.error(e);
-    }
-  } else {
-    if (btn)
+  if (!coreInfo) {
+    log.error('The version data do not exist.');
+    if (btn) {
       buttonTransition.message(
         btn,
         'バージョンデータが存在しません。',
         'danger'
       );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
+    return;
+  }
+
+  /** @type {Program} */
+  const progInfo = coreInfo[program];
+  const url = progInfo.releases.find((r) => r.version === version).url;
+  let archivePath = await download(url, { loadCache: true, subDir: 'core' });
+
+  if (!archivePath) {
+    log.error('Failed downloading a file.');
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'ダウンロード中にエラーが発生しました。',
+        'danger'
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
+    return;
+  }
+
+  const integrityForArchive = progInfo.releases.find(
+    (r) => r.version === version
+  ).integrity.archive;
+
+  if (integrityForArchive) {
+    // Verify file integrity
+    while (!(await integrity.verifyFile(archivePath, integrityForArchive))) {
+      const dialogResult = await openYesNoDialog(
+        'エラー',
+        'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
+      );
+
+      if (!dialogResult) {
+        log.error(`The downloaded archive file is corrupt. URL:${url}`);
+        if (btn) {
+          buttonTransition.message(
+            btn,
+            'ダウンロードされたファイルは破損しています。',
+            'danger'
+          );
+          setTimeout(() => {
+            enableButton();
+          }, 3000);
+        }
+        return;
+      }
+
+      archivePath = await download(url, { subDir: 'core' });
+      if (!archivePath) {
+        log.error(`Failed downloading the archive file. URL:${url}`);
+        if (btn) {
+          buttonTransition.message(
+            btn,
+            'ファイルのダウンロードに失敗しました。',
+            'danger'
+          );
+          setTimeout(() => {
+            enableButton();
+          }, 3000);
+          return;
+        } else {
+          // Throw an error if not executed from the UI.
+          throw new Error('Failed downloading the archive file.');
+        }
+      }
+    }
+  }
+
+  try {
+    const unzippedPath = await unzip(archivePath);
+    copySync(unzippedPath, instPath);
+
+    let filesCount = 0;
+    let existCount = 0;
+    for (const file of progInfo.files) {
+      if (!file.isUninstallOnly) {
+        filesCount++;
+        if (fs.existsSync(path.join(instPath, file.filename))) {
+          existCount++;
+        }
+      }
+    }
+
+    if (filesCount !== existCount) {
+      throw new Error('Could not verify that the files was installed.');
+    }
+
+    apmJson.setCore(instPath, program, version);
+    await displayInstalledVersion(instPath);
+    await packageMain.setPackagesList(instPath);
+    await packageMain.displayNicommonsIdList(instPath);
+
+    if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
+  } catch (e) {
+    log.error(e);
+    if (btn) buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
   }
 
   if (btn)
@@ -494,6 +478,7 @@ async function batchInstall(instPath) {
   const enableButton = buttonTransition.loading(btn, 'インストール');
 
   if (!instPath) {
+    log.error('An installation path is not selected.');
     if (btn) {
       buttonTransition.message(
         btn,
@@ -504,7 +489,6 @@ async function batchInstall(instPath) {
         enableButton();
       }, 3000);
     }
-    log.error('An installation path is not selected.');
     return;
   }
 
@@ -530,8 +514,8 @@ async function batchInstall(instPath) {
 
     buttonTransition.message(btn, 'インストール完了', 'success');
   } catch (e) {
-    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     log.error(e);
+    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
   }
 
   setTimeout(() => {

@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import Store from 'electron-store';
 import fs from 'fs-extra';
 import * as os from 'os';
@@ -79,6 +80,7 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
       }, 3000);
     }
   } else {
+    log.error('An error has occurred while setting data URL.');
     if (btn instanceof HTMLButtonElement) {
       buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
       setTimeout(() => {

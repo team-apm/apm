@@ -122,7 +122,7 @@ async function byFolder(instPath: string) {
       const newData = { version: 3, packages: v3Packages };
       await writeJson(path.join(instPath, 'packages.json'), newData);
     } catch (e) {
-      console.log(e);
+      log.error(e);
     }
   }
 
