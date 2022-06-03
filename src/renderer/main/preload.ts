@@ -1,13 +1,13 @@
+import ClipboardJS from 'clipboard/src/clipboard';
 import { ipcRenderer } from 'electron';
-import Store from 'electron-store';
-const store = new Store();
 import log from 'electron-log';
+import Store from 'electron-store';
+import modList from '../../lib/modList';
+import migration2to3 from '../../migration/migration2to3';
 import core from './core';
 import packageMain from './package';
 import setting from './setting';
-import modList from '../../lib/modList';
-import migration2to3 from '../../migration/migration2to3';
-import ClipboardJS from 'clipboard/src/clipboard';
+const store = new Store();
 
 log.catchErrors({
   onError: () => {

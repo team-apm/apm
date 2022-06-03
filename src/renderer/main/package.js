@@ -1,23 +1,36 @@
-import { ipcRenderer } from 'electron';
-import Store from 'electron-store';
-const store = new Store();
-import log from 'electron-log';
-import fs from 'fs-extra';
-import path from 'path';
 import { execSync } from 'child_process';
-import twemoji from 'twemoji';
+import { ipcRenderer } from 'electron';
+import log from 'electron-log';
+import Store from 'electron-store';
+import {
+  copy,
+  copySync,
+  existsSync,
+  mkdir,
+  readdir,
+  readdirSync,
+  readJsonSync,
+  remove,
+  removeSync,
+  rename,
+  renameSync,
+  rmdirSync,
+} from 'fs-extra';
 import * as matcher from 'matcher';
-import createList from '../../lib/updatableList';
+import path from 'path';
+import twemoji from 'twemoji';
+import apmJson from '../../lib/apmJson';
+import buttonTransition from '../../lib/buttonTransition';
+import { compareVersion } from '../../lib/compareVersion';
+import { getHash } from '../../lib/getHash';
+import integrity from '../../lib/integrity';
+import modList from '../../lib/modList';
+import parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
 import unzip from '../../lib/unzip';
-import buttonTransition from '../../lib/buttonTransition';
-import parseJson from '../../lib/parseJson';
-import apmJson from '../../lib/apmJson';
-import modList from '../../lib/modList';
-import { getHash } from '../../lib/getHash';
+import createList from '../../lib/updatableList';
 import packageUtil from './packageUtil';
-import integrity from '../../lib/integrity';
-import { compareVersion } from '../../lib/compareVersion';
+const store = new Store();
 /** @typedef {import("apm-schema").Scripts} Scripts */
 
 // To avoid a bug in the library
@@ -400,7 +413,7 @@ async function getScriptsList(update = false) {
       );
       if (!scriptsJson) continue;
       /** @type {Scripts} */
-      const json = fs.readJsonSync(scriptsJson);
+      const json = readJsonSync(scriptsJson);
       tmpScripts.webpage = tmpScripts.webpage.concat(json.webpage);
       tmpScripts.scripts = tmpScripts.scripts.concat(json.scripts);
     }
@@ -415,7 +428,7 @@ async function getScriptsList(update = false) {
       );
       if (!scriptsJson) continue;
       /** @type {Scripts} */
-      const json = fs.readJsonSync(scriptsJson);
+      const json = readJsonSync(scriptsJson);
       tmpScripts.webpage = tmpScripts.webpage.concat(json.webpage);
       tmpScripts.scripts = tmpScripts.scripts.concat(json.scripts);
     }
@@ -642,8 +655,8 @@ async function installPackage(
           path.dirname(archivePath),
           installedPackage.id
         );
-        await fs.mkdir(newFolder, { recursive: true });
-        await fs.rename(
+        await mkdir(newFolder, { recursive: true });
+        await rename(
           archivePath,
           path.join(newFolder, path.basename(archivePath))
         );
@@ -656,7 +669,7 @@ async function installPackage(
     if (installedPackage.info.installer) {
       const searchFiles = (dirName) => {
         let result = [];
-        const dirents = fs.readdirSync(dirName, {
+        const dirents = readdirSync(dirName, {
           withFileTypes: true,
         });
         for (const dirent of dirents) {
@@ -685,11 +698,8 @@ async function installPackage(
     } else {
       // Delete obsolete files
       for (const file of installedPackage.info.files) {
-        if (
-          file.isObsolete &&
-          fs.existsSync(path.join(instPath, file.filename))
-        ) {
-          await fs.remove(path.join(instPath, file.filename));
+        if (file.isObsolete && existsSync(path.join(instPath, file.filename))) {
+          await remove(path.join(instPath, file.filename));
         }
       }
 
@@ -715,7 +725,7 @@ async function installPackage(
         }
       }
       for (const filePath of filesToCopy) {
-        fs.copySync(filePath[0], filePath[1]);
+        copySync(filePath[0], filePath[1]);
       }
     }
   } catch (e) {
@@ -734,7 +744,7 @@ async function installPackage(
   for (const file of installedPackage.info.files) {
     if (!file.isUninstallOnly && !file.isObsolete) {
       filesCount++;
-      if (fs.existsSync(path.join(instPath, file.filename))) {
+      if (existsSync(path.join(instPath, file.filename))) {
         existCount++;
       }
     }
@@ -813,7 +823,7 @@ async function uninstallPackage(instPath) {
   const uninstalledPackage = { ...selectedEntry };
 
   for (const file of uninstalledPackage.info.files) {
-    if (!file.isInstallOnly) fs.removeSync(path.join(instPath, file.filename));
+    if (!file.isInstallOnly) removeSync(path.join(instPath, file.filename));
   }
 
   let filesCount = 0;
@@ -821,7 +831,7 @@ async function uninstallPackage(instPath) {
   for (const file of uninstalledPackage.info.files) {
     if (!file.isInstallOnly) {
       filesCount++;
-      if (!fs.existsSync(path.join(instPath, file.filename))) {
+      if (!existsSync(path.join(instPath, file.filename))) {
         notExistCount++;
       }
     }
@@ -996,7 +1006,7 @@ async function installScript(instPath) {
   const scriptExtRegex = /\.(anm|obj|cam|tra|scn)$/;
 
   const searchScriptRoot = (dirName) => {
-    const dirents = fs.readdirSync(dirName, {
+    const dirents = readdirSync(dirName, {
       withFileTypes: true,
     });
     return dirents.find((i) => i.isFile() && scriptExtRegex.test(i.name))
@@ -1007,7 +1017,7 @@ async function installScript(instPath) {
   };
 
   const extExists = (dirName, regex) => {
-    const dirents = fs.readdirSync(dirName, {
+    const dirents = readdirSync(dirName, {
       withFileTypes: true,
     });
     return dirents.filter((i) => i.isFile() && regex.test(i.name)).length > 0
@@ -1028,8 +1038,8 @@ async function installScript(instPath) {
           path.dirname(archivePath),
           'tmp_' + path.basename(archivePath)
         );
-        await fs.mkdir(newFolder, { recursive: true });
-        await fs.rename(
+        await mkdir(newFolder, { recursive: true });
+        await rename(
           archivePath,
           path.join(newFolder, path.basename(archivePath))
         );
@@ -1071,7 +1081,7 @@ async function installScript(instPath) {
     ];
     const scriptRoot = searchScriptRoot(unzippedPath)[0];
     const entriesToCopy = (
-      await fs.readdir(scriptRoot, {
+      await readdir(scriptRoot, {
         withFileTypes: true,
       })
     )
@@ -1082,11 +1092,11 @@ async function installScript(instPath) {
         path.join('script', matchInfo.folder, p.name).replaceAll('\\', '/'),
         p.isDirectory(),
       ]);
-    await fs.mkdir(path.join(instPath, 'script', matchInfo.folder), {
+    await mkdir(path.join(instPath, 'script', matchInfo.folder), {
       recursive: true,
     });
     for (const filePath of entriesToCopy) {
-      await fs.copy(filePath[0], filePath[1]);
+      await copy(filePath[0], filePath[1]);
     }
 
     // Constructing package information
@@ -1103,8 +1113,8 @@ async function installScript(instPath) {
 
     // Rename the extracted folder
     const newPath = path.join(path.dirname(unzippedPath), id);
-    if (fs.existsSync(newPath)) fs.rmdirSync(newPath, { recursive: true });
-    fs.renameSync(unzippedPath, newPath);
+    if (existsSync(newPath)) rmdirSync(newPath, { recursive: true });
+    renameSync(unzippedPath, newPath);
 
     // Save package information
     const packageItem = {

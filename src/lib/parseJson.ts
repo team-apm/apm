@@ -1,7 +1,7 @@
 // import path from 'path';
+import { Core, List, Packages } from 'apm-schema';
 import fs, { readJSON, writeJson } from 'fs-extra';
 import { getIdDict } from './convertId';
-import { Core, Packages, List } from 'apm-schema';
 
 // Functions to be exported
 

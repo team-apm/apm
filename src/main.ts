@@ -1,20 +1,22 @@
+import { execSync } from 'child_process';
 import {
   app,
   BrowserWindow,
-  Menu,
   dialog,
   ipcMain,
-  shell,
+  Menu,
   net,
+  shell,
 } from 'electron';
+import debug from 'electron-debug';
 import { download } from 'electron-dl';
 import log from 'electron-log';
-import debug from 'electron-debug';
-import windowStateKeeper from 'electron-window-state';
-import fs from 'fs-extra';
-import path from 'path';
-import { execSync } from 'child_process';
 import prompt from 'electron-prompt';
+import Store from 'electron-store';
+import windowStateKeeper from 'electron-window-state';
+import fs, { mkdir, readJsonSync } from 'fs-extra';
+import path from 'path';
+import updateElectronApp from 'update-electron-app';
 import { getHash } from './lib/getHash';
 import shortcut from './lib/shortcut';
 
@@ -53,7 +55,6 @@ const isDevEnv = process.env.NODE_ENV === 'development';
 if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Dev');
 debug({ showDevTools: false }); // Press F12 to open DevTools
 
-import Store from 'electron-store';
 Store.initRenderer();
 const store = new Store();
 
@@ -80,8 +81,6 @@ if (!store.has('autoUpdate')) {
   store.set('autoUpdate', doAutoUpdate);
 }
 
-import updateElectronApp from 'update-electron-app';
-
 /**
  * Checks whether a newer version is available.
  *
@@ -90,7 +89,7 @@ import updateElectronApp from 'update-electron-app';
 function checkUpdate(silent = true) {
   const server = 'https://update.electronjs.org';
 
-  const pkg = fs.readJsonSync(path.join(app.getAppPath(), 'package.json'));
+  const pkg = readJsonSync(path.join(app.getAppPath(), 'package.json'));
   const repoString = (pkg.repository && pkg.repository.url) || pkg.repository;
   const repoURL = new URL(repoString);
   const dirs = repoURL.pathname.split('/');
@@ -499,7 +498,7 @@ function launch() {
           savePath = (await download(mainWindow, url, opt)).getSavePath();
         } else {
           savePath = path.join(opt.directory, path.basename(url));
-          fs.mkdir(path.dirname(savePath), { recursive: true });
+          mkdir(path.dirname(savePath), { recursive: true });
           fs.copyFileSync(url, savePath);
         }
 

@@ -1,11 +1,11 @@
-import fs from 'fs-extra';
-import path from 'path';
 import {
-  hasProperty,
-  getProperty,
-  setProperty,
   deleteProperty,
+  getProperty,
+  hasProperty,
+  setProperty,
 } from 'dot-prop';
+import { readJsonSync, writeJsonSync } from 'fs-extra';
+import path from 'path';
 
 /**
  * Returns the path of `apm.json`.
@@ -25,7 +25,7 @@ function getPath(instPath) {
  */
 function getApmJson(instPath) {
   try {
-    const value = fs.readJsonSync(getPath(instPath));
+    const value = readJsonSync(getPath(instPath));
     if (typeof value === 'object') {
       return value;
     } else {
@@ -43,7 +43,7 @@ function getApmJson(instPath) {
  * @param {object} object - An object to write
  */
 function setApmJson(instPath, object) {
-  fs.writeJsonSync(getPath(instPath), object, { spaces: 2 });
+  writeJsonSync(getPath(instPath), object, { spaces: 2 });
 }
 
 // Functions to be exported

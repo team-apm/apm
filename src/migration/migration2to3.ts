@@ -1,12 +1,12 @@
 import { ipcRenderer } from 'electron';
-import fs from 'fs-extra';
-import path from 'path';
-import Store from 'electron-store';
-const store = new Store();
 import log from 'electron-log';
+import Store from 'electron-store';
+import fs, { writeJson } from 'fs-extra';
+import path from 'path';
 import apmJson from '../lib/apmJson';
 import migration1to2 from './migration1to2';
 import parseXML from './parseXML';
+const store = new Store();
 
 /**
  * Migration of common settings.
@@ -126,7 +126,7 @@ async function byFolder(instPath: string) {
         return p;
       });
       const newData = { version: 3, packages: v3Packages };
-      await fs.writeJson(path.join(instPath, 'packages.json'), newData);
+      await writeJson(path.join(instPath, 'packages.json'), newData);
     } catch (e) {
       console.log(e);
     }
