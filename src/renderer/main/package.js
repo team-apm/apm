@@ -109,17 +109,19 @@ async function setPackagesList(instPath) {
 
   // sort-buttons
   if (!packagesSort.hasChildNodes()) {
-    Array.from(columns.entries())
+    const sortButtons = Array.from(columns.entries())
       .filter(([, s]) => ['name', 'developer'].includes(s))
-      .forEach(([i, columnName]) => {
+      .map(([i, columnName]) => {
         const sortBtn = document
           .getElementById('sort-template')
           .cloneNode(true);
         sortBtn.removeAttribute('id');
         sortBtn.dataset.sort = columnName;
         sortBtn.innerText = columnsDisp[i];
-        packagesSort.appendChild(sortBtn);
+        return sortBtn;
       });
+    sortButtons[0].classList.add('asc');
+    sortButtons.forEach((sortBtn) => packagesSort.appendChild(sortBtn));
   }
 
   // prepare a package list
