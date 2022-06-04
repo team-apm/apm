@@ -1,6 +1,6 @@
 import log from 'electron-log';
 import Store from 'electron-store';
-import fs, { copySync } from 'fs-extra';
+import fs from 'fs-extra';
 import path from 'path';
 import apmJson from '../../lib/apmJson';
 import buttonTransition from '../../lib/buttonTransition';
@@ -19,6 +19,7 @@ import replaceText from '../../lib/replaceText';
 import shortcut from '../../lib/shortcut';
 import unzip from '../../lib/unzip';
 import migration2to3 from '../../migration/migration2to3';
+import { install, verifyFilesByCount } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
 const store = new Store();
@@ -58,19 +59,8 @@ async function displayInstalledVersion(instPath) {
         }
       }
 
-      let filesCount = 0;
-      let existCount = 0;
-      for (const file of progInfo.files) {
-        if (!file.isUninstallOnly) {
-          filesCount++;
-          if (fs.existsSync(path.join(instPath, file.filename))) {
-            existCount++;
-          }
-        }
-      }
-
       if (apmJson.has(instPath, 'core.' + program)) {
-        if (filesCount === existCount) {
+        if (verifyFilesByCount(instPath, progInfo.files)) {
           replaceText(
             `${program}-installed-version`,
             apmJson.get(instPath, 'core.' + program, '未インストール')
@@ -83,7 +73,7 @@ async function displayInstalledVersion(instPath) {
           );
         }
       } else {
-        if (filesCount === existCount) {
+        if (verifyFilesByCount(instPath, progInfo.files)) {
           replaceText(`${program}-installed-version`, '手動インストール済み');
         } else {
           replaceText(`${program}-installed-version`, '未インストール');
@@ -434,22 +424,7 @@ async function installProgram(btn, program, version, instPath) {
 
   try {
     const unzippedPath = await unzip(archivePath);
-    copySync(unzippedPath, instPath);
-
-    let filesCount = 0;
-    let existCount = 0;
-    for (const file of progInfo.files) {
-      if (!file.isUninstallOnly) {
-        filesCount++;
-        if (fs.existsSync(path.join(instPath, file.filename))) {
-          existCount++;
-        }
-      }
-    }
-
-    if (filesCount !== existCount) {
-      throw new Error('Could not verify that the files was installed.');
-    }
+    await install(unzippedPath, instPath, progInfo.files, true);
 
     apmJson.setCore(instPath, program, version);
     await displayInstalledVersion(instPath);

@@ -4,6 +4,7 @@ import path from 'path';
 import apmJson from '../../lib/apmJson';
 import { download, existsTempFile, openErrDialog } from '../../lib/ipcWrapper';
 import parseJson from '../../lib/parseJson';
+import { verifyFilesByCount } from './common';
 /** @typedef {import("apm-data").Packages} Packages */
 
 const typeForExtention = {
@@ -136,12 +137,14 @@ async function getPackages(packageDataUrls) {
  * @param {string[]} packageDataUrls - URLs of the repository
  */
 async function downloadRepository(packageDataUrls) {
-  for (const packageRepository of packageDataUrls) {
-    await download(packageRepository, {
-      subDir: 'package',
-      keyText: packageRepository,
-    });
-  }
+  await Promise.all(
+    packageDataUrls.map((packageRepository) =>
+      download(packageRepository, {
+        subDir: 'package',
+        keyText: packageRepository,
+      })
+    )
+  );
 }
 
 /**
@@ -243,18 +246,7 @@ function getInstalledVersionOfPackage(
         version = installedPackage.version;
       } else {
         // Determine if the package has been installed properly.
-        let filesCount = 0;
-        let existCount = 0;
-        for (const file of packageItem.info.files) {
-          if (!file.isUninstallOnly) {
-            filesCount++;
-            if (fs.existsSync(path.join(instPath, file.filename))) {
-              existCount++;
-            }
-          }
-        }
-
-        if (filesCount === existCount) {
+        if (verifyFilesByCount(instPath, packageItem.info.files)) {
           installationStatus = states.installed;
           version = installedPackage.version;
         } else {
