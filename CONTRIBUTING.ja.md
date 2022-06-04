@@ -20,8 +20,8 @@ AviUtl Package Managerへのコントリビュートに興味を持っていた�
 
 以下のIssueは、テンプレートを用意しています。日本語でも英語でも構いません。
 
-- 機能リクエスト (Feature request) [日本語](https://github.com/hal-shu-sato/apm/issues/new?labels=Feedback%3A+enhancement&template=feature_request_ja.md) [English](https://github.com/hal-shu-sato/apm/issues/new?labels=Feedback%3A+enhancement&template=feature_request.md)
-- バグ報告 (Bug report) [日本語](https://github.com/hal-shu-sato/apm/issues/new?labels=Problem%3A+bug&template=bug_report_ja.md) [English](https://github.com/hal-shu-sato/apm/issues/new?labels=Problem%3A+bug&template=bug_report.md)
+- 機能リクエスト (Feature request) [日本語](https://github.com/team-apm/apm/issues/new?labels=Feedback%3A+enhancement&template=feature_request_ja.md) [English](https://github.com/team-apm/apm/issues/new?labels=Feedback%3A+enhancement&template=feature_request.md)
+- バグ報告 (Bug report) [日本語](https://github.com/team-apm/apm/issues/new?labels=Problem%3A+bug&template=bug_report_ja.md) [English](https://github.com/team-apm/apm/issues/new?labels=Problem%3A+bug&template=bug_report.md)
 
 その他のIssueも大歓迎です。
 
@@ -41,7 +41,7 @@ Pull Requestも大歓迎です。
 - リファクタリング
 - ドキュメントの修正
 
-Pull Requestがマージされた時点で、あなたの貢献が[Contributorsリスト](https://github.com/hal-shu-sato/apm/graphs/contributors)に追加され、コードの内容には[MIT License](./LICENSE)が適用されます。
+Pull Requestがマージされた時点で、あなたの貢献が[Contributorsリスト](https://github.com/team-apm/apm/graphs/contributors)に追加され、コードの内容には[MIT License](./LICENSE)が適用されます。
 
 その後、もしよろしければ、[クレジット](./src/about.html)に自分の名前を加えて、プルリクエストを送ってください。
 

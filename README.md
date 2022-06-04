@@ -1,10 +1,10 @@
 # ![Logo](./icon/apm32.png) AviUtl Package Manager
 
-[![Build](https://github.com/hal-shu-sato/apm/actions/workflows/build.yml/badge.svg)](https://github.com/hal-shu-sato/apm/actions/workflows/build.yml)
-[![GitHub issues](https://img.shields.io/github/issues/hal-shu-sato/apm)](https://github.com/hal-shu-sato/apm/issues)
-[![GitHub license](https://img.shields.io/github/license/hal-shu-sato/apm)](https://github.com/hal-shu-sato/apm/blob/main/LICENSE)
-[![GitHub package.json version](https://img.shields.io/github/package-json/v/hal-shu-sato/apm)](https://github.com/hal-shu-sato/apm/releases/latest)
-![GitHub all releases](https://img.shields.io/github/downloads/hal-shu-sato/apm/total)
+[![Build](https://github.com/team-apm/apm/actions/workflows/build.yml/badge.svg)](https://github.com/team-apm/apm/actions/workflows/build.yml)
+[![GitHub issues](https://img.shields.io/github/issues/team-apm/apm)](https://github.com/team-apm/apm/issues)
+[![GitHub license](https://img.shields.io/github/license/team-apm/apm)](https://github.com/team-apm/apm/blob/main/LICENSE)
+[![GitHub package.json version](https://img.shields.io/github/package-json/v/team-apm/apm)](https://github.com/team-apm/apm/releases/latest)
+![GitHub all releases](https://img.shields.io/github/downloads/team-apm/apm/total)
 
 <p>
   <img src="./docs/images/tab1.png" width="160" />
@@ -23,7 +23,7 @@ _Read this in [English](./README.en.md)_.
 
 ## ダウンロード
 
-[ダウンロードページ](https://hal-shu-sato.github.io/apm/)からAviUtl Package Managerをダウンロードします
+[ダウンロードページ](https://team-apm.github.io/apm/)からAviUtl Package Managerをダウンロードします
 
 ## 準備
 
@@ -50,7 +50,7 @@ _Read this in [English](./README.en.md)_.
 - 上記の方法で導入できないパッケージも、手動でファイルをコピーする従来の方法により導入できます
 - 動作確認は、Windows版のみで行っています
   - Mac版・Linux版は動作保証しておりませんが、問題等が発生した場合はIssueを作成して報告いただければ、対応します
-- プラグイン・スクリプト一覧への追加・更新・削除等の要望がありましたら[apm-data](https://github.com/hal-shu-sato/apm-data/issues)までご連絡ください
+- プラグイン・スクリプト一覧への追加・更新・削除等の要望がありましたら[apm-data](https://github.com/team-apm/apm-data/issues)までご連絡ください
 
 ## コントリビューション
 
@@ -65,7 +65,7 @@ _Read this in [English](./README.en.md)_.
 任意の場所で以下のコマンドを実行します。
 
 ```bash
-git clone https://github.com/hal-shu-sato/apm.git
+git clone https://github.com/team-apm/apm.git
 ```
 
 あるいは、リポジトリをフォークした後、以下のコマンドを実行します。
