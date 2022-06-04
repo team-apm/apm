@@ -266,6 +266,10 @@ async function setPackagesList(instPath) {
     developer.innerText = webpage.developer;
     const typeItem = document.getElementById('tag-template').cloneNode(true);
     typeItem.removeAttribute('id');
+    typeItem.classList.replace(
+      'list-group-item-secondary',
+      'list-group-item-success'
+    );
     typeItem.innerText = 'スクリプト配布サイト';
     type.appendChild(typeItem);
     latestVersion.innerText = '';
