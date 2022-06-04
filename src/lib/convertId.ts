@@ -1,7 +1,7 @@
-import { ipcRenderer } from 'electron';
 import * as fs from 'fs-extra';
 import path from 'path';
 import apmJson from './apmJson';
+import { download, existsTempFile } from './ipcWrapper';
 import modList from './modList';
 
 /**
@@ -13,17 +13,13 @@ import modList from './modList';
 async function getIdDict(update = false): Promise<{ [key: string]: string }> {
   const dictUrl = await modList.getConvertDataUrl();
   if (update) {
-    const convertJson = await ipcRenderer.invoke(
-      'download',
-      dictUrl,
-      false,
-      'package',
-      dictUrl
-    );
+    const convertJson = await download(dictUrl, {
+      subDir: 'package',
+      keyText: dictUrl,
+    });
     return convertJson ? fs.readJsonSync(convertJson) : {};
   } else {
-    const convertJson = await ipcRenderer.invoke(
-      'exists-temp-file',
+    const convertJson = await existsTempFile(
       path.join('package', path.basename(dictUrl)),
       dictUrl
     );

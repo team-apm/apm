@@ -1,4 +1,3 @@
-import { ipcRenderer } from 'electron';
 import log from 'electron-log';
 import Store from 'electron-store';
 import fs, { copySync } from 'fs-extra';
@@ -7,6 +6,14 @@ import apmJson from '../../lib/apmJson';
 import buttonTransition from '../../lib/buttonTransition';
 import { convertId } from '../../lib/convertId';
 import integrity from '../../lib/integrity';
+import {
+  app,
+  download,
+  existsTempFile,
+  openDirDialog,
+  openErrDialog,
+  openYesNoDialog,
+} from '../../lib/ipcWrapper';
 import modList from '../../lib/modList';
 import parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
@@ -27,10 +34,7 @@ const store = new Store();
  */
 async function initCore() {
   if (!store.has('installationPath')) {
-    const instPath = path.join(
-      await ipcRenderer.invoke('app-get-path', 'home'),
-      'aviutl'
-    );
+    const instPath = path.join(await app.getPath('home'), 'aviutl');
     store.set('installationPath', instPath);
   }
 }
@@ -106,8 +110,8 @@ async function displayInstalledVersion(instPath) {
 
   // Add a shortcut to the Start menu
   if (process.platform === 'win32') {
-    const appDataPath = await ipcRenderer.invoke('app-get-path', 'appData');
-    const apmPath = await ipcRenderer.invoke('app-get-path', 'exe');
+    const appDataPath = await app.getPath('appData');
+    const apmPath = await app.getPath('exe');
     const aviutlPath = path.join(instPath, 'aviutl.exe');
     if (
       fs.existsSync(aviutlPath) &&
@@ -126,8 +130,7 @@ async function displayInstalledVersion(instPath) {
  * @returns {Promise<Core>} - An object parsed from core.json.
  */
 async function getCoreInfo() {
-  const coreFile = await ipcRenderer.invoke(
-    'exists-temp-file',
+  const coreFile = await existsTempFile(
     path.join('core', path.basename(await modList.getCoreDataUrl()))
   );
   if (coreFile.exists) {
@@ -217,12 +220,9 @@ async function checkLatestVersion(instPath) {
   const enableButton = buttonTransition.loading(btn, '更新');
 
   try {
-    await ipcRenderer.invoke(
-      'download',
-      await modList.getCoreDataUrl(),
-      false,
-      'core'
-    );
+    await download(await modList.getCoreDataUrl(), {
+      subDir: 'core',
+    });
     await modList.updateInfo();
     store.set('checkDate.core', Date.now());
     const modInfo = await modList.getInfo();
@@ -251,17 +251,12 @@ async function checkLatestVersion(instPath) {
  */
 async function selectInstallationPath(input) {
   const originalPath = input.value;
-  const selectedPath = await ipcRenderer.invoke(
-    'open-dir-dialog',
+  const selectedPath = await openDirDialog(
     'インストール先フォルダを選択',
     originalPath
   );
   if (!selectedPath || selectedPath.length === 0) {
-    await ipcRenderer.invoke(
-      'open-err-dialog',
-      'エラー',
-      'インストール先フォルダを選択してください。'
-    );
+    await openErrDialog('エラー', 'インストール先フォルダを選択してください。');
   } else if (selectedPath[0] != originalPath) {
     const instPath = selectedPath[0];
     await changeInstallationPath(instPath);
@@ -370,7 +365,7 @@ async function installProgram(btn, program, version, instPath) {
     /** @type {Program} */
     const progInfo = coreInfo[program];
     const url = progInfo.releases.find((r) => r.version === version).url;
-    let archivePath = await ipcRenderer.invoke('download', url, true, 'core');
+    let archivePath = await download(url, { loadCache: true, subDir: 'core' });
 
     if (!archivePath) {
       if (btn) {
@@ -397,18 +392,12 @@ async function installProgram(btn, program, version, instPath) {
         if (await integrity.verifyFile(archivePath, integrityForArchive)) {
           break;
         } else {
-          const dialogResult = await ipcRenderer.invoke(
-            'open-yes-no-dialog',
+          const dialogResult = await openYesNoDialog(
             'エラー',
             'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
           );
           if (dialogResult) {
-            archivePath = await ipcRenderer.invoke(
-              'download',
-              url,
-              false,
-              'core'
-            );
+            archivePath = await download(url, { subDir: 'core' });
             if (archivePath) {
               continue;
             } else {

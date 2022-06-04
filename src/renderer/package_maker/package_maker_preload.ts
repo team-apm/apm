@@ -1,6 +1,5 @@
 import { execSync } from 'child_process';
 import ClipboardJS from 'clipboard/src/clipboard';
-import { ipcRenderer } from 'electron';
 import log from 'electron-log';
 import { XMLBuilder } from 'fast-xml-parser';
 import fs from 'fs-extra';
@@ -8,14 +7,14 @@ import path from 'path';
 // 'Sortable' is not actually exported as ESModules. So, ignore the warning.
 // eslint-disable-next-line import/no-named-as-default
 import Sortable from 'sortablejs';
+import { openErrDialog, openBrowser } from '../../lib/ipcWrapper';
 import apmPath from '../../lib/apmPath';
 import buttonTransition from '../../lib/buttonTransition';
 import unzip from '../../lib/unzip';
 
 log.catchErrors({
   onError: () => {
-    ipcRenderer.invoke(
-      'open-err-dialog',
+    openErrDialog(
       'エラー',
       `予期しないエラーが発生しました。\nログファイル: ${
         log.transports.file.getFile().path
@@ -297,11 +296,7 @@ window.addEventListener('load', () => {
       return;
     }
 
-    const downloadResult = await ipcRenderer.invoke(
-      'open-browser',
-      xmlDownloadURL.value,
-      'package'
-    );
+    const downloadResult = await openBrowser(xmlDownloadURL.value, 'package');
     if (!downloadResult) {
       buttonTransition.message(
         xmlDownloadURLBtn,

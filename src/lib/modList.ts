@@ -1,9 +1,9 @@
-import { ipcRenderer } from 'electron';
 import Store from 'electron-store';
 import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
 import apmPath from './apmPath';
+import { download, existsTempFile } from './ipcWrapper';
 import parseJson from './parseJson';
 const store = new Store();
 
@@ -60,12 +60,7 @@ async function setPackagesDataUrl() {
  * Download list.json.
  */
 async function updateInfo() {
-  await ipcRenderer.invoke(
-    'download',
-    path.join(getDataUrl(), 'list.json'),
-    false,
-    ''
-  );
+  await download(path.join(getDataUrl(), 'list.json'));
   await setPackagesDataUrl();
 }
 
@@ -75,15 +70,12 @@ async function updateInfo() {
  * @returns {Promise<object>} - An object parsed from list.json.
  */
 async function getInfo() {
-  const modFile = await ipcRenderer.invoke('exists-temp-file', 'list.json');
+  const modFile = await existsTempFile('list.json');
   if (modFile.exists) {
     return await parseJson.getMod(modFile.path).catch((): null => null);
   } else {
     await updateInfo();
-    const downloadedModFile = await ipcRenderer.invoke(
-      'exists-temp-file',
-      'list.json'
-    );
+    const downloadedModFile = await existsTempFile('list.json');
     return await parseJson
       .getMod(downloadedModFile.path)
       .catch((): null => null);

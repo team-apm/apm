@@ -1,9 +1,15 @@
-import { ipcRenderer } from 'electron';
 import log from 'electron-log';
 import Store from 'electron-store';
 import fs from 'fs-extra';
 import path from 'path';
 import apmJson from '../lib/apmJson';
+import {
+  app,
+  download,
+  migration1to2ConfirmDialog,
+  migration1to2DataurlInputDialog,
+  openErrDialog,
+} from '../lib/ipcWrapper';
 const store = new Store();
 
 /**
@@ -28,7 +34,7 @@ async function global() {
     'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/'
   ) {
     for (;;) {
-      const response = await ipcRenderer.invoke('migration1to2-confirm-dialog');
+      const response = await migration1to2ConfirmDialog();
       if (response === 0) {
         // quit
         return false;
@@ -39,24 +45,17 @@ async function global() {
       }
       // else (response === 1) // use new dataURL.main
 
-      const newDataURL = await ipcRenderer.invoke(
-        'migration1to2-dataurl-input-dialog'
-      );
+      const newDataURL = await migration1to2DataurlInputDialog();
       if (!newDataURL) {
         continue;
       } else if (!newDataURL.startsWith('http') && !fs.existsSync(newDataURL)) {
-        await ipcRenderer.invoke(
-          'open-err-dialog',
+        await openErrDialog(
           'エラー',
           '有効なURLまたは場所を入力してください。'
         );
         continue;
       } else if (path.extname(newDataURL) === '.xml') {
-        await ipcRenderer.invoke(
-          'open-err-dialog',
-          'エラー',
-          'フォルダのURLを入力してください。'
-        );
+        await openErrDialog('エラー', 'フォルダのURLを入力してください。');
         continue;
       } else {
         const oldDataURL = store.get('dataURL.main');
@@ -79,10 +78,7 @@ async function global() {
   // Main
   log.info('Start migration: migration1to2.global())');
   // 1. Delete the cache files
-  const dataFolder = path.join(
-    await ipcRenderer.invoke('app-get-path', 'userData'),
-    'Data/'
-  );
+  const dataFolder = path.join(await app.getPath('userData'), 'Data/');
   const files = [
     path.join(dataFolder, 'mod.xml'),
     path.join(dataFolder, 'core/core.xml'),
@@ -131,13 +127,7 @@ async function byFolder(instPath) {
   log.info(`Start migration: migration1to2.byFolder(${instPath})`);
 
   // 1. Backup apm.json
-  await ipcRenderer.invoke(
-    'download',
-    jsonPath,
-    false,
-    'migration1to2',
-    jsonPath
-  );
+  await download(jsonPath, { subDir: 'migration1to2', keyText: jsonPath });
 
   // 2. Renaming the local repository
   try {
