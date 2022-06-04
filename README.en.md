@@ -1,10 +1,10 @@
 # ![Logo](./icon/apm32.png) AviUtl Package Manager
 
-[![Build](https://github.com/hal-shu-sato/apm/actions/workflows/build.yml/badge.svg)](https://github.com/hal-shu-sato/apm/actions/workflows/build.yml)
-[![GitHub issues](https://img.shields.io/github/issues/hal-shu-sato/apm)](https://github.com/hal-shu-sato/apm/issues)
-[![GitHub license](https://img.shields.io/github/license/hal-shu-sato/apm)](https://github.com/hal-shu-sato/apm/blob/main/LICENSE)
-[![GitHub package.json version](https://img.shields.io/github/package-json/v/hal-shu-sato/apm)](https://github.com/hal-shu-sato/apm/releases/latest)
-![GitHub all releases](https://img.shields.io/github/downloads/hal-shu-sato/apm/total)
+[![Build](https://github.com/team-apm/apm/actions/workflows/build.yml/badge.svg)](https://github.com/team-apm/apm/actions/workflows/build.yml)
+[![GitHub issues](https://img.shields.io/github/issues/team-apm/apm)](https://github.com/team-apm/apm/issues)
+[![GitHub license](https://img.shields.io/github/license/team-apm/apm)](https://github.com/team-apm/apm/blob/main/LICENSE)
+[![GitHub package.json version](https://img.shields.io/github/package-json/v/team-apm/apm)](https://github.com/team-apm/apm/releases/latest)
+![GitHub all releases](https://img.shields.io/github/downloads/team-apm/apm/total)
 
 <p>
   <img src="./docs/images/tab1.png" width="160" />
@@ -24,7 +24,7 @@ Read this in [日本語](./README.md)
 
 ## Installation
 
-Download `AviUtl.Package.Manager-{version}.Setup.exe` from Assets in [Releases](https://github.com/hal-shu-sato/apm/releases/latest). There is also a zipped version that does not require installation.
+Download `AviUtl.Package.Manager-{version}.Setup.exe` from Assets in [Releases](https://github.com/team-apm/apm/releases/latest). There is also a zipped version that does not require installation.
 
 ## Preparation
 
@@ -55,7 +55,7 @@ After launching the AviUtl Package Manager, please perform the following setting
 - If a package cannot be installed using the above method, it can be installed using the traditional method of manually copying the files
 - We have tested the Windows version only; we are not supporting the operation of the Mac or Linux versions
   - If you encounter any problems, regardless of OS, please create an Issue and report it to us
-- If you have any requests for additions, updates or deletions to the list of plugins and scripts, please contact [apm-data](https://github.com/hal-shu-sato/apm-data/issues)
+- If you have any requests for additions, updates or deletions to the list of plugins and scripts, please contact [apm-data](https://github.com/team-apm/apm-data/issues)
 
 ## Contribution
 
@@ -70,7 +70,7 @@ After launching the AviUtl Package Manager, please perform the following setting
 Run the following command at a location of your choice
 
 ```bash
-git clone https://github.com/hal-shu-sato/apm.git
+git clone https://github.com/team-apm/apm.git
 ```
 
 Or, after forking the repository, run the following command

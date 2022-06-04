@@ -411,7 +411,7 @@ function launch() {
   });
 
   ipcMain.handle('open-github-issue', () => {
-    shell.openExternal('https://github.com/hal-shu-sato/apm/issues');
+    shell.openExternal('https://github.com/team-apm/apm/issues');
   });
 
   ipcMain.handle('open-google-form', () => {

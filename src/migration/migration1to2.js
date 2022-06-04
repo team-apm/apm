@@ -31,7 +31,7 @@ async function global() {
   let useDefaultDataURL = true;
   if (
     store.get('dataURL.main') !==
-    'https://cdn.jsdelivr.net/gh/hal-shu-sato/apm-data@main/data/'
+    'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/data/'
   ) {
     for (;;) {
       const response = await migration1to2ConfirmDialog();

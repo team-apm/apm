@@ -20,8 +20,8 @@ The languages used are:
 
 A template is provided for the following issues. You can use either English or Japanese.
 
-- Feature request [English](https://github.com/hal-shu-sato/apm/issues/new?labels=Feedback%3A+enhancement&template=feature_request.md) [日本語](https://github.com/hal-shu-sato/apm/issues/new?labels=Feedback%3A+enhancement&template=feature_request_ja.md)
-- Bug Report [English](https://github.com/hal-shu-sato/apm/issues/new?labels=Problem%3A+bug&template=bug_report.md) [日本語](https://github.com/hal-shu-sato/apm/issues/new?labels=Problem%3A+bug&template=bug_report_ja.md)
+- Feature request [English](https://github.com/team-apm/apm/issues/new?labels=Feedback%3A+enhancement&template=feature_request.md) [日本語](https://github.com/team-apm/apm/issues/new?labels=Feedback%3A+enhancement&template=feature_request_ja.md)
+- Bug Report [English](https://github.com/team-apm/apm/issues/new?labels=Problem%3A+bug&template=bug_report.md) [日本語](https://github.com/team-apm/apm/issues/new?labels=Problem%3A+bug&template=bug_report_ja.md)
 
 Other Issues are also welcome.
 
@@ -41,7 +41,7 @@ If you have a question about a new feature, improvement, or fix, or if the impac
 - Refactoring
 - Fixing documentation
 
-When the pull request is merged, your contribution will be added to the [Contributors list](https://github.com/hal-shu-sato/apm/graphs/contributors), and the [MIT License](./LICENSE) will be applied to the code content.
+When the pull request is merged, your contribution will be added to the [Contributors list](https://github.com/team-apm/apm/graphs/contributors), and the [MIT License](./LICENSE) will be applied to the code content.
 
 And after that, if you don't mind, add your name to [credits](./src/about.html) and send a pull request.
 

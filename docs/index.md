@@ -20,7 +20,7 @@ AviUtlを手軽に導入できるソフトウェアです
 
 ### ダウンロード
 
-[ダウンロードページ](https://hal-shu-sato.github.io/apm/)からAviUtl Package Managerをダウンロードします
+[ダウンロードページ](https://team-apm.github.io/apm/)からAviUtl Package Managerをダウンロードします
 
 ### 準備
 
@@ -45,7 +45,7 @@ AviUtl Package Managerの起動後、
 #### その他
 
 - 上記の方法で導入できないパッケージも、手動でファイルをコピーする従来の方法により導入できます
-- プラグイン・スクリプト一覧への追加・更新・削除等の要望がありましたら[apm-data](https://github.com/hal-shu-sato/apm-data/issues)までご連絡ください
+- プラグイン・スクリプト一覧への追加・更新・削除等の要望がありましたら[apm-data](https://github.com/team-apm/apm-data/issues)までご連絡ください
 
 ## プラグイン・スクリプトとは
 
