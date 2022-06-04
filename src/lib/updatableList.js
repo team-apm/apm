@@ -12,7 +12,7 @@ function createList(element, options, values) {
   const parentList = new List(element, options, values);
   const updatableList = Object.create(parentList);
 
-  parentList.on('sortComplete', () => {
+  const prepareSortState = () => {
     const sortAsc = [...(document.getElementsByClassName('sort asc') ?? [])];
     const sortDesc = [...(document.getElementsByClassName('sort desc') ?? [])];
     if (sortAsc.length !== 0)
@@ -25,7 +25,9 @@ function createList(element, options, values) {
         value: sortDesc[0].dataset.sort,
         options: { order: 'desc' },
       };
-  });
+  };
+
+  parentList.on('sortComplete', prepareSortState);
 
   updatableList.filter = (filterFunction) => {
     updatableList.filterFunction = filterFunction;
@@ -48,6 +50,10 @@ function createList(element, options, values) {
         updatableList.sortState.options
       );
   };
+
+  prepareSortState();
+  updatableList.update();
+
   return updatableList;
 }
 

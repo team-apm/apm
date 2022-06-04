@@ -108,17 +108,19 @@ async function setPackagesList(instPath) {
 
   // sort-buttons
   if (!packagesSort.hasChildNodes()) {
-    Array.from(columns.entries())
+    const sortButtons = Array.from(columns.entries())
       .filter(([, s]) => ['name', 'developer'].includes(s))
-      .forEach(([i, columnName]) => {
+      .map(([i, columnName]) => {
         const sortBtn = document
           .getElementById('sort-template')
           .cloneNode(true);
         sortBtn.removeAttribute('id');
         sortBtn.dataset.sort = columnName;
         sortBtn.innerText = columnsDisp[i];
-        packagesSort.appendChild(sortBtn);
+        return sortBtn;
       });
+    sortButtons[0].classList.add('asc');
+    sortButtons.forEach((sortBtn) => packagesSort.appendChild(sortBtn));
   }
 
   // prepare a package list
@@ -263,6 +265,10 @@ async function setPackagesList(instPath) {
     developer.innerText = webpage.developer;
     const typeItem = document.getElementById('tag-template').cloneNode(true);
     typeItem.removeAttribute('id');
+    typeItem.classList.replace(
+      'list-group-item-secondary',
+      'list-group-item-success'
+    );
     typeItem.innerText = 'スクリプト配布サイト';
     type.appendChild(typeItem);
     latestVersion.innerText = '';
@@ -1108,6 +1114,7 @@ function listFilter(column, btns, btn) {
   if (btn.classList.contains('selected')) {
     btn.classList.remove('selected');
     listJS.filter();
+    listJS.update();
   } else {
     for (const element of btns) {
       filterButtons.add(element);
@@ -1171,6 +1178,7 @@ function listFilter(column, btns, btn) {
     }
 
     listJS.filter(filterFunc);
+    listJS.update();
     btn.classList.add('selected');
   }
 }

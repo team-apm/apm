@@ -72,6 +72,10 @@ function parsePackageType(packageType) {
       case 'track':
         result.push('トラックバー');
         break;
+      // script distribution sites
+      case 'script-dist':
+        result.push('スクリプト配布サイト');
+        break;
       default:
         result.push('不明');
         break;
