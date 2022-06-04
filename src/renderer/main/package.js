@@ -1151,6 +1151,7 @@ function listFilter(column, btns, btn) {
   if (btn.classList.contains('selected')) {
     btn.classList.remove('selected');
     listJS.filter();
+    listJS.update();
   } else {
     for (const element of btns) {
       filterButtons.add(element);
@@ -1214,6 +1215,7 @@ function listFilter(column, btns, btn) {
     }
 
     listJS.filter(filterFunc);
+    listJS.update();
     btn.classList.add('selected');
   }
 }
