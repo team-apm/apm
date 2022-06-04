@@ -131,11 +131,11 @@ async function setPackagesList(instPath) {
 
   // guess which packages are installed from integrity
   let modified = false;
-  for (const p of packages
-    .filter((p) => p.info.releases)
-    .filter(
-      (p) => p.installationStatus === packageUtil.states.manuallyInstalled
-    )) {
+  for (const p of packages.filter(
+    (p) =>
+      p.info.releases &&
+      p.installationStatus === packageUtil.states.manuallyInstalled
+  )) {
     for (const release of p.info.releases) {
       if (await integrity.checkIntegrity(instPath, release.integrity.file)) {
         apmJson.addPackage(instPath, {
@@ -373,8 +373,8 @@ async function checkPackagesList(instPath) {
 
     if (btn) buttonTransition.message(btn, '更新完了', 'success');
   } catch (e) {
-    if (btn) buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     log.error(e);
+    if (btn) buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
   }
 
   if (overlay) {
@@ -398,10 +398,23 @@ async function checkPackagesList(instPath) {
 async function getScriptsList(update = false) {
   const dictUrl = await modList.getScriptsDataUrl();
   /** @type {Scripts} */
-  const tmpScripts = {
+  const result = {
     webpage: [],
     scripts: [],
   };
+
+  for (const url of dictUrl) {
+    const scriptsJson = await download(url, {
+      loadCache: !update,
+      subDir: 'package',
+      keyText: url,
+    });
+    if (!scriptsJson) continue;
+    /** @type {Scripts} */
+    const json = readJsonSync(scriptsJson);
+    result.webpage = result.webpage.concat(json.webpage);
+    result.scripts = result.scripts.concat(json.scripts);
+  }
 
   if (update) {
     const currentMod = await modList.getInfo();
@@ -409,32 +422,9 @@ async function getScriptsList(update = false) {
       'modDate.scripts',
       Math.max(...currentMod.scripts.map((p) => new Date(p.modified).getTime()))
     );
-    for (const url of dictUrl) {
-      const scriptsJson = await download(url, {
-        subDir: 'package',
-        keyText: url,
-      });
-      if (!scriptsJson) continue;
-      /** @type {Scripts} */
-      const json = readJsonSync(scriptsJson);
-      tmpScripts.webpage = tmpScripts.webpage.concat(json.webpage);
-      tmpScripts.scripts = tmpScripts.scripts.concat(json.scripts);
-    }
-  } else {
-    for (const url of dictUrl) {
-      const scriptsJson = await download(url, {
-        loadCache: true,
-        subDir: 'package',
-        keyText: url,
-      });
-      if (!scriptsJson) continue;
-      /** @type {Scripts} */
-      const json = readJsonSync(scriptsJson);
-      tmpScripts.webpage = tmpScripts.webpage.concat(json.webpage);
-      tmpScripts.scripts = tmpScripts.scripts.concat(json.scripts);
-    }
   }
-  return tmpScripts;
+
+  return result;
 }
 
 /**
@@ -482,6 +472,7 @@ async function installPackage(
     : null;
 
   if (!instPath) {
+    log.error('An installation path is not selected.');
     if (btn) {
       buttonTransition.message(
         btn,
@@ -492,7 +483,6 @@ async function installPackage(
         enableButton();
       }, 3000);
     }
-    log.error('An installation path is not selected.');
     return;
   }
 
@@ -502,6 +492,7 @@ async function installPackage(
     installedPackage = { ...packageToInstall };
   } else {
     if (!selectedEntry) {
+      log.error('A package to install is not selected.');
       if (btn) {
         buttonTransition.message(
           btn,
@@ -512,11 +503,11 @@ async function installPackage(
           enableButton();
         }, 3000);
       }
-      log.error('A package to install is not selected.');
       return;
     }
 
     if (selectedEntry.id?.startsWith('script_')) {
+      log.error('This script cannot be overwritten.');
       if (btn) {
         buttonTransition.message(
           btn,
@@ -527,7 +518,6 @@ async function installPackage(
           enableButton();
         }, 3000);
       }
-      log.error('This script cannot be overwritten.');
       return;
     }
 
@@ -544,6 +534,7 @@ async function installPackage(
     });
 
     if (!archivePath) {
+      log.error('Failed downloading a file.');
       if (btn) {
         buttonTransition.message(
           btn,
@@ -554,7 +545,6 @@ async function installPackage(
           enableButton();
         }, 3000);
       }
-      log.error('Failed downloading a file.');
       return;
     }
 
@@ -563,56 +553,50 @@ async function installPackage(
     )?.integrity?.archive;
 
     if (integrityForArchive) {
-      for (;;) {
-        // Verify file integrity
-        if (await integrity.verifyFile(archivePath, integrityForArchive)) {
-          break;
-        } else {
-          const dialogResult = await openYesNoDialog(
-            'エラー',
-            'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
+      // Verify file integrity
+      while (!(await integrity.verifyFile(archivePath, integrityForArchive))) {
+        const dialogResult = await openYesNoDialog(
+          'エラー',
+          'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
+        );
+
+        if (!dialogResult) {
+          log.error(
+            `The downloaded archive file is corrupt. URL:${installedPackage.info.directURL}`
           );
-          if (dialogResult) {
-            archivePath = await download(installedPackage.info.directURL, {
-              loadCache: false,
-              subDir: 'package',
-            });
-            if (archivePath) {
-              continue;
-            } else {
-              log.error(
-                `Failed downloading the archive file. URL:${installedPackage.info.directURL}`
-              );
-              if (btn) {
-                buttonTransition.message(
-                  btn,
-                  'ファイルのダウンロードに失敗しました。',
-                  'danger'
-                );
-                setTimeout(() => {
-                  enableButton();
-                }, 3000);
-              }
-              // Direct installation can throw an error because it is called only from within the try catch block.
-              throw new Error('Failed downloading the archive file.');
-            }
-          } else {
-            log.error(
-              `The downloaded archive file is corrupt. URL:${installedPackage.info.directURL}`
+          if (btn) {
+            buttonTransition.message(
+              btn,
+              'ダウンロードされたファイルは破損しています。',
+              'danger'
             );
-            if (btn) {
-              buttonTransition.message(
-                btn,
-                'ダウンロードされたファイルは破損しています。',
-                'danger'
-              );
-              setTimeout(() => {
-                enableButton();
-              }, 3000);
-            }
-            // Direct installation can throw an error because it is called only from within the try catch block.
-            throw new Error('The downloaded archive file is corrupt.');
+            setTimeout(() => {
+              enableButton();
+            }, 3000);
           }
+          // Direct installation can throw an error because it is called only from within the try catch block.
+          throw new Error('The downloaded archive file is corrupt.');
+        }
+
+        archivePath = await download(installedPackage.info.directURL, {
+          subDir: 'core',
+        });
+        if (!archivePath) {
+          log.error(
+            `Failed downloading the archive file. URL:${installedPackage.info.directURL}`
+          );
+          if (btn) {
+            buttonTransition.message(
+              btn,
+              'ファイルのダウンロードに失敗しました。',
+              'danger'
+            );
+            setTimeout(() => {
+              enableButton();
+            }, 3000);
+          }
+          // Direct installation can throw an error because it is called only from within the try catch block.
+          throw new Error('Failed downloading the archive file.');
         }
       }
     }
@@ -623,7 +607,9 @@ async function installPackage(
       installedPackage.info.downloadURLs[0],
       'package'
     );
+
     if (!downloadResult) {
+      log.info('The installation was canceled.');
       if (btn) {
         buttonTransition.message(
           btn,
@@ -635,9 +621,9 @@ async function installPackage(
         }, 3000);
       }
       return;
-    } else {
-      archivePath = downloadResult.savePath;
     }
+
+    archivePath = downloadResult.savePath;
   }
 
   try {
@@ -724,13 +710,13 @@ async function installPackage(
       }
     }
   } catch (e) {
+    log.error(e);
     if (btn) {
       buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
       setTimeout(() => {
         enableButton();
       }, 3000);
     }
-    log.error(e);
     return;
   }
 
@@ -777,6 +763,7 @@ async function uninstallPackage(instPath) {
   const enableButton = buttonTransition.loading(btn, 'アンインストール');
 
   if (selectedEntryType !== entryType.package) {
+    log.error('A package to install is not selected.');
     buttonTransition.message(
       btn,
       'プラグインまたはスクリプトを選択してください。',
@@ -785,11 +772,11 @@ async function uninstallPackage(instPath) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    log.error('A package to install is not selected.');
     return;
   }
 
   if (!instPath) {
+    log.error('An installation path is not selected.');
     buttonTransition.message(
       btn,
       'インストール先フォルダを指定してください。',
@@ -798,11 +785,11 @@ async function uninstallPackage(instPath) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    log.error('An installation path is not selected.');
     return;
   }
 
   if (!selectedEntry) {
+    log.error('A package to install is not selected.');
     buttonTransition.message(
       btn,
       'プラグインまたはスクリプトを選択してください。',
@@ -811,7 +798,6 @@ async function uninstallPackage(instPath) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    log.error('A package to install is not selected.');
     return;
   }
 
@@ -866,6 +852,7 @@ async function openPackageFolder() {
   );
 
   if (selectedEntryType !== entryType.package) {
+    log.error('A package to install is not selected.');
     buttonTransition.message(
       btn,
       'プラグインまたはスクリプトを選択してください。',
@@ -874,11 +861,11 @@ async function openPackageFolder() {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    log.error('A package to install is not selected.');
     return;
   }
 
   if (!selectedEntry) {
+    log.error('A package to install is not selected.');
     buttonTransition.message(
       btn,
       'プラグインまたはスクリプトを選択してください。',
@@ -887,13 +874,13 @@ async function openPackageFolder() {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    log.error('A package to install is not selected.');
     return;
   }
 
   const exists = await openPath(`package/${selectedEntry.id}`);
 
   if (!exists) {
+    log.error('The package has not been downloaded.');
     buttonTransition.message(
       btn,
       'このパッケージはダウンロードされていません。',
@@ -902,7 +889,6 @@ async function openPackageFolder() {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    log.error('The package has not been downloaded.');
     return;
   }
 
@@ -922,6 +908,7 @@ async function installScript(instPath) {
   const url = selectedEntry.url;
 
   if (!instPath) {
+    log.error('An installation path is not selected.');
     buttonTransition.message(
       btn,
       'インストール先フォルダを指定してください。',
@@ -930,12 +917,12 @@ async function installScript(instPath) {
     setTimeout(() => {
       enableButton();
     }, 3000);
-    log.error('An installation path is not selected.');
     return;
   }
 
   const downloadResult = await openBrowser(url, 'package');
   if (!downloadResult) {
+    log.info('The installation was canceled.');
     buttonTransition.message(
       btn,
       'インストールがキャンセルされました。',
@@ -946,6 +933,7 @@ async function installScript(instPath) {
     }, 3000);
     return;
   }
+
   const archivePath = downloadResult.savePath;
   const history = downloadResult.history;
   const matchInfo = [...(await getScriptsList()).scripts]
@@ -953,6 +941,7 @@ async function installScript(instPath) {
     .find((item) => isMatch(history, item.match));
 
   if (!matchInfo) {
+    log.error('The script is not supported.');
     buttonTransition.message(btn, '未対応のスクリプトです。', 'danger');
     setTimeout(() => {
       enableButton();
@@ -1037,6 +1026,7 @@ async function installScript(instPath) {
     const unzippedPath = await getUnzippedPath();
 
     if (!extExists(unzippedPath, scriptExtRegex)) {
+      log.error('No script files are included.');
       buttonTransition.message(btn, 'スクリプトが含まれていません。', 'danger');
       setTimeout(() => {
         enableButton();
@@ -1044,6 +1034,7 @@ async function installScript(instPath) {
       return;
     }
     if (extExists(unzippedPath, pluginExtRegex)) {
+      log.error('Plugin files are included.');
       buttonTransition.message(
         btn,
         'プラグインが含まれているためインストールできません。',
@@ -1129,16 +1120,12 @@ async function installScript(instPath) {
       info: packageItem,
     });
     await checkPackagesList(instPath);
-  } catch (e) {
-    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-    log.error(e);
-    return;
-  }
 
-  buttonTransition.message(btn, 'インストール完了', 'success');
+    buttonTransition.message(btn, 'インストール完了', 'success');
+  } catch (e) {
+    log.error(e);
+    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+  }
 
   setTimeout(() => {
     enableButton();

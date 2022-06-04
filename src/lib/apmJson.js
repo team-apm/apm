@@ -4,6 +4,7 @@ import {
   hasProperty,
   setProperty,
 } from 'dot-prop';
+import log from 'electron-log';
 import { readJsonSync, writeJsonSync } from 'fs-extra';
 import path from 'path';
 
@@ -31,7 +32,8 @@ function getApmJson(instPath) {
     } else {
       throw new Error('Invalid apm.json.');
     }
-  } catch {
+  } catch (e) {
+    log.error(e);
     return { dataVersion: '2', core: {}, packages: {} };
   }
 }

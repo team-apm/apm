@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import fs from 'fs-extra';
 import path from 'path';
 import apmJson from '../../lib/apmJson';
@@ -96,6 +97,7 @@ async function getPackages(packageDataUrls) {
       try {
         jsonList.push(await parseJson.getPackages(packagesListFile.path));
       } catch {
+        log.error('Failed data processing.');
         openErrDialog(
           'データ解析エラー',
           '取得したデータの処理に失敗しました。' +
@@ -155,7 +157,8 @@ function getInstalledFiles(instPath) {
       return fs.readdirSync(path, option);
     } catch (e) {
       if (e.code === 'ENOENT') return [];
-      else throw e;
+      log.error(e);
+      throw e;
     }
   };
   const readdir = (dir) =>
@@ -315,8 +318,9 @@ function getPackagesStatus(instPath, _packages) {
   try {
     aviUtlVer = apmJson.get(instPath, 'core.' + 'aviutl', '');
     exeditVer = apmJson.get(instPath, 'core.' + 'exedit', '');
-    // eslint-disable-next-line no-empty
-  } catch {}
+  } catch (e) {
+    log.info(e);
+  }
   packages.forEach((p) => {
     const doNotInstall = (p) => {
       if (p.installationStatus === states.otherInstalled) {
