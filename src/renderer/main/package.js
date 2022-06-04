@@ -1072,7 +1072,7 @@ async function installScript(instPath) {
       description:
         'スクリプト一覧: ' +
         filteredFiles.map((f) => path.basename(f.filename)).join(', '),
-      developer: matchInfo?.developer ? matchInfo.developer : '-',
+      developer: matchInfo?.developer ?? '-',
       dependencies: matchInfo?.dependencies,
       pageURL: url,
       downloadURLs: [url],

@@ -25,7 +25,7 @@ function loading(btn, message) {
     '<span class="visually-hidden">Loading...</span>';
 
   return function () {
-    btn.innerHTML = message ? message : beforeHTML;
+    btn.innerHTML = message ?? beforeHTML;
     btn.disabled = false;
   };
 }
