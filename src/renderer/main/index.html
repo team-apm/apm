@@ -37,7 +37,7 @@
 					aria-controls="packages"
 					aria-selected="false"
 				>
-					Plugins&Scripts
+					プラグイン&スクリプト
 				</button>
 				<button
 					class="nav-link"
@@ -61,7 +61,7 @@
 					aria-controls="settings"
 					aria-selected="false"
 				>
-					Settings
+					設定
 				</button>
 				<button
 					class="nav-link"
@@ -73,7 +73,7 @@
 					aria-controls="others"
 					aria-selected="false"
 				>
-					About / Others
+					その他
 				</button>
 			</div>
 		</nav>
@@ -756,61 +756,82 @@
 					<div class="row my-2">
 						<div class="card">
 							<div class="card-body">
-								<h3 class="card-title">
-									<span class="app-name"></span>について / その他
-								</h3>
+								<h3 class="card-title">その他</h3>
 								<div class="row mb-3">
-									<div class="col">
-										<button
-											type="button"
-											class="btn btn-outline-primary w-100"
-											id="open-about-window"
+									<button
+										type="button"
+										class="col-sm-6 btn btn-outline-primary"
+										id="open-about-window"
+									>
+										<span class="app-name"></span>について
+									</button>
+									<div class="col-auto btn-group" role="group">
+										<a
+											href="https://github.com/team-apm/apm"
+											role="button"
+											class="btn btn-outline-primary"
 										>
-											<span class="app-name"></span>について見る
-										</button>
+											<i class="bi bi-github"></i> GitHub
+										</a>
+										<a
+											href="https://discord.gg/YEQRqnGsG2"
+											role="button"
+											class="btn btn-outline-primary"
+										>
+											<i class="bi bi-discord"></i> Discord
+										</a>
 									</div>
 								</div>
 								<div class="row mb-3">
-									<div class="col-sm-6">
-										<button
-											type="button"
-											class="btn btn-outline-primary w-100"
-											id="open-github-issue"
-										>
-											フィードバックを送る<span class="d-inline-block"
-												>（GitHub）</span
-											><span class="d-inline-block"
-												>（外部ブラウザが開きます）</span
-											>
-										</button>
-									</div>
-									<div class="col-sm-6">
-										<button
-											type="button"
-											class="btn btn-outline-primary w-100"
-											id="open-google-form"
-										>
-											フィードバックを送る<span class="d-inline-block"
-												>（Googleフォーム）</span
-											><span class="d-inline-block"
-												>（外部ブラウザが開きます）</span
-											>
-										</button>
-									</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col">
+									<p class="col-sm-6 col-form-label">
+										プラグイン&スクリプトデータの作成
+									</p>
+									<div class="col-sm-3">
 										<button
 											type="button"
 											class="btn btn-outline-primary w-100"
 											id="open-package-maker"
 										>
-											インストールデータの作成
+											開く
+										</button>
+									</div>
+									<div class="col-sm-3">
+										<a
+											href="https://team-apm.github.io/apm-web/"
+											role="button"
+											class="btn btn-outline-primary w-100"
+										>
+											ブラウザ版を開く <i class="bi bi-box-arrow-up-right"></i>
+										</a>
+									</div>
+								</div>
+								<div class="row mb-3">
+									<p class="col-sm-6 col-form-label">
+										機能要求・バグ報告（外部ブラウザが開きます）
+									</p>
+									<div class="col-sm-3">
+										<button
+											type="button"
+											class="btn btn-outline-primary w-100"
+											id="open-google-form"
+										>
+											Googleフォーム <i class="bi bi-box-arrow-up-right"></i>
+										</button>
+									</div>
+									<div class="col-sm-3">
+										<button
+											type="button"
+											class="btn btn-outline-primary w-100"
+											id="open-github-issue"
+										>
+											<i class="bi bi-github"></i> GitHub (要アカウント)
+											<i class="bi bi-box-arrow-up-right"></i>
 										</button>
 									</div>
 								</div>
 								<div class="row mb-3">
-									<div class="col">
+									<p class="col-sm-6 col-form-label"></p>
+									<div class="col-sm-6">
 										<button
 											type="button"
 											class="btn btn-outline-primary w-100"
