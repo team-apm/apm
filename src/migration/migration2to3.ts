@@ -3,7 +3,7 @@ import Store from 'electron-store';
 import fs, { writeJson } from 'fs-extra';
 import path from 'path';
 import apmJson from '../lib/apmJson';
-import { download } from '../lib/ipcWrapper';
+import { download, openDialog } from '../lib/ipcWrapper';
 import migration1to2 from './migration1to2';
 import parseXML from './parseXML';
 const store = new Store();
@@ -34,6 +34,11 @@ async function global(): Promise<boolean> {
 
   // Finalize
   store.set('dataVersion', '3');
+  await openDialog(
+    'アップデート',
+    'v2.x.xからv3.x.xへのアップデートに伴い、データ取得先がリセットされました。\nデフォルト以外のURLを設定していた場合は、再設定してください。',
+    'info'
+  );
   log.info('End of migration: migration2to3.global())');
   return true;
 }
