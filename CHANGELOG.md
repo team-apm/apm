@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/team-apm/apm/compare/v2.2.0...v3.0.0) (2022-06-05)
+
+### ⚠ BREAKING CHANGES
+
+- After migration, you can't downgrade to v2.
+
+### Features
+
+- add listing the nicommons IDs of the installed packages ([f58afa2](https://github.com/team-apm/apm/commit/f58afa20a7b305ef1a46cf46fc7dc409e892506a)), closes [#271](https://github.com/team-apm/apm/issues/271)
+- emphasize script installation features ([75185db](https://github.com/team-apm/apm/commit/75185db8a9588cb107b1d79cdc5b2bbae3b92a4a))
+- **index.html:** align buttons ([17aa124](https://github.com/team-apm/apm/commit/17aa124fe29ff34ee5824fa96a735fe3e457ad73))
+- **index.html:** improve UI added in v3 ([c46f171](https://github.com/team-apm/apm/commit/c46f1719bfd45eab12f989af102bc0c77d080fc2))
+- migration to v3 ([49cfebb](https://github.com/team-apm/apm/commit/49cfebbe753647a2a7a878931f0c8acb2e03ba62))
+- reads data from a given path ([525bbfa](https://github.com/team-apm/apm/commit/525bbfa25a00cd1a5d5b7bcffe3d78f9b330961e))
+- remove hard-coding of data file names ([123cd40](https://github.com/team-apm/apm/commit/123cd4035143a938d42e2c5d717bd1cb6a4682c6))
+- show an info dialog after migrating v2 to v3 ([4dce6ff](https://github.com/team-apm/apm/commit/4dce6ff1ae67f1f161eb8447943431f11779b32a))
+- support for core.json ([8f0535a](https://github.com/team-apm/apm/commit/8f0535abc7953d24d9b67c350eef67430fc5912f))
+- support for list.json ([f8932d8](https://github.com/team-apm/apm/commit/f8932d80d71d643ffad5a0549bd541f4775339ba))
+- support for packages.json ([e562e38](https://github.com/team-apm/apm/commit/e562e3848dab31c4734582ea255c2174ad549111))
+- support for unified ID ([187a504](https://github.com/team-apm/apm/commit/187a504cacf75a45395cf0a06b933adb9639a876))
+- supports multiple data updates ([53d9e21](https://github.com/team-apm/apm/commit/53d9e216170ac5c6bf8824e1541d2f21a8d441d6))
+- updatableList ([be2c0e3](https://github.com/team-apm/apm/commit/be2c0e36aca27d81b082000daf1272cee42003c1))
+- update data version to v3 ([e6ea993](https://github.com/team-apm/apm/commit/e6ea9936653878f9db44a741f1a1995f1273319b))
+
+### Bug Fixes
+
+- catch download errors ([0c5a334](https://github.com/team-apm/apm/commit/0c5a334fff5b5669ed1eb3a42f918dc0431a9ef2))
+- change not to make apm.json when changing the installation path ([895a867](https://github.com/team-apm/apm/commit/895a867012086ca602694b016f2e0ff827e45e27))
+- change the repository owner of URLs ([a215b94](https://github.com/team-apm/apm/commit/a215b94dec87c89461fd6b0084c01b83faa0b1e7))
+- fix ClipboardJS import ([d7855fc](https://github.com/team-apm/apm/commit/d7855fc2bfe928f5e5c6de8533db73fca4ec1d12))
+- **modList:** restrict paths that can be specified ([486e26c](https://github.com/team-apm/apm/commit/486e26cce14cce57025c772ac9d791f286986e20))
+- **package.js:** ensure script data is loaded ([9220d02](https://github.com/team-apm/apm/commit/9220d02876c754b41acccb0992fc59420419ccad))
+- prevent resetting sort order ([a9b0d23](https://github.com/team-apm/apm/commit/a9b0d2329b86c0ec1467736967e375948980e98e))
+- reflect the package list in modlist.json to electron-store ([9bc383b](https://github.com/team-apm/apm/commit/9bc383bcc01c7a7a92df79ec7bad5816263d2376))
+- **shortcut.js:** specify CWD to the shortcut ([860e957](https://github.com/team-apm/apm/commit/860e957254f5ece9c74bd9623c0e175ad0d3744f))
+
 ## [2.2.0](https://github.com/hal-shu-sato/apm/compare/v2.1.1...v2.2.0) (2022-04-23)
 
 ### Features
