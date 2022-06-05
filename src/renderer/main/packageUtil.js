@@ -2,7 +2,7 @@ import log from 'electron-log';
 import fs from 'fs-extra';
 import path from 'path';
 import apmJson from '../../lib/apmJson';
-import { download, existsTempFile, openErrDialog } from '../../lib/ipcWrapper';
+import { download, existsTempFile, openDialog } from '../../lib/ipcWrapper';
 import parseJson from '../../lib/parseJson';
 import { verifyFilesByCount } from './common';
 /** @typedef {import("apm-data").Packages} Packages */
@@ -103,12 +103,13 @@ async function getPackages(packageDataUrls) {
         jsonList.push(await parseJson.getPackages(packagesListFile.path));
       } catch {
         log.error('Failed data processing.');
-        openErrDialog(
+        openDialog(
           'データ解析エラー',
           '取得したデータの処理に失敗しました。' +
             '\n' +
             'URL: ' +
-            packageRepository
+            packageRepository,
+          'error'
         );
       }
     }

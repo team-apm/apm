@@ -7,18 +7,19 @@ import path from 'path';
 // 'Sortable' is not actually exported as ESModules. So, ignore the warning.
 // eslint-disable-next-line import/no-named-as-default
 import Sortable from 'sortablejs';
-import { openErrDialog, openBrowser } from '../../lib/ipcWrapper';
 import apmPath from '../../lib/apmPath';
 import buttonTransition from '../../lib/buttonTransition';
+import { openBrowser, openDialog } from '../../lib/ipcWrapper';
 import unzip from '../../lib/unzip';
 
 log.catchErrors({
   onError: () => {
-    openErrDialog(
+    openDialog(
       'エラー',
       `予期しないエラーが発生しました。\nログファイル: ${
         log.transports.file.getFile().path
-      }`
+      }`,
+      'error'
     );
   },
 });

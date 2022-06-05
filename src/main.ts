@@ -239,12 +239,12 @@ ipcMain.handle('open-dir-dialog', async (event, title, defaultPath) => {
   return dir.filePaths;
 });
 
-ipcMain.handle('open-err-dialog', async (event, title, message) => {
+ipcMain.handle('open-dialog', async (event, title, message, type) => {
   const win = BrowserWindow.getFocusedWindow();
   await dialog.showMessageBox(win, {
     title: title,
     message: message,
-    type: 'error',
+    type: type,
   });
 });
 

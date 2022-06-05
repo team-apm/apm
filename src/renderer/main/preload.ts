@@ -6,7 +6,7 @@ import {
   checkUpdate,
   isExeVersion,
   openAboutWindow,
-  openErrDialog,
+  openDialog,
   openGitHubIssue,
   openGoogleForm,
   openPackageMaker,
@@ -20,11 +20,12 @@ const store = new Store();
 
 log.catchErrors({
   onError: () => {
-    openErrDialog(
+    openDialog(
       'エラー',
       `予期しないエラーが発生しました。\nログファイル: ${
         log.transports.file.getFile().path
-      }`
+      }`,
+      'error'
     );
   },
 });

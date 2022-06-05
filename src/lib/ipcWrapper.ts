@@ -109,9 +109,14 @@ export async function openDirDialog(title: string, defaultPath: string) {
  *
  * @param {string} title - A title of the dialog.
  * @param {string} message - A message showed in the dialog.
+ * @param {'none' | 'info' | 'error' | 'question' | 'warning'} [type] - A type of the dialog.
  */
-export async function openErrDialog(title: string, message: string) {
-  await ipcRenderer.invoke('open-err-dialog', title, message);
+export async function openDialog(
+  title: string,
+  message: string,
+  type?: 'none' | 'info' | 'error' | 'question' | 'warning'
+) {
+  await ipcRenderer.invoke('open-dialog', title, message, type);
 }
 
 /**
