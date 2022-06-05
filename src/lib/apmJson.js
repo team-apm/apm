@@ -34,7 +34,7 @@ function getApmJson(instPath) {
     }
   } catch (e) {
     if (e.code !== 'ENOENT') log.error(e);
-    return { dataVersion: '2', core: {}, packages: {} };
+    return { dataVersion: '3', core: {}, packages: {} };
   }
 }
 
