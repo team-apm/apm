@@ -240,8 +240,7 @@ ipcMain.handle('open-dir-dialog', async (event, title, defaultPath) => {
 });
 
 ipcMain.handle('open-dialog', async (event, title, message, type) => {
-  const win = BrowserWindow.getFocusedWindow();
-  await dialog.showMessageBox(win, {
+  await dialog.showMessageBox({
     title: title,
     message: message,
     type: type,
