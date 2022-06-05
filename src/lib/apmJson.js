@@ -33,7 +33,7 @@ function getApmJson(instPath) {
       throw new Error('Invalid apm.json.');
     }
   } catch (e) {
-    log.error(e);
+    if (e.code !== 'ENOENT') log.error(e);
     return { dataVersion: '2', core: {}, packages: {} };
   }
 }
