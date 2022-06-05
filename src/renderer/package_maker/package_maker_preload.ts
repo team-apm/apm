@@ -219,9 +219,7 @@ window.addEventListener('load', () => {
         overview: xmlOverview.value,
         description: xmlDescription.value,
         developer: xmlDeveloper.value,
-        originalDeveloper: xmlOriginalDeveloper.value
-          ? xmlOriginalDeveloper.value
-          : undefined,
+        originalDeveloper: xmlOriginalDeveloper.value ?? undefined,
         dependencies: xmlDependencies.value
           ? {
               dependency: xmlDependencies.value.split(' '),
@@ -229,9 +227,7 @@ window.addEventListener('load', () => {
           : undefined,
         pageURL: xmlPageURL.value,
         downloadURL: xmlDownloadURL.value,
-        downloadMirrorURL: xmlDownloadMirrorURL.value
-          ? xmlDownloadMirrorURL.value
-          : undefined,
+        downloadMirrorURL: xmlDownloadMirrorURL.value ?? undefined,
         latestVersion: xmlLatestVersion.value,
         installer: xmlInstallerSwitch.checked ? xmlInstaller.value : undefined,
         installArg: xmlInstallerSwitch.checked

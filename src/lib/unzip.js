@@ -25,12 +25,12 @@ async function unzip(zipPath, folderName) {
       return path.resolve(
         path.dirname(zipPath),
         '../',
-        folderName ? folderName : path.basename(zipPath, path.extname(zipPath))
+        folderName ?? path.basename(zipPath, path.extname(zipPath))
       );
     } else {
       return path.resolve(
         path.dirname(zipPath),
-        folderName ? folderName : path.basename(zipPath, path.extname(zipPath))
+        folderName ?? path.basename(zipPath, path.extname(zipPath))
       );
     }
   };
