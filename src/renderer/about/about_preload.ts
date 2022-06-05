@@ -1,14 +1,15 @@
 import log from 'electron-log';
-import { app, openErrDialog } from '../../lib/ipcWrapper';
+import { app, openDialog } from '../../lib/ipcWrapper';
 import replaceText from '../../lib/replaceText';
 
 log.catchErrors({
   onError: () => {
-    openErrDialog(
+    openDialog(
       'エラー',
       `予期しないエラーが発生しました。\nログファイル: ${
         log.transports.file.getFile().path
-      }`
+      }`,
+      'error'
     );
   },
 });

@@ -4,7 +4,7 @@ import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
 import buttonTransition from '../../lib/buttonTransition';
-import { changeMainZoomFactor, openErrDialog } from '../../lib/ipcWrapper';
+import { changeMainZoomFactor, openDialog } from '../../lib/ipcWrapper';
 import modList from '../../lib/modList';
 const store = new Store();
 
@@ -38,11 +38,15 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
 
   let error = false;
   if (!value.startsWith('http') && !fs.existsSync(value)) {
-    await openErrDialog('エラー', '有効なURLまたは場所を入力してください。');
+    await openDialog(
+      'エラー',
+      '有効なURLまたは場所を入力してください。',
+      'error'
+    );
     error = true;
   }
   if (path.extname(value) === '.json') {
-    await openErrDialog('エラー', 'フォルダのURLを入力してください。');
+    await openDialog('エラー', 'フォルダのURLを入力してください。', 'error');
     error = true;
   }
 
@@ -53,16 +57,18 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
 
   for (const tmpDataUrl of tmpExtraUrls) {
     if (!tmpDataUrl.startsWith('http') && !fs.existsSync(tmpDataUrl)) {
-      await openErrDialog(
+      await openDialog(
         'エラー',
-        `有効なURLまたは場所を入力してください。(${tmpDataUrl})`
+        `有効なURLまたは場所を入力してください。(${tmpDataUrl})`,
+        'error'
       );
       error = true;
     }
     if (path.extname(tmpDataUrl) !== '.json') {
-      await openErrDialog(
+      await openDialog(
         'エラー',
-        `有効なJsonファイルのURLまたは場所を入力してください。(${tmpDataUrl})`
+        `有効なJsonファイルのURLまたは場所を入力してください。(${tmpDataUrl})`,
+        'error'
       );
       error = true;
     }

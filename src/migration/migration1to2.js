@@ -8,7 +8,7 @@ import {
   download,
   migration1to2ConfirmDialog,
   migration1to2DataurlInputDialog,
-  openErrDialog,
+  openDialog,
 } from '../lib/ipcWrapper';
 const store = new Store();
 
@@ -49,13 +49,18 @@ async function global() {
       if (!newDataURL) {
         continue;
       } else if (!newDataURL.startsWith('http') && !fs.existsSync(newDataURL)) {
-        await openErrDialog(
+        await openDialog(
           'エラー',
-          '有効なURLまたは場所を入力してください。'
+          '有効なURLまたは場所を入力してください。',
+          'error'
         );
         continue;
       } else if (path.extname(newDataURL) === '.xml') {
-        await openErrDialog('エラー', 'フォルダのURLを入力してください。');
+        await openDialog(
+          'エラー',
+          'フォルダのURLを入力してください。',
+          'error'
+        );
         continue;
       } else {
         const oldDataURL = store.get('dataURL.main');
