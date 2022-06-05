@@ -34,7 +34,7 @@ async function global(): Promise<boolean> {
 
   // Finalize
   store.set('dataVersion', '3');
-  await openDialog(
+  openDialog(
     'アップデート',
     'v2.x.xからv3.x.xへのアップデートに伴い、データ取得先がリセットされました。\nデフォルト以外のURLを設定していた場合は、再設定してください。',
     'info'
