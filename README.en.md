@@ -31,49 +31,55 @@ Download `AviUtl.Package.Manager-{version}.Setup.exe` from Assets in [Releases](
 After launching the AviUtl Package Manager, please perform the following settings.
 
 - If you are already using Aviutl
-  1. Select the folder where Aviutl is installed from "インストール先フォルダを選択"
+  1. Select the folder where Aviutl is installed from "インストール先フォルダを選択".
 - For a new installation
-  1. Select an empty folder where you want to install Aviutl from "インストール先フォルダを選択"
-  2. select the version of Aviutl and Exedit and click the "インストール" button
+  1. Select an empty folder where you want to install Aviutl from "インストール先フォルダを選択".
+  2. select the version of Aviutl and Exedit and click the "インストール" button.
 
 ## Install the packages (plugins/scripts)
 
-1. Select the package you want to install from the "Plugins&Scripts" tab
-2. The package information will be displayed
-   - Open the URL in your browser and read the terms of use and precautions
-   - Make sure that there are any settings required after installation
-3. Click the "インストール" button
-4. Download the same version of the file as shown in the "最新バージョン" on the list
+1. Select the package you want to install from the "プラグイン&スクリプト" tab.
+2. The package information will be displayed.
+   - Open the URL in your browser and read the terms of use and precautions.
+   - Make sure that there are any settings required after installation.
+3. Click the "インストール" button.
+4. Download the same version of the file as shown in the "最新バージョン" on the list.
 
 ### To install a script that is not in the package list
 
-1. Open the "Plugins&Scripts" tab and select "インストール▼>リストにないスクリプトのインストール"
-2. Follow the link to the author's site to download the script
+1. Open the "プラグイン&スクリプト" tab and select a package with the "スクリプト配布サイト" badge and press "インストール".
+2. Follow the link to the author's site to download the script.
 
-### Other
+## Nicommons ID
 
-- If a package cannot be installed using the above method, it can be installed using the traditional method of manually copying the files
-- We have tested the Windows version only; we are not supporting the operation of the Mac or Linux versions
-  - If you encounter any problems, regardless of OS, please create an Issue and report it to us
-- If you have any requests for additions, updates or deletions to the list of plugins and scripts, please contact [apm-data](https://github.com/team-apm/apm-data/issues)
+1. Open the "ニコニ・コモンズID" tab.
+2. Uncheck the plugins or scripts you do not want to register and click the "コピー" button.
+3. paste it into the Commons ID input field when you post a Nico Nico Douga, or into an external tool such as [コンテンツツリー登録支援ツール](https://textblog.minibird.jp/twitter/#contents-tree).
+
+## Other
+
+- If a package cannot be installed using the above method, it can be installed using the traditional method of manually copying the files.
+- We have tested the Windows version only; we are not supporting the operation of the Mac or Linux versions.
+  - If you encounter any problems, regardless of OS, please create an Issue and report it to us.
+- If you have any requests for additions, updates or deletions to the list of plugins and scripts, please contact [apm-data](https://github.com/team-apm/apm-data/issues).
 
 ## Contribution
 
 ### Prerequisites
 
 - [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/) LTS Version (Current: 14.x.x)
+- [Node.js](https://nodejs.org/) LTS Version (Current: 16.x.x)
 - [Yarn 1](https://classic.yarnpkg.com/)
 
 ### Clone
 
-Run the following command at a location of your choice
+Run the following command at a location of your choice.
 
 ```bash
 git clone https://github.com/team-apm/apm.git
 ```
 
-Or, after forking the repository, run the following command
+Or, after forking the repository, run the following command.
 
 ```bash
 git clone https://github.com/${username}/apm.git
@@ -81,7 +87,7 @@ git clone https://github.com/${username}/apm.git
 
 ### Build
 
-After navigating to your cloned directory, install the package
+After navigating to your cloned directory, install the package.
 
 ```bash
 cd apm
@@ -106,12 +112,16 @@ Also, I'm Japanese, so any pull requests related to English or i18n are most wel
   - HTML
   - CSS
   - JavaScript
+  - TypeScript
 
 ## License
 
 Source Code: [MIT license](./LICENSE)
+Logo: ato lash
 
 ## Developer
+
+### Owner
 
 ato lash
 
@@ -119,9 +129,12 @@ ato lash
 - [Homepage](http://halshusato.starfree.jp/)
 - [Twitter](https://twitter.com/hal_shu_sato)
 
-## Contributor
+### Team apm
 
-[@mitosagi](https://github.com/mitosagi)
+- [@mitosagi](https://github.com/mitosagi)
+  - Development
+- [@yumetodo](https://github.com/yumetodo)
+  - Reviewing
 
 ## Thanks
 
