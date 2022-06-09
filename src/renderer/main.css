@@ -14,6 +14,9 @@ body {
   font-family: 'Helvetica Neue', 'Helvetica', 'Hiragino Sans',
     'Hiragino Kaku Gothic ProN', 'Arial', 'Meiryo', sans-serif;
 }
+th {
+  font-weight: unset;
+}
 @media (prefers-color-scheme: light) {
   .list-group-item-secondary {
     background-color: var(--bs-gray-100);
