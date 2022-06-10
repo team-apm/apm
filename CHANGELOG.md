@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/team-apm/apm/compare/v3.0.0...v3.1.0) (2022-06-10)
+
+### Features
+
+- custom title bar ([7dad179](https://github.com/team-apm/apm/commit/7dad179844b38c8ff2b509a9730e4e88fc0421d7))
+- improve design ([d76fc2e](https://github.com/team-apm/apm/commit/d76fc2e8bc03dbd229a8eddaae4a45632db8bf60))
+- **index.html:** improvement of UI ([f8ff61c](https://github.com/team-apm/apm/commit/f8ff61c469af3f03e2c24d6915a490bfeeb0b995))
+
+### Bug Fixes
+
+- change to catch update errors ([bcf736a](https://github.com/team-apm/apm/commit/bcf736afb3b73e23114daf0529d4871d19eee4f2))
+- **main.ts:** receive color theme change events ([b56472f](https://github.com/team-apm/apm/commit/b56472f449c44af92c46b95a042ad9f581025283))
+
 ## [3.0.0](https://github.com/team-apm/apm/compare/v2.2.0...v3.0.0) (2022-06-05)
 
 ### ⚠ BREAKING CHANGES
