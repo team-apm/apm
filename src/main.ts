@@ -7,6 +7,7 @@ import {
   Menu,
   net,
   shell,
+  nativeTheme,
 } from 'electron';
 import debug from 'electron-debug';
 import { download } from 'electron-dl';
@@ -355,6 +356,13 @@ function launch() {
     defaultHeight: 600,
   });
 
+  const getTitleBarColor = () => {
+    return {
+      color: nativeTheme.shouldUseDarkColors ? '#2e2e2e' : '#f0f2f4',
+      symbolColor: nativeTheme.shouldUseDarkColors ? '#FFF' : '#000',
+    };
+  };
+
   const mainWindow = new BrowserWindow({
     x: mainWindowState.x,
     y: mainWindowState.y,
@@ -364,6 +372,8 @@ function launch() {
     minHeight: 240,
     show: false,
     icon: icon,
+    titleBarStyle: 'hidden',
+    titleBarOverlay: getTitleBarColor(),
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
@@ -382,6 +392,10 @@ function launch() {
       shell.openExternal(details.url);
     }
     return { action: 'deny' };
+  });
+
+  nativeTheme.on('updated', () => {
+    mainWindow.setTitleBarOverlay(getTitleBarColor());
   });
 
   mainWindow.once('show', () => {

@@ -12,11 +12,14 @@
 		<meta name="color-scheme" content="light dark" />
 	</head>
 
-	<body class="pt-1">
-		<nav>
+	<body>
+		<nav class="bg-light draggable">
+			<div
+				class="title-bar app-name d-flex justify-content-center align-items-center text-muted"
+			></div>
 			<div class="nav nav-tabs" id="nav-tab" role="tablist">
 				<button
-					class="nav-link active"
+					class="non-draggable nav-link active"
 					id="aviutl-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#aviutl"
@@ -28,7 +31,7 @@
 					AviUtl
 				</button>
 				<button
-					class="nav-link"
+					class="non-draggable nav-link"
 					id="packages-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#packages"
@@ -40,7 +43,7 @@
 					プラグイン&スクリプト
 				</button>
 				<button
-					class="nav-link"
+					class="non-draggable nav-link"
 					id="nicommons-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#nicommons"
@@ -52,7 +55,7 @@
 					ニコニ・コモンズID
 				</button>
 				<button
-					class="nav-link"
+					class="non-draggable nav-link"
 					id="settings-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#settings"
@@ -64,7 +67,7 @@
 					設定
 				</button>
 				<button
-					class="nav-link"
+					class="non-draggable nav-link"
 					id="others-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#others"
@@ -78,7 +81,7 @@
 			</div>
 		</nav>
 
-		<main class="tab-content bg-light" id="nav-tabContent">
+		<main class="tab-content bg-white" id="nav-tabContent">
 			<section
 				class="tab-pane fade show active"
 				id="aviutl"
@@ -129,7 +132,7 @@
 									>
 									<div class="col-sm-6">
 										<input
-											class="form-control"
+											class="form-control-plaintext"
 											id="installation-path"
 											type="text"
 											placeholder="インストール先フォルダ"
@@ -152,9 +155,7 @@
 										おすすめ一括インストール
 									</p>
 									<p class="col-sm-6 col-form-label">
-										最新版のAviUtl・拡張編集<span
-											id="batch-install-packages"
-										></span>
+										AviUtl・拡張編集<span id="batch-install-packages"></span>
 									</p>
 									<div class="col-sm-3">
 										<button
@@ -179,7 +180,7 @@
 										</thead>
 										<tbody class="align-middle">
 											<tr>
-												<th scope="row" class="h5">AviUtl</th>
+												<th scope="row">AviUtl</th>
 												<td><span id="aviutl-installed-version"></span></td>
 												<td><span id="aviutl-latest-version"></span></td>
 												<td>
@@ -202,7 +203,7 @@
 												</td>
 											</tr>
 											<tr>
-												<th scope="row" class="h5">拡張編集</th>
+												<th scope="row">拡張編集</th>
 												<td><span id="exedit-installed-version"></span></td>
 												<td><span id="exedit-latest-version"></span></td>
 												<td>
@@ -267,161 +268,156 @@
 									</button>
 								</div>
 								<div class="col-auto">
-									<div class="d-inline-block dropdown align-middle mb-2">
-										<button
-											class="input-group-text dropdown-toggle"
-											type="button"
-											id="filter"
-											data-bs-toggle="dropdown"
-											aria-expanded="false"
-										>
-											絞り込み
-										</button>
-										<ul class="dropdown-menu" aria-labelledby="type-filter">
-											<li>
-												<button
-													class="dropdown-item install-filter"
-													type="button"
-													data-install-filter="true"
-												>
-													<i class="bi bi-check"></i>インストール済み
-												</button>
-											</li>
-											<li>
-												<button
-													class="dropdown-item install-filter"
-													type="button"
-													data-install-filter="manual"
-												>
-													<i class="bi bi-check"></i>手動インストール済み
-												</button>
-											</li>
-											<li>
-												<button
-													class="dropdown-item install-filter"
-													type="button"
-													data-install-filter="false"
-												>
-													<i class="bi bi-check"></i>未インストール
-												</button>
-											</li>
-											<li><hr class="dropdown-divider" /></li>
-											<li>
-												<button
-													class="dropdown-item type-filter"
-													type="button"
-													data-type-filter="script-dist"
-												>
-													<i class="bi bi-check"></i>スクリプト配布サイト
-												</button>
-											</li>
-											<li><hr class="dropdown-divider" /></li>
-											<li>
-												<button
-													class="dropdown-item type-filter"
-													type="button"
-													data-type-filter="input"
-												>
-													<i class="bi bi-check"></i>入力
-												</button>
-											</li>
-											<li>
-												<button
-													class="dropdown-item type-filter"
-													type="button"
-													data-type-filter="output"
-												>
-													<i class="bi bi-check"></i>出力
-												</button>
-											</li>
-											<li>
-												<button
-													class="dropdown-item type-filter"
-													type="button"
-													data-type-filter="filter"
-												>
-													<i class="bi bi-check"></i>フィルター
-												</button>
-											</li>
-											<li>
-												<button
-													class="dropdown-item type-filter"
-													type="button"
-													data-type-filter="color"
-												>
-													<i class="bi bi-check"></i>色変換
-												</button>
-											</li>
-											<li>
-												<button
-													class="dropdown-item type-filter"
-													type="button"
-													data-type-filter="language"
-												>
-													<i class="bi bi-check"></i>言語
-												</button>
-											</li>
-											<li>
-												<button
-													class="dropdown-item type-filter"
-													type="button"
-													data-type-filter="animation"
-												>
-													<i class="bi bi-check"></i>アニメーション効果
-												</button>
-											</li>
-											<li>
-												<button
-													class="dropdown-item type-filter"
-													type="button"
-													data-type-filter="object"
-												>
-													<i class="bi bi-check"></i>カスタムオブジェクト
-												</button>
-											</li>
-											<li>
-												<button
-													class="dropdown-item type-filter"
-													type="button"
-													data-type-filter="scene"
-												>
-													<i class="bi bi-check"></i>シーンチェンジ
-												</button>
-											</li>
-											<li>
-												<button
-													class="dropdown-item type-filter"
-													type="button"
-													data-type-filter="camera"
-												>
-													<i class="bi bi-check"></i>カメラ制御
-												</button>
-											</li>
-											<li>
-												<button
-													class="dropdown-item type-filter"
-													type="button"
-													data-type-filter="track"
-												>
-													<i class="bi bi-check"></i>トラックバー
-												</button>
-											</li>
-											<li>
-												<a
-													href="https://team-apm.github.io/apm/#%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%81%A8%E3%81%AF"
-													class="dropdown-item"
-													type="button"
-												>
-													<i class="bi bi-info-circle me-1"></i>タイプについて
-												</a>
-											</li>
-										</ul>
-									</div>
 									<div class="d-inline-block align-middle mb-2 ms-1">
 										<div class="input-group">
-											<span class="input-group-text">
-												<i class="bi bi-search"></i>
-											</span>
+											<button
+												class="input-group-text dropdown-toggle"
+												type="button"
+												id="filter"
+												data-bs-toggle="dropdown"
+												aria-expanded="false"
+											>
+												絞り込み
+											</button>
+											<ul class="dropdown-menu" aria-labelledby="type-filter">
+												<li>
+													<button
+														class="dropdown-item install-filter"
+														type="button"
+														data-install-filter="true"
+													>
+														<i class="bi bi-check"></i>インストール済み
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item install-filter"
+														type="button"
+														data-install-filter="manual"
+													>
+														<i class="bi bi-check"></i>手動インストール済み
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item install-filter"
+														type="button"
+														data-install-filter="false"
+													>
+														<i class="bi bi-check"></i>未インストール
+													</button>
+												</li>
+												<li><hr class="dropdown-divider" /></li>
+												<li>
+													<button
+														class="dropdown-item type-filter"
+														type="button"
+														data-type-filter="script-dist"
+													>
+														<i class="bi bi-check"></i>スクリプト配布サイト
+													</button>
+												</li>
+												<li><hr class="dropdown-divider" /></li>
+												<li>
+													<button
+														class="dropdown-item type-filter"
+														type="button"
+														data-type-filter="input"
+													>
+														<i class="bi bi-check"></i>入力
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter"
+														type="button"
+														data-type-filter="output"
+													>
+														<i class="bi bi-check"></i>出力
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter"
+														type="button"
+														data-type-filter="filter"
+													>
+														<i class="bi bi-check"></i>フィルター
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter"
+														type="button"
+														data-type-filter="color"
+													>
+														<i class="bi bi-check"></i>色変換
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter"
+														type="button"
+														data-type-filter="language"
+													>
+														<i class="bi bi-check"></i>言語
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter"
+														type="button"
+														data-type-filter="animation"
+													>
+														<i class="bi bi-check"></i>アニメーション効果
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter"
+														type="button"
+														data-type-filter="object"
+													>
+														<i class="bi bi-check"></i>カスタムオブジェクト
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter"
+														type="button"
+														data-type-filter="scene"
+													>
+														<i class="bi bi-check"></i>シーンチェンジ
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter"
+														type="button"
+														data-type-filter="camera"
+													>
+														<i class="bi bi-check"></i>カメラ制御
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter"
+														type="button"
+														data-type-filter="track"
+													>
+														<i class="bi bi-check"></i>トラックバー
+													</button>
+												</li>
+												<li>
+													<a
+														href="https://team-apm.github.io/apm/#%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%81%A8%E3%81%AF"
+														class="dropdown-item"
+														type="button"
+													>
+														<i class="bi bi-info-circle me-1"></i>タイプについて
+													</a>
+												</li>
+											</ul>
 											<input
 												class="fuzzy-search form-control"
 												placeholder="検索"
@@ -521,6 +517,7 @@
 								</div>
 								<div class="col">
 									<textarea
+										rows="1"
 										name="nicommons-id-textarea"
 										id="nicommons-id-textarea"
 										class="form-control"
@@ -543,15 +540,17 @@
 								>
 									<label class="d-block">
 										<div class="row">
-											<div class="col-auto">
+											<div class="col-auto d-flex align-items-center">
 												<input
-													class="form-check-input"
+													class="form-check-input m-0"
 													type="checkbox"
 													name="nicommons-id"
 												/>
 											</div>
-											<div class="col-auto col-sm-2 thumbnail"></div>
-											<div class="col-12 col-sm">
+											<div
+												class="col-sm-1 d-flex align-items-center thumbnail"
+											></div>
+											<div class="col">
 												<h5 class="d-inline-block name"></h5>
 												<div
 													class="text-primary d-inline-block ms-2 developer"
@@ -646,9 +645,66 @@
 									</div>
 									<div class="col-sm-3"></div>
 								</div>
+								<div class="row mb-3">
+									<label
+										for="zoom-factor-select"
+										class="col-sm-3 col-form-label"
+										>apmの自動更新</label
+									>
+									<div class="col-sm-6">
+										<div class="col">
+											<div class="form-check">
+												<input
+													class="form-check-input"
+													type="radio"
+													name="auto-update"
+													id="auto-update-disable"
+													value="disable"
+												/>
+												<label
+													class="form-check-label"
+													for="auto-update-disable"
+												>
+													自動更新しない
+												</label>
+											</div>
+											<div class="form-check">
+												<input
+													class="form-check-input"
+													type="radio"
+													name="auto-update"
+													id="auto-update-notify"
+													value="notify"
+												/>
+												<label
+													class="form-check-label"
+													for="auto-update-notify"
+												>
+													更新があれば通知する
+												</label>
+											</div>
+											<div class="form-check">
+												<input
+													class="form-check-input"
+													type="radio"
+													name="auto-update"
+													id="auto-update-download"
+													value="download"
+												/>
+												<label
+													class="form-check-label"
+													for="auto-update-download"
+												>
+													自動で更新をダウンロードし、インストール前に通知する
+												</label>
+											</div>
+										</div>
+									</div>
+									<div class="col-sm-3"></div>
+								</div>
 								<hr />
 								<div class="row mb-3">
-									<h4>データの手動更新</h4>
+									<h4>手動更新</h4>
 									<table class="table table-borderless table-striped">
 										<thead>
 											<tr>
@@ -691,64 +747,24 @@
 													</div>
 												</td>
 											</tr>
+											<tr>
+												<th scope="row">apm</th>
+												<td>-</td>
+												<td>-</td>
+												<td>
+													<div class="bg-body">
+														<button
+															type="button"
+															class="btn btn-outline-primary w-100"
+															id="check-apm-update"
+														>
+															更新
+														</button>
+													</div>
+												</td>
+											</tr>
 										</tbody>
 									</table>
-								</div>
-								<hr />
-								<div class="row mb-3">
-									<h4>apmの更新</h4>
-									<div class="col-3">
-										<button
-											type="button"
-											class="btn btn-outline-primary w-100"
-											id="check-apm-update"
-										>
-											更新を確認
-										</button>
-									</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col">
-										<div class="form-check">
-											<input
-												class="form-check-input"
-												type="radio"
-												name="auto-update"
-												id="auto-update-disable"
-												value="disable"
-											/>
-											<label class="form-check-label" for="auto-update-disable">
-												自動更新しない
-											</label>
-										</div>
-										<div class="form-check">
-											<input
-												class="form-check-input"
-												type="radio"
-												name="auto-update"
-												id="auto-update-notify"
-												value="notify"
-											/>
-											<label class="form-check-label" for="auto-update-notify">
-												更新があれば通知する
-											</label>
-										</div>
-										<div class="form-check">
-											<input
-												class="form-check-input"
-												type="radio"
-												name="auto-update"
-												id="auto-update-download"
-												value="download"
-											/>
-											<label
-												class="form-check-label"
-												for="auto-update-download"
-											>
-												自動で更新をダウンロードし、インストール前に通知する
-											</label>
-										</div>
-									</div>
 								</div>
 							</div>
 						</div>
