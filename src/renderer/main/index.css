@@ -22,7 +22,7 @@ main {
 .draggable {
   -webkit-app-region: drag;
 }
-.nonDraggable {
+.non-draggable {
   -webkit-app-region: no-drag;
 }
 .title-bar {
