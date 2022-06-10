@@ -12,11 +12,12 @@
 		<meta name="color-scheme" content="light dark" />
 	</head>
 
-	<body class="pt-1">
-		<nav>
+	<body>
+		<nav class="bg-light draggable">
+			<div class="titleBar app-name text-center text-muted"></div>
 			<div class="nav nav-tabs" id="nav-tab" role="tablist">
 				<button
-					class="nav-link active"
+					class="nonDraggable nav-link active"
 					id="aviutl-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#aviutl"
@@ -28,7 +29,7 @@
 					AviUtl
 				</button>
 				<button
-					class="nav-link"
+					class="nonDraggable nav-link"
 					id="packages-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#packages"
@@ -40,7 +41,7 @@
 					プラグイン&スクリプト
 				</button>
 				<button
-					class="nav-link"
+					class="nonDraggable nav-link"
 					id="nicommons-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#nicommons"
@@ -52,7 +53,7 @@
 					ニコニ・コモンズID
 				</button>
 				<button
-					class="nav-link"
+					class="nonDraggable nav-link"
 					id="settings-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#settings"
@@ -64,7 +65,7 @@
 					設定
 				</button>
 				<button
-					class="nav-link"
+					class="nonDraggable nav-link"
 					id="others-tab"
 					data-bs-toggle="tab"
 					data-bs-target="#others"
@@ -78,7 +79,7 @@
 			</div>
 		</nav>
 
-		<main class="tab-content bg-light" id="nav-tabContent">
+		<main class="tab-content bg-white" id="nav-tabContent">
 			<section
 				class="tab-pane fade show active"
 				id="aviutl"

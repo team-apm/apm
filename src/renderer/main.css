@@ -17,12 +17,21 @@ body {
 th {
   font-weight: unset;
 }
+.nav-tabs .nav-link {
+  color: var(--bs-body-color);
+}
+.nav-tabs .nav-link.active {
+  color: var(--bs-body-color);
+}
 @media (prefers-color-scheme: light) {
   .list-group-item-secondary {
     background-color: var(--bs-gray-100);
   }
   .list-group-item-secondary.list-group-item-action:hover {
     background-color: var(--bs-gray-150);
+  }
+  .bg-light {
+    background-color: var(--bs-gray-150) !important;
   }
 }
 @media (prefers-color-scheme: dark) {
@@ -31,7 +40,10 @@ th {
     background-color: var(--bs-gray-950) !important;
   }
   .bg-light {
-    background-color: var(--bs-gray-950) !important;
+    background-color: var(--bs-gray-850) !important;
+  }
+  .nav-tabs .nav-link.active {
+    background-color: var(--bs-gray-950);
   }
   .card {
     background-color: var(--bs-gray-900);
@@ -52,12 +64,6 @@ th {
   }
   a {
     color: var(--bs-light-blue);
-  }
-  .nav-tabs .nav-link {
-    color: var(--bs-body-color);
-  }
-  .nav-tabs .nav-link.active {
-    color: var(--bs-body-color);
   }
   .form-control {
     color: var(--bs-gray-100);

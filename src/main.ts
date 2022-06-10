@@ -7,6 +7,7 @@ import {
   Menu,
   net,
   shell,
+  nativeTheme,
 } from 'electron';
 import debug from 'electron-debug';
 import { download } from 'electron-dl';
@@ -360,6 +361,11 @@ function launch() {
     minHeight: 240,
     show: false,
     icon: icon,
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: nativeTheme.shouldUseDarkColors ? '#2e2e2e' : '#f0f2f4',
+      symbolColor: nativeTheme.shouldUseDarkColors ? '#FFF' : '#000',
+    },
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
