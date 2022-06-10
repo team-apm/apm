@@ -25,7 +25,7 @@ main {
 .nonDraggable {
   -webkit-app-region: no-drag;
 }
-.titleBar {
+.title-bar {
   height: env(titlebar-area-height, var(--fallback-title-bar-height));
 }
 button.dropdown-item:not(.selected) i {
