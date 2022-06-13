@@ -169,17 +169,17 @@ function checkUpdate(silent = true) {
   }
 }
 
-const doAutoUpdate = store.get('autoUpdate');
-if (!isDevEnv && typeof doAutoUpdate === 'string') {
-  if (doAutoUpdate === 'download') {
-    try {
+try {
+  const doAutoUpdate = store.get('autoUpdate');
+  if (!isDevEnv && typeof doAutoUpdate === 'string') {
+    if (doAutoUpdate === 'download') {
       updateElectronApp({ repo: 'team-apm/apm', logger: log });
-    } catch (e) {
-      log.error(e);
+    } else if (doAutoUpdate === 'notify') {
+      checkUpdate();
     }
-  } else if (doAutoUpdate === 'notify') {
-    checkUpdate();
   }
+} catch (e) {
+  log.error(e);
 }
 
 log.debug(process.versions);
