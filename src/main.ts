@@ -75,10 +75,7 @@ function isExeVersion() {
 }
 
 if (!store.has('autoUpdate')) {
-  let doAutoUpdate = 'notify';
-  if (isExeVersion()) {
-    doAutoUpdate = 'download';
-  }
+  const doAutoUpdate = isExeVersion() ? 'download' : 'notify';
   store.set('autoUpdate', doAutoUpdate);
 }
 
