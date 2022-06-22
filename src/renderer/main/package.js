@@ -1043,7 +1043,7 @@ async function installScript(instPath) {
     await mkdir(path.join(instPath, 'script', matchInfo.folder), {
       recursive: true,
     });
-    Promise.all(
+    await Promise.all(
       entriesToCopy.map((filePath) => copy(filePath[0], filePath[1]))
     );
 
