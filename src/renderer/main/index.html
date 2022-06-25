@@ -165,66 +165,57 @@
 										</button>
 									</div>
 								</div>
-								<hr />
-								<div class="row">
-									<table class="table table-borderless table-striped">
-										<thead>
-											<tr>
-												<th scope="col" class="col-sm-3"></th>
-												<th scope="col" class="col-sm-3">現在バージョン</th>
-												<th scope="col" class="col-sm-3">最新バージョン</th>
-												<th scope="col" class="col-sm-3"></th>
-											</tr>
-										</thead>
-										<tbody class="align-middle">
-											<tr>
-												<th scope="row">AviUtl</th>
-												<td><span id="aviutl-installed-version"></span></td>
-												<td><span id="aviutl-latest-version"></span></td>
-												<td>
-													<div class="dropdown bg-body">
-														<button
-															type="button"
-															class="btn btn-outline-primary w-100 dropdown-toggle"
-															id="install-aviutl"
-															data-bs-toggle="dropdown"
-															aria-expanded="false"
-														>
-															インストール
-														</button>
-														<ul
-															class="dropdown-menu"
-															id="aviutl-version-select"
-															aria-labelledby="install-aviutl"
-														></ul>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<th scope="row">拡張編集</th>
-												<td><span id="exedit-installed-version"></span></td>
-												<td><span id="exedit-latest-version"></span></td>
-												<td>
-													<div class="dropdown bg-body">
-														<button
-															type="button"
-															class="btn btn-outline-primary w-100 dropdown-toggle"
-															id="install-exedit"
-															data-bs-toggle="dropdown"
-															aria-expanded="false"
-														>
-															インストール
-														</button>
-														<ul
-															class="dropdown-menu"
-															id="exedit-version-select"
-															aria-labelledby="install-exedit"
-														></ul>
-													</div>
-												</td>
-											</tr>
-										</tbody>
-									</table>
+								<div class="row mb-4">
+									<p class="col-sm-3 col-form-label">
+										<i class="bi bi-film me-1"></i> AviUtl
+									</p>
+									<p class="col-sm-6 col-form-label">
+										<span id="aviutl-installed-version"></span>
+									</p>
+									<div class="col-sm-3">
+										<div class="dropdown bg-body">
+											<button
+												type="button"
+												class="btn btn-outline-primary w-100 dropdown-toggle"
+												id="install-aviutl"
+												data-bs-toggle="dropdown"
+												aria-expanded="false"
+											>
+												インストール
+											</button>
+											<ul
+												class="dropdown-menu"
+												id="aviutl-version-select"
+												aria-labelledby="install-aviutl"
+											></ul>
+										</div>
+									</div>
+								</div>
+								<div class="row mb-4">
+									<p class="col-sm-3 col-form-label">
+										<i class="bi bi-calendar3-range me-1"></i> 拡張編集
+									</p>
+									<p class="col-sm-6 col-form-label">
+										<span id="exedit-installed-version"></span>
+									</p>
+									<div class="col-sm-3">
+										<div class="dropdown bg-body">
+											<button
+												type="button"
+												class="btn btn-outline-primary w-100 dropdown-toggle"
+												id="install-exedit"
+												data-bs-toggle="dropdown"
+												aria-expanded="false"
+											>
+												インストール
+											</button>
+											<ul
+												class="dropdown-menu"
+												id="exedit-version-select"
+												aria-labelledby="install-exedit"
+											></ul>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>

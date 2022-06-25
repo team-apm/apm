@@ -4,6 +4,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import apmJson from '../../lib/apmJson';
 import buttonTransition from '../../lib/buttonTransition';
+import { compareVersion } from '../../lib/compareVersion';
 import { convertId } from '../../lib/convertId';
 import integrity from '../../lib/integrity';
 import {
@@ -64,16 +65,25 @@ async function displayInstalledVersion(instPath) {
       }
 
       if (apmJson.has(instPath, 'core.' + program)) {
+        const installedVersion = apmJson.get(instPath, 'core.' + program);
+        const description =
+          compareVersion(installedVersion, progInfo.latestVersion) === -1
+            ? ` （最新版: ${progInfo.latestVersion}）`
+            : installedVersion.includes('rc')
+            ? '（テスト版）'
+            : ' （最新版）';
         if (verifyFilesByCount(instPath, progInfo.files)) {
           replaceText(
             `${program}-installed-version`,
-            apmJson.get(instPath, 'core.' + program)
+            'バージョン: ' + installedVersion + description
           );
           isInstalled[program] = true;
         } else {
           replaceText(
             `${program}-installed-version`,
-            apmJson.get(instPath, 'core.' + program) +
+            'バージョン: ' +
+              installedVersion +
+              description +
               '（ファイルの存在が確認できませんでした。）'
           );
         }
@@ -171,23 +181,13 @@ async function setCoreVersions(instPath) {
   while (exeditVersionSelect.childElementCount > 0) {
     exeditVersionSelect.removeChild(exeditVersionSelect.lastChild);
   }
-
-  const coreInfo = await getCoreInfo();
-  if (!coreInfo) {
-    for (const program of programs) {
-      replaceText(`${program}-latest-version`, '未取得');
-    }
-    return;
-  }
-
   const installAviutlBtn = document.getElementById('install-aviutl');
   const installExeditBtn = document.getElementById('install-exedit');
+
+  const coreInfo = await getCoreInfo();
   for (const program of programs) {
     /** @type {Program} */
-    const progInfo = coreInfo[program];
-    replaceText(`${program}-latest-version`, progInfo.latestVersion);
-
-    for (const release of progInfo.releases) {
+    for (const release of coreInfo[program].releases) {
       const li = document.createElement('li');
       const anchor = document.createElement('a');
       anchor.classList.add('dropdown-item');
@@ -195,7 +195,9 @@ async function setCoreVersions(instPath) {
       anchor.innerText =
         release.version +
         (release.version.includes('rc') ? '（テスト版）' : '') +
-        (release.version === progInfo.latestVersion ? '（最新版）' : '');
+        (release.version === coreInfo[program].latestVersion
+          ? '（最新版）'
+          : '');
       li.appendChild(anchor);
 
       if (program === 'aviutl') {
