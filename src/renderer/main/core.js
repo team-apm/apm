@@ -49,6 +49,7 @@ async function initCore() {
  */
 async function displayInstalledVersion(instPath) {
   const coreInfo = await getCoreInfo();
+  const isInstalled = { aviutl: false, exedit: false };
   if (instPath && coreInfo) {
     for (const program of programs) {
       /** @type {Program} */
@@ -68,6 +69,7 @@ async function displayInstalledVersion(instPath) {
             `${program}-installed-version`,
             apmJson.get(instPath, 'core.' + program)
           );
+          isInstalled[program] = true;
         } else {
           replaceText(
             `${program}-installed-version`,
@@ -78,6 +80,7 @@ async function displayInstalledVersion(instPath) {
       } else {
         if (verifyFilesByCount(instPath, progInfo.files)) {
           replaceText(`${program}-installed-version`, '手動インストール済み');
+          isInstalled[program] = true;
         } else {
           replaceText(`${program}-installed-version`, '未インストール');
         }
@@ -88,6 +91,24 @@ async function displayInstalledVersion(instPath) {
       replaceText(`${program}-installed-version`, '未取得');
     }
   }
+
+  // update the batch installation text
+  const batchInstallElm = document.getElementById('batch-install-programs');
+  batchInstallElm.innerHTML = null;
+  programs
+    .map((p) => {
+      if (isInstalled[p]) {
+        const pTag = document.createElement('span');
+        pTag.classList.add('text-muted');
+        pTag.innerText = '✔' + programsDisp[programs.indexOf(p)];
+        batchInstallElm.appendChild(pTag);
+        return [pTag];
+      } else {
+        return [document.createTextNode(programsDisp[programs.indexOf(p)])];
+      }
+    })
+    .reduce((a, b) => [].concat(a, document.createTextNode(' + '), b))
+    .forEach((e) => batchInstallElm.appendChild(e));
 
   if (store.has('modDate.core')) {
     const modDate = new Date(store.get('modDate.core'));
