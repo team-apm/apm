@@ -19,11 +19,6 @@ const store = new Store();
  */
 async function global() {
   // Guard condition
-  const firstLaunch = !store.has('dataURL.main');
-  if (firstLaunch) {
-    store.set('dataVersion', '2');
-    return true;
-  }
   const isVerOne = !store.has('dataVersion');
   if (!isVerOne) return true;
 
