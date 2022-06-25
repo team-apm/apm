@@ -26,6 +26,9 @@ const store = new Store();
 /** @typedef {import("apm-schema").Core} Core */
 /** @typedef {import("apm-schema").Program} Program */
 
+const programs = ['aviutl', 'exedit'];
+const programsDisp = ['AviUtl', '拡張編集'];
+
 // Functions to be exported
 
 /**
@@ -47,7 +50,7 @@ async function initCore() {
 async function displayInstalledVersion(instPath) {
   const coreInfo = await getCoreInfo();
   if (instPath && coreInfo) {
-    for (const program of ['aviutl', 'exedit']) {
+    for (const program of programs) {
       /** @type {Program} */
       const progInfo = coreInfo[program];
 
@@ -63,12 +66,12 @@ async function displayInstalledVersion(instPath) {
         if (verifyFilesByCount(instPath, progInfo.files)) {
           replaceText(
             `${program}-installed-version`,
-            apmJson.get(instPath, 'core.' + program, '未インストール')
+            apmJson.get(instPath, 'core.' + program)
           );
         } else {
           replaceText(
             `${program}-installed-version`,
-            apmJson.get(instPath, 'core.' + program, '未インストール') +
+            apmJson.get(instPath, 'core.' + program) +
               '（ファイルの存在が確認できませんでした。）'
           );
         }
@@ -81,7 +84,7 @@ async function displayInstalledVersion(instPath) {
       }
     }
   } else {
-    for (const program of ['aviutl', 'exedit']) {
+    for (const program of programs) {
       replaceText(`${program}-installed-version`, '未取得');
     }
   }
@@ -150,7 +153,7 @@ async function setCoreVersions(instPath) {
 
   const coreInfo = await getCoreInfo();
   if (!coreInfo) {
-    for (const program of ['aviutl', 'exedit']) {
+    for (const program of programs) {
       replaceText(`${program}-latest-version`, '未取得');
     }
     return;
@@ -158,7 +161,7 @@ async function setCoreVersions(instPath) {
 
   const installAviutlBtn = document.getElementById('install-aviutl');
   const installExeditBtn = document.getElementById('install-exedit');
-  for (const program of ['aviutl', 'exedit']) {
+  for (const program of programs) {
     /** @type {Program} */
     const progInfo = coreInfo[program];
     replaceText(`${program}-latest-version`, progInfo.latestVersion);
@@ -469,7 +472,7 @@ async function batchInstall(instPath) {
 
   try {
     const coreInfo = await getCoreInfo();
-    for (const program of ['aviutl', 'exedit']) {
+    for (const program of programs) {
       /** @type {Program} */
       const progInfo = coreInfo[program];
       await installProgram(null, program, progInfo.latestVersion, instPath);
