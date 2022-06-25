@@ -89,7 +89,7 @@
     "css-loader": "^6.7.1",
     "cz-conventional-changelog": "3.3.0",
     "cz-conventional-changelog-ja": "^0.0.2",
-    "electron": "^18.3.4",
+    "electron": "^18.3.5",
     "eslint": "^8.18.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.5.0",
