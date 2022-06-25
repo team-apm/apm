@@ -223,7 +223,7 @@ async function setPackagesList(instPath) {
             ),
           ].join(' or ')
         )
-        .flatMap((text) => (text ? ['🔗' + text] : []))
+        .flatMap((text) => (text ? ['🔗 ' + text] : []))
         .join(' ') ?? '';
     statusInformation.innerText = null;
     packageItem.detached.forEach((p) => {
