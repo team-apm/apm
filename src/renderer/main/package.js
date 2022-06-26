@@ -8,13 +8,13 @@ import {
   readdir,
   readdirSync,
   readJsonSync,
-  remove,
   rename,
   renameSync,
   rmdirSync,
 } from 'fs-extra';
 import * as matcher from 'matcher';
 import path from 'path';
+import { safeRemove } from '../../lib/safeRemove';
 import twemoji from 'twemoji';
 import apmJson from '../../lib/apmJson';
 import buttonTransition from '../../lib/buttonTransition';
@@ -792,7 +792,9 @@ async function uninstallPackage(instPath) {
     if (!file.isInstallOnly)
       filesToRemove.push(path.join(instPath, file.filename));
   }
-  await Promise.all(filesToRemove.map((filePath) => remove(filePath)));
+  await Promise.all(
+    filesToRemove.map((filePath) => safeRemove(filePath, instPath))
+  );
 
   let filesCount = 0;
   let notExistCount = 0;

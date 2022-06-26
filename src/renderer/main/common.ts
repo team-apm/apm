@@ -1,6 +1,7 @@
 import log from 'electron-log';
-import fs, { copy, existsSync, remove } from 'fs-extra';
+import fs, { copy, existsSync } from 'fs-extra';
 import path from 'path';
+import { safeRemove } from '../../lib/safeRemove';
 type Files = {
   filename: string;
   isUninstallOnly?: boolean;
@@ -50,7 +51,7 @@ export async function install(
       // Delete obsolete files
       for (const file of files) {
         if (file.isObsolete && existsSync(path.join(instPath, file.filename))) {
-          await remove(path.join(instPath, file.filename));
+          await safeRemove(path.join(instPath, file.filename), instPath);
         }
       }
 
