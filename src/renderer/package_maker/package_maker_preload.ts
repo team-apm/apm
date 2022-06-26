@@ -7,7 +7,7 @@ import path from 'path';
 // 'Sortable' is not actually exported as ESModules. So, ignore the warning.
 // eslint-disable-next-line import/no-named-as-default
 import Sortable from 'sortablejs';
-import apmPath from '../../lib/apmPath';
+import { pathRelated } from '../../lib/apmPath';
 import buttonTransition from '../../lib/buttonTransition';
 import { openBrowser, openDialog } from '../../lib/ipcWrapper';
 import unzip from '../../lib/unzip';
@@ -376,7 +376,7 @@ window.addEventListener('load', () => {
     Array.from(listDownload.children).forEach((node: HTMLElement) => {
       const nodePath = node.dataset.id.replace('?', '');
       usedPath.forEach((used) => {
-        if (apmPath.pathRelated(nodePath, used)) {
+        if (pathRelated(nodePath, used)) {
           node.classList.add('list-group-item-dark');
           node.classList.add('ignore-elements');
         }

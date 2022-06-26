@@ -2,7 +2,7 @@ import Store from 'electron-store';
 import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
-import apmPath from './apmPath';
+import { isParent } from './apmPath';
 import { download, existsTempFile } from './ipcWrapper';
 import parseJson from './parseJson';
 const store = new Store();
@@ -21,7 +21,7 @@ function resolvePath(base: string, relative: string) {
     if (retURL.origin !== baseURL.origin) {
       throw new Error('list.json can only specify files from the same origin.');
     }
-    if (!apmPath.isParent(baseURL.pathname, retURL.pathname)) {
+    if (!isParent(baseURL.pathname, retURL.pathname)) {
       throw new Error(
         'list.json can only specify files in the same or child directories.'
       );
@@ -29,7 +29,7 @@ function resolvePath(base: string, relative: string) {
     return retURL.href;
   } else {
     const retStr = path.resolve(base, relative);
-    if (!apmPath.isParent(base, retStr)) {
+    if (!isParent(base, retStr)) {
       throw new Error(
         'list.json can only specify files in the same or child directories.'
       );
