@@ -11,6 +11,7 @@ import {
   app,
   download,
   existsTempFile,
+  openDialog,
   openDirDialog,
   openYesNoDialog,
 } from '../../lib/ipcWrapper';
@@ -267,6 +268,15 @@ async function selectInstallationPath(input) {
     originalPath
   );
   if (selectedPath.length !== 0 && selectedPath[0] !== originalPath) {
+    if (fs.existsSync(path.join(selectedPath[0], 'plugins/exedit.auf'))) {
+      await openDialog(
+        'エラー',
+        '拡張編集が「plugins」フォルダに配置されています。apmは拡張編集を「aviutl.exe」と同じフォルダに配置する場合のみに対応しています。',
+        'error'
+      );
+      return;
+    }
+
     const instPath = selectedPath[0];
     await changeInstallationPath(instPath);
     input.value = instPath;
