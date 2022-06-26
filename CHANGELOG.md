@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/team-apm/apm/compare/v3.1.2...v3.2.0) (2022-06-26)
+
+### Features
+
+- displaying dependent packages ([2d86d5a](https://github.com/team-apm/apm/commit/2d86d5aaf579d718bd51e3e8eff49ae44d742f54))
+- **package.js:** add space ([1ae8781](https://github.com/team-apm/apm/commit/1ae8781000b36708ffa9777095461b42a371b394))
+- simplify the main tab ([e559fa5](https://github.com/team-apm/apm/commit/e559fa5a0e53a0564b3bf69205c9e43d9fbc80d8))
+- simplify version indication ([2d8c83f](https://github.com/team-apm/apm/commit/2d8c83f94f3fe161836e7bcf5e7908b3f1ce3a89))
+
+### Bug Fixes
+
+- add error handling ([01ba9a8](https://github.com/team-apm/apm/commit/01ba9a8d562cb748892746bcd1ddb35b4f5ef55f))
+- **core.js:** detect location of exedit.auf ([625bc67](https://github.com/team-apm/apm/commit/625bc67df39bd10dba5e98ba51fedd7ed768985e))
+- do not perform migration on new installations ([8332521](https://github.com/team-apm/apm/commit/83325211bf6ac7248140e6c1299115aeca641ae7))
+- log an error ([e7a44cb](https://github.com/team-apm/apm/commit/e7a44cb8db1178384e62f1ec1b7f5988b32dde88))
+- only allow deletion in the AviUtl folder ([72b19b7](https://github.com/team-apm/apm/commit/72b19b7299ae4ebe1d4b04c4f0e07a34a18d6e15))
+
 ### [3.1.2](https://github.com/team-apm/apm/compare/v3.1.1...v3.1.2) (2022-06-23)
 
 ### Bug Fixes
