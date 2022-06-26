@@ -23,8 +23,4 @@ const pathRelated = (pathA: string, pathB: string) => {
   return isParent(pathA, pathB) || isParent(pathB, pathA);
 };
 
-const apmPath = {
-  isParent,
-  pathRelated,
-};
-export default apmPath;
+export { isParent, pathRelated };
