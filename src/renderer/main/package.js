@@ -797,7 +797,8 @@ async function uninstallPackage(instPath) {
     await Promise.all(
       filesToRemove.map((filePath) => safeRemove(filePath, instPath))
     );
-  } catch {
+  } catch (e) {
+    log.error(e);
     buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     setTimeout(() => {
       enableButton();
