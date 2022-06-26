@@ -4,6 +4,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import apmJson from '../../lib/apmJson';
 import buttonTransition from '../../lib/buttonTransition';
+import { compareVersion } from '../../lib/compareVersion';
 import { convertId } from '../../lib/convertId';
 import integrity from '../../lib/integrity';
 import {
@@ -26,6 +27,9 @@ const store = new Store();
 /** @typedef {import("apm-schema").Core} Core */
 /** @typedef {import("apm-schema").Program} Program */
 
+const programs = ['aviutl', 'exedit'];
+const programsDisp = ['AviUtl', '拡張編集'];
+
 // Functions to be exported
 
 /**
@@ -46,8 +50,9 @@ async function initCore() {
  */
 async function displayInstalledVersion(instPath) {
   const coreInfo = await getCoreInfo();
+  const isInstalled = { aviutl: false, exedit: false };
   if (instPath && coreInfo) {
-    for (const program of ['aviutl', 'exedit']) {
+    for (const program of programs) {
       /** @type {Program} */
       const progInfo = coreInfo[program];
 
@@ -60,31 +65,60 @@ async function displayInstalledVersion(instPath) {
       }
 
       if (apmJson.has(instPath, 'core.' + program)) {
+        const installedVersion = apmJson.get(instPath, 'core.' + program);
+        const description =
+          compareVersion(installedVersion, progInfo.latestVersion) === -1
+            ? ` （最新版: ${progInfo.latestVersion}）`
+            : installedVersion.includes('rc')
+            ? '（テスト版）'
+            : ' （最新版）';
         if (verifyFilesByCount(instPath, progInfo.files)) {
           replaceText(
             `${program}-installed-version`,
-            apmJson.get(instPath, 'core.' + program, '未インストール')
+            'バージョン: ' + installedVersion + description
           );
+          isInstalled[program] = true;
         } else {
           replaceText(
             `${program}-installed-version`,
-            apmJson.get(instPath, 'core.' + program, '未インストール') +
+            'バージョン: ' +
+              installedVersion +
+              description +
               '（ファイルの存在が確認できませんでした。）'
           );
         }
       } else {
         if (verifyFilesByCount(instPath, progInfo.files)) {
           replaceText(`${program}-installed-version`, '手動インストール済み');
+          isInstalled[program] = true;
         } else {
           replaceText(`${program}-installed-version`, '未インストール');
         }
       }
     }
   } else {
-    for (const program of ['aviutl', 'exedit']) {
+    for (const program of programs) {
       replaceText(`${program}-installed-version`, '未取得');
     }
   }
+
+  // update the batch installation text
+  const batchInstallElm = document.getElementById('batch-install-programs');
+  batchInstallElm.innerHTML = null;
+  programs
+    .map((p) => {
+      if (isInstalled[p]) {
+        const pTag = document.createElement('span');
+        pTag.classList.add('text-muted');
+        pTag.innerText = '✔' + programsDisp[programs.indexOf(p)];
+        batchInstallElm.appendChild(pTag);
+        return [pTag];
+      } else {
+        return [document.createTextNode(programsDisp[programs.indexOf(p)])];
+      }
+    })
+    .reduce((a, b) => [].concat(a, document.createTextNode(' + '), b))
+    .forEach((e) => batchInstallElm.appendChild(e));
 
   if (store.has('modDate.core')) {
     const modDate = new Date(store.get('modDate.core'));
@@ -147,23 +181,13 @@ async function setCoreVersions(instPath) {
   while (exeditVersionSelect.childElementCount > 0) {
     exeditVersionSelect.removeChild(exeditVersionSelect.lastChild);
   }
-
-  const coreInfo = await getCoreInfo();
-  if (!coreInfo) {
-    for (const program of ['aviutl', 'exedit']) {
-      replaceText(`${program}-latest-version`, '未取得');
-    }
-    return;
-  }
-
   const installAviutlBtn = document.getElementById('install-aviutl');
   const installExeditBtn = document.getElementById('install-exedit');
-  for (const program of ['aviutl', 'exedit']) {
-    /** @type {Program} */
-    const progInfo = coreInfo[program];
-    replaceText(`${program}-latest-version`, progInfo.latestVersion);
 
-    for (const release of progInfo.releases) {
+  const coreInfo = await getCoreInfo();
+  for (const program of programs) {
+    /** @type {Program} */
+    for (const release of coreInfo[program].releases) {
       const li = document.createElement('li');
       const anchor = document.createElement('a');
       anchor.classList.add('dropdown-item');
@@ -171,7 +195,9 @@ async function setCoreVersions(instPath) {
       anchor.innerText =
         release.version +
         (release.version.includes('rc') ? '（テスト版）' : '') +
-        (release.version === progInfo.latestVersion ? '（最新版）' : '');
+        (release.version === coreInfo[program].latestVersion
+          ? '（最新版）'
+          : '');
       li.appendChild(anchor);
 
       if (program === 'aviutl') {
@@ -469,7 +495,7 @@ async function batchInstall(instPath) {
 
   try {
     const coreInfo = await getCoreInfo();
-    for (const program of ['aviutl', 'exedit']) {
+    for (const program of programs) {
       /** @type {Program} */
       const progInfo = coreInfo[program];
       await installProgram(null, program, progInfo.latestVersion, instPath);
