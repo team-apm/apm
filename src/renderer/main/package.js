@@ -93,6 +93,7 @@ async function setPackagesList(instPath) {
     'installationStatus',
     'description',
     'pageURL',
+    'dependencyInformation',
   ];
   const columnsDisp = [
     '名前',
@@ -103,6 +104,7 @@ async function setPackagesList(instPath) {
     '現在バージョン',
     '解説',
     'リンク',
+    '依存関係',
   ];
   let packages = await getPackages(instPath);
 
@@ -178,6 +180,7 @@ async function setPackagesList(instPath) {
       installationStatus,
       description,
       pageURL,
+      dependencyInformation,
       statusInformation,
     ] = makeLiFromArray([...columns, 'statusInformation']);
     li.addEventListener('click', () => {
@@ -209,6 +212,19 @@ async function setPackagesList(instPath) {
     description.innerText = packageItem.info.description;
     pageURL.innerText = packageItem.info.pageURL;
     pageURL.href = packageItem.info.pageURL;
+    dependencyInformation.innerText =
+      packageItem.info.dependencies
+        ?.map((ids) =>
+          [
+            ...new Set(
+              ids
+                .split('|')
+                .map((id) => packages.find((p) => p.id === id)?.info?.name)
+            ),
+          ].join(' or ')
+        )
+        .flatMap((text) => (text ? ['🔗 ' + text] : []))
+        .join(' ') ?? '';
     statusInformation.innerText = null;
     packageItem.detached.forEach((p) => {
       const aTag = document.createElement('a');
@@ -249,6 +265,7 @@ async function setPackagesList(instPath) {
       installedVersion,
       description,
       pageURL,
+      dependencyInformation,
       statusInformation,
     ] = makeLiFromArray([...columns, 'statusInformation']);
     li.addEventListener('click', () => {
@@ -276,6 +293,7 @@ async function setPackagesList(instPath) {
     description.innerText = webpage?.description ?? '';
     pageURL.innerText = webpage.url;
     pageURL.href = webpage.url;
+    dependencyInformation.innerText = '';
     statusInformation.innerText = '';
 
     packagesList.appendChild(li);
