@@ -792,9 +792,18 @@ async function uninstallPackage(instPath) {
     if (!file.isInstallOnly)
       filesToRemove.push(path.join(instPath, file.filename));
   }
-  await Promise.all(
-    filesToRemove.map((filePath) => safeRemove(filePath, instPath))
-  );
+
+  try {
+    await Promise.all(
+      filesToRemove.map((filePath) => safeRemove(filePath, instPath))
+    );
+  } catch {
+    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    return;
+  }
 
   let filesCount = 0;
   let notExistCount = 0;
