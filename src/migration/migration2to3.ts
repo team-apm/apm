@@ -14,6 +14,12 @@ const store = new Store();
  * @returns {Promise<boolean>} True on successful completion
  */
 async function global(): Promise<boolean> {
+  const firstLaunch = !store.has('dataURL.main');
+  if (firstLaunch) {
+    store.set('dataVersion', '3');
+    return true;
+  }
+
   // First, perform the previous migration.
   // false cancels startup
   if (!(await migration1to2.global())) return false;
