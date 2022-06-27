@@ -116,8 +116,8 @@ Also, I'm Japanese, so any pull requests related to English or i18n are most wel
 
 ## License
 
-Source Code: [MIT license](./LICENSE)
-Logo: ato lash
+- Source Code: [MIT license](./LICENSE)
+- Logo: ato lash
 
 ## Developer
 
