@@ -80,7 +80,7 @@
     "@types/sortablejs": "^1.13.0",
     "@types/ssri": "^7.1.1",
     "@typescript-eslint/eslint-plugin": "^5.29.0",
-    "@typescript-eslint/parser": "^5.29.0",
+    "@typescript-eslint/parser": "^5.30.0",
     "@vercel/webpack-asset-relocator-loader": "1.7.2",
     "apm-schema": "team-apm/apm-schema#v3.1.0",
     "commitizen": "^4.2.4",
