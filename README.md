@@ -111,8 +111,8 @@ yarn start
 
 ## ライセンス
 
-ソースコード: [MIT license](./LICENSE)
-ロゴ: ato lash
+- ソースコード: [MIT license](./LICENSE)
+- ロゴ: ato lash
 
 ## 開発者
 
