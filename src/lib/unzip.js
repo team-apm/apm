@@ -38,6 +38,7 @@ async function unzip(zipPath, folderName) {
   const zipStream = extractFull(zipPath, targetPath, {
     $bin: process.platform === 'win32' ? pathTo7zipWin : pathTo7zipCross,
     overwrite: 'a',
+    method: ['cp=932'], // AviUtl script is encoded in Shift_JIS, so we need to specify the code page as Shift_JIS(932) when unzipping.
   });
   return new Promise((resolve) => {
     zipStream.once('end', () => {
