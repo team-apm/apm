@@ -4,13 +4,12 @@ import path from 'path';
 import win7zip from 'win-7zip';
 const isDevEnv = process.env.NODE_ENV === 'development';
 
+let pathTo7zip = process.platform === 'win32' ? win7zip['7z'] : path7za;
+
 // https://github.com/puppeteer/puppeteer/issues/2134#issuecomment-408221446
-const pathTo7zipCross = isDevEnv
-  ? path7za
-  : path7za.replace('app.asar', 'app.asar.unpacked');
-const pathTo7zipWin = isDevEnv
-  ? win7zip['7z']
-  : win7zip['7z'].replace('app.asar', 'app.asar.unpacked');
+if (!isDevEnv) {
+  pathTo7zip = pathTo7zip.replace('app.asar', 'app.asar.unpacked');
+}
 
 /**
  * Unzips zip archive.
@@ -36,8 +35,9 @@ async function unzip(zipPath, folderName) {
   };
   const targetPath = getTargetPath();
   const zipStream = extractFull(zipPath, targetPath, {
-    $bin: process.platform === 'win32' ? pathTo7zipWin : pathTo7zipCross,
+    $bin: pathTo7zip,
     overwrite: 'a',
+    method: ['cp=932'], // AviUtl script is encoded in Shift_JIS, so we need to specify the code page as Shift_JIS(932) when unzipping.
   });
   return new Promise((resolve) => {
     zipStream.once('end', () => {
