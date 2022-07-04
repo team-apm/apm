@@ -4,11 +4,11 @@ import path from 'path';
 import win7zip from 'win-7zip';
 const isDevEnv = process.env.NODE_ENV === 'development';
 
-const pathTo7zip = process.platform === 'win32' ? win7zip['7z'] : path7za;
+let pathTo7zip = process.platform === 'win32' ? win7zip['7z'] : path7za;
 
 // https://github.com/puppeteer/puppeteer/issues/2134#issuecomment-408221446
 if (!isDevEnv) {
-  pathTo7zip.replace('app.asar', 'app.asar.unpacked');
+  pathTo7zip = pathTo7zip.replace('app.asar', 'app.asar.unpacked');
 }
 
 /**
