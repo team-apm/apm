@@ -493,38 +493,29 @@ function launch() {
   ipcMain.handle(
     'download',
     async (event, url, { loadCache = false, subDir = '', keyText } = {}) => {
-      const tmpDirectory = path.join(app.getPath('userData'), 'Data/', subDir);
       const opt = {
         overwrite: true,
-        directory: ['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(url))
-          ? path.join(tmpDirectory, 'archive')
-          : tmpDirectory,
+        directory: path.join(
+          app.getPath('userData'),
+          'Data/',
+          subDir,
+          ['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(url))
+            ? 'archive'
+            : ''
+        ),
+        filename: (keyText ? getHash(keyText) + '_' : '') + path.basename(url),
       };
-
-      const tmpFilePath = keyText
-        ? path.join(opt.directory, getHash(keyText) + '_' + path.basename(url))
-        : path.join(opt.directory, path.basename(url));
-      if (loadCache && fs.existsSync(tmpFilePath)) return tmpFilePath;
+      const retFilePath = path.join(opt.directory, opt.filename);
+      if (loadCache && fs.existsSync(retFilePath)) return retFilePath;
 
       try {
-        let savePath;
         if (url.startsWith('http')) {
-          savePath = (await download(mainWindow, url, opt)).getSavePath();
+          await download(mainWindow, url, opt);
         } else {
-          savePath = path.join(opt.directory, path.basename(url));
-          mkdir(path.dirname(savePath), { recursive: true });
-          fs.copyFileSync(url, savePath);
+          await mkdir(path.dirname(retFilePath), { recursive: true });
+          fs.copyFileSync(url, retFilePath);
         }
-
-        if (keyText) {
-          const renamedPath = path.join(
-            path.dirname(savePath),
-            getHash(keyText) + '_' + path.basename(savePath)
-          );
-          fs.renameSync(savePath, renamedPath);
-          savePath = renamedPath;
-        }
-        return savePath;
+        return retFilePath;
       } catch (e) {
         log.error(e);
         return undefined;
