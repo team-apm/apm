@@ -496,7 +496,9 @@ function launch() {
       const opt = {
         overwrite: true,
         directory: path.join(
-          path.join(app.getPath('userData'), 'Data/', subDir),
+          app.getPath('userData'),
+          'Data/',
+          subDir,
           ['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(url))
             ? 'archive'
             : ''
