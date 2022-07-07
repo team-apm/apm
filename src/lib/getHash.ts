@@ -7,10 +7,8 @@ import crypto from 'crypto';
  * @param {number} limit - The length of the string to return.
  * @returns {string} Hashed text
  */
-function getHash(text, limit = 7) {
+export function getHash(text: string, limit = 7) {
   const shasum = crypto.createHash('sha1');
   shasum.update(text);
   return shasum.digest('hex').substr(0, limit);
 }
-
-export { getHash };

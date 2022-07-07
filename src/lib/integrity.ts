@@ -9,7 +9,10 @@ import { checkStream } from 'ssri';
  * @param {object[]} integrities - List of integrity objects.
  * @returns {Promise<boolean>} Integrities match or don't match.
  */
-async function checkIntegrity(instPath, integrities) {
+export async function checkIntegrity(
+  instPath: string,
+  integrities: { target: string; hash: string }[]
+) {
   if (integrities.length === 0) return false;
 
   let match = true;
@@ -29,7 +32,7 @@ async function checkIntegrity(instPath, integrities) {
  * @param {string} integrity - Integrity of the file.
  * @returns {Promise<boolean>} Integrities match or don't match.
  */
-async function verifyFile(filePath, integrity) {
+export async function verifyFile(filePath: string, integrity: string) {
   if (!fs.existsSync(filePath)) return false;
 
   let readStream;
@@ -44,6 +47,3 @@ async function verifyFile(filePath, integrity) {
 
   return true;
 }
-
-const integrity = { checkIntegrity, verifyFile };
-export default integrity;

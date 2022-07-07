@@ -3,9 +3,9 @@ import Store from 'electron-store';
 import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
-import buttonTransition from '../../lib/buttonTransition';
+import * as buttonTransition from '../../lib/buttonTransition';
 import { changeMainZoomFactor, openDialog } from '../../lib/ipcWrapper';
-import modList from '../../lib/modList';
+import * as modList from '../../lib/modList';
 const store = new Store();
 
 /**
@@ -26,7 +26,7 @@ async function initSettings() {
  */
 async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
   const btn = document.getElementById('set-data-url');
-  const enableButton =
+  const { enableButton } =
     btn instanceof HTMLButtonElement
       ? buttonTransition.loading(btn, '設定')
       : undefined;

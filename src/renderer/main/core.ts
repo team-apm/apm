@@ -1,12 +1,13 @@
+import { Program } from 'apm-schema';
 import log from 'electron-log';
 import Store from 'electron-store';
 import fs from 'fs-extra';
 import path from 'path';
-import apmJson from '../../lib/apmJson';
-import buttonTransition from '../../lib/buttonTransition';
-import { compareVersion } from '../../lib/compareVersion';
+import * as apmJson from '../../lib/apmJson';
+import * as buttonTransition from '../../lib/buttonTransition';
+import compareVersion from '../../lib/compareVersion';
 import { convertId } from '../../lib/convertId';
-import integrity from '../../lib/integrity';
+import { checkIntegrity, verifyFile } from '../../lib/integrity';
 import {
   app,
   download,
@@ -15,10 +16,10 @@ import {
   openDirDialog,
   openYesNoDialog,
 } from '../../lib/ipcWrapper';
-import modList from '../../lib/modList';
-import parseJson from '../../lib/parseJson';
+import * as modList from '../../lib/modList';
+import * as parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
-import shortcut from '../../lib/shortcut';
+import { addAviUtlShortcut, removeAviUtlShortcut } from '../../lib/shortcut';
 import unzip from '../../lib/unzip';
 import migration2to3 from '../../migration/migration2to3';
 import { install, verifyFilesByCount } from './common';
@@ -27,8 +28,9 @@ import packageUtil from './packageUtil';
 const store = new Store();
 /** @typedef {import("apm-schema").Core} Core */
 /** @typedef {import("apm-schema").Program} Program */
+type ProgramName = 'aviutl' | 'exedit';
 
-const programs = ['aviutl', 'exedit'];
+const programs: ProgramName[] = ['aviutl', 'exedit'];
 const programsDisp = ['AviUtl', '拡張編集'];
 
 // Functions to be exported
@@ -49,24 +51,27 @@ async function initCore() {
  *
  * @param {string} instPath - An installation path.
  */
-async function displayInstalledVersion(instPath) {
+async function displayInstalledVersion(instPath: string) {
   const coreInfo = await getCoreInfo();
   const isInstalled = { aviutl: false, exedit: false };
   if (instPath && coreInfo) {
     for (const program of programs) {
       /** @type {Program} */
-      const progInfo = coreInfo[program];
+      const progInfo: Program = coreInfo[program];
 
       // Set the version of the manually installed program
       if (!apmJson.has(instPath, 'core.' + program)) {
         for (const release of progInfo.releases) {
-          if (await integrity.checkIntegrity(instPath, release.integrity.file))
+          if (await checkIntegrity(instPath, release.integrity.file))
             apmJson.setCore(instPath, program, release.version);
         }
       }
 
       if (apmJson.has(instPath, 'core.' + program)) {
-        const installedVersion = apmJson.get(instPath, 'core.' + program);
+        const installedVersion = apmJson.get(
+          instPath,
+          'core.' + program
+        ) as string;
         const description =
           compareVersion(installedVersion, progInfo.latestVersion) === -1
             ? ` （最新版: ${progInfo.latestVersion}）`
@@ -122,10 +127,10 @@ async function displayInstalledVersion(instPath) {
     .forEach((e) => batchInstallElm.appendChild(e));
 
   if (store.has('modDate.core')) {
-    const modDate = new Date(store.get('modDate.core'));
+    const modDate = new Date(store.get('modDate.core') as number);
     replaceText('core-mod-date', modDate.toLocaleString());
 
-    const checkDate = new Date(store.get('checkDate.core'));
+    const checkDate = new Date(store.get('checkDate.core') as number);
     replaceText('core-check-date', checkDate.toLocaleString());
   } else {
     replaceText('core-mod-date', '未取得');
@@ -142,9 +147,9 @@ async function displayInstalledVersion(instPath) {
       fs.existsSync(aviutlPath) &&
       apmPath.includes(path.dirname(appDataPath)) // Verify that it is the installed version of apm
     ) {
-      shortcut.addAviUtlShortcut(appDataPath, aviutlPath);
+      addAviUtlShortcut(appDataPath, aviutlPath);
     } else {
-      shortcut.removeAviUtlShortcut(appDataPath);
+      removeAviUtlShortcut(appDataPath);
     }
   }
 }
@@ -173,7 +178,7 @@ async function getCoreInfo() {
  *
  * @param {string} instPath - An installation path.
  */
-async function setCoreVersions(instPath) {
+async function setCoreVersions(instPath: string) {
   const aviutlVersionSelect = document.getElementById('aviutl-version-select');
   const exeditVersionSelect = document.getElementById('exedit-version-select');
   while (aviutlVersionSelect.childElementCount > 0) {
@@ -182,10 +187,22 @@ async function setCoreVersions(instPath) {
   while (exeditVersionSelect.childElementCount > 0) {
     exeditVersionSelect.removeChild(exeditVersionSelect.lastChild);
   }
-  const installAviutlBtn = document.getElementById('install-aviutl');
-  const installExeditBtn = document.getElementById('install-exedit');
 
   const coreInfo = await getCoreInfo();
+  if (!coreInfo) {
+    for (const program of programs) {
+      replaceText(`${program}-latest-version`, '未取得');
+    }
+    return;
+  }
+
+  const installAviutlBtn = document.getElementById(
+    'install-aviutl'
+  ) as HTMLButtonElement;
+  const installExeditBtn = document.getElementById(
+    'install-exedit'
+  ) as HTMLButtonElement;
+
   for (const program of programs) {
     /** @type {Program} */
     for (const release of coreInfo[program].releases) {
@@ -231,9 +248,11 @@ async function setCoreVersions(instPath) {
  *
  * @param {string} instPath - An installation path.
  */
-async function checkLatestVersion(instPath) {
-  const btn = document.getElementById('check-core-version');
-  const enableButton = buttonTransition.loading(btn, '更新');
+async function checkLatestVersion(instPath: string) {
+  const btn = document.getElementById(
+    'check-core-version'
+  ) as HTMLButtonElement;
+  const { enableButton } = buttonTransition.loading(btn, '更新');
 
   try {
     await download(await modList.getCoreDataUrl(), {
@@ -261,7 +280,7 @@ async function checkLatestVersion(instPath) {
  *
  * @param {HTMLInputElement} input - A HTMLElement of input.
  */
-async function selectInstallationPath(input) {
+async function selectInstallationPath(input: HTMLInputElement) {
   const originalPath = input.value;
   const selectedPath = await openDirDialog(
     'インストール先フォルダを選択',
@@ -288,7 +307,7 @@ async function selectInstallationPath(input) {
  *
  * @param {string} instPath - An installation path.
  */
-async function changeInstallationPath(instPath) {
+async function changeInstallationPath(instPath: string) {
   store.set('installationPath', instPath);
 
   // update 1
@@ -300,7 +319,9 @@ async function changeInstallationPath(instPath) {
     await migration2to3.byFolder(instPath);
 
     if (fs.existsSync(apmJson.getPath(instPath)) && currentMod.convert) {
-      const oldConvertMod = new Date(apmJson.get(instPath, 'convertMod', 0));
+      const oldConvertMod = new Date(
+        apmJson.get(instPath, 'convertMod', 0) as number
+      );
       const currentConvertMod = new Date(currentMod.convert.modified).getTime();
 
       if (oldConvertMod.getTime() < currentConvertMod)
@@ -309,9 +330,9 @@ async function changeInstallationPath(instPath) {
   }
 
   // update 2
-  const oldScriptsMod = new Date(store.get('modDate.scripts', 0));
-  const oldCoreMod = new Date(store.get('modDate.core', 0));
-  const oldPackagesMod = new Date(store.get('modDate.packages', 0));
+  const oldScriptsMod = new Date(store.get('modDate.scripts', 0) as number);
+  const oldCoreMod = new Date(store.get('modDate.core', 0) as number);
+  const oldPackagesMod = new Date(store.get('modDate.packages', 0) as number);
 
   if (
     oldScriptsMod.getTime() <
@@ -344,8 +365,13 @@ async function changeInstallationPath(instPath) {
  * @param {string} version - A version to install.
  * @param {string} instPath - An installation path.
  */
-async function installProgram(btn, program, version, instPath) {
-  const enableButton = btn ? buttonTransition.loading(btn) : null;
+async function installProgram(
+  btn: HTMLButtonElement,
+  program: ProgramName,
+  version: string,
+  instPath: string
+) {
+  const { enableButton } = btn ? buttonTransition.loading(btn) : null;
 
   if (!instPath) {
     log.error('An installation path is not selected.');
@@ -391,7 +417,7 @@ async function installProgram(btn, program, version, instPath) {
   }
 
   /** @type {Program} */
-  const progInfo = coreInfo[program];
+  const progInfo = coreInfo[program] as Program;
   const url = progInfo.releases.find((r) => r.version === version).url;
   let archivePath = await download(url, { loadCache: true, subDir: 'core' });
 
@@ -416,7 +442,7 @@ async function installProgram(btn, program, version, instPath) {
 
   if (integrityForArchive) {
     // Verify file integrity
-    while (!(await integrity.verifyFile(archivePath, integrityForArchive))) {
+    while (!(await verifyFile(archivePath, integrityForArchive))) {
       const dialogResult = await openYesNoDialog(
         'エラー',
         'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
@@ -484,9 +510,9 @@ async function installProgram(btn, program, version, instPath) {
  *
  * @param {string} instPath - An installation path.
  */
-async function batchInstall(instPath) {
-  const btn = document.getElementById('batch-install');
-  const enableButton = buttonTransition.loading(btn, 'インストール');
+async function batchInstall(instPath: string) {
+  const btn = document.getElementById('batch-install') as HTMLButtonElement;
+  const { enableButton } = buttonTransition.loading(btn, 'インストール');
 
   if (!instPath) {
     log.error('An installation path is not selected.');

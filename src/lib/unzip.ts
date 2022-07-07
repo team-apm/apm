@@ -18,7 +18,7 @@ if (!isDevEnv) {
  * @param {string} [folderName] - Name of the extracted folder.
  * @returns {Promise<string>} A path to unzipped directory.
  */
-async function unzip(zipPath, folderName) {
+async function unzip(zipPath: string, folderName?: string) {
   const getTargetPath = () => {
     if (path.resolve(path.dirname(zipPath), '../../').endsWith('Data')) {
       return path.resolve(
@@ -43,7 +43,7 @@ async function unzip(zipPath, folderName) {
     zipStream.once('end', () => {
       resolve(targetPath);
     });
-  });
+  }) as Promise<string>;
 }
 
 export default unzip;

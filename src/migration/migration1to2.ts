@@ -2,7 +2,7 @@ import log from 'electron-log';
 import Store from 'electron-store';
 import fs from 'fs-extra';
 import path from 'path';
-import apmJson from '../lib/apmJson';
+import * as apmJson from '../lib/apmJson';
 import {
   app,
   download,
@@ -58,10 +58,10 @@ async function global() {
         );
         continue;
       } else {
-        const oldDataURL = store.get('dataURL.main');
-        const urls = store
-          .get('dataURL.packages')
-          .filter((url) => !url.includes(oldDataURL));
+        const oldDataURL = store.get('dataURL.main') as string;
+        const urls = (store.get('dataURL.packages') as string[]).filter(
+          (url: string) => !url.includes(oldDataURL)
+        );
         urls.push(path.join(newDataURL, 'packages.xml'));
         store.set('dataURL.main', newDataURL);
         store.set('dataURL.packages', urls);
@@ -114,7 +114,7 @@ async function global() {
  *
  * @param {string} instPath - An installation path.
  */
-async function byFolder(instPath) {
+async function byFolder(instPath: string) {
   // Guard condition
   const jsonPath = apmJson.getPath(instPath);
   const jsonExists = fs.existsSync(jsonPath);
@@ -142,7 +142,9 @@ async function byFolder(instPath) {
   }
 
   // 3. Update the path to the online and local xml files.
-  const packages = apmJson.get(instPath, 'packages');
+  const packages = apmJson.get(instPath, 'packages') as {
+    [key: string]: { repository: string };
+  };
 
   for (const id of Object.keys(packages)) {
     let text = packages[id].repository;
@@ -159,7 +161,10 @@ async function byFolder(instPath) {
       path.join(instPath, 'packages.xml')
     );
     if (store.has('migration1to2')) {
-      const dataURLs = store.get('migration1to2');
+      const dataURLs = store.get('migration1to2') as {
+        oldDataURL: string;
+        newDataURL: string;
+      };
       text = text.replaceAll(
         path.join(dataURLs.oldDataURL, 'packages_list.xml'),
         path.join(dataURLs.newDataURL, 'packages.xml')

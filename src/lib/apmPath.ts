@@ -7,10 +7,10 @@ import path from 'path';
  * @param {string} child - Paths expected to be a child entry.
  * @returns {boolean} - Boolean value
  */
-const isParent = (parent: string, child: string) => {
+export function isParent(parent: string, child: string) {
   const relative = path.relative(parent, child);
   return relative && relative !== '' && !relative.startsWith('..');
-};
+}
 
 /**
  * Determine if two paths have a parent-child relationship.
@@ -19,8 +19,6 @@ const isParent = (parent: string, child: string) => {
  * @param {string} pathB - A path
  * @returns {boolean} - Boolean value
  */
-const pathRelated = (pathA: string, pathB: string) => {
+export function pathRelated(pathA: string, pathB: string) {
   return isParent(pathA, pathB) || isParent(pathB, pathA);
-};
-
-export { isParent, pathRelated };
+}

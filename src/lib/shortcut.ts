@@ -2,7 +2,7 @@ import { shell } from 'electron';
 import fs from 'fs';
 import path from 'path';
 
-const getShortcutPath = (appDataPath) =>
+const getShortcutPath = (appDataPath: string) =>
   path.join(appDataPath, 'Microsoft/Windows/Start Menu/Programs', 'AviUtl.lnk');
 
 /**
@@ -11,7 +11,7 @@ const getShortcutPath = (appDataPath) =>
  * @param {string} appDataPath - The path to AppData
  * @param {string} targetEXE - The path to aviutl.exe
  */
-function addAviUtlShortcut(appDataPath, targetEXE) {
+export function addAviUtlShortcut(appDataPath: string, targetEXE: string) {
   if (process.platform === 'win32') {
     shell.writeShortcutLink(getShortcutPath(appDataPath), {
       target: targetEXE,
@@ -25,7 +25,7 @@ function addAviUtlShortcut(appDataPath, targetEXE) {
  *
  * @param {string} appDataPath - The path to AppData
  */
-function removeAviUtlShortcut(appDataPath) {
+export function removeAviUtlShortcut(appDataPath: string) {
   if (
     process.platform === 'win32' &&
     fs.existsSync(getShortcutPath(appDataPath))
@@ -39,17 +39,10 @@ function removeAviUtlShortcut(appDataPath) {
  *
  * @param {string} appDataPath - The path to AppData
  */
-function uninstaller(appDataPath) {
+export function uninstaller(appDataPath: string) {
   if (process.platform === 'win32') {
     const squirrelCommand = process.argv[1];
     if (squirrelCommand === '--squirrel-uninstall')
       removeAviUtlShortcut(appDataPath);
   }
 }
-
-const shortcut = {
-  addAviUtlShortcut,
-  removeAviUtlShortcut,
-  uninstaller,
-};
-export default shortcut;
