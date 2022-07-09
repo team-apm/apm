@@ -159,7 +159,7 @@ async function downloadRepository(packageDataUrls) {
  * @returns {string[]} List of installed files
  */
 function getInstalledFiles(instPath) {
-  const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn)$/;
+  const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn|lua)$/;
   const safeReaddirSync = (path, option) => {
     try {
       return fs.readdirSync(path, option);
