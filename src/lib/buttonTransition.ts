@@ -37,14 +37,14 @@ export function loading(btn: HTMLButtonElement, message?: string) {
  *
  * @param {HTMLButtonElement} btn - An element of the button to be changed
  * @param {string} message - A message to be shown
- * @param {string} type - A type of the button to be changed to
+ * @param {string} [type] - A type of the button to be changed to
  */
 export function message(
   btn: HTMLButtonElement,
   message: string,
-  type: string = null
+  type?: string
 ) {
-  if (type != null) {
+  if (type) {
     for (const originalType of buttonTypes) {
       const btnOriginalType = 'btn-' + originalType;
       const btnType = 'btn-' + type;

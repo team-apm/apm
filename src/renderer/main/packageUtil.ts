@@ -7,19 +7,7 @@ import * as parseJson from '../../lib/parseJson';
 import { ApmJsonObject } from '../../types/apmJson';
 import { PackageItem } from '../../types/packageItem';
 import { verifyFilesByCount } from './common';
-/** @typedef {import("apm-data").Packages} Packages */
 
-type aviutlExtention =
-  | '.auf'
-  | '.aui'
-  | '.auo'
-  | '.auc'
-  | '.aul'
-  | '.anm'
-  | '.obj'
-  | '.cam'
-  | '.tra'
-  | '.scn';
 const typeForExtention = {
   '.auf': 'filter',
   '.aui': 'input',
@@ -32,6 +20,7 @@ const typeForExtention = {
   '.tra': 'track',
   '.scn': 'scene',
 };
+type aviutlExtention = keyof typeof typeForExtention;
 
 /** Installation state of packages */
 const states = {

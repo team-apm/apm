@@ -1,4 +1,4 @@
-import { Program } from 'apm-schema';
+import { Core, Program } from 'apm-schema';
 import log from 'electron-log';
 import Store from 'electron-store';
 import fs from 'fs-extra';
@@ -26,8 +26,6 @@ import { install, verifyFilesByCount } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
 const store = new Store();
-/** @typedef {import("apm-schema").Core} Core */
-/** @typedef {import("apm-schema").Program} Program */
 type ProgramName = 'aviutl' | 'exedit';
 
 const programs: ProgramName[] = ['aviutl', 'exedit'];
@@ -56,7 +54,6 @@ async function displayInstalledVersion(instPath: string) {
   const isInstalled = { aviutl: false, exedit: false };
   if (instPath && coreInfo) {
     for (const program of programs) {
-      /** @type {Program} */
       const progInfo: Program = coreInfo[program];
 
       // Set the version of the manually installed program
@@ -204,7 +201,6 @@ async function setCoreVersions(instPath: string) {
   ) as HTMLButtonElement;
 
   for (const program of programs) {
-    /** @type {Program} */
     for (const release of coreInfo[program].releases) {
       const li = document.createElement('li');
       const anchor = document.createElement('a');
@@ -416,7 +412,6 @@ async function installProgram(
     return;
   }
 
-  /** @type {Program} */
   const progInfo = coreInfo[program] as Program;
   const url = progInfo.releases.find((r) => r.version === version).url;
   let archivePath = await download(url, { loadCache: true, subDir: 'core' });
@@ -532,7 +527,6 @@ async function batchInstall(instPath: string) {
   try {
     const coreInfo = await getCoreInfo();
     for (const program of programs) {
-      /** @type {Program} */
       const progInfo = coreInfo[program];
       await installProgram(null, program, progInfo.latestVersion, instPath);
     }

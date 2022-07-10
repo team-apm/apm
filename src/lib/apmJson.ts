@@ -16,7 +16,7 @@ import { PackageItem } from '../types/packageItem';
  * @param {string} instPath - An installation path
  * @returns {object} An object like `package.json`
  */
-function getApmJson(instPath: string) {
+function getApmJson(instPath: string): ApmJsonObject {
   try {
     const value = readJsonSync(getPath(instPath));
     if (typeof value === 'object') {
@@ -26,7 +26,7 @@ function getApmJson(instPath: string) {
     }
   } catch (e) {
     if (e.code !== 'ENOENT') log.error(e);
-    return { dataVersion: '3', core: {}, packages: {} } as ApmJsonObject;
+    return { dataVersion: '3', core: {}, packages: {} };
   }
 }
 

@@ -12,7 +12,7 @@ function createList(
   element: string | HTMLElement,
   options?: List.ListOptions,
   values?: object[]
-) {
+): List {
   const parentList = new List(element, options, values);
   const updatableList = Object.create(parentList);
 

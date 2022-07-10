@@ -39,7 +39,6 @@ import { PackageItem } from '../../types/packageItem';
 import { install, verifyFilesByCount } from './common';
 import packageUtil from './packageUtil';
 const store = new Store();
-/** @typedef {import("apm-schema").Scripts} Scripts */
 
 // To avoid a bug in the library
 // https://github.com/sindresorhus/matcher/issues/32
@@ -470,7 +469,6 @@ async function checkPackagesList(instPath: string) {
  */
 async function getScriptsList(update = false) {
   const dictUrl = await modList.getScriptsDataUrl();
-  /** @type {Scripts} */
   const result: { webpage: Scripts['webpage']; scripts: Scripts['scripts'] } = {
     webpage: [],
     scripts: [],
@@ -483,7 +481,6 @@ async function getScriptsList(update = false) {
       keyText: url,
     });
     if (!scriptsJson) continue;
-    /** @type {Scripts} */
     const json: Scripts = readJsonSync(scriptsJson);
     result.webpage = result.webpage.concat(json.webpage);
     result.scripts = result.scripts.concat(json.scripts);
@@ -1191,9 +1188,8 @@ const filterButtons: Set<HTMLButtonElement> = new Set();
 /**
  * Filter the list.
  *
- * @typedef {HTMLCollection} HTMLCollectionOf
  * @param {string} column - A column name to filter
- * @param {HTMLCollectionOf<HTMLButtonElement>} btns - A list of buttons
+ * @param {HTMLCollection} btns - A list of buttons
  * @param {HTMLButtonElement} btn - A button selected
  */
 function listFilter(
@@ -1290,11 +1286,15 @@ async function displayNicommonsIdList(instPath: string) {
     };
     type: string[];
   };
-  const packagesWithNicommonsId = [
+  const packagesWithNicommonsId: [
+    PackageItemWithNicommonsId,
+    PackageItemWithNicommonsId,
+    ...PackageItem[]
+  ] = [
     {
       info: { name: 'AviUtl', developer: 'KENくん', nicommons: 'im1696493' },
       type: [] as never[],
-    } as PackageItemWithNicommonsId,
+    },
     {
       info: {
         name: 'AviUtl Package Manager',
@@ -1302,7 +1302,7 @@ async function displayNicommonsIdList(instPath: string) {
         nicommons: 'nc251912',
       },
       type: [] as never[],
-    } as PackageItemWithNicommonsId,
+    },
     ...packages.filter(
       (value) =>
         apmJson.has(instPath, 'packages.' + value.id) && value.info.nicommons
