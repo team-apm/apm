@@ -422,16 +422,6 @@ function launch() {
     aboutWindow.loadURL(aboutPath);
   });
 
-  ipcMain.handle('open-github-issue', () => {
-    shell.openExternal('https://github.com/team-apm/apm/issues');
-  });
-
-  ipcMain.handle('open-google-form', () => {
-    shell.openExternal(
-      'https://docs.google.com/forms/d/e/1FAIpQLSf0N-X_u_abi8rrWHVDdiK3YeYuQ7J1f8bQAy6QTD-OR94DWQ/viewform?usp=sf_link'
-    );
-  });
-
   ipcMain.handle('migration1to2-confirm-dialog', async () => {
     return (
       await dialog.showMessageBox(mainWindow, {
