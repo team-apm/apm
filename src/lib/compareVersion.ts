@@ -7,7 +7,10 @@ import compareVersions from 'compare-versions';
  * @param {string} secondVersion - Second version to compare
  * @returns {number} A number representing the version order
  */
-function compareVersion(firstVersion, secondVersion) {
+export default function compareVersion(
+  firstVersion: string,
+  secondVersion: string
+) {
   if (firstVersion === secondVersion) return 0;
   const isDate1 = firstVersion.match(/^\d{4}\/\d{2}\/\d{2}$/);
   const isDate2 = secondVersion.match(/^\d{4}\/\d{2}\/\d{2}$/);
@@ -19,7 +22,7 @@ function compareVersion(firstVersion, secondVersion) {
     ); // 2022/02/02 -> 2022.02.02
   }
 
-  const toSemver = (v) =>
+  const toSemver = (v: string) =>
     v
       .toLowerCase()
       .replaceAll(' ', '')
@@ -42,5 +45,3 @@ function compareVersion(firstVersion, secondVersion) {
     return 0;
   }
 }
-
-export { compareVersion };

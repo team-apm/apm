@@ -11,7 +11,7 @@ import {
   openGoogleForm,
   openPackageMaker,
 } from '../../lib/ipcWrapper';
-import modList from '../../lib/modList';
+import * as modList from '../../lib/modList';
 import migration2to3 from '../../migration/migration2to3';
 import core from './core';
 import packageMain from './package';
@@ -133,14 +133,17 @@ window.addEventListener('load', () => {
   });
 
   const filterDropdown = document.getElementById('filter').parentElement;
-  const typeFilterBtns = filterDropdown.getElementsByClassName('type-filter');
+  const typeFilterBtns = filterDropdown.getElementsByClassName(
+    'type-filter'
+  ) as HTMLCollectionOf<HTMLButtonElement>;
   Array.from(typeFilterBtns).forEach((element: HTMLButtonElement) => {
     element.addEventListener('click', () => {
       packageMain.listFilter('type', typeFilterBtns, element);
     });
   });
-  const installFilterBtns =
-    filterDropdown.getElementsByClassName('install-filter');
+  const installFilterBtns = filterDropdown.getElementsByClassName(
+    'install-filter'
+  ) as HTMLCollectionOf<HTMLButtonElement>;
   Array.from(installFilterBtns).forEach((element: HTMLButtonElement) => {
     element.addEventListener('click', () => {
       packageMain.listFilter('installationStatus', installFilterBtns, element);

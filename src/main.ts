@@ -19,7 +19,7 @@ import fs, { mkdir, readJsonSync } from 'fs-extra';
 import path from 'path';
 import updateElectronApp from 'update-electron-app';
 import { getHash } from './lib/getHash';
-import shortcut from './lib/shortcut';
+import * as shortcut from './lib/shortcut';
 
 declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;

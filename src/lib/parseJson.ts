@@ -1,6 +1,7 @@
 // import path from 'path';
 import { Core, List, Packages } from 'apm-schema';
 import fs, { readJSON, writeJson } from 'fs-extra';
+import { PackageItem } from '../types/packageItem';
 import { getIdDict } from './convertId';
 
 // Functions to be exported
@@ -11,7 +12,7 @@ import { getIdDict } from './convertId';
  * @param {string} coreListPath - A path of Json file.
  * @returns {Core} A list of core programs.
  */
-async function getCore(coreListPath: string): Promise<Core> {
+export async function getCore(coreListPath: string): Promise<Core> {
   if (fs.existsSync(coreListPath)) {
     return (await readJSON(coreListPath)) as Core;
   } else {
@@ -25,7 +26,7 @@ async function getCore(coreListPath: string): Promise<Core> {
  * @param {string} packagesListPath - A path of Json file.
  * @returns {Promise<object>} A list of packages.
  */
-async function getPackages(packagesListPath: string) {
+export async function getPackages(packagesListPath: string) {
   if (fs.existsSync(packagesListPath)) {
     const packages = ((await readJSON(packagesListPath)) as Packages).packages;
 
@@ -62,7 +63,7 @@ async function setPackages(
  * @param {string} packagesListPath - A path of Json file.
  * @param {object} packageItem - A package.
  */
-async function addPackage(
+export async function addPackage(
   packagesListPath: string,
   packageItem: Packages['packages'][number]
 ) {
@@ -81,9 +82,9 @@ async function addPackage(
  * @param {string} packagesListPath - A path of Json file.
  * @param {object} packageItem - A package.
  */
-async function removePackage(
+export async function removePackage(
   packagesListPath: string,
-  packageItem: Packages['packages'][number]
+  packageItem: PackageItem
 ) {
   const packages = (await getPackages(packagesListPath)).filter(
     (p) => p.id !== packageItem.id
@@ -101,19 +102,10 @@ async function removePackage(
  * @param {string} packagesListPath - A path of Json file.
  * @returns {List} An object which contains mod dates.
  */
-async function getMod(packagesListPath: string) {
+export async function getMod(packagesListPath: string) {
   if (fs.existsSync(packagesListPath)) {
     return (await readJSON(packagesListPath)) as List;
   } else {
     throw new Error('The version file does not exist.');
   }
 }
-
-const parseJson = {
-  getCore,
-  getPackages,
-  addPackage,
-  removePackage,
-  getMod,
-};
-export default parseJson;

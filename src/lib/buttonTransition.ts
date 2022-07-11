@@ -15,18 +15,20 @@ const buttonTypes = [
  *
  * @param {HTMLButtonElement} btn - An element of the button to be
  * @param {string} [message] - A message to show.
- * @returns {Function} Returns a function to enable the button.
+ * @returns {{enableButton:()=>void}} Returns a function to enable the button.
  */
-function loading(btn, message) {
+export function loading(btn: HTMLButtonElement, message?: string) {
   btn.disabled = true;
   const beforeHTML = btn.innerHTML;
   btn.innerHTML =
     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
     '<span class="visually-hidden">Loading...</span>';
 
-  return function () {
-    btn.innerHTML = message ?? beforeHTML;
-    btn.disabled = false;
+  return {
+    enableButton: function () {
+      btn.innerHTML = message ?? beforeHTML;
+      btn.disabled = false;
+    },
   };
 }
 
@@ -35,10 +37,14 @@ function loading(btn, message) {
  *
  * @param {HTMLButtonElement} btn - An element of the button to be changed
  * @param {string} message - A message to be shown
- * @param {string} type - A type of the button to be changed to
+ * @param {string} [type] - A type of the button to be changed to
  */
-function message(btn, message, type = null) {
-  if (type != null) {
+export function message(
+  btn: HTMLButtonElement,
+  message: string,
+  type?: string
+) {
+  if (type) {
     for (const originalType of buttonTypes) {
       const btnOriginalType = 'btn-' + originalType;
       const btnType = 'btn-' + type;
@@ -64,6 +70,3 @@ function message(btn, message, type = null) {
 
   btn.innerText = message;
 }
-
-const buttonTransition = { loading, message };
-export default buttonTransition;

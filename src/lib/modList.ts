@@ -4,7 +4,7 @@ import * as os from 'os';
 import path from 'path';
 import { isParent } from './apmPath';
 import { download, existsTempFile } from './ipcWrapper';
-import parseJson from './parseJson';
+import * as parseJson from './parseJson';
 const store = new Store();
 
 /**
@@ -59,7 +59,7 @@ async function setPackagesDataUrl() {
 /**
  * Download list.json.
  */
-async function updateInfo() {
+export async function updateInfo() {
   await download(path.join(getDataUrl(), 'list.json'));
   await setPackagesDataUrl();
 }
@@ -69,7 +69,7 @@ async function updateInfo() {
  *
  * @returns {Promise<object>} - An object parsed from list.json.
  */
-async function getInfo() {
+export async function getInfo() {
   const modFile = await existsTempFile('list.json');
   if (modFile.exists) {
     return await parseJson.getMod(modFile.path).catch((): null => null);
@@ -87,7 +87,7 @@ async function getInfo() {
  *
  * @returns {string} - A data files URL.
  */
-function getDataUrl() {
+export function getDataUrl() {
   return store.get('dataURL.main') as string;
 }
 
@@ -96,7 +96,7 @@ function getDataUrl() {
  *
  * @returns {string} - Data files URLs.
  */
-function getExtraDataUrl() {
+export function getExtraDataUrl() {
   return store.get('dataURL.extra') as string;
 }
 
@@ -105,7 +105,7 @@ function getExtraDataUrl() {
  *
  * @returns {string} - A core data file URL.
  */
-async function getCoreDataUrl() {
+export async function getCoreDataUrl() {
   return resolvePath(getDataUrl(), (await getInfo()).core.path);
 }
 
@@ -115,7 +115,7 @@ async function getCoreDataUrl() {
  * @param {string} instPath - An installation path.
  * @returns {Array.<string>} -Package data files URLs.
  */
-function getPackagesDataUrl(instPath: string) {
+export function getPackagesDataUrl(instPath: string) {
   return (store.get('dataURL.packages') as string[]).concat(
     instPath &&
       instPath.length > 0 &&
@@ -131,7 +131,7 @@ function getPackagesDataUrl(instPath: string) {
  * @param {string} instPath - An installation path.
  * @returns {string} - A package data file URL.
  */
-function getLocalPackagesDataUrl(instPath: string) {
+export function getLocalPackagesDataUrl(instPath: string) {
   return path.join(instPath, 'packages.json');
 }
 
@@ -140,7 +140,7 @@ function getLocalPackagesDataUrl(instPath: string) {
  *
  * @returns {string} - A convert data file URL.
  */
-async function getConvertDataUrl() {
+export async function getConvertDataUrl() {
   return resolvePath(getDataUrl(), (await getInfo()).convert.path);
 }
 
@@ -149,21 +149,8 @@ async function getConvertDataUrl() {
  *
  * @returns {string[]} - A scripts data file URL.
  */
-async function getScriptsDataUrl() {
+export async function getScriptsDataUrl() {
   return (await getInfo()).scripts.map((script) =>
     resolvePath(getDataUrl(), script.path)
   );
 }
-
-const mod = {
-  updateInfo,
-  getInfo,
-  getDataUrl,
-  getExtraDataUrl,
-  getCoreDataUrl,
-  getPackagesDataUrl,
-  getLocalPackagesDataUrl,
-  getConvertDataUrl,
-  getScriptsDataUrl,
-};
-export default mod;

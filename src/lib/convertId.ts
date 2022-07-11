@@ -1,8 +1,8 @@
 import * as fs from 'fs-extra';
 import path from 'path';
-import apmJson from './apmJson';
+import * as apmJson from './apmJson';
 import { download, existsTempFile } from './ipcWrapper';
-import modList from './modList';
+import * as modList from './modList';
 
 /**
  * Returns the id conversion dictionary.
@@ -10,7 +10,9 @@ import modList from './modList';
  * @param {boolean} update - Download the json file.
  * @returns {Promise<object>} Dictionary of id relationships.
  */
-async function getIdDict(update = false): Promise<{ [key: string]: string }> {
+export async function getIdDict(
+  update = false
+): Promise<{ [key: string]: string }> {
   const dictUrl = await modList.getConvertDataUrl();
   if (update) {
     const convertJson = await download(dictUrl, {
@@ -37,7 +39,7 @@ async function getIdDict(update = false): Promise<{ [key: string]: string }> {
  * @param {string} instPath - An installation path
  * @param {number} modTime - A mod time.
  */
-async function convertId(instPath: string, modTime: number) {
+export async function convertId(instPath: string, modTime: number) {
   const packages = apmJson.get(instPath, 'packages') as {
     [key: string]: { id: string };
   };
@@ -55,5 +57,3 @@ async function convertId(instPath: string, modTime: number) {
   apmJson.set(instPath, 'packages', packages);
   apmJson.set(instPath, 'convertMod', modTime);
 }
-
-export { getIdDict, convertId };

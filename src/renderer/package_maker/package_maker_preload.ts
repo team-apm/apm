@@ -8,7 +8,7 @@ import path from 'path';
 // eslint-disable-next-line import/no-named-as-default
 import Sortable from 'sortablejs';
 import { pathRelated } from '../../lib/apmPath';
-import buttonTransition from '../../lib/buttonTransition';
+import * as buttonTransition from '../../lib/buttonTransition';
 import { openBrowser, openDialog } from '../../lib/ipcWrapper';
 import unzip from '../../lib/unzip';
 
@@ -279,7 +279,7 @@ window.addEventListener('load', () => {
   });
 
   xmlDownloadURLBtn.addEventListener('click', async () => {
-    const enableButton = buttonTransition.loading(xmlDownloadURLBtn);
+    const { enableButton } = buttonTransition.loading(xmlDownloadURLBtn);
 
     if (xmlDownloadURL.value === '') {
       buttonTransition.message(

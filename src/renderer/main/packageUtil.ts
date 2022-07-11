@@ -1,11 +1,12 @@
 import log from 'electron-log';
 import fs from 'fs-extra';
 import path from 'path';
-import apmJson from '../../lib/apmJson';
+import * as apmJson from '../../lib/apmJson';
 import { download, existsTempFile, openDialog } from '../../lib/ipcWrapper';
-import parseJson from '../../lib/parseJson';
+import * as parseJson from '../../lib/parseJson';
+import { ApmJsonObject } from '../../types/apmJson';
+import { PackageItem } from '../../types/packageItem';
 import { verifyFilesByCount } from './common';
-/** @typedef {import("apm-data").Packages} Packages */
 
 const typeForExtention = {
   '.auf': 'filter',
@@ -19,6 +20,7 @@ const typeForExtention = {
   '.tra': 'track',
   '.scn': 'scene',
 };
+type aviutlExtention = keyof typeof typeForExtention;
 
 /** Installation state of packages */
 const states = {
@@ -36,7 +38,7 @@ const states = {
  * @param {string[]} packageType - A list of package types
  * @returns {string[]} Parsed package types
  */
-function parsePackageType(packageType) {
+function parsePackageType(packageType: string[]) {
   const result = [];
   for (const type of packageType) {
     switch (type) {
@@ -90,7 +92,7 @@ function parsePackageType(packageType) {
  * @param {string[]} packageDataUrls - URLs of the repository
  * @returns {Promise<object[]>} - A list of object parsed from packages.json
  */
-async function getPackages(packageDataUrls) {
+async function getPackages(packageDataUrls: string[]) {
   const jsonList = [];
 
   for (const packageRepository of packageDataUrls) {
@@ -122,7 +124,7 @@ async function getPackages(packageDataUrls) {
       const types = packageInfo.files.flatMap((f) => {
         const extention = path.extname(f.filename);
         if (extention in typeForExtention) {
-          return [typeForExtention[extention]];
+          return [typeForExtention[extention as aviutlExtention]];
         } else {
           return [];
         }
@@ -132,7 +134,7 @@ async function getPackages(packageDataUrls) {
         id: packageInfo.id,
         info: packageInfo,
         type: Array.from(new Set(types)),
-      });
+      } as PackageItem);
     }
   }
   return packages;
@@ -141,7 +143,7 @@ async function getPackages(packageDataUrls) {
 /**
  * @param {string[]} packageDataUrls - URLs of the repository
  */
-async function downloadRepository(packageDataUrls) {
+async function downloadRepository(packageDataUrls: string[]) {
   await Promise.all(
     packageDataUrls.map((packageRepository) =>
       download(packageRepository, {
@@ -158,25 +160,25 @@ async function downloadRepository(packageDataUrls) {
  * @param {string} instPath - An installation path
  * @returns {string[]} List of installed files
  */
-function getInstalledFiles(instPath) {
+function getInstalledFiles(instPath: string) {
   const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn|lua)$/;
-  const safeReaddirSync = (path, option) => {
+  const safeReaddirSync = (path: string) => {
     try {
-      return fs.readdirSync(path, option);
+      return fs.readdirSync(path, { withFileTypes: true });
     } catch (e) {
       if (e.code === 'ENOENT') return [];
       log.error(e);
       throw e;
     }
   };
-  const readdir = (dir) =>
-    safeReaddirSync(dir, { withFileTypes: true })
+  const readdir = (dir: string) =>
+    safeReaddirSync(dir)
       .filter((i) => i.isFile() && regex.test(i.name))
       .map((i) => i.name);
   return readdir(instPath).concat(
     readdir(path.join(instPath, 'plugins')).map((i) => 'plugins/' + i),
     readdir(path.join(instPath, 'script')).map((i) => 'script/' + i),
-    safeReaddirSync(path.join(instPath, 'script'), { withFileTypes: true })
+    safeReaddirSync(path.join(instPath, 'script'))
       .filter((i) => i.isDirectory())
       .map((i) => 'script/' + i.name)
       .flatMap((i) => readdir(path.join(instPath, i)).map((j) => i + '/' + j))
@@ -191,7 +193,11 @@ function getInstalledFiles(instPath) {
  * @param {object[]} packages - A list of object parsed from packages.json
  * @returns {string[]} List of manually installed files
  */
-function getManuallyInstalledFiles(files, installedPackages, packages) {
+function getManuallyInstalledFiles(
+  files: string[],
+  installedPackages: ApmJsonObject['packages'],
+  packages: PackageItem[]
+) {
   let retFiles = [...files];
   for (const packageItem of packages) {
     for (const installedId of Object.keys(installedPackages)) {
@@ -220,11 +226,11 @@ function getManuallyInstalledFiles(files, installedPackages, packages) {
  * @returns {object} Installed version or installation status of the package
  */
 function getInstalledVersionOfPackage(
-  packageItem,
-  installedFiles,
-  manuallyInstalledFiles,
-  installedPackages,
-  instPath
+  packageItem: PackageItem,
+  installedFiles: string[],
+  manuallyInstalledFiles: string[],
+  installedPackages: ApmJsonObject['packages'],
+  instPath: string
 ) {
   let installationStatus;
   let version;
@@ -271,11 +277,14 @@ function getInstalledVersionOfPackage(
  * @param {string} instPath - An installation path
  * @returns {object} List of manually installed files
  */
-function getPackagesExtra(_packages, instPath) {
+function getPackagesExtra(_packages: PackageItem[], instPath: string) {
   const packages = [..._packages].map((p) => {
     return { ...p };
   });
-  const tmpInstalledPackages = apmJson.get(instPath, 'packages');
+  const tmpInstalledPackages = apmJson.get(
+    instPath,
+    'packages'
+  ) as ApmJsonObject['packages'];
   const tmpInstalledFiles = getInstalledFiles(instPath);
   const tmpManuallyInstalledFiles = getManuallyInstalledFiles(
     tmpInstalledFiles,
@@ -304,7 +313,7 @@ function getPackagesExtra(_packages, instPath) {
  * @param {object[]} _packages - A list of object parsed from packages.json and getPackagesExtra()
  * @returns {object[]} - packages
  */
-function getPackagesStatus(instPath, _packages) {
+function getPackagesStatus(instPath: string, _packages: PackageItem[]) {
   const packages = [..._packages].map((p) => {
     return { ...p };
   });
@@ -313,13 +322,14 @@ function getPackagesStatus(instPath, _packages) {
   const aviUtlR = /aviutl\d/;
   const exeditR = /exedit\d/;
   try {
-    aviUtlVer = apmJson.get(instPath, 'core.' + 'aviutl', '');
-    exeditVer = apmJson.get(instPath, 'core.' + 'exedit', '');
+    aviUtlVer = apmJson.get(instPath, 'core.' + 'aviutl', '') as string;
+    exeditVer = apmJson.get(instPath, 'core.' + 'exedit', '') as string;
   } catch (e) {
     log.info(e);
   }
+
   packages.forEach((p) => {
-    const doNotInstall = (p) => {
+    const doNotInstall = (p: PackageItem): boolean => {
       if (p.installationStatus === states.otherInstalled) {
         return true;
       }
@@ -351,14 +361,22 @@ function getPackagesStatus(instPath, _packages) {
     };
     p.doNotInstall = doNotInstall(p);
   });
+
   packages.forEach((p) => {
-    const isInstalled = (p) =>
+    const isInstalled = (p: PackageItem) =>
       p.installationStatus !== states.installedButBroken &&
       p.installationStatus !== states.notInstalled &&
       p.installationStatus !== states.otherInstalled;
-    const detached = (p) => {
+
+    if (!isInstalled(p)) {
+      p.detached = [];
+      return;
+    }
+
+    const detached = (p: PackageItem): PackageItem[] => {
       const lists = [];
       if (!isInstalled(p)) lists.push(p);
+
       if (p.info.dependencies) {
         lists.push(
           ...p.info.dependencies.flatMap((ids) => {
@@ -393,7 +411,7 @@ function getPackagesStatus(instPath, _packages) {
       }
       return lists;
     };
-    p.detached = isInstalled(p) ? detached(p) : [];
+    p.detached = detached(p);
   });
   return packages;
 }
