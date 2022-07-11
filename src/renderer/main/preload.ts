@@ -9,7 +9,6 @@ import {
   openDialog,
   openGitHubIssue,
   openGoogleForm,
-  openPackageMaker,
 } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
 import migration2to3 from '../../migration/migration2to3';
@@ -196,11 +195,6 @@ window.addEventListener('load', () => {
   const openGoogleFormBtn = document.getElementById('open-google-form');
   openGoogleFormBtn.addEventListener('click', () => {
     openGoogleForm();
-  });
-
-  const openPackageMakerBtn = document.getElementById('open-package-maker');
-  openPackageMakerBtn.addEventListener('click', () => {
-    openPackageMaker();
   });
 
   const exitAppBtn = document.getElementById('quit-app');

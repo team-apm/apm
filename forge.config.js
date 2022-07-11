@@ -87,14 +87,6 @@ module.exports = {
               js: './src/renderer/splash/splash_renderer.ts',
               name: 'splash_window',
             },
-            {
-              html: './src/renderer/package_maker/package_maker.html',
-              js: './src/renderer/package_maker/package_maker_renderer.ts',
-              name: 'package_maker_window',
-              preload: {
-                js: './src/renderer/package_maker/package_maker_preload.ts',
-              },
-            },
           ],
         },
       },

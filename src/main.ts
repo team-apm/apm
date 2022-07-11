@@ -26,8 +26,6 @@ declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 declare const ABOUT_WINDOW_WEBPACK_ENTRY: string;
 declare const ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
-declare const PACKAGE_MAKER_WINDOW_WEBPACK_ENTRY: string;
-declare const PACKAGE_MAKER_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 log.catchErrors({
   showDialog: false,
@@ -432,29 +430,6 @@ function launch() {
     shell.openExternal(
       'https://docs.google.com/forms/d/e/1FAIpQLSf0N-X_u_abi8rrWHVDdiK3YeYuQ7J1f8bQAy6QTD-OR94DWQ/viewform?usp=sf_link'
     );
-  });
-
-  ipcMain.handle('open-package-maker', () => {
-    const packageMakerPath = PACKAGE_MAKER_WINDOW_WEBPACK_ENTRY;
-    const packageMakerWindow = new BrowserWindow({
-      width: 480,
-      height: 360,
-      modal: true,
-      parent: mainWindow,
-      icon: icon,
-      webPreferences: {
-        preload: PACKAGE_MAKER_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      },
-    });
-    packageMakerWindow.once('close', () => {
-      if (!packageMakerWindow.isDestroyed()) {
-        packageMakerWindow.destroy();
-      }
-    });
-    packageMakerWindow.once('ready-to-show', () => {
-      packageMakerWindow.show();
-    });
-    packageMakerWindow.loadURL(packageMakerPath);
   });
 
   ipcMain.handle('migration1to2-confirm-dialog', async () => {
