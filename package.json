@@ -24,8 +24,7 @@
     "release:patch": "standard-version --release-as patch && conventional-github-releaser -p angular --draft",
     "release:minor": "standard-version --release-as minor && conventional-github-releaser -p angular --draft",
     "release:major": "standard-version --release-as major && conventional-github-releaser -p angular --draft",
-    "notices": "yarn licenses generate-disclaimer --frozen-lockfile --prod --ignore-platform --ignore-engines --ignore-optional > ThirdPartyNotices.txt",
-    "sri": "node ./util/sri.js"
+    "notices": "yarn licenses generate-disclaimer --frozen-lockfile --prod --ignore-platform --ignore-engines --ignore-optional > ThirdPartyNotices.txt"
   },
   "engines": {
     "node": "14.x || 16.x"
