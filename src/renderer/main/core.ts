@@ -57,18 +57,18 @@ async function displayInstalledVersion(instPath: string) {
       const progInfo: Program = coreInfo[program];
 
       // Set the version of the manually installed program
-      if (!apmJson.has(instPath, 'core.' + program)) {
+      if (!(await apmJson.has(instPath, 'core.' + program))) {
         for (const release of progInfo.releases) {
           if (await checkIntegrity(instPath, release.integrity.file))
-            apmJson.setCore(instPath, program, release.version);
+            await apmJson.setCore(instPath, program, release.version);
         }
       }
 
-      if (apmJson.has(instPath, 'core.' + program)) {
-        const installedVersion = apmJson.get(
+      if (await apmJson.has(instPath, 'core.' + program)) {
+        const installedVersion = (await apmJson.get(
           instPath,
           'core.' + program
-        ) as string;
+        )) as string;
         const description =
           compareVersion(installedVersion, progInfo.latestVersion) === -1
             ? ` （最新版: ${progInfo.latestVersion}）`
@@ -146,7 +146,7 @@ async function displayInstalledVersion(instPath: string) {
     ) {
       addAviUtlShortcut(appDataPath, aviutlPath);
     } else {
-      removeAviUtlShortcut(appDataPath);
+      await removeAviUtlShortcut(appDataPath);
     }
   }
 }
@@ -316,7 +316,7 @@ async function changeInstallationPath(instPath: string) {
 
     if (fs.existsSync(apmJson.getPath(instPath)) && currentMod.convert) {
       const oldConvertMod = new Date(
-        apmJson.get(instPath, 'convertMod', 0) as number
+        (await apmJson.get(instPath, 'convertMod', 0)) as number
       );
       const currentConvertMod = new Date(currentMod.convert.modified).getTime();
 
@@ -483,7 +483,7 @@ async function installProgram(
     const unzippedPath = await unzip(archivePath);
     await install(unzippedPath, instPath, progInfo.files, true);
 
-    apmJson.setCore(instPath, program, version);
+    await apmJson.setCore(instPath, program, version);
     await displayInstalledVersion(instPath);
     await packageMain.setPackagesList(instPath);
     await packageMain.displayNicommonsIdList(instPath);
@@ -530,9 +530,11 @@ async function batchInstall(instPath: string) {
       const progInfo = coreInfo[program];
       await installProgram(null, program, progInfo.latestVersion, instPath);
     }
-    const allPackages = packageUtil.getPackagesExtra(
-      await packageMain.getPackages(instPath),
-      instPath
+    const allPackages = (
+      await packageUtil.getPackagesExtra(
+        await packageMain.getPackages(instPath),
+        instPath
+      )
     ).packages;
     const packages = allPackages.filter(
       (p) =>

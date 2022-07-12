@@ -82,17 +82,20 @@ async function global() {
   const files = [
     path.join(dataFolder, 'mod.xml'),
     path.join(dataFolder, 'core/core.xml'),
-    ...fs
-      .readdirSync(path.join(dataFolder, 'package/'), { withFileTypes: true })
+    ...(
+      await fs.readdir(path.join(dataFolder, 'package/'), {
+        withFileTypes: true,
+      })
+    )
       .filter(
         (dirent) =>
           dirent.isFile() && dirent.name.endsWith('_packages_list.xml')
       )
       .map(({ name }) => path.join(dataFolder, 'package/', name)),
   ];
-  files.forEach((file) => {
+  files.forEach(async (file) => {
     try {
-      fs.unlinkSync(file);
+      await fs.unlink(file);
     } catch (e) {
       log.error(e);
     }
@@ -120,7 +123,7 @@ async function byFolder(instPath: string) {
   const jsonExists = fs.existsSync(jsonPath);
   if (!jsonExists) return;
 
-  const isVerOne = !apmJson.has(instPath, 'dataVersion');
+  const isVerOne = !(await apmJson.has(instPath, 'dataVersion'));
   if (!isVerOne) return;
 
   // Main
@@ -132,7 +135,7 @@ async function byFolder(instPath: string) {
   // 2. Renaming the local repository
   try {
     if (fs.existsSync(path.join(instPath, 'packages_list.xml'))) {
-      fs.renameSync(
+      await fs.rename(
         path.join(instPath, 'packages_list.xml'),
         path.join(instPath, 'packages.xml')
       );
@@ -142,7 +145,7 @@ async function byFolder(instPath: string) {
   }
 
   // 3. Update the path to the online and local xml files.
-  const packages = apmJson.get(instPath, 'packages') as {
+  const packages = (await apmJson.get(instPath, 'packages')) as {
     [key: string]: { repository: string };
   };
 
@@ -173,10 +176,10 @@ async function byFolder(instPath: string) {
     packages[id].repository = text;
   }
 
-  apmJson.set(instPath, 'packages', packages);
+  await apmJson.set(instPath, 'packages', packages);
 
   // Finalize
-  apmJson.set(instPath, 'dataVersion', '2');
+  await apmJson.set(instPath, 'dataVersion', '2');
   log.info(`End of migration: migration1to2.byFolder(${instPath})`);
 }
 

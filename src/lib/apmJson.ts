@@ -5,7 +5,7 @@ import {
   setProperty,
 } from 'dot-prop';
 import log from 'electron-log';
-import { readJsonSync, writeJsonSync } from 'fs-extra';
+import { readJson, writeJson } from 'fs-extra';
 import path from 'path';
 import { ApmJsonObject } from '../types/apmJson';
 import { PackageItem } from '../types/packageItem';
@@ -16,9 +16,9 @@ import { PackageItem } from '../types/packageItem';
  * @param {string} instPath - An installation path
  * @returns {object} An object like `package.json`
  */
-function getApmJson(instPath: string): ApmJsonObject {
+async function getApmJson(instPath: string): Promise<ApmJsonObject> {
   try {
-    const value = readJsonSync(getPath(instPath));
+    const value = await readJson(getPath(instPath));
     if (typeof value === 'object') {
       return value as ApmJsonObject;
     } else {
@@ -36,8 +36,8 @@ function getApmJson(instPath: string): ApmJsonObject {
  * @param {string} instPath - An installation path
  * @param {object} object - An object to write
  */
-function setApmJson(instPath: string, object: unknown) {
-  writeJsonSync(getPath(instPath), object, { spaces: 2 });
+async function setApmJson(instPath: string, object: unknown) {
+  await writeJson(getPath(instPath), object, { spaces: 2 });
 }
 
 // Functions to be exported
@@ -59,8 +59,8 @@ export function getPath(instPath: string) {
  * @param {string} path - Key to check existing
  * @returns {boolean} Whether `apm.json` has the property.
  */
-export function has(instPath: string, path: string) {
-  return hasProperty(getApmJson(instPath), path);
+export async function has(instPath: string, path: string) {
+  return hasProperty(await getApmJson(instPath), path);
 }
 
 /**
@@ -71,8 +71,8 @@ export function has(instPath: string, path: string) {
  * @param {unknown} [defaultValue] - A value replaced when the property don't exists.
  * @returns {unknown} The property selected by key.
  */
-export function get(instPath: string, path = '', defaultValue?: unknown) {
-  return getProperty(getApmJson(instPath), path, defaultValue);
+export async function get(instPath: string, path = '', defaultValue?: unknown) {
+  return getProperty(await getApmJson(instPath), path, defaultValue);
 }
 
 /**
@@ -82,9 +82,9 @@ export function get(instPath: string, path = '', defaultValue?: unknown) {
  * @param {string} path - Key to set value
  * @param {unknown} [value] - A value to set
  */
-export function set(instPath: string, path: string, value: unknown) {
-  const object = setProperty(getApmJson(instPath), path, value);
-  setApmJson(instPath, object);
+export async function set(instPath: string, path: string, value: unknown) {
+  const object = setProperty(await getApmJson(instPath), path, value);
+  await setApmJson(instPath, object);
 }
 
 /**
@@ -93,10 +93,10 @@ export function set(instPath: string, path: string, value: unknown) {
  * @param {string} instPath - An installation path
  * @param {string} path - Key to delete value
  */
-function deleteItem(instPath: string, path: string) {
-  const object = getApmJson(instPath);
+async function deleteItem(instPath: string, path: string) {
+  const object = await getApmJson(instPath);
   deleteProperty(object, path);
-  setApmJson(instPath, object);
+  await setApmJson(instPath, object);
 }
 
 export { deleteItem as delete };
@@ -108,8 +108,12 @@ export { deleteItem as delete };
  * @param {string} program - A name of the program
  * @param {string} version - A version of the program
  */
-export function setCore(instPath: string, program: string, version: string) {
-  set(instPath, `core.${program}`, version);
+export async function setCore(
+  instPath: string,
+  program: string,
+  version: string
+) {
+  await set(instPath, `core.${program}`, version);
 }
 
 /**
@@ -118,8 +122,8 @@ export function setCore(instPath: string, program: string, version: string) {
  * @param {string} instPath - An installation path
  * @param {PackageItem} packageItem - An information of a package
  */
-export function addPackage(instPath: string, packageItem: PackageItem) {
-  set(instPath, `packages.${packageItem.id}`, {
+export async function addPackage(instPath: string, packageItem: PackageItem) {
+  await set(instPath, `packages.${packageItem.id}`, {
     id: packageItem.id,
     version: packageItem.info.latestVersion,
   });
@@ -131,6 +135,9 @@ export function addPackage(instPath: string, packageItem: PackageItem) {
  * @param {string} instPath - An installation path
  * @param {PackageItem} packageItem - An information of a package
  */
-export function removePackage(instPath: string, packageItem: PackageItem) {
-  deleteItem(instPath, `packages.${packageItem.id}`);
+export async function removePackage(
+  instPath: string,
+  packageItem: PackageItem
+) {
+  await deleteItem(instPath, `packages.${packageItem.id}`);
 }

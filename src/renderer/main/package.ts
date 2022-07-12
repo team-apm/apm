@@ -7,11 +7,9 @@ import {
   existsSync,
   mkdir,
   readdir,
-  readdirSync,
-  readJsonSync,
+  readJson,
   rename,
-  renameSync,
-  rmdirSync,
+  rmdir,
 } from 'fs-extra';
 import List, { ListItem } from 'list.js';
 import * as matcher from 'matcher';
@@ -132,7 +130,7 @@ async function setPackagesList(instPath: string) {
   // prepare a package list
 
   let manuallyInstalledFiles;
-  const packagesExtra = packageUtil.getPackagesExtra(packages, instPath);
+  const packagesExtra = await packageUtil.getPackagesExtra(packages, instPath);
   manuallyInstalledFiles = packagesExtra.manuallyInstalledFiles;
   packages = packagesExtra.packages;
 
@@ -145,7 +143,7 @@ async function setPackagesList(instPath: string) {
   )) {
     for (const release of p.info.releases) {
       if (await checkIntegrity(instPath, release.integrity.file)) {
-        apmJson.addPackage(instPath, {
+        await apmJson.addPackage(instPath, {
           ...p,
           info: { ...p.info, latestVersion: release.version },
         });
@@ -154,12 +152,15 @@ async function setPackagesList(instPath: string) {
     }
   }
   if (modified) {
-    const packagesExtraMod = packageUtil.getPackagesExtra(packages, instPath);
+    const packagesExtraMod = await packageUtil.getPackagesExtra(
+      packages,
+      instPath
+    );
     manuallyInstalledFiles = packagesExtraMod.manuallyInstalledFiles;
     packages = packagesExtraMod.packages;
   }
 
-  packages = packageUtil.getPackagesStatus(instPath, packages);
+  packages = await packageUtil.getPackagesStatus(instPath, packages);
 
   // show the package list
   const makeLiFromArray = (columnList: string[]) => {
@@ -481,7 +482,7 @@ async function getScriptsList(update = false) {
       keyText: url,
     });
     if (!scriptsJson) continue;
-    const json: Scripts = readJsonSync(scriptsJson);
+    const json: Scripts = await readJson(scriptsJson);
     result.webpage = result.webpage.concat(json.webpage);
     result.scripts = result.scripts.concat(json.scripts);
   }
@@ -720,14 +721,16 @@ async function installPackage(
     const unzippedPath = await getUnzippedPath();
 
     if (installedPackage.info.installer) {
-      const searchFiles = (dirName: string) => {
+      const searchFiles = async (dirName: string) => {
         let result: string[][] = [];
-        const dirents = readdirSync(dirName, {
+        const dirents = await readdir(dirName, {
           withFileTypes: true,
         });
         for (const dirent of dirents) {
           if (dirent.isDirectory()) {
-            const childResult = searchFiles(path.join(dirName, dirent.name));
+            const childResult = await searchFiles(
+              path.join(dirName, dirent.name)
+            );
             result = result.concat(childResult);
           } else {
             if (dirent.name === installedPackage.info.installer) {
@@ -739,7 +742,7 @@ async function installPackage(
         return result;
       };
 
-      const exePath = searchFiles(unzippedPath);
+      const exePath = await searchFiles(unzippedPath);
       const command =
         '"' +
         exePath[0][0] +
@@ -768,7 +771,7 @@ async function installPackage(
         ...installedPackage.info,
         latestVersion: getDate(),
       };
-    apmJson.addPackage(instPath, installedPackage);
+    await apmJson.addPackage(instPath, installedPackage);
     await setPackagesList(instPath);
     await displayNicommonsIdList(instPath);
 
@@ -864,7 +867,7 @@ async function uninstallPackage(instPath: string) {
     }
   }
 
-  apmJson.removePackage(instPath, uninstalledPackage);
+  await apmJson.removePackage(instPath, uninstalledPackage);
   if (filesCount === notExistCount) {
     if (!uninstalledPackage.id.startsWith('script_')) {
       await setPackagesList(instPath);
@@ -1000,8 +1003,9 @@ async function installScript(instPath: string) {
   if ('redirect' in matchInfo) {
     // Determine which of the redirections can be installed and install them.
     let packages = await getPackages(instPath);
-    packages = packageUtil.getPackagesExtra(packages, instPath).packages;
-    packages = packageUtil.getPackagesStatus(instPath, packages);
+    packages = (await packageUtil.getPackagesExtra(packages, instPath))
+      .packages;
+    packages = await packageUtil.getPackagesStatus(instPath, packages);
     const packageId = matchInfo.redirect
       .split('|')
       .find((candidate: string) =>
@@ -1030,19 +1034,32 @@ async function installScript(instPath: string) {
   const pluginExtRegex = /\.(auf|aui|auo|auc|aul)$/;
   const scriptExtRegex = /\.(anm|obj|cam|tra|scn)$/;
 
-  const searchScriptRoot = (dirName: string): string[] => {
-    const dirents = readdirSync(dirName, {
+  // https://zenn.dev/repomn/scraps/d80ccd5c9183f0
+  const asyncFlatMap = async <Item, Res>(
+    arr: Item[],
+    callback: (value: Item, index: number, array: Item[]) => Promise<Res>
+  ) => {
+    const a = await Promise.all(arr.map(callback));
+    return a.flat();
+  };
+
+  const searchScriptRoot = async (dirName: string): Promise<string[]> => {
+    const dirents = await readdir(dirName, {
       withFileTypes: true,
     });
     return dirents.find((i) => i.isFile() && scriptExtRegex.test(i.name))
       ? [dirName]
-      : dirents
-          .filter((i) => i.isDirectory())
-          .flatMap((i) => searchScriptRoot(path.join(dirName, i.name)));
+      : await asyncFlatMap(
+          dirents.filter((i) => i.isDirectory()),
+          (i) => searchScriptRoot(path.join(dirName, i.name))
+        );
   };
 
-  const extExists = (dirName: string, regex: RegExp): boolean => {
-    const dirents = readdirSync(dirName, {
+  const extExists = async (
+    dirName: string,
+    regex: RegExp
+  ): Promise<boolean> => {
+    const dirents = await readdir(dirName, {
       withFileTypes: true,
     });
     return dirents.filter((i) => i.isFile() && regex.test(i.name)).length > 0
@@ -1106,7 +1123,7 @@ async function installScript(instPath: string) {
       'old',
       'old_*',
     ];
-    const scriptRoot = searchScriptRoot(unzippedPath)[0];
+    const scriptRoot = (await searchScriptRoot(unzippedPath))[0];
     const entriesToCopy = (
       await readdir(scriptRoot, {
         withFileTypes: true,
@@ -1144,8 +1161,8 @@ async function installScript(instPath: string) {
 
     // Rename the extracted folder
     const newPath = path.join(path.dirname(unzippedPath), id);
-    if (existsSync(newPath)) rmdirSync(newPath, { recursive: true });
-    renameSync(unzippedPath, newPath);
+    if (existsSync(newPath)) await rmdir(newPath, { recursive: true });
+    await rename(unzippedPath, newPath);
 
     // Save package information
     const packageItem = {
@@ -1167,7 +1184,7 @@ async function installScript(instPath: string) {
       modList.getLocalPackagesDataUrl(instPath),
       packageItem
     );
-    apmJson.addPackage(instPath, {
+    await apmJson.addPackage(instPath, {
       id: packageItem.id,
       info: packageItem,
     });
@@ -1286,6 +1303,15 @@ async function displayNicommonsIdList(instPath: string) {
     };
     type: string[];
   };
+
+  const asyncFilter = async <T>(
+    array: T[],
+    predicate: (value: T, index: number, array: T[]) => Promise<unknown>
+  ) => {
+    const bits = await Promise.all(array.map(predicate));
+    return array.filter((_, i) => bits[i]);
+  };
+
   const packagesWithNicommonsId: [
     PackageItemWithNicommonsId,
     PackageItemWithNicommonsId,
@@ -1303,10 +1329,12 @@ async function displayNicommonsIdList(instPath: string) {
       },
       type: [] as never[],
     },
-    ...packages.filter(
-      (value) =>
-        apmJson.has(instPath, 'packages.' + value.id) && value.info.nicommons
-    ),
+    ...(await asyncFilter(
+      packages,
+      async (value) =>
+        (await apmJson.has(instPath, 'packages.' + value.id)) &&
+        value.info.nicommons
+    )),
   ];
 
   // show the package list
