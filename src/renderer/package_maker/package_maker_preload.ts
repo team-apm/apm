@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 import ClipboardJS from 'clipboard/src/clipboard';
 import log from 'electron-log';
 import { XMLBuilder } from 'fast-xml-parser';
-import fs from 'fs-extra';
+import * as fs from 'fs-extra';
 import path from 'path';
 // 'Sortable' is not actually exported as ESModules. So, ignore the warning.
 // eslint-disable-next-line import/no-named-as-default
@@ -35,8 +35,11 @@ const imageExtention = [
   '.webp',
   '.svg',
 ];
-const searchFiles = (dirName: string, directory = false): string[] => {
-  const dirents = fs.readdirSync(dirName, {
+const searchFiles = async (
+  dirName: string,
+  directory = false
+): Promise<string[]> => {
+  const dirents = await fs.readdir(dirName, {
     withFileTypes: true,
   });
   return [].concat(
@@ -325,7 +328,7 @@ window.addEventListener('load', () => {
     clearList();
 
     // folder
-    searchFiles(unzippedPath, true)
+    (await searchFiles(unzippedPath, true))
       .filter((i) => i !== unzippedPath)
       .map((i) => path.relative(unzippedPath, i).replaceAll('\\', '/'))
       .forEach((f) => {
@@ -344,7 +347,7 @@ window.addEventListener('load', () => {
       });
 
     // file
-    searchFiles(unzippedPath, false)
+    (await searchFiles(unzippedPath, false))
       .filter((i) => i !== unzippedPath)
       .map((i) => path.relative(unzippedPath, i).replaceAll('\\', '/'))
       .forEach((f) => {

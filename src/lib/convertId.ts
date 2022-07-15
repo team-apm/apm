@@ -19,14 +19,14 @@ export async function getIdDict(
       subDir: 'package',
       keyText: dictUrl,
     });
-    return convertJson ? fs.readJsonSync(convertJson) : {};
+    return convertJson ? await fs.readJson(convertJson) : {};
   } else {
     const convertJson = await existsTempFile(
       path.join('package', path.basename(dictUrl)),
       dictUrl
     );
     if (convertJson.exists) {
-      return fs.readJsonSync(convertJson.path);
+      return await fs.readJson(convertJson.path);
     } else {
       return {};
     }
@@ -40,7 +40,7 @@ export async function getIdDict(
  * @param {number} modTime - A mod time.
  */
 export async function convertId(instPath: string, modTime: number) {
-  const packages = apmJson.get(instPath, 'packages') as {
+  const packages = (await apmJson.get(instPath, 'packages')) as {
     [key: string]: { id: string };
   };
 
@@ -54,6 +54,6 @@ export async function convertId(instPath: string, modTime: number) {
     }
   }
 
-  apmJson.set(instPath, 'packages', packages);
-  apmJson.set(instPath, 'convertMod', modTime);
+  await apmJson.set(instPath, 'packages', packages);
+  await apmJson.set(instPath, 'convertMod', modTime);
 }

@@ -1,5 +1,5 @@
 import { shell } from 'electron';
-import fs from 'fs';
+import { existsSync, unlink } from 'fs-extra';
 import path from 'path';
 
 const getShortcutPath = (appDataPath: string) =>
@@ -25,12 +25,12 @@ export function addAviUtlShortcut(appDataPath: string, targetEXE: string) {
  *
  * @param {string} appDataPath - The path to AppData
  */
-export function removeAviUtlShortcut(appDataPath: string) {
+export async function removeAviUtlShortcut(appDataPath: string) {
   if (
     process.platform === 'win32' &&
-    fs.existsSync(getShortcutPath(appDataPath))
+    existsSync(getShortcutPath(appDataPath))
   ) {
-    fs.unlinkSync(getShortcutPath(appDataPath));
+    await unlink(getShortcutPath(appDataPath));
   }
 }
 

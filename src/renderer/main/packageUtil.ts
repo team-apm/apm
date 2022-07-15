@@ -1,5 +1,5 @@
 import log from 'electron-log';
-import fs from 'fs-extra';
+import * as fs from 'fs-extra';
 import path from 'path';
 import * as apmJson from '../../lib/apmJson';
 import { download, existsTempFile, openDialog } from '../../lib/ipcWrapper';
@@ -160,28 +160,39 @@ async function downloadRepository(packageDataUrls: string[]) {
  * @param {string} instPath - An installation path
  * @returns {string[]} List of installed files
  */
-function getInstalledFiles(instPath: string) {
+async function getInstalledFiles(instPath: string) {
   const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn|lua)$/;
-  const safeReaddirSync = (path: string) => {
+  const safeReaddir = async (path: string) => {
     try {
-      return fs.readdirSync(path, { withFileTypes: true });
+      return await fs.readdir(path, { withFileTypes: true });
     } catch (e) {
       if (e.code === 'ENOENT') return [];
       log.error(e);
       throw e;
     }
   };
-  const readdir = (dir: string) =>
-    safeReaddirSync(dir)
+  // https://zenn.dev/repomn/scraps/d80ccd5c9183f0
+  const asyncFlatMap = async <Item, Res>(
+    arr: Item[],
+    callback: (value: Item, index: number, array: Item[]) => Promise<Res>
+  ) => {
+    const a = await Promise.all(arr.map(callback));
+    return a.flat();
+  };
+  const readdir = async (dir: string) =>
+    (await safeReaddir(dir))
       .filter((i) => i.isFile() && regex.test(i.name))
       .map((i) => i.name);
-  return readdir(instPath).concat(
-    readdir(path.join(instPath, 'plugins')).map((i) => 'plugins/' + i),
-    readdir(path.join(instPath, 'script')).map((i) => 'script/' + i),
-    safeReaddirSync(path.join(instPath, 'script'))
-      .filter((i) => i.isDirectory())
-      .map((i) => 'script/' + i.name)
-      .flatMap((i) => readdir(path.join(instPath, i)).map((j) => i + '/' + j))
+  return (await readdir(instPath)).concat(
+    (await readdir(path.join(instPath, 'plugins'))).map((i) => 'plugins/' + i),
+    (await readdir(path.join(instPath, 'script'))).map((i) => 'script/' + i),
+    await asyncFlatMap(
+      (await safeReaddir(path.join(instPath, 'script')))
+        .filter((i) => i.isDirectory())
+        .map((i) => 'script/' + i.name),
+      async (i) =>
+        (await readdir(path.join(instPath, i))).map((j) => i + '/' + j)
+    )
   );
 }
 
@@ -277,15 +288,15 @@ function getInstalledVersionOfPackage(
  * @param {string} instPath - An installation path
  * @returns {object} List of manually installed files
  */
-function getPackagesExtra(_packages: PackageItem[], instPath: string) {
+async function getPackagesExtra(_packages: PackageItem[], instPath: string) {
   const packages = [..._packages].map((p) => {
     return { ...p };
   });
-  const tmpInstalledPackages = apmJson.get(
+  const tmpInstalledPackages = (await apmJson.get(
     instPath,
     'packages'
-  ) as ApmJsonObject['packages'];
-  const tmpInstalledFiles = getInstalledFiles(instPath);
+  )) as ApmJsonObject['packages'];
+  const tmpInstalledFiles = await getInstalledFiles(instPath);
   const tmpManuallyInstalledFiles = getManuallyInstalledFiles(
     tmpInstalledFiles,
     tmpInstalledPackages,
@@ -313,7 +324,7 @@ function getPackagesExtra(_packages: PackageItem[], instPath: string) {
  * @param {object[]} _packages - A list of object parsed from packages.json and getPackagesExtra()
  * @returns {object[]} - packages
  */
-function getPackagesStatus(instPath: string, _packages: PackageItem[]) {
+async function getPackagesStatus(instPath: string, _packages: PackageItem[]) {
   const packages = [..._packages].map((p) => {
     return { ...p };
   });
@@ -322,8 +333,8 @@ function getPackagesStatus(instPath: string, _packages: PackageItem[]) {
   const aviUtlR = /aviutl\d/;
   const exeditR = /exedit\d/;
   try {
-    aviUtlVer = apmJson.get(instPath, 'core.' + 'aviutl', '') as string;
-    exeditVer = apmJson.get(instPath, 'core.' + 'exedit', '') as string;
+    aviUtlVer = (await apmJson.get(instPath, 'core.' + 'aviutl', '')) as string;
+    exeditVer = (await apmJson.get(instPath, 'core.' + 'exedit', '')) as string;
   } catch (e) {
     log.info(e);
   }
