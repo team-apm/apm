@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.3.0](https://github.com/team-apm/apm/compare/v3.2.0...v3.3.0) (2022-07-15)
+
+### Features
+
+- **packageUtil.js:** recognize lua files as AviUtl scripts ([16246a1](https://github.com/team-apm/apm/commit/16246a14fa5f2d30bf7c719fe47e6620fe601482))
+
+### Bug Fixes
+
+- **main.ts:** don't use getSavePath() ([0c03b9a](https://github.com/team-apm/apm/commit/0c03b9a1862b3d211c5fa3bd75b5108f426b7554))
+- **unzip.js:** add extract method with code page 932(Shift_JIS) ([5fb954f](https://github.com/team-apm/apm/commit/5fb954fbe52ea0d5d48dfdaa228b01d34b445be1))
+- **unzip.js:** assign new value to pathTo7zip ([c15d002](https://github.com/team-apm/apm/commit/c15d002225a537070397ad9e81d6f2ceed5ab7ca))
+- **unzip.js:** invert condition ([aeb397d](https://github.com/team-apm/apm/commit/aeb397d13e177cf0d697a7fe2dd675a6eb4bf7d9))
+
 ## [3.2.0](https://github.com/team-apm/apm/compare/v3.1.2...v3.2.0) (2022-06-26)
 
 ### Features
