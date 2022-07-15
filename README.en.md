@@ -136,6 +136,10 @@ ato lash
 - [@yumetodo](https://github.com/yumetodo)
   - Reviewing
 
+### Contributors
+
+- [@FOBshippingpoint](https://github.com/FOBshippingpoint)
+
 ## Thanks
 
 Many English documents have been translated with www.DeepL.com/Translator (free version)
