@@ -15,5 +15,5 @@
     },
     "jsx": "react"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "webpack.*.js", "*.config.js"]
 }
