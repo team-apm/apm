@@ -1,6 +1,7 @@
 import ClipboardJS from 'clipboard/src/clipboard';
 import log from 'electron-log';
 import Store from 'electron-store';
+import 'source-map-support/register';
 import {
   app,
   checkUpdate,

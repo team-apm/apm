@@ -17,6 +17,7 @@ import Store from 'electron-store';
 import windowStateKeeper from 'electron-window-state';
 import fs, { mkdir, readJsonSync } from 'fs-extra';
 import path from 'path';
+import 'source-map-support/register';
 import updateElectronApp from 'update-electron-app';
 import { getHash } from './lib/getHash';
 import * as shortcut from './lib/shortcut';

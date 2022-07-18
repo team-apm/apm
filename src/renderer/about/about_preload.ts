@@ -1,4 +1,5 @@
 import log from 'electron-log';
+import 'source-map-support/register';
 import { app, openDialog } from '../../lib/ipcWrapper';
 import replaceText from '../../lib/replaceText';
 
