@@ -116,9 +116,9 @@ function setZoomFactor(zoomFactorSelect: HTMLSelectElement) {
  *
  * @param {string} zoomFactor - A zoom factor to change.
  */
-function changeZoomFactor(zoomFactor: string) {
+async function changeZoomFactor(zoomFactor: string) {
   store.set('zoomFactor', zoomFactor);
-  changeMainZoomFactor(parseInt(zoomFactor) / 100);
+  await changeMainZoomFactor(parseInt(zoomFactor) / 100);
 }
 
 const setting = {
