@@ -7,9 +7,6 @@ import {
   isExeVersion,
   openAboutWindow,
   openDialog,
-  openGitHubIssue,
-  openGoogleForm,
-  openPackageMaker,
 } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
 import migration2to3 from '../../migration/migration2to3';
@@ -186,21 +183,6 @@ window.addEventListener('load', () => {
   const openAboutWindonBtn = document.getElementById('open-about-window');
   openAboutWindonBtn.addEventListener('click', () => {
     openAboutWindow();
-  });
-
-  const openGithubIssueBtn = document.getElementById('open-github-issue');
-  openGithubIssueBtn.addEventListener('click', () => {
-    openGitHubIssue();
-  });
-
-  const openGoogleFormBtn = document.getElementById('open-google-form');
-  openGoogleFormBtn.addEventListener('click', () => {
-    openGoogleForm();
-  });
-
-  const openPackageMakerBtn = document.getElementById('open-package-maker');
-  openPackageMakerBtn.addEventListener('click', () => {
-    openPackageMaker();
   });
 
   const exitAppBtn = document.getElementById('quit-app');

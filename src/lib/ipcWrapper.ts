@@ -150,27 +150,6 @@ export async function openAboutWindow() {
 }
 
 /**
- * Opens the GitHub Issue page in the default browser.
- */
-export async function openGitHubIssue() {
-  await ipcRenderer.invoke('open-github-issue');
-}
-
-/**
- * Opens the Google Form in the default browser.
- */
-export async function openGoogleForm() {
-  await ipcRenderer.invoke('open-google-form');
-}
-
-/**
- * Opens the package-maker window.
- */
-export async function openPackageMaker() {
-  await ipcRenderer.invoke('open-package-maker');
-}
-
-/**
  * Opens the confirm dialog for migration v1 to v2.
  */
 export async function migration1to2ConfirmDialog() {
