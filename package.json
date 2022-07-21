@@ -51,6 +51,7 @@
     "node-7z": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "source-map-support": "^0.5.21",
     "ssri": "^9.0.1",
     "twemoji": "^14.0.2",
     "update-electron-app": "^2.0.1",

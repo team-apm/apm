@@ -35,14 +35,14 @@ export async function removeAviUtlShortcut(appDataPath: string) {
 }
 
 /**
- * Uninstaller for shortcuts. This function MUST be executed before the squirrelCommand is interpreted.
+ * Uninstaller for shortcuts.
  *
  * @param {string} appDataPath - The path to AppData
  */
-export function uninstaller(appDataPath: string) {
+export async function uninstaller(appDataPath: string) {
   if (process.platform === 'win32') {
     const squirrelCommand = process.argv[1];
     if (squirrelCommand === '--squirrel-uninstall')
-      removeAviUtlShortcut(appDataPath);
+      await removeAviUtlShortcut(appDataPath);
   }
 }

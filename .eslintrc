@@ -6,9 +6,10 @@
     "es6": true
   },
   "parserOptions": {
-    "ecmaVersion": 2020
+    "ecmaVersion": 2020,
+    "project": "tsconfig.json"
   },
-  "plugins": ["jsdoc", "import"],
+  "plugins": ["jsdoc", "import", "@typescript-eslint"],
   "extends": [
     "eslint:recommended",
     "google",
@@ -24,7 +25,8 @@
   "rules": {
     "prefer-arrow-callback": "error",
     "valid-jsdoc": "off",
-    "@typescript-eslint/no-var-requires": "off"
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-floating-promises": "error"
   },
   "settings": {
     "import/resolver": {

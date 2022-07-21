@@ -105,7 +105,7 @@ async function getPackages(packageDataUrls: string[]) {
         jsonList.push(await parseJson.getPackages(packagesListFile.path));
       } catch {
         log.error('Failed data processing.');
-        openDialog(
+        await openDialog(
           'データ解析エラー',
           '取得したデータの処理に失敗しました。' +
             '\n' +

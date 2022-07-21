@@ -16,7 +16,7 @@ rules.push({
 plugins.push(new MiniCssExtractPlugin());
 
 module.exports = {
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   module: {
     rules,
   },
