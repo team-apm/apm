@@ -146,7 +146,7 @@ async function displayInstalledVersion(instPath: string) {
     ) {
       addAviUtlShortcut(appDataPath, aviutlPath);
     } else {
-      await removeAviUtlShortcut(appDataPath);
+      removeAviUtlShortcut(appDataPath);
     }
   }
 }

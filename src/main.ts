@@ -48,6 +48,7 @@ log.catchErrors({
   },
 });
 
+shortcut.uninstaller(app.getPath('appData'));
 if (require('electron-squirrel-startup')) app.quit();
 log.debug(process.versions);
 
@@ -317,8 +318,6 @@ app.on(
  * Launch the app.
  */
 async function launch() {
-  await shortcut.uninstaller(app.getPath('appData'));
-
   try {
     const doAutoUpdate = store.get('autoUpdate');
     if (!isDevEnv && typeof doAutoUpdate === 'string') {

@@ -1,5 +1,5 @@
 import { shell } from 'electron';
-import { existsSync, unlink } from 'fs-extra';
+import { existsSync, unlinkSync } from 'fs-extra';
 import path from 'path';
 
 const getShortcutPath = (appDataPath: string) =>
@@ -25,24 +25,24 @@ export function addAviUtlShortcut(appDataPath: string, targetEXE: string) {
  *
  * @param {string} appDataPath - The path to AppData
  */
-export async function removeAviUtlShortcut(appDataPath: string) {
+export function removeAviUtlShortcut(appDataPath: string) {
   if (
     process.platform === 'win32' &&
     existsSync(getShortcutPath(appDataPath))
   ) {
-    await unlink(getShortcutPath(appDataPath));
+    unlinkSync(getShortcutPath(appDataPath));
   }
 }
 
 /**
- * Uninstaller for shortcuts.
+ * Uninstaller for shortcuts. This function must be executed before uninstalling apm. Therefore, it is placed before the interpretation of squirrelCommand.
  *
  * @param {string} appDataPath - The path to AppData
  */
-export async function uninstaller(appDataPath: string) {
+export function uninstaller(appDataPath: string) {
   if (process.platform === 'win32') {
     const squirrelCommand = process.argv[1];
     if (squirrelCommand === '--squirrel-uninstall')
-      await removeAviUtlShortcut(appDataPath);
+      removeAviUtlShortcut(appDataPath);
   }
 }
