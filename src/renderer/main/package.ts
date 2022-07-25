@@ -533,7 +533,7 @@ async function installPackage(
     role === roles.Event_Handler &&
     selectedEntryType === entryType.scriptSite
   ) {
-    installScript(instPath);
+    await installScript(instPath);
     return;
   }
 

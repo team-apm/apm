@@ -17,6 +17,7 @@ import Store from 'electron-store';
 import windowStateKeeper from 'electron-window-state';
 import fs, { mkdir, readJsonSync } from 'fs-extra';
 import path from 'path';
+import 'source-map-support/register';
 import updateElectronApp from 'update-electron-app';
 import { getHash } from './lib/getHash';
 import * as shortcut from './lib/shortcut';
@@ -49,6 +50,7 @@ log.catchErrors({
 
 shortcut.uninstaller(app.getPath('appData'));
 if (require('electron-squirrel-startup')) app.quit();
+log.debug(process.versions);
 
 const isDevEnv = process.env.NODE_ENV === 'development';
 if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Dev');
@@ -82,7 +84,7 @@ if (!store.has('autoUpdate')) {
  *
  * @param {boolean} [silent] - Whether the dialog is not shown if apm is up to date.
  */
-function checkUpdate(silent = true) {
+async function checkUpdate(silent = true) {
   const server = 'https://update.electronjs.org';
 
   const pkg = readJsonSync(path.join(app.getAppPath(), 'package.json'));
@@ -98,14 +100,14 @@ function checkUpdate(silent = true) {
   }/${app.getVersion()}`;
 
   if (repoURL.hostname === 'github.com') {
-    app.whenReady().then(() => {
+    await app.whenReady().then(() => {
       const request = net.request(feed);
-      request.on('response', (response) => {
+      request.on('response', async (response) => {
         const icon = path.join(__dirname, '../icon/apm1024.png');
         if (response.statusCode === 204) {
           log.debug('It is up to date.');
           if (!silent)
-            dialog.showMessageBox({
+            await dialog.showMessageBox({
               title: '更新確認完了',
               message: 'apmは最新のバージョンです。',
               type: 'info',
@@ -114,7 +116,7 @@ function checkUpdate(silent = true) {
         } else if (response.statusCode === 404) {
           log.debug('No updates are found');
           if (!silent)
-            dialog.showMessageBox({
+            await dialog.showMessageBox({
               title: '更新確認失敗',
               message: 'apmの更新が見つかりませんでした。',
               type: 'warning',
@@ -145,14 +147,14 @@ function checkUpdate(silent = true) {
                 });
                 if (res === 0) {
                   const releasePage = `https://github.com/${repo}/releases/latest`;
-                  shell.openExternal(releasePage);
+                  await shell.openExternal(releasePage);
                   app.quit();
                 }
               }
             } catch (e) {
               log.error(e);
               if (!silent)
-                dialog.showMessageBox({
+                await dialog.showMessageBox({
                   title: '更新確認失敗',
                   message: 'apmの更新を解析できませんでした。',
                   type: 'error',
@@ -166,21 +168,6 @@ function checkUpdate(silent = true) {
     });
   }
 }
-
-try {
-  const doAutoUpdate = store.get('autoUpdate');
-  if (!isDevEnv && typeof doAutoUpdate === 'string') {
-    if (doAutoUpdate === 'download') {
-      updateElectronApp({ repo: 'team-apm/apm', logger: log });
-    } else if (doAutoUpdate === 'notify') {
-      checkUpdate();
-    }
-  }
-} catch (e) {
-  log.error(e);
-}
-
-log.debug(process.versions);
 
 const icon =
   process.platform === 'linux'
@@ -207,8 +194,8 @@ ipcMain.handle('is-exe-version', () => {
   return isExeVersion();
 });
 
-ipcMain.handle('check-update', () => {
-  checkUpdate(false);
+ipcMain.handle('check-update', async () => {
+  await checkUpdate(false);
 });
 
 ipcMain.handle('open-path', (event, relativePath) => {
@@ -330,7 +317,20 @@ app.on(
 /**
  * Launch the app.
  */
-function launch() {
+async function launch() {
+  try {
+    const doAutoUpdate = store.get('autoUpdate');
+    if (!isDevEnv && typeof doAutoUpdate === 'string') {
+      if (doAutoUpdate === 'download') {
+        updateElectronApp({ repo: 'team-apm/apm', logger: log });
+      } else if (doAutoUpdate === 'notify') {
+        await checkUpdate();
+      }
+    }
+  } catch (e) {
+    log.error(e);
+  }
+
   const splashWindow = new BrowserWindow({
     width: 640,
     height: 360,
@@ -344,7 +344,7 @@ function launch() {
     splashWindow.show();
   });
 
-  splashWindow.loadURL(SPLASH_WINDOW_WEBPACK_ENTRY);
+  await splashWindow.loadURL(SPLASH_WINDOW_WEBPACK_ENTRY);
 
   const mainWindowState = windowStateKeeper({
     defaultWidth: 800,
@@ -376,15 +376,15 @@ function launch() {
 
   Menu.setApplicationMenu(null);
 
-  mainWindow.webContents.on('will-navigate', (event, url) => {
+  mainWindow.webContents.on('will-navigate', async (event, url) => {
     if (url.match(/^http/)) {
       event.preventDefault();
-      shell.openExternal(url);
+      await shell.openExternal(url);
     }
   });
   mainWindow.webContents.setWindowOpenHandler((details) => {
     if (details.url.match(/^http/)) {
-      shell.openExternal(details.url);
+      void shell.openExternal(details.url);
     }
     return { action: 'deny' };
   });
@@ -397,7 +397,7 @@ function launch() {
     mainWindowState.manage(mainWindow);
   });
 
-  ipcMain.handle('open-about-window', () => {
+  ipcMain.handle('open-about-window', async () => {
     const aboutPath = ABOUT_WINDOW_WEBPACK_ENTRY;
     const aboutWindow = new BrowserWindow({
       width: 480,
@@ -419,7 +419,7 @@ function launch() {
     aboutWindow.once('ready-to-show', () => {
       aboutWindow.show();
     });
-    aboutWindow.loadURL(aboutPath);
+    await aboutWindow.loadURL(aboutPath);
   });
 
   ipcMain.handle('migration1to2-confirm-dialog', async () => {
@@ -506,7 +506,7 @@ function launch() {
       }
     });
 
-    browserWindow.loadURL(url);
+    await browserWindow.loadURL(url);
 
     return await new Promise((resolve) => {
       const history: string[] = [];
@@ -549,14 +549,14 @@ function launch() {
     }, 2000);
   });
 
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  await mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 }
 
-app.whenReady().then(() => {
-  launch();
+void app.whenReady().then(async () => {
+  await launch();
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) launch();
+  app.on('activate', async () => {
+    if (BrowserWindow.getAllWindows().length === 0) await launch();
   });
 });
 

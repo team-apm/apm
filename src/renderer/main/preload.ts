@@ -1,6 +1,7 @@
 import ClipboardJS from 'clipboard/src/clipboard';
 import log from 'electron-log';
 import Store from 'electron-store';
+import 'source-map-support/register';
 import {
   app,
   checkUpdate,
@@ -16,8 +17,8 @@ import setting from './setting';
 const store = new Store();
 
 log.catchErrors({
-  onError: () => {
-    openDialog(
+  onError: async () => {
+    await openDialog(
       'エラー',
       `予期しないエラーが発生しました。\nログファイル: ${
         log.transports.file.getFile().path
@@ -163,13 +164,13 @@ window.addEventListener('load', () => {
   const zoomFactorSelect = document.getElementById(
     'zoom-factor-select'
   ) as HTMLInputElement;
-  zoomFactorSelect.addEventListener('input', () => {
-    setting.changeZoomFactor(zoomFactorSelect.value);
+  zoomFactorSelect.addEventListener('input', async () => {
+    await setting.changeZoomFactor(zoomFactorSelect.value);
   });
 
   const checkApmUpdateBtn = document.getElementById('check-apm-update');
-  checkApmUpdateBtn.addEventListener('click', () => {
-    checkUpdate();
+  checkApmUpdateBtn.addEventListener('click', async () => {
+    await checkUpdate();
   });
 
   const autoUpdateRadios = document.getElementsByName('auto-update');
@@ -181,12 +182,12 @@ window.addEventListener('load', () => {
 
   // About / Others
   const openAboutWindonBtn = document.getElementById('open-about-window');
-  openAboutWindonBtn.addEventListener('click', () => {
-    openAboutWindow();
+  openAboutWindonBtn.addEventListener('click', async () => {
+    await openAboutWindow();
   });
 
   const exitAppBtn = document.getElementById('quit-app');
-  exitAppBtn.addEventListener('click', () => {
-    app.quit();
+  exitAppBtn.addEventListener('click', async () => {
+    await app.quit();
   });
 });

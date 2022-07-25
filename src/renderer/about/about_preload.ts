@@ -1,10 +1,11 @@
 import log from 'electron-log';
+import 'source-map-support/register';
 import { app, openDialog } from '../../lib/ipcWrapper';
 import replaceText from '../../lib/replaceText';
 
 log.catchErrors({
-  onError: () => {
-    openDialog(
+  onError: async () => {
+    await openDialog(
       'エラー',
       `予期しないエラーが発生しました。\nログファイル: ${
         log.transports.file.getFile().path
