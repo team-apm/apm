@@ -29,7 +29,7 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
   const { enableButton } =
     btn instanceof HTMLButtonElement
       ? buttonTransition.loading(btn, '設定')
-      : undefined;
+      : { enableButton: undefined };
 
   if (!dataUrl.value) {
     dataUrl.value = 'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/v3/';

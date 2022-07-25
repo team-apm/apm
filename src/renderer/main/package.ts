@@ -540,7 +540,7 @@ async function installPackage(
   const btn = document.getElementById('install-package') as HTMLButtonElement;
   const { enableButton } = btn
     ? buttonTransition.loading(btn, 'インストール')
-    : null;
+    : { enableButton: null };
 
   if (!instPath) {
     log.error('An installation path is not selected.');
