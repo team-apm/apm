@@ -339,15 +339,6 @@
     "@malept/cross-spawn-promise" "^2.0.0"
     fs-extra "^10.0.0"
 
-"@electron-forge/maker-base@6.0.0-beta.64":
-  version "6.0.0-beta.64"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.0-beta.64.tgz#0f19563a06f0e5499892aec9fe8edd8853304b29"
-  integrity sha512-jQbZgnsTpDK60KXhJWiDhmo7aHsBMnfZIpbr4w9QhjPPbQKUqcUo6Geg2OFbX+9HTGOz1jUC4jDbVPvR+zmzuQ==
-  dependencies:
-    "@electron-forge/shared-types" "6.0.0-beta.64"
-    fs-extra "^10.0.0"
-    which "^2.0.2"
-
 "@electron-forge/maker-base@6.0.0-beta.65":
   version "6.0.0-beta.65"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.0-beta.65.tgz#79b4e2a4b418e3d97416db32003eca5c67c9233b"
@@ -357,13 +348,13 @@
     fs-extra "^10.0.0"
     which "^2.0.2"
 
-"@electron-forge/maker-deb@^6.0.0-beta.64":
-  version "6.0.0-beta.64"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.0.0-beta.64.tgz#e5bba1c661cb67bee40a8af84ea8abca82ab8094"
-  integrity sha512-6dDcJ5xoiDMPPVnNzIl3M7St31hZtIvplVtJ8P9A01DDEPrA8gsQbWMgQDHg8EgbbvMlErqbGqiWSybzoqlBrw==
+"@electron-forge/maker-deb@^6.0.0-beta.65":
+  version "6.0.0-beta.65"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.0.0-beta.65.tgz#5e2e76945801d81fa7d8ab7a9b7a6bc68c0b4cf7"
+  integrity sha512-hnFPb5QAN1TATzp8AIXmJneHGnYwcFUWT4nNOhsjEwj9klWLETk6BL2Yi3FWqv8hgSDnN8TqQYLsuK6pEX+8bw==
   dependencies:
-    "@electron-forge/maker-base" "6.0.0-beta.64"
-    "@electron-forge/shared-types" "6.0.0-beta.64"
+    "@electron-forge/maker-base" "6.0.0-beta.65"
+    "@electron-forge/shared-types" "6.0.0-beta.65"
   optionalDependencies:
     electron-installer-debian "^3.0.0"
 
