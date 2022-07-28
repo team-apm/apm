@@ -367,7 +367,9 @@ async function installProgram(
   version: string,
   instPath: string
 ) {
-  const { enableButton } = btn ? buttonTransition.loading(btn) : null;
+  const { enableButton } = btn
+    ? buttonTransition.loading(btn)
+    : { enableButton: null };
 
   if (!instPath) {
     log.error('An installation path is not selected.');
