@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.4.0](https://github.com/team-apm/apm/compare/v3.3.0...v3.4.0) (2022-07-28)
+
+### Features
+
+- remove a utility ([6c66d45](https://github.com/team-apm/apm/commit/6c66d450302d35ca8c871a6c7f15633126360f3e))
+- remove package-maker ([1415287](https://github.com/team-apm/apm/commit/14152870283a7682b8a33a99920ed65f6bb04155))
+
+### Bug Fixes
+
+- fix batch installation ([2136ac7](https://github.com/team-apm/apm/commit/2136ac75b5770ec723eea48db2587a51465944d7))
+- make uninstaller() a synchronous function ([7e8acd7](https://github.com/team-apm/apm/commit/7e8acd730b65e8e9bc1ffedea65bcccb929e61d7))
+
 ## [3.3.0](https://github.com/team-apm/apm/compare/v3.2.0...v3.3.0) (2022-07-15)
 
 ### Features
