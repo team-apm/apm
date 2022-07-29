@@ -193,17 +193,6 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@electron-forge/async-ora@6.0.0-beta.64":
-  version "6.0.0-beta.64"
-  resolved "https://registry.yarnpkg.com/@electron-forge/async-ora/-/async-ora-6.0.0-beta.64.tgz#40a35004b74aece2db8584dbaf034cf0d1f0864b"
-  integrity sha512-27ACgh9VhM+ahqTNIFeCfKuSoZxM/8dQp99ZMAgMFzcniKkNCXLxsbGF/7esu++zarDqhSUOhf70Z2bffgjX2w==
-  dependencies:
-    chalk "^4.0.0"
-    debug "^4.3.1"
-    log-symbols "^4.0.0"
-    ora "^5.0.0"
-    pretty-ms "^7.0.0"
-
 "@electron-forge/async-ora@6.0.0-beta.65":
   version "6.0.0-beta.65"
   resolved "https://registry.yarnpkg.com/@electron-forge/async-ora/-/async-ora-6.0.0-beta.65.tgz#2e9088942e55e7509550d821510ac17e8d3606b5"
@@ -445,16 +434,6 @@
     debug "^4.3.1"
     fs-extra "^10.0.0"
     mime-types "^2.1.25"
-
-"@electron-forge/shared-types@6.0.0-beta.64":
-  version "6.0.0-beta.64"
-  resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.0.0-beta.64.tgz#be87fe0bd4b27ca8d3b93b9bd943f59bf56befd4"
-  integrity sha512-E+uIpZsKPku4QHWzBGNm5RkcOyLXn98qHvJevziKnUOfRSe2y66XFpHyu9FmBnEYYoyGDvBktV70yK6gsjdigQ==
-  dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.64"
-    electron-packager "^15.4.0"
-    electron-rebuild "^3.2.6"
-    ora "^5.0.0"
 
 "@electron-forge/shared-types@6.0.0-beta.65":
   version "6.0.0-beta.65"
@@ -3301,10 +3280,10 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@^18.3.5:
-  version "18.3.5"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-18.3.5.tgz#a589c2bfa3fe807914a055f54f665999329b739b"
-  integrity sha512-/GJ39X3ijpyZiOtYQ1ha5Ly0hWiIzF19CGEapM9euaM2AZrmt79x+MckQDXqJxOaVA9YHXju5Ho6b9pB9a/2pQ==
+electron@^18.3.6:
+  version "18.3.6"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-18.3.6.tgz#33739f44cb0a74e45c3efd879485af53c7c531c5"
+  integrity sha512-o1cArbCDkRKOJRKk+UXiBv7/wVa0jA0k0U3LGfMcYaq+M3m20EQ5hUxC5xCHxyLYSdkriAjEp3VDaGP9EwjBsQ==
   dependencies:
     "@electron/get" "^1.13.0"
     "@types/node" "^16.11.26"
