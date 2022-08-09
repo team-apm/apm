@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.4.1](https://github.com/team-apm/apm/compare/v3.4.0...v3.4.1) (2022-08-09)
+
+### Bug Fixes
+
+- fix updating package list ([0ca4c62](https://github.com/team-apm/apm/commit/0ca4c624b8a7ce93c93ad373142626a554f58ea5)), closes [#746](https://github.com/team-apm/apm/issues/746)
+
 ## [3.4.0](https://github.com/team-apm/apm/compare/v3.3.0...v3.4.0) (2022-07-28)
 
 ### Features
