@@ -144,14 +144,12 @@ async function getPackages(packageDataUrls: string[]) {
  * @param {string[]} packageDataUrls - URLs of the repository
  */
 async function downloadRepository(packageDataUrls: string[]) {
-  await Promise.all(
-    packageDataUrls.map((packageRepository) =>
-      download(packageRepository, {
-        subDir: 'package',
-        keyText: packageRepository,
-      })
-    )
-  );
+  for (const packageRepository of packageDataUrls) {
+    await download(packageRepository, {
+      subDir: 'package',
+      keyText: packageRepository,
+    });
+  }
 }
 
 /**
