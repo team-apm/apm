@@ -144,14 +144,13 @@ async function getPackages(packageDataUrls: string[]) {
  * @param {string[]} packageDataUrls - URLs of the repository
  */
 async function downloadRepository(packageDataUrls: string[]) {
-  await Promise.all(
-    packageDataUrls.map((packageRepository) =>
-      download(packageRepository, {
-        subDir: 'package',
-        keyText: packageRepository,
-      })
-    )
-  );
+  // 'electron-dl' does not download all files when downloading them asynchronously.
+  for (const packageRepository of packageDataUrls) {
+    await download(packageRepository, {
+      subDir: 'package',
+      keyText: packageRepository,
+    });
+  }
 }
 
 /**
