@@ -4,12 +4,15 @@ import { app, openDialog } from '../../lib/ipcWrapper';
 import replaceText from '../../lib/replaceText';
 
 log.catchErrors({
-  onError: async () => {
+  onError: async (e, versions) => {
+    log.error(e);
+    log.info(versions);
+
     await openDialog(
       'エラー',
       `予期しないエラーが発生しました。\nログファイル: ${
         log.transports.file.getFile().path
-      }`,
+      }\nエラーメッセージ: ${e.message}`,
       'error'
     );
   },

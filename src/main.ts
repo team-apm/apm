@@ -30,16 +30,27 @@ declare const ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 log.catchErrors({
   showDialog: false,
-  onError: () => {
+  onError: (e, versions, submitIssue) => {
+    log.error(e);
+    log.info(versions);
+
     const options = {
       title: 'エラー',
       message: `予期しないエラーが発生したため、AviUtl Package Managerを終了します。\nログファイル: ${
         log.transports.file.getFile().path
-      }`,
+      }\nエラーメッセージ: ${e.message}`,
+      detail: e.stack,
       type: 'error',
+      buttons: ['終了', '報告する'],
     };
     if (app.isReady()) {
-      dialog.showMessageBoxSync(options);
+      const response = dialog.showMessageBoxSync(options);
+      if (response === 1) {
+        submitIssue('https://github.com/team-apm/apm/issues/new', {
+          title: `${versions.app}のエラー報告`,
+          body: 'Error:\n```' + e.stack + '\n```\n' + `OS: ${versions.os}`,
+        });
+      }
     } else {
       dialog.showErrorBox(options.title, options.message);
     }
