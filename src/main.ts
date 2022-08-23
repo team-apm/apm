@@ -344,7 +344,7 @@ async function launch() {
     splashWindow.show();
   });
 
-  await splashWindow.loadURL(SPLASH_WINDOW_WEBPACK_ENTRY);
+  void splashWindow.loadURL(SPLASH_WINDOW_WEBPACK_ENTRY);
 
   const mainWindowState = windowStateKeeper({
     defaultWidth: 800,
@@ -419,7 +419,7 @@ async function launch() {
     aboutWindow.once('ready-to-show', () => {
       aboutWindow.show();
     });
-    await aboutWindow.loadURL(aboutPath);
+    void aboutWindow.loadURL(aboutPath);
   });
 
   ipcMain.handle('migration1to2-confirm-dialog', async () => {
@@ -506,7 +506,7 @@ async function launch() {
       }
     });
 
-    await browserWindow.loadURL(url);
+    void browserWindow.loadURL(url);
 
     return await new Promise((resolve) => {
       const history: string[] = [];
@@ -549,7 +549,7 @@ async function launch() {
     }, 2000);
   });
 
-  await mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  void mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 }
 
 void app.whenReady().then(async () => {
