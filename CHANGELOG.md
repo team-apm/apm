@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.4.3](https://github.com/team-apm/apm/compare/v3.4.2...v3.4.3) (2022-08-24)
+
+### Bug Fixes
+
+- **main.ts:** don't await loadURL ([d2129bb](https://github.com/team-apm/apm/commit/d2129bb574086c187180e51413bb422498b96750))
+
 ### [3.4.2](https://github.com/team-apm/apm/compare/v3.4.1...v3.4.2) (2022-08-18)
 
 ### Bug Fixes
