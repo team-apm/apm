@@ -1522,9 +1522,9 @@ anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apm-schema@team-apm/apm-schema#v3.1.0:
+apm-schema@team-apm/apm-schema#v3.2.0:
   version "3.0.0"
-  resolved "https://codeload.github.com/team-apm/apm-schema/tar.gz/4bea96aca08324616eb5098faf5d17a4323f03a0"
+  resolved "https://codeload.github.com/team-apm/apm-schema/tar.gz/51969e7040bfa276c6ba80401a64a86c2f6326bf"
 
 aproba@^1.0.3:
   version "1.2.0"
