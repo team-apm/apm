@@ -1,4 +1,4 @@
-import compareVersions from 'compare-versions';
+import { compareVersions } from 'compare-versions';
 
 /**
  *  Compare the two given versions.
