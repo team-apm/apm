@@ -80,7 +80,7 @@
     "@typescript-eslint/eslint-plugin": "^5.35.1",
     "@typescript-eslint/parser": "^5.35.1",
     "@vercel/webpack-asset-relocator-loader": "1.7.3",
-    "apm-schema": "team-apm/apm-schema#v3.1.0",
+    "apm-schema": "team-apm/apm-schema#v3.2.0",
     "commitizen": "^4.2.5",
     "conventional-github-releaser": "^3.1.5",
     "cross-env": "^7.0.3",

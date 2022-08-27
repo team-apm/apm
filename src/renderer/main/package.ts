@@ -180,7 +180,13 @@ async function setPackagesList(instPath: string) {
 
   packagesList.innerHTML = null;
 
-  for (const packageItem of packages) {
+  for (const packageItem of packages.filter(
+    (p) =>
+      !(
+        p.info.isHidden &&
+        p.installationStatus === packageUtil.states.notInstalled
+      )
+  )) {
     const {
       li,
       name,
