@@ -107,7 +107,7 @@
     "standard-version": "^9.5.0",
     "style-loader": "^3.0.0",
     "ts-loader": "^9.3.1",
-    "typescript": "~4.8.2"
+    "typescript": "~4.8.3"
   },
   "config": {
     "forge": "./forge.config.js",
