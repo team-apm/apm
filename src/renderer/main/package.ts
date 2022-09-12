@@ -1070,10 +1070,12 @@ async function installScript(instPath: string) {
     });
     return dirents.filter((i) => i.isFile() && regex.test(i.name)).length > 0
       ? true
-      : dirents
-          .filter((i) => i.isDirectory())
-          .map((i) => extExists(path.join(dirName, i.name), regex))
-          .some((e) => e);
+      : (
+          await asyncFlatMap(
+            dirents.filter((i) => i.isDirectory()),
+            (i) => extExists(path.join(dirName, i.name), regex)
+          )
+        ).some((e) => e);
   };
 
   try {
@@ -1096,7 +1098,7 @@ async function installScript(instPath: string) {
     };
     const unzippedPath = await getUnzippedPath();
 
-    if (!extExists(unzippedPath, scriptExtRegex)) {
+    if (!(await extExists(unzippedPath, scriptExtRegex))) {
       log.error('No script files are included.');
       buttonTransition.message(btn, 'スクリプトが含まれていません。', 'danger');
       setTimeout(() => {
@@ -1104,7 +1106,7 @@ async function installScript(instPath: string) {
       }, 3000);
       return;
     }
-    if (extExists(unzippedPath, pluginExtRegex)) {
+    if (await extExists(unzippedPath, pluginExtRegex)) {
       log.error('Plugin files are included.');
       buttonTransition.message(
         btn,
