@@ -1,6 +1,6 @@
 import log from 'electron-log';
 import Store from 'electron-store';
-import fs from 'fs-extra';
+import { existsSync, readdir, rename, unlink } from 'fs-extra';
 import path from 'path';
 import * as apmJson from '../lib/apmJson';
 import {
@@ -43,7 +43,7 @@ async function global() {
       const newDataURL = await migration1to2DataurlInputDialog();
       if (!newDataURL) {
         continue;
-      } else if (!newDataURL.startsWith('http') && !fs.existsSync(newDataURL)) {
+      } else if (!newDataURL.startsWith('http') && !existsSync(newDataURL)) {
         await openDialog(
           'エラー',
           '有効なURLまたは場所を入力してください。',
@@ -83,7 +83,7 @@ async function global() {
     path.join(dataFolder, 'mod.xml'),
     path.join(dataFolder, 'core/core.xml'),
     ...(
-      await fs.readdir(path.join(dataFolder, 'package/'), {
+      await readdir(path.join(dataFolder, 'package/'), {
         withFileTypes: true,
       })
     )
@@ -95,7 +95,7 @@ async function global() {
   ];
   files.forEach(async (file) => {
     try {
-      await fs.unlink(file);
+      await unlink(file);
     } catch (e) {
       log.error(e);
     }
@@ -120,7 +120,7 @@ async function global() {
 async function byFolder(instPath: string) {
   // Guard condition
   const jsonPath = apmJson.getPath(instPath);
-  const jsonExists = fs.existsSync(jsonPath);
+  const jsonExists = existsSync(jsonPath);
   if (!jsonExists) return;
 
   const isVerOne = !(await apmJson.has(instPath, 'dataVersion'));
@@ -134,8 +134,8 @@ async function byFolder(instPath: string) {
 
   // 2. Renaming the local repository
   try {
-    if (fs.existsSync(path.join(instPath, 'packages_list.xml'))) {
-      await fs.rename(
+    if (existsSync(path.join(instPath, 'packages_list.xml'))) {
+      await rename(
         path.join(instPath, 'packages_list.xml'),
         path.join(instPath, 'packages.xml')
       );
