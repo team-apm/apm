@@ -879,10 +879,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/bootstrap@^5.2.3":
-  version "5.2.3"
-  resolved "https://registry.yarnpkg.com/@types/bootstrap/-/bootstrap-5.2.3.tgz#562defe61dac6c9598843d4088de8007a36607bd"
-  integrity sha512-r2SE9NYaaI7B/jJk8gqRtXzlhgFL6dlXBResJkCbQa8ept619WeiOIO4zBQxdmUFzkKNWLK5ZOyYGI3QZoaqbQ==
+"@types/bootstrap@^5.2.4":
+  version "5.2.4"
+  resolved "https://registry.yarnpkg.com/@types/bootstrap/-/bootstrap-5.2.4.tgz#7f4f4af8e22af8247385549bd2f687088d00d2d3"
+  integrity sha512-jGNB81zuDHu1DPvBV7Ox3Z3eyzdWPNguYwrt0j7X90VExA8H7c6qxJh0cz5j3xp0XvSy1TYaP2pkyXCHeo8CaA==
   dependencies:
     "@popperjs/core" "^2.9.2"
 
