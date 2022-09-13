@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.5.0](https://github.com/team-apm/apm/compare/v3.4.3...v3.5.0) (2022-09-13)
+
+### Features
+
+- **package.ts:** use isHidden attribute ([389e0fc](https://github.com/team-apm/apm/commit/389e0fcf62d7ece45d9d430dfee2973afff95094))
+
+### Bug Fixes
+
+- **compareVersions.ts:** support for named exports ([f34e7aa](https://github.com/team-apm/apm/commit/f34e7aa4465df9ae444cc1acff2903ab2c910bc4))
+- fix the problem in installing a script from a website ([e77d28f](https://github.com/team-apm/apm/commit/e77d28f4d891c9da9562c8f4a67faf2b1f73530d)), closes [#807](https://github.com/team-apm/apm/issues/807)
+
 ### [3.4.3](https://github.com/team-apm/apm/compare/v3.4.2...v3.4.3) (2022-08-24)
 
 ### Bug Fixes
