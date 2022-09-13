@@ -9,7 +9,7 @@ import {
   readdir,
   readJson,
   rename,
-  rmdir,
+  rm,
 } from 'fs-extra';
 import List, { ListItem } from 'list.js';
 import * as matcher from 'matcher';
@@ -1169,7 +1169,7 @@ async function installScript(instPath: string) {
 
     // Rename the extracted folder
     const newPath = path.join(path.dirname(unzippedPath), id);
-    if (existsSync(newPath)) await rmdir(newPath, { recursive: true });
+    if (existsSync(newPath)) await rm(newPath, { recursive: true });
     await rename(unzippedPath, newPath);
 
     // Save package information
