@@ -371,6 +371,7 @@ async function launch() {
     titleBarOverlay: getTitleBarColor(),
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      sandbox: false,
     },
   });
 
@@ -409,6 +410,7 @@ async function launch() {
       icon: icon,
       webPreferences: {
         preload: ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY,
+        sandbox: false,
       },
     });
     aboutWindow.once('close', () => {
