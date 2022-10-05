@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "7zip-bin": "^5.2.0",
-    "bootstrap": "^5.2.1",
+    "bootstrap": "^5.2.2",
     "bootstrap-dark-5": "^1.1.3",
     "bootstrap-icons": "^1.9.1",
     "clipboard": "^2.0.11",
@@ -68,7 +68,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^6.0.0-beta.66",
     "@electron-forge/plugin-webpack": "6.0.0-beta.66",
     "@electron-forge/publisher-github": "^6.0.0-beta.66",
-    "@types/bootstrap": "^5.2.4",
+    "@types/bootstrap": "^5.2.5",
     "@types/electron-prompt": "^1.6.1",
     "@types/electron-window-state": "^5.0.0",
     "@types/fs-extra": "^9.0.13",
