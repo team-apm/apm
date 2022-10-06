@@ -345,6 +345,15 @@
     fs-extra "^10.0.0"
     which "^2.0.2"
 
+"@electron-forge/maker-base@6.0.0-beta.67":
+  version "6.0.0-beta.67"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.0-beta.67.tgz#4c7f5d8e8b3c0008b3de4218aac4daac83e40786"
+  integrity sha512-WYwY01zEUr1II5lXiaGmGDUZ12swB/MJBOE5JNtGnirh6y/0MlSWhQOjbZxmLG72MrKbnEjvyqOb/8+3Yk4hzg==
+  dependencies:
+    "@electron-forge/shared-types" "6.0.0-beta.67"
+    fs-extra "^10.0.0"
+    which "^2.0.2"
+
 "@electron-forge/maker-deb@^6.0.0-beta.66":
   version "6.0.0-beta.66"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.0.0-beta.66.tgz#d3919fd2fbe4b2fea0bd851899b64be264875c7d"
@@ -355,13 +364,13 @@
   optionalDependencies:
     electron-installer-debian "^3.0.0"
 
-"@electron-forge/maker-rpm@^6.0.0-beta.66":
-  version "6.0.0-beta.66"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.0.0-beta.66.tgz#e9c7e8f98721ecf0f283f7c23d5a3e156947c931"
-  integrity sha512-z0opMvxEHvsZGB6RteSQ8euUTtG6i608bKO6gPFvFqop0gkoZyWwy0utXAEIZfy00P0U/krXzgf1tMqmGMkMcA==
+"@electron-forge/maker-rpm@^6.0.0-beta.67":
+  version "6.0.0-beta.67"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.0.0-beta.67.tgz#09cedb896461924dc82029e3034b4b9d24fd0882"
+  integrity sha512-VlgVlaM3D1RbaQeQO7+mpP9ZJ7LVAdCU5j/ILvsEL7BXKsOEwQxKQZmsn9dru2q7B9+FQTdk8wYdt01bEquRCw==
   dependencies:
-    "@electron-forge/maker-base" "6.0.0-beta.66"
-    "@electron-forge/shared-types" "6.0.0-beta.66"
+    "@electron-forge/maker-base" "6.0.0-beta.67"
+    "@electron-forge/shared-types" "6.0.0-beta.67"
   optionalDependencies:
     electron-installer-redhat "^3.2.0"
 
