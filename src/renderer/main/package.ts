@@ -220,6 +220,10 @@ async function setPackagesList(instPath: string) {
         tmpli.classList.remove('list-group-item-secondary');
       }
       li.classList.add('list-group-item-secondary');
+      document.getElementById('install-package').innerText =
+        installationStatus.innerText.startsWith('インストール済み')
+          ? '更新'
+          : 'インストール';
     });
     name.innerText = packageItem.info.name;
     overview.innerText = packageItem.info.overview;

@@ -95,3 +95,7 @@ section#nicommons img {
     max-height: 96px;
   }
 }
+
+#install-package {
+  min-width: 8rem;
+}
