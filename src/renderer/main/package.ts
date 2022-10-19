@@ -323,6 +323,7 @@ async function setPackagesList(instPath: string) {
         tmpli.classList.remove('list-group-item-secondary');
       }
       li.classList.add('list-group-item-secondary');
+      replaceText('install-package', 'インストール');
     });
     name.innerText = webpage.developer;
     overview.innerText = '配布サイトからスクリプトをインストール';
