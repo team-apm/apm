@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.6.0](https://github.com/team-apm/apm/compare/v3.5.0...v3.6.0) (2022-10-26)
+
+### Features
+
+- switch button text according to installation status ([56f3b60](https://github.com/team-apm/apm/commit/56f3b6095db2c0128e701f9c1528c78e86ae837c)), closes [#838](https://github.com/team-apm/apm/issues/838)
+
 ## [3.5.0](https://github.com/team-apm/apm/compare/v3.4.3...v3.5.0) (2022-09-13)
 
 ### Features
