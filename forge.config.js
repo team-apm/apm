@@ -56,9 +56,9 @@ module.exports = {
     },
   ],
   plugins: [
-    [
-      '@electron-forge/plugin-webpack',
-      {
+    {
+      name: '@electron-forge/plugin-webpack',
+      config: {
         mainConfig: './webpack.main.config.js',
         devServer: { liveReload: false },
         devContentSecurityPolicy:
@@ -90,7 +90,7 @@ module.exports = {
           ],
         },
       },
-    ],
-    ['@electron-forge/plugin-auto-unpack-natives'],
+    },
+    { name: '@electron-forge/plugin-auto-unpack-natives', config: {} },
   ],
 };
