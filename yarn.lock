@@ -416,14 +416,14 @@
   dependencies:
     "@electron-forge/shared-types" "6.0.0-beta.70"
 
-"@electron-forge/publisher-github@^6.0.0-beta.69":
-  version "6.0.0-beta.69"
-  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-github/-/publisher-github-6.0.0-beta.69.tgz#b0659c4c161bbb8d43ce421738a1a05773fbcc8a"
-  integrity sha512-BFy2zGrcqE3X+fbR+H4OopNVLmK1ykMc4ZHmeHR/YocLipX8V2ajrACi3NTrIlnknJK6Ix3jMiabBKJ8vdGwgg==
+"@electron-forge/publisher-github@^6.0.0-beta.70":
+  version "6.0.0-beta.70"
+  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-github/-/publisher-github-6.0.0-beta.70.tgz#e8030da66e586f51a908fbd42c1b0271a333f964"
+  integrity sha512-Msf75yvXtqfXHAqAgoFz0ta5XlF3ISGbIKGEm0Q6CZEbjQcCBRKuIZQ5Cle+rFJJYdBp7CeyIGD1UDHAQv1qww==
   dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.69"
-    "@electron-forge/publisher-base" "6.0.0-beta.69"
-    "@electron-forge/shared-types" "6.0.0-beta.69"
+    "@electron-forge/async-ora" "6.0.0-beta.70"
+    "@electron-forge/publisher-base" "6.0.0-beta.70"
+    "@electron-forge/shared-types" "6.0.0-beta.70"
     "@octokit/core" "^3.2.4"
     "@octokit/plugin-retry" "^3.0.9"
     "@octokit/rest" "^18.0.11"
