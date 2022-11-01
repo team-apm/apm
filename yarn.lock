@@ -274,13 +274,22 @@
     fs-extra "^10.0.0"
     which "^2.0.2"
 
-"@electron-forge/maker-deb@^6.0.0-beta.70":
-  version "6.0.0-beta.70"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.0.0-beta.70.tgz#5ff0d84b51397fb05aa063110ac64a3edd2ed64e"
-  integrity sha512-iYXueVOg0wO9jG/htArA9WdS6TR7ZVyILoJGP0rKOrGnDuvHTyPufbucNHSwFjsrb8lNv+iW3xmenCYreNtUFw==
+"@electron-forge/maker-base@6.0.0-beta.74":
+  version "6.0.0-beta.74"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.0-beta.74.tgz#78893f2818909dd9856f868c1bd77a89888f1856"
+  integrity sha512-qUsh4Zv5xqxlZkjFOuy/FZrV3gMQmcHYmkMLx9gFgl9chX8kunSsQC51Vbp6i2/2ladpadHzNDWpf4olIA5jaw==
   dependencies:
-    "@electron-forge/maker-base" "6.0.0-beta.70"
-    "@electron-forge/shared-types" "6.0.0-beta.70"
+    "@electron-forge/shared-types" "6.0.0-beta.74"
+    fs-extra "^10.0.0"
+    which "^2.0.2"
+
+"@electron-forge/maker-deb@^6.0.0-beta.74":
+  version "6.0.0-beta.74"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.0.0-beta.74.tgz#52b1d68a49119045f07ed83e0abf293c340c3b50"
+  integrity sha512-DjxpU0FamTLFlwO2ursbuUFo6FkH1dB2qKOb+pL51L/j5Y6WX0y3YahIZ8ixk1sZlcedsie3YzgMQQ2/vn7fxA==
+  dependencies:
+    "@electron-forge/maker-base" "6.0.0-beta.74"
+    "@electron-forge/shared-types" "6.0.0-beta.74"
   optionalDependencies:
     electron-installer-debian "^3.0.0"
 
