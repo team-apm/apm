@@ -60,7 +60,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.2.0",
-    "@electron-forge/cli": "^6.0.0-beta.70",
+    "@electron-forge/cli": "^6.0.0-beta.74",
     "@electron-forge/maker-deb": "^6.0.0-beta.74",
     "@electron-forge/maker-rpm": "^6.0.0-beta.70",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.70",
