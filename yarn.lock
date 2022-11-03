@@ -246,23 +246,6 @@
     semver "^7.2.1"
     yarn-or-npm "^3.0.1"
 
-"@electron-forge/core-utils@6.0.0-beta.75":
-  version "6.0.0-beta.75"
-  resolved "https://registry.yarnpkg.com/@electron-forge/core-utils/-/core-utils-6.0.0-beta.75.tgz#9f2db631e7c36406df0c92196b3b02168f562707"
-  integrity sha512-MiCoG+b/km8Re2Xz779EHgtMI5juipBcTDCyeNRxqB3ITVvWno/UxI7m4YN+Iw35QMFBeu4OKyXCPd2ef1+bcA==
-  dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.75"
-    "@electron-forge/shared-types" "6.0.0-beta.75"
-    "@electron/rebuild" "^3.2.10"
-    "@malept/cross-spawn-promise" "^2.0.0"
-    chalk "^4.0.0"
-    debug "^4.3.1"
-    find-up "^5.0.0"
-    fs-extra "^10.0.0"
-    log-symbols "^4.0.0"
-    semver "^7.2.1"
-    yarn-or-npm "^3.0.1"
-
 "@electron-forge/core@6.0.0":
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/@electron-forge/core/-/core-6.0.0.tgz#dd703b95b0d90946234429d8810e6417428f65ba"
@@ -361,13 +344,13 @@
     cross-zip "^4.0.0"
     fs-extra "^10.0.0"
 
-"@electron-forge/plugin-auto-unpack-natives@^6.0.0-beta.75":
-  version "6.0.0-beta.75"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.0.0-beta.75.tgz#b0cacc78be6bd4340833dd92801d521af28da8f6"
-  integrity sha512-0EmVnS5X2UfG+fLQREeJ2kDYrKauGAhcTdbG9eFa4X5c1f4a0uRsNIQwGeEBvmpaADaFwQbZ/i4EzIQ4VF3MnA==
+"@electron-forge/plugin-auto-unpack-natives@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.0.0.tgz#fb75637bef37b3fd532dea710251187213dd037c"
+  integrity sha512-YD347k/1FBIPsE5zpuigeF7CB614xJkoVp1EIsdeLUd778qJDDVRPdg9xH8ngz3v4xTZCspxRBGINRbfeZnFjw==
   dependencies:
-    "@electron-forge/plugin-base" "6.0.0-beta.75"
-    "@electron-forge/shared-types" "6.0.0-beta.75"
+    "@electron-forge/plugin-base" "6.0.0"
+    "@electron-forge/shared-types" "6.0.0"
 
 "@electron-forge/plugin-base@6.0.0":
   version "6.0.0"
@@ -375,13 +358,6 @@
   integrity sha512-0PVEz0cFL0KKlBfyCaLVKfdOkdaSlJu+vl3oGLZoDVyOw3wNu5Tk2o84gKgkgtZ1jZTH3dmxUhimdWSMYl0QYA==
   dependencies:
     "@electron-forge/shared-types" "6.0.0"
-
-"@electron-forge/plugin-base@6.0.0-beta.75":
-  version "6.0.0-beta.75"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-base/-/plugin-base-6.0.0-beta.75.tgz#b0fef8936d870e63ab1a10d2c71b4443974ad48c"
-  integrity sha512-FwkocnFvyxJTtzykk31sgQ+DRdSWo8ztJp9HSr1Kh2tB67CPV63cxkQ52jZFjq/Mhp/ziE6ujSBQVcftZNEhHg==
-  dependencies:
-    "@electron-forge/shared-types" "6.0.0-beta.75"
 
 "@electron-forge/plugin-webpack@6.0.0":
   version "6.0.0"
