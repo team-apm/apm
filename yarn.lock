@@ -329,20 +329,13 @@
     cross-zip "^4.0.0"
     fs-extra "^10.0.0"
 
-"@electron-forge/plugin-auto-unpack-natives@^6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.0.0.tgz#fb75637bef37b3fd532dea710251187213dd037c"
-  integrity sha512-YD347k/1FBIPsE5zpuigeF7CB614xJkoVp1EIsdeLUd778qJDDVRPdg9xH8ngz3v4xTZCspxRBGINRbfeZnFjw==
+"@electron-forge/plugin-auto-unpack-natives@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.0.1.tgz#d319793fc6c0bf6874418390c43b3c4eb9590d6a"
+  integrity sha512-ytTicdoe0JqfgF8KqXT1HE1OStAcN04VfXbd9fwV98mT/5+njGjBNlVZU3MquzE3KoIt3ywM1L0JjWpmBnF5Tw==
   dependencies:
-    "@electron-forge/plugin-base" "6.0.0"
-    "@electron-forge/shared-types" "6.0.0"
-
-"@electron-forge/plugin-base@6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-base/-/plugin-base-6.0.0.tgz#6363357006bf79bb6293bb29a804799534acfe5f"
-  integrity sha512-0PVEz0cFL0KKlBfyCaLVKfdOkdaSlJu+vl3oGLZoDVyOw3wNu5Tk2o84gKgkgtZ1jZTH3dmxUhimdWSMYl0QYA==
-  dependencies:
-    "@electron-forge/shared-types" "6.0.0"
+    "@electron-forge/plugin-base" "6.0.1"
+    "@electron-forge/shared-types" "6.0.1"
 
 "@electron-forge/plugin-base@6.0.1":
   version "6.0.1"
