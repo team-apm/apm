@@ -66,7 +66,7 @@
     "@electron-forge/maker-squirrel": "^6.0.1",
     "@electron-forge/maker-zip": "^6.0.1",
     "@electron-forge/plugin-auto-unpack-natives": "^6.0.1",
-    "@electron-forge/plugin-webpack": "6.0.1",
+    "@electron-forge/plugin-webpack": "6.0.3",
     "@electron-forge/publisher-github": "^6.0.1",
     "@types/bootstrap": "^5.2.6",
     "@types/electron-prompt": "^1.6.1",
