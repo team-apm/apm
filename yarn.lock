@@ -268,6 +268,15 @@
     fs-extra "^10.0.0"
     which "^2.0.2"
 
+"@electron-forge/maker-base@^6.0.3":
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.3.tgz#867e17eb68977a682b5d8938a04f6e0f23b39b53"
+  integrity sha512-VVuRSlUpyoUviqY9Rs4pdClYbdNjb9ELzO9xbyNQ07GUdwz7HBG/Rj5qTYKmFtlWzeMsiepLDO+JOz1EbVs15Q==
+  dependencies:
+    "@electron-forge/shared-types" "^6.0.3"
+    fs-extra "^10.0.0"
+    which "^2.0.2"
+
 "@electron-forge/maker-deb@^6.0.1":
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.0.1.tgz#fd80d8f73287658a1a719ca763ed1166bb0fd4ea"
@@ -299,13 +308,13 @@
   optionalDependencies:
     electron-winstaller "^5.0.0"
 
-"@electron-forge/maker-zip@^6.0.1":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-zip/-/maker-zip-6.0.1.tgz#8c17265f3ee0fb455b9bdef2e87d12b1ab7f46c2"
-  integrity sha512-1DozIyERrt18N9HcTpwedsgQAwHljkdhg7Q4t2jzPBmISmbcBPnvV3aCZZDmHjLStj7AUTBQC/hAQH/2JBL25A==
+"@electron-forge/maker-zip@^6.0.3":
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-zip/-/maker-zip-6.0.3.tgz#3909482afd2a89b771243216939b806469611818"
+  integrity sha512-p2otNglLyXgqCW3CUNe7JN5+TWCy89tg63wqyjjJG1kD0jZ1lZEkV+TIAJkWK752vju52SjEFt8GfhWd67eHjA==
   dependencies:
-    "@electron-forge/maker-base" "6.0.1"
-    "@electron-forge/shared-types" "6.0.1"
+    "@electron-forge/maker-base" "^6.0.3"
+    "@electron-forge/shared-types" "^6.0.3"
     cross-zip "^4.0.0"
     fs-extra "^10.0.0"
 
@@ -367,6 +376,15 @@
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.0.1.tgz#3f2b56ed67a68c94838d21e2ae16ba38ca9134ba"
   integrity sha512-htQjbiQY7ijuB8LGLiFtOY7qTW06YrvxFavlxOjzQnu4q7VooOZFE9pQpNxg0YgI59ntF/1x2Ad3Az+TjiuqHw==
+  dependencies:
+    "@electron/rebuild" "^3.2.10"
+    electron-packager "^17.1.1"
+    listr2 "^5.0.3"
+
+"@electron-forge/shared-types@^6.0.3":
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.0.3.tgz#54ac9e1f80afa8ee609d104611c05c0ddee53cb2"
+  integrity sha512-KHY3W1GrXN6jcvRJu4S8EWVAEtJ3FVugOlG37QiEkh8WV8VxxKRB2Z5IR6RDZ6pu4ijCM+/9uVmrNCCjBRPXqg==
   dependencies:
     "@electron/rebuild" "^3.2.10"
     electron-packager "^17.1.1"
