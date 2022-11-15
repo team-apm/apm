@@ -334,13 +334,13 @@
     cross-zip "^4.0.0"
     fs-extra "^10.0.0"
 
-"@electron-forge/plugin-auto-unpack-natives@^6.0.1":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.0.1.tgz#d319793fc6c0bf6874418390c43b3c4eb9590d6a"
-  integrity sha512-ytTicdoe0JqfgF8KqXT1HE1OStAcN04VfXbd9fwV98mT/5+njGjBNlVZU3MquzE3KoIt3ywM1L0JjWpmBnF5Tw==
+"@electron-forge/plugin-auto-unpack-natives@^6.0.3":
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.0.3.tgz#4b032ed6afa1b1e1785731890b09752fe2e0d674"
+  integrity sha512-OsSIMvMi80N+YRMqqXyIOpOW3Qtjs7OsOPaTExW+UThp52RI9l0NNutbpT+DlK1jK2hU94u8oWK8wZdumtyJZA==
   dependencies:
-    "@electron-forge/plugin-base" "6.0.1"
-    "@electron-forge/shared-types" "6.0.1"
+    "@electron-forge/plugin-base" "^6.0.3"
+    "@electron-forge/shared-types" "^6.0.3"
 
 "@electron-forge/plugin-base@6.0.1":
   version "6.0.1"
