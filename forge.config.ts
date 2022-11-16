@@ -30,14 +30,14 @@ const config: ForgeConfig = {
     new MakerZIP({}, ['win32', 'darwin', 'linux']),
     new MakerRpm({
       options: {
-        homepage: 'http://halshusato.starfree.jp/ato_lash/apm/',
+        homepage: 'https://team-apm.github.io/apm/',
         icon: path.join(__dirname, 'icon/apm1024.png'),
       },
     }),
     new MakerDeb({
       options: {
         maintainer: 'ato lash',
-        homepage: 'http://halshusato.starfree.jp/ato_lash/apm/',
+        homepage: 'https://team-apm.github.io/apm/',
         icon: path.join(__dirname, 'icon/apm1024.png'),
       },
     }),
