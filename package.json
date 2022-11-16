@@ -111,7 +111,6 @@
     "typescript": "~4.8.4"
   },
   "config": {
-    "forge": "./forge.config.js",
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }

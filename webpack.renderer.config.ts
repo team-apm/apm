@@ -1,7 +1,8 @@
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+import type { Configuration } from 'webpack';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
-const rules = require('./webpack.rules');
-const plugins = require('./webpack.plugins');
+import { rules } from './webpack.rules';
+import { plugins } from './webpack.plugins';
 
 rules.push({
   test: /\.html$/i,
@@ -15,12 +16,12 @@ rules.push({
 
 plugins.push(new MiniCssExtractPlugin());
 
-module.exports = {
+export const rendererConfig: Configuration = {
   devtool: 'inline-source-map',
   module: {
     rules,
   },
-  plugins: plugins,
+  plugins,
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
   },

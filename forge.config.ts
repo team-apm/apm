@@ -1,6 +1,18 @@
-const path = require('path');
+import type { ForgeConfig } from '@electron-forge/shared-types';
+import { MakerSquirrel } from '@electron-forge/maker-squirrel';
+import { MakerZIP } from '@electron-forge/maker-zip';
+import { MakerDeb } from '@electron-forge/maker-deb';
+import { MakerRpm } from '@electron-forge/maker-rpm';
+import { PublisherGithub } from '@electron-forge/publisher-github';
+import { WebpackPlugin } from '@electron-forge/plugin-webpack';
+import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 
-module.exports = {
+import path from 'path';
+
+import { mainConfig } from './webpack.main.config';
+import { rendererConfig } from './webpack.renderer.config';
+
+const config: ForgeConfig = {
   packagerConfig: {
     executableName: 'apm',
     icon: 'icon/apm',
@@ -10,87 +22,70 @@ module.exports = {
     extraResource: 'ThirdPartyNotices.txt',
   },
   makers: [
-    {
-      name: '@electron-forge/maker-squirrel',
-      config: {
-        name: 'apm',
-        exe: 'apm.exe',
-        iconUrl: path.join(__dirname, 'icon/apm.ico'),
+    new MakerSquirrel({
+      name: 'apm',
+      exe: 'apm.exe',
+      iconUrl: path.join(__dirname, 'icon/apm.ico'),
+    }),
+    new MakerZIP({}, ['win32', 'darwin', 'linux']),
+    new MakerRpm({
+      options: {
+        homepage: 'http://halshusato.starfree.jp/ato_lash/apm/',
+        icon: path.join(__dirname, 'icon/apm1024.png'),
       },
-    },
-    {
-      name: '@electron-forge/maker-zip',
-      platforms: ['win32', 'darwin', 'linux'],
-    },
-    {
-      name: '@electron-forge/maker-deb',
-      config: {
-        options: {
-          maintainer: 'ato lash',
-          homepage: 'http://halshusato.starfree.jp/ato_lash/apm/',
-          icon: path.join(__dirname, 'icon/apm1024.png'),
-        },
+    }),
+    new MakerDeb({
+      options: {
+        maintainer: 'ato lash',
+        homepage: 'http://halshusato.starfree.jp/ato_lash/apm/',
+        icon: path.join(__dirname, 'icon/apm1024.png'),
       },
-    },
-    {
-      name: '@electron-forge/maker-rpm',
-      config: {
-        options: {
-          maintainer: 'ato lash',
-          homepage: 'http://halshusato.starfree.jp/ato_lash/apm/',
-          icon: path.join(__dirname, 'icon/apm1024.png'),
-        },
-      },
-    },
+    }),
   ],
   publishers: [
-    {
-      name: '@electron-forge/publisher-github',
-      config: {
-        repository: {
-          owner: 'team-apm',
-          name: 'apm',
-        },
-        draft: true,
+    new PublisherGithub({
+      repository: {
+        owner: 'team-apm',
+        name: 'apm',
       },
-    },
+      draft: true,
+    }),
   ],
   plugins: [
-    {
-      name: '@electron-forge/plugin-webpack',
-      config: {
-        mainConfig: './webpack.main.config.js',
-        devServer: { liveReload: false },
-        devContentSecurityPolicy:
-          "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: https://twemoji.maxcdn.com/ https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp",
-        renderer: {
-          config: './webpack.renderer.config.js',
-          entryPoints: [
-            {
-              html: './src/renderer/main/index.html',
-              js: './src/renderer/main/renderer.ts',
-              name: 'main_window',
-              preload: {
-                js: './src/renderer/main/preload.ts',
-              },
+    new WebpackPlugin({
+      mainConfig: mainConfig,
+      devServer: { liveReload: false },
+      devContentSecurityPolicy:
+        "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: https://twemoji.maxcdn.com/ https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp",
+      renderer: {
+        config: rendererConfig,
+        entryPoints: [
+          {
+            html: './src/renderer/main/index.html',
+            js: './src/renderer/main/renderer.ts',
+            name: 'main_window',
+            preload: {
+              js: './src/renderer/main/preload.ts',
             },
-            {
-              html: './src/renderer/about/about.html',
-              js: './src/renderer/about/about_renderer.ts',
-              name: 'about_window',
-              preload: {
-                js: './src/renderer/about/about_preload.ts',
-              },
+          },
+          {
+            html: './src/renderer/about/about.html',
+            js: './src/renderer/about/about_renderer.ts',
+            name: 'about_window',
+            preload: {
+              js: './src/renderer/about/about_preload.ts',
             },
-            {
-              html: './src/renderer/splash/splash.html',
-              js: './src/renderer/splash/splash_renderer.ts',
-              name: 'splash_window',
-            },
-          ],
-        },
+          },
+          {
+            html: './src/renderer/splash/splash.html',
+            js: './src/renderer/splash/splash_renderer.ts',
+            name: 'splash_window',
+          },
+        ],
       },
-    },
-    { name: '@electron-forge/plugin-auto-unpack-natives', config: {} },
+    }),
+    new AutoUnpackNativesPlugin({}),
   ],
 };
+
+export default config;
