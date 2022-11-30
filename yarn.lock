@@ -430,7 +430,7 @@
   optionalDependencies:
     "@types/glob" "^7.1.1"
 
-"@electron/get@^1.13.0", "@electron/get@^1.14.1":
+"@electron/get@^1.13.0":
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/@electron/get/-/get-1.14.1.tgz#16ba75f02dffb74c23965e72d617adc721d27f40"
   integrity sha512-BrZYyL/6m0ZXz/lDxy/nlVhQz+WF+iPS6qXolEU8atw7h6v1aYkjwJZ63m+bJMBTxDE66X+r2tPS4a/8C82sZw==
@@ -3279,12 +3279,12 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@^20.3.7:
-  version "20.3.7"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-20.3.7.tgz#5363967df29afa3702bba759d65226c8d6e45f08"
-  integrity sha512-mPnQ6sYlQNXDTvUsGgQpMBB3RxWdEWE1bROhPtHuYo/Vzb+YiDCUreB83T5OmMK8oCl0xLya6xxPD6CANRThNA==
+electron@^22.0.0:
+  version "22.0.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-22.0.0.tgz#ef84ab9cf23aa3f8c2f42a1e8e000ad7fd941058"
+  integrity sha512-cgRc4wjyM+81A0E8UGv1HNJjL1HBI5cWNh/DUIjzYvoUuiEM0SS0hAH/zaFQ18xOz2ced6Yih8SybpOiOYJhdg==
   dependencies:
-    "@electron/get" "^1.14.1"
+    "@electron/get" "^2.0.0"
     "@types/node" "^16.11.26"
     extract-zip "^2.0.1"
 
