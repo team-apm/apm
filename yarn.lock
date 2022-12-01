@@ -315,20 +315,20 @@
     cross-zip "^4.0.0"
     fs-extra "^10.0.0"
 
-"@electron-forge/plugin-auto-unpack-natives@^6.0.3":
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.0.3.tgz#4b032ed6afa1b1e1785731890b09752fe2e0d674"
-  integrity sha512-OsSIMvMi80N+YRMqqXyIOpOW3Qtjs7OsOPaTExW+UThp52RI9l0NNutbpT+DlK1jK2hU94u8oWK8wZdumtyJZA==
+"@electron-forge/plugin-auto-unpack-natives@^6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.0.4.tgz#d0bbd649eaa90a57d397d8abc2298073f0e5f7b3"
+  integrity sha512-8Re9CMt8i8AvEuNK044rqmKxnwbsMht2KYJBKsreb9vtTcDhj6Cmop0cUd9UdmXQsudA9JR4d4bgt/1nmOkKNQ==
   dependencies:
-    "@electron-forge/plugin-base" "^6.0.3"
-    "@electron-forge/shared-types" "^6.0.3"
+    "@electron-forge/plugin-base" "^6.0.4"
+    "@electron-forge/shared-types" "^6.0.4"
 
-"@electron-forge/plugin-base@^6.0.3":
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-base/-/plugin-base-6.0.3.tgz#2822228ab30188740db752f660563c3c56117a84"
-  integrity sha512-WCNStkmpo60wzaPMkTMXteoEebsWaLMjaOpkIEVG5RCPR5YmJgLcFkaXLVheR0whPKxuRn/0f4C2mwoWPKdh7w==
+"@electron-forge/plugin-base@^6.0.3", "@electron-forge/plugin-base@^6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-base/-/plugin-base-6.0.4.tgz#a3b62e006632dab66d35f845ca61e09745ccbb82"
+  integrity sha512-iILzbFzmUIGggsTNL9PO1ma6e4OuuhKunNnOkpkoyg6jIaz8Oh1WSHhOALMztlBn2FhreabZnBRy7JsvHVDXlg==
   dependencies:
-    "@electron-forge/shared-types" "^6.0.3"
+    "@electron-forge/shared-types" "^6.0.4"
 
 "@electron-forge/plugin-webpack@6.0.3":
   version "6.0.3"
@@ -369,10 +369,10 @@
     fs-extra "^10.0.0"
     mime-types "^2.1.25"
 
-"@electron-forge/shared-types@^6.0.3":
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.0.3.tgz#54ac9e1f80afa8ee609d104611c05c0ddee53cb2"
-  integrity sha512-KHY3W1GrXN6jcvRJu4S8EWVAEtJ3FVugOlG37QiEkh8WV8VxxKRB2Z5IR6RDZ6pu4ijCM+/9uVmrNCCjBRPXqg==
+"@electron-forge/shared-types@^6.0.3", "@electron-forge/shared-types@^6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.0.4.tgz#f8cdcf453459caa156d513582054b8e81057584f"
+  integrity sha512-lILLKcGZqfJYVI1x6RssVh37E934rCOaSdBQ9I7LypdfI2NWL+5PLLoUqvXbok1V28m3/O5JrXdigwEIZdhjzQ==
   dependencies:
     "@electron/rebuild" "^3.2.10"
     electron-packager "^17.1.1"
