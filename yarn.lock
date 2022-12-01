@@ -265,16 +265,7 @@
     username "^5.1.0"
     yarn-or-npm "^3.0.1"
 
-"@electron-forge/maker-base@^6.0.3":
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.3.tgz#867e17eb68977a682b5d8938a04f6e0f23b39b53"
-  integrity sha512-VVuRSlUpyoUviqY9Rs4pdClYbdNjb9ELzO9xbyNQ07GUdwz7HBG/Rj5qTYKmFtlWzeMsiepLDO+JOz1EbVs15Q==
-  dependencies:
-    "@electron-forge/shared-types" "^6.0.3"
-    fs-extra "^10.0.0"
-    which "^2.0.2"
-
-"@electron-forge/maker-base@^6.0.4":
+"@electron-forge/maker-base@^6.0.3", "@electron-forge/maker-base@^6.0.4":
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.4.tgz#7de68dd11d2a670b552860aea01767870bb44f92"
   integrity sha512-qJJ2oPFlyt6u/H67WLfZL0JclSpFj4VwxPfwxqNL/HcwXULJcOeat7oqJLY9UKBE4U2j+++xbA3LSoPAErroIg==
@@ -314,13 +305,13 @@
   optionalDependencies:
     electron-winstaller "^5.0.0"
 
-"@electron-forge/maker-zip@^6.0.3":
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-zip/-/maker-zip-6.0.3.tgz#3909482afd2a89b771243216939b806469611818"
-  integrity sha512-p2otNglLyXgqCW3CUNe7JN5+TWCy89tg63wqyjjJG1kD0jZ1lZEkV+TIAJkWK752vju52SjEFt8GfhWd67eHjA==
+"@electron-forge/maker-zip@^6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-zip/-/maker-zip-6.0.4.tgz#db4cc7f44ccf1d30fa1bc95c36d6b9708d3e5888"
+  integrity sha512-tjBi46qU4vKpYUNUIv5ar6hBDjr9G7+QIUiaOj4UIN3Rwa20EvsYMBoMJBxV/CUUwkQc1NBihUPLco7PAVNb+g==
   dependencies:
-    "@electron-forge/maker-base" "^6.0.3"
-    "@electron-forge/shared-types" "^6.0.3"
+    "@electron-forge/maker-base" "^6.0.4"
+    "@electron-forge/shared-types" "^6.0.4"
     cross-zip "^4.0.0"
     fs-extra "^10.0.0"
 
