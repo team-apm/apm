@@ -356,13 +356,6 @@
     webpack-dev-server "^4.0.0"
     webpack-merge "^5.7.3"
 
-"@electron-forge/publisher-base@^6.0.3":
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-base/-/publisher-base-6.0.3.tgz#93fcce8eead7f14f5c77887c236660b6b2b63b04"
-  integrity sha512-Rkd3krCD/9QK+ZReT2r3Oy/a8Xr1YOhc3SYBEfAas5ZjJ+VWzmmo8QWckUD/gBxn2BueMWMvS16hDDu/z0vS0Q==
-  dependencies:
-    "@electron-forge/shared-types" "^6.0.3"
-
 "@electron-forge/publisher-base@^6.0.4":
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/@electron-forge/publisher-base/-/publisher-base-6.0.4.tgz#dd5db7ec04f8c5a6a70afa548950381052673806"
@@ -370,13 +363,13 @@
   dependencies:
     "@electron-forge/shared-types" "^6.0.4"
 
-"@electron-forge/publisher-github@^6.0.3":
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-github/-/publisher-github-6.0.3.tgz#55c5d789e8710662a77a2aaec252d012bea6a70e"
-  integrity sha512-lzmDEzuB4iBJeOv5Ct4MaVFu/ozAbNAXbkJSQJBfIoazESqHIdBR9Li6Fi87ybJJnW0qlImvGXXFr7acXoGl7w==
+"@electron-forge/publisher-github@^6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-github/-/publisher-github-6.0.4.tgz#42e8808cd261c1f7c660322c344f3f99d53a9295"
+  integrity sha512-VFElA3dnXsjCledOuQQZnslhvYZEOHi+N86GzCGSirUNHpMHTop8Ktp54cbfrJD+wNn42b0PGP5EvhbLYkS9PA==
   dependencies:
-    "@electron-forge/publisher-base" "^6.0.3"
-    "@electron-forge/shared-types" "^6.0.3"
+    "@electron-forge/publisher-base" "^6.0.4"
+    "@electron-forge/shared-types" "^6.0.4"
     "@octokit/core" "^3.2.4"
     "@octokit/plugin-retry" "^3.0.9"
     "@octokit/rest" "^18.0.11"
