@@ -265,7 +265,7 @@
     username "^5.1.0"
     yarn-or-npm "^3.0.1"
 
-"@electron-forge/maker-base@^6.0.3", "@electron-forge/maker-base@^6.0.4":
+"@electron-forge/maker-base@^6.0.4":
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.4.tgz#7de68dd11d2a670b552860aea01767870bb44f92"
   integrity sha512-qJJ2oPFlyt6u/H67WLfZL0JclSpFj4VwxPfwxqNL/HcwXULJcOeat7oqJLY9UKBE4U2j+++xbA3LSoPAErroIg==
@@ -369,7 +369,7 @@
     fs-extra "^10.0.0"
     mime-types "^2.1.25"
 
-"@electron-forge/shared-types@^6.0.3", "@electron-forge/shared-types@^6.0.4":
+"@electron-forge/shared-types@^6.0.4":
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.0.4.tgz#f8cdcf453459caa156d513582054b8e81057584f"
   integrity sha512-lILLKcGZqfJYVI1x6RssVh37E934rCOaSdBQ9I7LypdfI2NWL+5PLLoUqvXbok1V28m3/O5JrXdigwEIZdhjzQ==
@@ -4047,6 +4047,15 @@ fs-extra@^10.0.0, fs-extra@^10.1.0:
   version "10.1.0"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-10.1.0.tgz#02873cfbc4084dde127eaa5f9905eef2325d1abf"
   integrity sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==
+  dependencies:
+    graceful-fs "^4.2.0"
+    jsonfile "^6.0.1"
+    universalify "^2.0.0"
+
+fs-extra@^11.1.0:
+  version "11.1.0"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-11.1.0.tgz#5784b102104433bb0e090f48bfc4a30742c357ed"
+  integrity sha512-0rcTq621PD5jM/e0a3EJoGC/1TC5ZBCERW82LQuwfGnCa1V8w7dpYH1yNu+SLb6E5dkeCBzKEyLGlFrnr+dUyw==
   dependencies:
     graceful-fs "^4.2.0"
     jsonfile "^6.0.1"
