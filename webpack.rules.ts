@@ -15,6 +15,7 @@ export const rules: Required<ModuleOptions>['rules'] = [
       loader: '@vercel/webpack-asset-relocator-loader',
       options: {
         outputAssetBase: 'native_modules',
+        emitDirnameAll: true,
       },
     },
   },
