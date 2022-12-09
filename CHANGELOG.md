@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.6.2](https://github.com/team-apm/apm/compare/v3.6.1...v3.6.2) (2022-12-09)
+
+### Bug Fixes
+
+- fix the problem that 7-zip is not found ([2086717](https://github.com/team-apm/apm/commit/208671735beb9218e40e5c425f5a14a194ebc7da)), closes [#1018](https://github.com/team-apm/apm/issues/1018)
+
 ### [3.6.1](https://github.com/team-apm/apm/compare/v3.6.0...v3.6.1) (2022-12-08)
 
 ## [3.6.0](https://github.com/team-apm/apm/compare/v3.5.0...v3.6.0) (2022-10-26)
