@@ -58,5 +58,5 @@ lang: ja
 logo: /images/apm1024.png
 show_downloads: true
 github:
-  exe_url: https://github.com/team-apm/apm/releases/download/v3.6.0/AviUtl.Package.Manager-3.6.0.Setup.exe
-  zip_url: https://github.com/team-apm/apm/releases/download/v3.6.0/AviUtl.Package.Manager-win32-x64-3.6.0.zip
+  exe_url: https://github.com/team-apm/apm/releases/download/v3.6.2/AviUtl.Package.Manager-3.6.2.Setup.exe
+  zip_url: https://github.com/team-apm/apm/releases/download/v3.6.2/AviUtl.Package.Manager-win32-x64-3.6.2.zip
