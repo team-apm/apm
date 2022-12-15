@@ -84,7 +84,7 @@
     "commitizen": "^4.2.6",
     "conventional-github-releaser": "^3.1.5",
     "cross-env": "^7.0.3",
-    "css-loader": "^6.7.2",
+    "css-loader": "^6.7.3",
     "cz-conventional-changelog": "3.3.0",
     "cz-conventional-changelog-ja": "^0.0.2",
     "electron": "^20.3.7",
