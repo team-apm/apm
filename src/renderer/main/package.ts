@@ -87,6 +87,7 @@ async function setPackagesList(instPath: string) {
   packagesList2.innerHTML = null;
 
   const columns = [
+    'packageID',
     'name',
     'overview',
     'developer',
@@ -98,6 +99,7 @@ async function setPackagesList(instPath: string) {
     'dependencyInformation',
   ];
   const columnsDisp = [
+    'ID',
     '名前',
     '概要',
     '開発者',
@@ -189,6 +191,7 @@ async function setPackagesList(instPath: string) {
   )) {
     const {
       li,
+      packageID,
       name,
       developer,
       type,
@@ -201,6 +204,7 @@ async function setPackagesList(instPath: string) {
       installationStatus,
     } = makeLiFromArray([...columns, 'statusInformation']) as {
       li: HTMLLIElement;
+      packageID: HTMLDivElement;
       name: HTMLHeadingElement;
       developer: HTMLDivElement;
       type: HTMLDivElement;
@@ -225,6 +229,7 @@ async function setPackagesList(instPath: string) {
           ? '更新'
           : 'インストール';
     });
+    packageID.innerText = packageItem.id;
     name.innerText = packageItem.info.name;
     overview.innerText = packageItem.info.overview;
     developer.innerText = packageItem.info.originalDeveloper
@@ -351,10 +356,33 @@ async function setPackagesList(instPath: string) {
 
   // sorting and filtering
   if (typeof listJS === 'undefined') {
-    listJS = createList('packages', {
-      valueNames: columns,
-      fuzzySearch: { distance: 10000 }, // Ensure that searches are performed even on long strings.
-    });
+    listJS = createList(
+      'packages',
+      {
+        regex:
+          /^(([A-Za-z0-9]+\/[A-Za-z0-9]+)|([🍎🎞✂][0-9.]+))(,(([A-Za-z0-9]+\/[A-Za-z0-9]+)|([🍎🎞✂][0-9.]+)))*$/mu,
+        searchFunction: (
+          items: { values: () => { packageID?: string }; found?: boolean }[],
+          searchString
+        ) => {
+          items.forEach((item) => (item.found = false));
+          searchString
+            .toLowerCase()
+            .replaceAll('\\', '')
+            .split(',')
+            .forEach((id) => {
+              const foundItem = items.find(
+                (item) => item.values().packageID.toLocaleLowerCase() === id
+              );
+              if (foundItem) foundItem.found = true;
+            });
+        },
+      },
+      {
+        valueNames: columns,
+        fuzzySearch: { distance: 10000 }, // Ensure that searches are performed even on long strings.
+      }
+    );
   } else {
     listJS.reIndex();
     listJS.update();
