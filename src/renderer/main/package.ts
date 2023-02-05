@@ -14,7 +14,6 @@ import {
 import { ListItem } from 'list.js';
 import * as matcher from 'matcher';
 import path from 'path';
-import { safeRemove } from '../../lib/safeRemove';
 import twemoji from 'twemoji';
 import * as apmJson from '../../lib/apmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
@@ -23,6 +22,7 @@ import { getHash } from '../../lib/getHash';
 import { checkIntegrity, verifyFile } from '../../lib/integrity';
 import {
   app,
+  clipboardWriteText,
   download,
   getNicommonsData,
   openBrowser,
@@ -32,6 +32,7 @@ import {
 import * as modList from '../../lib/modList';
 import * as parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
+import { safeRemove } from '../../lib/safeRemove';
 import unzip from '../../lib/unzip';
 import createList, { UpdatableList } from '../../lib/updatableList';
 import { PackageItem } from '../../types/packageItem';
@@ -1484,6 +1485,61 @@ async function displayNicommonsIdList(instPath: string) {
   updateTextarea();
 }
 
+/**
+ * Returns a nicommonsID list separated by space.
+ *
+ * @param {string} instPath - An installation path.
+ */
+async function sharePackages(instPath: string) {
+  const btn = document.getElementById('share-packages') as HTMLButtonElement;
+  const { enableButton } = btn
+    ? buttonTransition.loading(btn, '共有')
+    : { enableButton: null };
+
+  const ver = {
+    apm: await app.getVersion(),
+    aviutl: '',
+    exedit: '',
+    packages: [''],
+  };
+  await app.getVersion();
+  for (const program of programs) {
+    const currentVersion = (await apmJson.get(
+      instPath,
+      'core.' + program
+    )) as string;
+    ver[program] = currentVersion;
+  }
+  ver.packages = (
+    await packageUtil.getPackagesExtra(await getPackages(instPath), instPath)
+  ).packages
+    .filter(
+      (p) =>
+        p.installationStatus === packageUtil.states.installed ||
+        p.installationStatus === packageUtil.states.manuallyInstalled
+    )
+    .map((p) => p.id)
+    .filter((id) => id.includes('/'))
+    .sort((a, b) => {
+      const compare = (a: string, b: string) => (a > b ? 1 : a < b ? -1 : 0);
+      const a2 = a.split('/');
+      const b2 = b.split('/');
+      return a2[0] === b2[0] ? compare(a2[1], b2[1]) : compare(a2[0], b2[0]);
+    });
+  await clipboardWriteText(
+    `ここにタイトルを入力🍎${ver.apm},🎞${ver.aviutl},✂${
+      ver.exedit
+    },${ver.packages.join(',')}`
+  );
+
+  buttonTransition.message(btn, 'コピーしました', 'info');
+  if (btn) {
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+  }
+}
+
 const packageMain = {
   getPackages,
   setPackagesList,
@@ -1495,5 +1551,6 @@ const packageMain = {
   installScript,
   listFilter,
   displayNicommonsIdList,
+  sharePackages,
 };
 export default packageMain;
