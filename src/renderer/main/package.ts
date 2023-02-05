@@ -35,7 +35,7 @@ import replaceText from '../../lib/replaceText';
 import unzip from '../../lib/unzip';
 import createList, { UpdatableList } from '../../lib/updatableList';
 import { PackageItem } from '../../types/packageItem';
-import { install, verifyFilesByCount } from './common';
+import { install, programs, programsDisp, verifyFilesByCount } from './common';
 import packageUtil from './packageUtil';
 const store = new Store();
 
@@ -377,8 +377,6 @@ async function setPackagesList(instPath: string) {
       if (foundItem) foundItem.found = true;
     });
     return (async () => {
-      const programs = ['aviutl', 'exedit'] as const;
-      const programDisp = { aviutl: 'AviUtl', exedit: '拡張編集' };
       const alertStrings = [];
       if (compareVersion(await app.getVersion(), searchVersions.apm) < 0)
         alertStrings.push(
@@ -391,7 +389,7 @@ async function setPackagesList(instPath: string) {
         )) as string;
         if (compareVersion(currentVersion, searchVersions[program]) !== 0)
           alertStrings.push(
-            `${programDisp[program]} ${searchVersions[program]} 用のデータです。使用中の ${programDisp[program]} ${currentVersion} には非対応の場合があります。`
+            `${programsDisp[program]} ${searchVersions[program]} 用のデータです。使用中の ${programsDisp[program]} ${currentVersion} には非対応の場合があります。`
           );
       }
       return alertStrings.join('\n');

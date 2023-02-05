@@ -22,14 +22,10 @@ import replaceText from '../../lib/replaceText';
 import { addAviUtlShortcut, removeAviUtlShortcut } from '../../lib/shortcut';
 import unzip from '../../lib/unzip';
 import migration2to3 from '../../migration/migration2to3';
-import { install, verifyFilesByCount } from './common';
+import { install, programs, programsDisp, verifyFilesByCount } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
 const store = new Store();
-type ProgramName = 'aviutl' | 'exedit';
-
-const programs: ProgramName[] = ['aviutl', 'exedit'];
-const programsDisp = ['AviUtl', '拡張編集'];
 
 // Functions to be exported
 
@@ -113,11 +109,11 @@ async function displayInstalledVersion(instPath: string) {
       if (isInstalled[p]) {
         const pTag = document.createElement('span');
         pTag.classList.add('text-muted');
-        pTag.innerText = '✔' + programsDisp[programs.indexOf(p)];
+        pTag.innerText = '✔' + programsDisp[p];
         batchInstallElm.appendChild(pTag);
         return [pTag];
       } else {
-        return [document.createTextNode(programsDisp[programs.indexOf(p)])];
+        return [document.createTextNode(programsDisp[p])];
       }
     })
     .reduce((a, b) => [].concat(a, document.createTextNode(' + '), b))
@@ -363,7 +359,7 @@ async function changeInstallationPath(instPath: string) {
  */
 async function installProgram(
   btn: HTMLButtonElement,
-  program: ProgramName,
+  program: (typeof programs)[number],
   version: string,
   instPath: string
 ) {

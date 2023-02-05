@@ -2,6 +2,10 @@ import log from 'electron-log';
 import fs, { copy, existsSync } from 'fs-extra';
 import path from 'path';
 import { safeRemove } from '../../lib/safeRemove';
+
+export const programs = ['aviutl', 'exedit'] as const;
+export const programsDisp = { aviutl: 'AviUtl', exedit: '拡張編集' };
+
 type Files = {
   filename: string;
   isUninstallOnly?: boolean;
