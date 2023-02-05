@@ -11,7 +11,7 @@ import {
   rename,
   rm,
 } from 'fs-extra';
-import List, { ListItem } from 'list.js';
+import { ListItem } from 'list.js';
 import * as matcher from 'matcher';
 import path from 'path';
 import { safeRemove } from '../../lib/safeRemove';
@@ -22,6 +22,7 @@ import compareVersion from '../../lib/compareVersion';
 import { getHash } from '../../lib/getHash';
 import { checkIntegrity, verifyFile } from '../../lib/integrity';
 import {
+  app,
   download,
   getNicommonsData,
   openBrowser,
@@ -32,7 +33,7 @@ import * as modList from '../../lib/modList';
 import * as parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
 import unzip from '../../lib/unzip';
-import createList from '../../lib/updatableList';
+import createList, { UpdatableList } from '../../lib/updatableList';
 import { PackageItem } from '../../types/packageItem';
 import { install, verifyFilesByCount } from './common';
 import packageUtil from './packageUtil';
@@ -48,7 +49,7 @@ const isMatch = (
 let selectedEntry: PackageItem | Scripts['webpage'][number];
 let selectedEntryType: string;
 const entryType = { package: 'package', scriptSite: 'script' };
-let listJS: List;
+let listJS: UpdatableList;
 
 /**
  * Get the date today
@@ -355,28 +356,54 @@ async function setPackagesList(instPath: string) {
   }
 
   // sorting and filtering
+  const searchRegex =
+    /^.*🍎([A-Za-z0-9.]+),🎞([A-Za-z0-9.]+),✂([A-Za-z0-9.]+)((,[A-Za-z0-9]+\/[A-Za-z0-9]+)*)$/u;
+  const searchFunction: UpdatableList['searchFunction'] = (
+    items: { values: () => { packageID?: string }; found?: boolean }[],
+    searchString
+  ) => {
+    items.forEach((item) => (item.found = false));
+    const searchStringArray = searchString.toLowerCase().match(searchRegex);
+    const searchVersions = {
+      apm: searchStringArray[1],
+      aviutl: searchStringArray[2],
+      exedit: searchStringArray[3],
+      packages: searchStringArray[4].split(',').slice(1),
+    };
+    searchVersions.packages.forEach((id) => {
+      const foundItem = items.find(
+        (item) => item.values().packageID.toLowerCase() === id
+      );
+      if (foundItem) foundItem.found = true;
+    });
+    return (async () => {
+      const programs = ['aviutl', 'exedit'] as const;
+      const programDisp = { aviutl: 'AviUtl', exedit: '拡張編集' };
+      const alertStrings = [];
+      if (compareVersion(await app.getVersion(), searchVersions.apm) < 0)
+        alertStrings.push(
+          '新しいバージョンのapmに対応したデータです。正しく読み込むためにapmの更新が必要な場合があります。'
+        );
+      for (const program of programs) {
+        const currentVersion = (await apmJson.get(
+          instPath,
+          'core.' + program
+        )) as string;
+        if (compareVersion(currentVersion, searchVersions[program]) !== 0)
+          alertStrings.push(
+            `${programDisp[program]} ${searchVersions[program]} 用のデータです。使用中の ${programDisp[program]} ${currentVersion} には非対応の場合があります。`
+          );
+      }
+      return alertStrings.join('\n');
+    })();
+  };
+
   if (typeof listJS === 'undefined') {
     listJS = createList(
       'packages',
       {
-        regex:
-          /^(([A-Za-z0-9]+\/[A-Za-z0-9]+)|([🍎🎞✂][0-9.]+))(,(([A-Za-z0-9]+\/[A-Za-z0-9]+)|([🍎🎞✂][0-9.]+)))*$/mu,
-        searchFunction: (
-          items: { values: () => { packageID?: string }; found?: boolean }[],
-          searchString
-        ) => {
-          items.forEach((item) => (item.found = false));
-          searchString
-            .toLowerCase()
-            .replaceAll('\\', '')
-            .split(',')
-            .forEach((id) => {
-              const foundItem = items.find(
-                (item) => item.values().packageID.toLocaleLowerCase() === id
-              );
-              if (foundItem) foundItem.found = true;
-            });
-        },
+        regex: searchRegex,
+        searchFunction: searchFunction,
       },
       {
         valueNames: columns,
@@ -385,7 +412,7 @@ async function setPackagesList(instPath: string) {
     );
   } else {
     listJS.reIndex();
-    listJS.update();
+    listJS.update(searchFunction);
   }
 
   // parse emoji
