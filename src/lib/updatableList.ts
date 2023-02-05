@@ -106,6 +106,13 @@ function createList(
         searchAlertRoot.appendChild(searchAlert);
       }
     } else parentList.fuzzySearch(searchString);
+
+    // This is a workaround for a problem in sort.js where the sort symbol (▼) disappears after a search.
+    updatableList.sortState &&
+      parentList.sort(
+        updatableList.sortState.value,
+        updatableList.sortState.options
+      );
   };
   searchBox.addEventListener('input', async () => await doSearch());
 
@@ -116,13 +123,7 @@ function createList(
       parentList.filter(updatableList.filterFunction);
 
     searchFunction && (updatableList.searchFunction = searchFunction);
-    searchBox.value && (await doSearch());
-
-    updatableList.sortState &&
-      parentList.sort(
-        updatableList.sortState.value,
-        updatableList.sortState.options
-      );
+    await doSearch();
   };
   updatableList.update(apmCustomSearch.searchFunction);
 
