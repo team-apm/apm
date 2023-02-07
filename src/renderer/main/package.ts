@@ -358,7 +358,8 @@ async function setPackagesList(instPath: string) {
 
   // sorting and filtering
   const searchRegex =
-    /^.*🍎([A-Za-z0-9.]+),🎞([A-Za-z0-9.]+),✂([A-Za-z0-9.]+)((,[A-Za-z0-9]+\/[A-Za-z0-9]+)*)$/u;
+    /^.*🍎[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+),🎞[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+),🎬[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+)((,[A-Za-z0-9]+\/[A-Za-z0-9]+)*)$/u;
+  // Variation Selectors for text (U+FE0E) or color (U+FE0F) are added to 🍎, 🎞 and 🎬.
   const searchFunction: UpdatableList['searchFunction'] = (
     items: { values: () => { packageID?: string }; found?: boolean }[],
     searchString
@@ -1527,7 +1528,8 @@ async function sharePackages(instPath: string) {
       return a2[0] === b2[0] ? compare(a2[1], b2[1]) : compare(a2[0], b2[0]);
     });
   await clipboardWriteText(
-    `ここにタイトルを入力🍎${ver.apm},🎞${ver.aviutl},✂${
+    //  Variation Selectors: 🍎️(color), 🎞︎(text), 🎬︎(text)
+    `ここにタイトルを入力🍎️${ver.apm},🎞︎${ver.aviutl},🎬︎${
       ver.exedit
     },${ver.packages.join(',')}`
   );
