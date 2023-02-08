@@ -265,7 +265,7 @@
     username "^5.1.0"
     yarn-or-npm "^3.0.1"
 
-"@electron-forge/maker-base@6.0.5", "@electron-forge/maker-base@^6.0.4":
+"@electron-forge/maker-base@6.0.5":
   version "6.0.5"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.5.tgz#09dc0f458ca1d15ce93be9210ea44e01dca911cb"
   integrity sha512-m3xS/Gd2XlYUjXO4o8bxZEcwN9AulMDjuIzq68FRH5VB1vuESJKtVZjSa331IjaA+0aRXbSCa108FLy8g5Qlaw==
@@ -369,7 +369,7 @@
     fs-extra "^10.0.0"
     mime-types "^2.1.25"
 
-"@electron-forge/shared-types@6.0.5", "@electron-forge/shared-types@^6.0.4":
+"@electron-forge/shared-types@6.0.5":
   version "6.0.5"
   resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.0.5.tgz#8b265687fad188799384f88fba821f8f0eac689e"
   integrity sha512-FrJI11afw/Cxk0JwgWyKg9aPoHOdmMi4JHTY6pnmi95MjarQ1d0SIqKJUzX7q2lXPUAxqPKA2Wmykg6F2CThlg==
@@ -7255,10 +7255,10 @@ prettier-plugin-md-nocjsp@^1.5.1:
   resolved "https://registry.yarnpkg.com/prettier-plugin-md-nocjsp/-/prettier-plugin-md-nocjsp-1.5.1.tgz#7400f4ac7575d1a1810f0ccf3ef9a19d1b972a0f"
   integrity sha512-qJyt8otPPNetQEcsZEaS4BGSgGfrhX9CfvcUUauvHewaMMZDxWDU8GB1VkWHwhLZ4W9nDTfWxGPBce8Ot4Jaxg==
 
-prettier@^2.8.3:
-  version "2.8.3"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.8.3.tgz#ab697b1d3dd46fb4626fbe2f543afe0cc98d8632"
-  integrity sha512-tJ/oJ4amDihPoufT5sM0Z1SKEuKay8LfVAMlbbhnnkvt6BUserZylqo2PN+p9KeljLr0OHa2rXHU1T8reeoTrw==
+prettier@^2.8.4:
+  version "2.8.4"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.8.4.tgz#34dd2595629bfbb79d344ac4a91ff948694463c3"
+  integrity sha512-vIS4Rlc2FNh0BySk3Wkd6xmwxB0FpOndW5fisM5H8hsZSxU2VWVB5CWIkIjWvrHjIhxk2g3bfMKM87zNTrZddw==
 
 pretty-error@^4.0.0:
   version "4.0.0"
