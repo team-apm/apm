@@ -51,6 +51,7 @@ let selectedEntry: PackageItem | Scripts['webpage'][number];
 let selectedEntryType: string;
 const entryType = { package: 'package', scriptSite: 'script' };
 let listJS: UpdatableList;
+const shareStringVersion = '1.0';
 
 /**
  * Get the date today
@@ -358,7 +359,7 @@ async function setPackagesList(instPath: string) {
 
   // sorting and filtering
   const searchRegex =
-    /^.*🍎[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+),🎞[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+),🎬[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+)((,[A-Za-z0-9]+\/[A-Za-z0-9]+)*)$/u;
+    /^.*🍎[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+):([A-Za-z0-9.]+),🎞[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+),🎬[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+)((,[A-Za-z0-9]+\/[A-Za-z0-9]+)*)$/u;
   // Variation Selectors for text (U+FE0E) or color (U+FE0F) are added to 🍎, 🎞 and 🎬.
   const searchFunction: UpdatableList['searchFunction'] = (
     items: { values: () => { packageID?: string }; found?: boolean }[],
@@ -367,10 +368,11 @@ async function setPackagesList(instPath: string) {
     items.forEach((item) => (item.found = false));
     const searchStringArray = searchString.toLowerCase().match(searchRegex);
     const searchVersions = {
-      apm: searchStringArray[1],
-      aviutl: searchStringArray[2],
-      exedit: searchStringArray[3],
-      packages: searchStringArray[4].split(',').slice(1),
+      share: searchStringArray[1],
+      apm: searchStringArray[2],
+      aviutl: searchStringArray[3],
+      exedit: searchStringArray[4],
+      packages: searchStringArray[5].split(',').slice(1),
     };
     searchVersions.packages.forEach((id) => {
       const foundItem = items.find(
@@ -380,7 +382,7 @@ async function setPackagesList(instPath: string) {
     });
     return (async () => {
       const alertStrings = [];
-      if (compareVersion(await app.getVersion(), searchVersions.apm) < 0)
+      if (compareVersion(shareStringVersion, searchVersions.share) < 0)
         alertStrings.push(
           '新しいバージョンのapmに対応したデータです。正しく読み込むためにapmの更新が必要な場合があります。'
         );
@@ -1498,6 +1500,7 @@ async function sharePackages(instPath: string) {
     : { enableButton: null };
 
   const ver = {
+    share: shareStringVersion, // version of this data
     apm: await app.getVersion(),
     aviutl: '',
     exedit: '',
@@ -1529,7 +1532,7 @@ async function sharePackages(instPath: string) {
     });
   await clipboardWriteText(
     //  Variation Selectors: 🍎️(color), 🎞︎(text), 🎬︎(text)
-    `ここにタイトルを入力🍎️${ver.apm},🎞︎${ver.aviutl},🎬︎${
+    `ここにタイトルを入力🍎️${ver.share}:${ver.apm},🎞︎${ver.aviutl},🎬︎${
       ver.exedit
     },${ver.packages.join(',')}`
   );
