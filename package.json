@@ -95,7 +95,7 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsdoc": "^40.0.1",
     "eslint-webpack-plugin": "^4.0.0",
-    "fork-ts-checker-webpack-plugin": "^7.3.0",
+    "fork-ts-checker-webpack-plugin": "^8.0.0",
     "html-loader": "^4.2.0",
     "husky": "^8.0.3",
     "lint-staged": "^13.1.2",
