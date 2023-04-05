@@ -355,13 +355,20 @@
   dependencies:
     "@electron-forge/shared-types" "6.1.0"
 
-"@electron-forge/publisher-github@^6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-github/-/publisher-github-6.1.0.tgz#1541285c332fd09680ad436ed031132709aa63b5"
-  integrity sha512-CVqGe2CZlXM4KXY1PIDQXsnRdwI9GBHnfXcdB0snyQz0ZazvliJO8jxc3U75+1Hg1v/0st/4mkFKUBd6vWxUNQ==
+"@electron-forge/publisher-base@6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-base/-/publisher-base-6.1.1.tgz#45e53554613b9ff9bca18cd2b4c8aab5ba85f099"
+  integrity sha512-vxGzx2G7bWhz2G091MzNh+LHGrOM4gmp8FqW2VNpFJfFEYODr6D9KxitUihKAWc79bwG+YywvISXEMy5IBQu0Q==
   dependencies:
-    "@electron-forge/publisher-base" "6.1.0"
-    "@electron-forge/shared-types" "6.1.0"
+    "@electron-forge/shared-types" "6.1.1"
+
+"@electron-forge/publisher-github@^6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-github/-/publisher-github-6.1.1.tgz#5531e591399ed7549009d410c55e42087a827c4f"
+  integrity sha512-CAsSGDwSe9Rp3llgFe4T5MFrZ0WM3TCTLD9ylqmo9EddN6wqLnF+OQ2HmMhwmxbxFg0/ysnAyJRyTc5T/seV4Q==
+  dependencies:
+    "@electron-forge/publisher-base" "6.1.1"
+    "@electron-forge/shared-types" "6.1.1"
     "@octokit/core" "^3.2.4"
     "@octokit/plugin-retry" "^3.0.9"
     "@octokit/rest" "^18.0.11"
@@ -374,6 +381,15 @@
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.1.0.tgz#62e4bb4191fbf72fedbe56e5c4adbd5caa854f9c"
   integrity sha512-XemHvhVv/wvPfs5wHCp1keNZ7nFsC4U88ySLLznVNYdbe5yORNZhCiZC/vd4RykGIh+37jNnKBLXqzwxygqM4g==
+  dependencies:
+    "@electron/rebuild" "^3.2.10"
+    electron-packager "^17.1.1"
+    listr2 "^5.0.3"
+
+"@electron-forge/shared-types@6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.1.1.tgz#f08cf783bf0a086331784b9f13110b4fade84846"
+  integrity sha512-sFQQ2ldMq5mlNv4m7lZOZLf9aOn6MLNc8QVeTzOBQ+psxI3mVTDjb+/Lhs/jU8dm2igVfEqAmlj57Gi+C4u4Vw==
   dependencies:
     "@electron/rebuild" "^3.2.10"
     electron-packager "^17.1.1"
