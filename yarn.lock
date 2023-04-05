@@ -227,6 +227,22 @@
     semver "^7.2.1"
     yarn-or-npm "^3.0.1"
 
+"@electron-forge/core-utils@6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/core-utils/-/core-utils-6.1.1.tgz#4eaa3b3d5f4d0b888c3500e3b6f4f0b975100c2c"
+  integrity sha512-7Kt0o85UEzpYjWU2WQ3pVuSOnRIDfuFimCQ1bh9qym5NLrkDcIQx9sIsCFIFkWYkUY7oIuMIMOhrGA4tyWGl2w==
+  dependencies:
+    "@electron-forge/shared-types" "6.1.1"
+    "@electron/rebuild" "^3.2.10"
+    "@malept/cross-spawn-promise" "^2.0.0"
+    chalk "^4.0.0"
+    debug "^4.3.1"
+    find-up "^5.0.0"
+    fs-extra "^10.0.0"
+    log-symbols "^4.0.0"
+    semver "^7.2.1"
+    yarn-or-npm "^3.0.1"
+
 "@electron-forge/core@6.1.0":
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/@electron-forge/core/-/core-6.1.0.tgz#9a9c445e2c87e475cc0fe2e2844faa08549afdab"
@@ -340,15 +356,22 @@
   dependencies:
     "@electron-forge/shared-types" "6.1.0"
 
-"@electron-forge/plugin-webpack@6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-webpack/-/plugin-webpack-6.1.0.tgz#6ec6c48fa531d03afff1182a1964baeeed090016"
-  integrity sha512-10w2+7vRzy1xzv5IHJxS0MJuBsDsYNYnroz/cGwwiOGIRiMS6zBQfenFDHNyr6RAsGncRH1SBhSHnceiubEt7g==
+"@electron-forge/plugin-base@6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-base/-/plugin-base-6.1.1.tgz#73f4688654cd29591af533be53c2a3a656405331"
+  integrity sha512-xZWZxvD2fQYnkFREK+46FS59vMEsPFINwydtD24QGTBoRMOKXkfXv16yN4eexVi+02Hj6mihYY8zhxJi56OmxA==
   dependencies:
-    "@electron-forge/core-utils" "6.1.0"
-    "@electron-forge/plugin-base" "6.1.0"
-    "@electron-forge/shared-types" "6.1.0"
-    "@electron-forge/web-multi-logger" "6.1.0"
+    "@electron-forge/shared-types" "6.1.1"
+
+"@electron-forge/plugin-webpack@6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-webpack/-/plugin-webpack-6.1.1.tgz#70065698a7b7848dcea6b33b10ac83d5d9cf5192"
+  integrity sha512-PJE0taqZzEI+jDvAV8c5QWTY3ues4f0UCsD6XtBRNfQJS28x7Uuo9QQnom3X7oG6MbcpdDOXRUFITE6Tu/5yew==
+  dependencies:
+    "@electron-forge/core-utils" "6.1.1"
+    "@electron-forge/plugin-base" "6.1.1"
+    "@electron-forge/shared-types" "6.1.1"
+    "@electron-forge/web-multi-logger" "6.1.1"
     chalk "^4.0.0"
     debug "^4.3.1"
     fs-extra "^10.0.0"
@@ -433,10 +456,10 @@
     "@electron-forge/template-base" "6.1.0"
     fs-extra "^10.0.0"
 
-"@electron-forge/web-multi-logger@6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@electron-forge/web-multi-logger/-/web-multi-logger-6.1.0.tgz#0a680710c46dd108713efa7ee6d88ddf1a956c5f"
-  integrity sha512-Y6K7d31n2Kka6my6AcMWc6+55Gmbvpx9WzfO2UZsU2ji4dshHYRe3sGLHGHYiQ51v+1qY0DyJp07DYf+Lg+gag==
+"@electron-forge/web-multi-logger@6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/web-multi-logger/-/web-multi-logger-6.1.1.tgz#56325455aa37a3c677602753084d9317ff8d9fb9"
+  integrity sha512-/hXxjH99UT7er8obZtKfCOBuRNMHUBiUXVbwq5HnzGk8f1x05tZJeZmkbdxEqDS3MFZCtY7gf1DO1c8Cayl0bg==
   dependencies:
     express "^4.17.1"
     express-ws "^5.0.2"
