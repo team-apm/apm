@@ -15,7 +15,6 @@ import List, { ListItem } from 'list.js';
 import * as matcher from 'matcher';
 import path from 'path';
 import { safeRemove } from '../../lib/safeRemove';
-import twemoji from 'twemoji';
 import * as apmJson from '../../lib/apmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import compareVersion from '../../lib/compareVersion';
@@ -359,9 +358,6 @@ async function setPackagesList(instPath: string) {
     listJS.reIndex();
     listJS.update();
   }
-
-  // parse emoji
-  twemoji.parse(packagesList);
 
   // list manually added packages
   for (const ef of manuallyInstalledFiles) {
