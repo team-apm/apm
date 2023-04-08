@@ -63,7 +63,7 @@ _Read this in [English](./README.en.md)_.
 ### 前提条件
 
 - [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/) LTSバージョン（現在16.x.x）
+- [Node.js](https://nodejs.org/) LTSバージョン（現在18.x.x）
 - [Yarn 1](https://classic.yarnpkg.com/)
 
 ### クローン
