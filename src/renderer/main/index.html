@@ -234,11 +234,19 @@
 						<div class="card-body py-2">
 							<div class="row">
 								<div class="col-sm-auto overflow-auto">
-									<input
-										class="fuzzy-search form-control mb-2"
-										placeholder="検索"
-										aria-label="検索"
-									/>
+									<div class="position-relative">
+										<input
+											class="fuzzy-search form-control position-absolute w-100"
+											placeholder="検索"
+											aria-label="検索"
+										/>
+										<!-- A very ugly element to work around the problem
+											of incorrect box-sizing being applied to the input element -->
+										<input
+											class="form-control px-0 mb-3"
+											placeholder="検索spacer"
+										/>
+									</div>
 									<ul
 										id="filter"
 										class="list-unstyled"
@@ -246,7 +254,7 @@
 									>
 										<li>
 											<button
-												class="dropdown-item install-filter ps-0"
+												class="dropdown-item install-filter px-0"
 												type="button"
 												data-install-filter="clear"
 											>
@@ -256,7 +264,7 @@
 											<ul class="list-unstyled ps-3" aria-labelledby="">
 												<li>
 													<button
-														class="dropdown-item install-filter ps-0"
+														class="dropdown-item install-filter px-0"
 														type="button"
 														data-install-filter="true"
 													>
@@ -265,7 +273,7 @@
 												</li>
 												<li>
 													<button
-														class="dropdown-item install-filter ps-0"
+														class="dropdown-item install-filter px-0"
 														type="button"
 														data-install-filter="manual"
 													>
@@ -274,7 +282,7 @@
 												</li>
 												<li>
 													<button
-														class="dropdown-item install-filter ps-0"
+														class="dropdown-item install-filter px-0"
 														type="button"
 														data-install-filter="false"
 													>
@@ -284,12 +292,12 @@
 											</ul>
 										</li>
 										<li>
-											<hr class="mx-3 dropdown-divider" />
+											<hr class="mx-2 dropdown-divider" />
 											探す
 										</li>
 										<li>
 											<button
-												class="dropdown-item type-filter ps-0"
+												class="dropdown-item type-filter px-0"
 												type="button"
 												data-type-filter="plugin"
 											>
@@ -299,7 +307,7 @@
 											<ul class="list-unstyled ps-3" aria-labelledby="">
 												<li>
 													<button
-														class="dropdown-item type-filter ps-0"
+														class="dropdown-item type-filter px-0"
 														type="button"
 														data-type-filter="input"
 													>
@@ -308,7 +316,7 @@
 												</li>
 												<li>
 													<button
-														class="dropdown-item type-filter ps-0"
+														class="dropdown-item type-filter px-0"
 														type="button"
 														data-type-filter="output"
 													>
@@ -317,7 +325,7 @@
 												</li>
 												<li>
 													<button
-														class="dropdown-item type-filter ps-0"
+														class="dropdown-item type-filter px-0"
 														type="button"
 														data-type-filter="filter"
 													>
@@ -326,7 +334,7 @@
 												</li>
 												<li>
 													<button
-														class="dropdown-item type-filter ps-0"
+														class="dropdown-item type-filter px-0"
 														type="button"
 														data-type-filter="color"
 													>
@@ -335,7 +343,7 @@
 												</li>
 												<li>
 													<button
-														class="dropdown-item type-filter ps-0"
+														class="dropdown-item type-filter px-0"
 														type="button"
 														data-type-filter="language"
 													>
@@ -346,7 +354,7 @@
 										</li>
 										<li>
 											<button
-												class="dropdown-item type-filter ps-0"
+												class="dropdown-item type-filter px-0"
 												type="button"
 												data-type-filter="script"
 											>
@@ -356,17 +364,17 @@
 											<ul class="list-unstyled ps-3" aria-labelledby="">
 												<li>
 													<button
-														class="dropdown-item type-filter ps-0"
+														class="dropdown-item type-filter px-0"
 														type="button"
 														data-type-filter="script-dist"
 													>
 														<i class="bi bi-check"></i>配布サイトから探す
 													</button>
 												</li>
-												<li><hr class="mx-3 dropdown-divider" /></li>
+												<li><hr class="mx-2 dropdown-divider" /></li>
 												<li>
 													<button
-														class="dropdown-item type-filter ps-0"
+														class="dropdown-item type-filter px-0"
 														type="button"
 														data-type-filter="animation"
 													>
@@ -375,7 +383,7 @@
 												</li>
 												<li>
 													<button
-														class="dropdown-item type-filter ps-0"
+														class="dropdown-item type-filter px-0"
 														type="button"
 														data-type-filter="object"
 													>
@@ -384,7 +392,7 @@
 												</li>
 												<li>
 													<button
-														class="dropdown-item type-filter ps-0"
+														class="dropdown-item type-filter px-0"
 														type="button"
 														data-type-filter="scene"
 													>
@@ -393,7 +401,7 @@
 												</li>
 												<li>
 													<button
-														class="dropdown-item type-filter ps-0"
+														class="dropdown-item type-filter px-0"
 														type="button"
 														data-type-filter="camera"
 													>
@@ -402,7 +410,7 @@
 												</li>
 												<li>
 													<button
-														class="dropdown-item type-filter ps-0"
+														class="dropdown-item type-filter px-0"
 														type="button"
 														data-type-filter="track"
 													>
@@ -412,10 +420,10 @@
 											</ul>
 										</li>
 
-										<li class="ps-0">
+										<li>
 											<a
 												href="https://team-apm.github.io/apm/#%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%81%A8%E3%81%AF"
-												class="dropdown-item"
+												class="dropdown-item pe-0"
 												type="button"
 											>
 												<i class="bi bi-info-circle me-1"></i>これは何？<i
@@ -424,13 +432,13 @@
 											</a>
 										</li>
 										<li>
-											<hr class="mx-3 dropdown-divider" />
+											<hr class="mx-2 dropdown-divider" />
 											作る
 										</li>
-										<li class="ps-0">
+										<li>
 											<a
 												href="https://docs.google.com/forms/d/e/1FAIpQLSf0N-X_u_abi8rrWHVDdiK3YeYuQ7J1f8bQAy6QTD-OR94DWQ/viewform?usp=sf_link"
-												class="dropdown-item"
+												class="dropdown-item pe-0"
 												type="button"
 											>
 												<i class="bi bi-megaphone me-1"></i>提案する<i
@@ -438,10 +446,10 @@
 												></i>
 											</a>
 										</li>
-										<li class="ps-0">
+										<li>
 											<a
 												href="https://team-apm.github.io/apm-web/"
-												class="dropdown-item"
+												class="dropdown-item pe-0"
 												type="button"
 											>
 												<i class="bi bi-pencil me-1"></i>作ってみる<i
