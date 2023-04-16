@@ -906,7 +906,7 @@ async function openPackageFolder() {
   ) as HTMLButtonElement;
   const { enableButton } = buttonTransition.loading(
     btn,
-    'ダウンロードフォルダを開く'
+    'ダウンロードフォルダ'
   );
 
   if (selectedEntryType !== entryType.package) {

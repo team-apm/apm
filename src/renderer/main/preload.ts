@@ -130,8 +130,8 @@ window.addEventListener('load', () => {
     await packageMain.openPackageFolder();
   });
 
-  const filterDropdown = document.getElementById('filter');
-  const typeFilterBtns = filterDropdown.getElementsByClassName(
+  const filterSidebar = document.getElementById('filter');
+  const typeFilterBtns = filterSidebar.getElementsByClassName(
     'type-filter'
   ) as HTMLCollectionOf<HTMLButtonElement>;
   Array.from(typeFilterBtns).forEach((element: HTMLButtonElement) => {
@@ -139,7 +139,7 @@ window.addEventListener('load', () => {
       packageMain.listFilter('type', typeFilterBtns, element);
     });
   });
-  const installFilterBtns = filterDropdown.getElementsByClassName(
+  const installFilterBtns = filterSidebar.getElementsByClassName(
     'install-filter'
   ) as HTMLCollectionOf<HTMLButtonElement>;
   Array.from(installFilterBtns).forEach((element: HTMLButtonElement) => {
