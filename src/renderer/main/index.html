@@ -270,140 +270,166 @@
 											</button>
 											<ul class="dropdown-menu" aria-labelledby="type-filter">
 												<li>
-													<button
-														class="dropdown-item install-filter"
-														type="button"
-														data-install-filter="true"
-													>
-														<i class="bi bi-check"></i>インストール済み
-													</button>
-												</li>
-												<li>
-													<button
-														class="dropdown-item install-filter"
-														type="button"
-														data-install-filter="manual"
-													>
-														<i class="bi bi-check"></i>手動インストール済み
-													</button>
-												</li>
-												<li>
-													<button
-														class="dropdown-item install-filter"
-														type="button"
-														data-install-filter="false"
-													>
-														<i class="bi bi-check"></i>未インストール
-													</button>
-												</li>
-												<li><hr class="dropdown-divider" /></li>
-												<li>
-													<button
-														class="dropdown-item type-filter"
-														type="button"
-														data-type-filter="script-dist"
-													>
-														<i class="bi bi-check"></i>スクリプト配布サイト
-													</button>
-												</li>
-												<li><hr class="dropdown-divider" /></li>
-												<li>
-													<button
-														class="dropdown-item type-filter"
-														type="button"
-														data-type-filter="input"
-													>
-														<i class="bi bi-check"></i>入力
-													</button>
+													<ul class="list-unstyled ps-3" aria-labelledby="">
+														<li>
+															<button
+																class="dropdown-item install-filter"
+																type="button"
+																data-install-filter="true"
+															>
+																<i class="bi bi-check"></i>インストール済み
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item install-filter"
+																type="button"
+																data-install-filter="manual"
+															>
+																<i class="bi bi-check"></i>手動インストール済み
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item install-filter"
+																type="button"
+																data-install-filter="false"
+															>
+																<i class="bi bi-check"></i>未インストール
+															</button>
+														</li>
+													</ul>
 												</li>
 												<li>
 													<button
 														class="dropdown-item type-filter"
 														type="button"
-														data-type-filter="output"
+														data-type-filter="plugin"
 													>
-														<i class="bi bi-check"></i>出力
+														<i class="bi bi-check"></i>プラグイン
 													</button>
+													<ul class="list-unstyled ps-3" aria-labelledby="">
+														<li>
+															<button
+																class="dropdown-item type-filter"
+																type="button"
+																data-type-filter="input"
+															>
+																<i class="bi bi-check"></i>入力
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item type-filter"
+																type="button"
+																data-type-filter="output"
+															>
+																<i class="bi bi-check"></i>出力
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item type-filter"
+																type="button"
+																data-type-filter="filter"
+															>
+																<i class="bi bi-check"></i>フィルター
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item type-filter"
+																type="button"
+																data-type-filter="color"
+															>
+																<i class="bi bi-check"></i>色変換
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item type-filter"
+																type="button"
+																data-type-filter="language"
+															>
+																<i class="bi bi-check"></i>言語
+															</button>
+														</li>
+													</ul>
 												</li>
 												<li>
 													<button
 														class="dropdown-item type-filter"
 														type="button"
-														data-type-filter="filter"
+														data-type-filter="script"
 													>
-														<i class="bi bi-check"></i>フィルター
+														<i class="bi bi-check"></i>スクリプト
 													</button>
+													<ul class="list-unstyled ps-3" aria-labelledby="">
+														<li>
+															<button
+																class="dropdown-item type-filter"
+																type="button"
+																data-type-filter="script-dist"
+															>
+																<i class="bi bi-check"></i>配布サイトから探す
+															</button>
+														</li>
+														<li><hr class="ms-4 dropdown-divider" /></li>
+														<li>
+															<button
+																class="dropdown-item type-filter"
+																type="button"
+																data-type-filter="animation"
+															>
+																<i class="bi bi-check"></i>アニメーション効果
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item type-filter"
+																type="button"
+																data-type-filter="object"
+															>
+																<i class="bi bi-check"></i>カスタムオブジェクト
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item type-filter"
+																type="button"
+																data-type-filter="scene"
+															>
+																<i class="bi bi-check"></i>シーンチェンジ
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item type-filter"
+																type="button"
+																data-type-filter="camera"
+															>
+																<i class="bi bi-check"></i>カメラ制御
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item type-filter"
+																type="button"
+																data-type-filter="track"
+															>
+																<i class="bi bi-check"></i>トラックバー
+															</button>
+														</li>
+													</ul>
 												</li>
-												<li>
-													<button
-														class="dropdown-item type-filter"
-														type="button"
-														data-type-filter="color"
-													>
-														<i class="bi bi-check"></i>色変換
-													</button>
-												</li>
-												<li>
-													<button
-														class="dropdown-item type-filter"
-														type="button"
-														data-type-filter="language"
-													>
-														<i class="bi bi-check"></i>言語
-													</button>
-												</li>
-												<li>
-													<button
-														class="dropdown-item type-filter"
-														type="button"
-														data-type-filter="animation"
-													>
-														<i class="bi bi-check"></i>アニメーション効果
-													</button>
-												</li>
-												<li>
-													<button
-														class="dropdown-item type-filter"
-														type="button"
-														data-type-filter="object"
-													>
-														<i class="bi bi-check"></i>カスタムオブジェクト
-													</button>
-												</li>
-												<li>
-													<button
-														class="dropdown-item type-filter"
-														type="button"
-														data-type-filter="scene"
-													>
-														<i class="bi bi-check"></i>シーンチェンジ
-													</button>
-												</li>
-												<li>
-													<button
-														class="dropdown-item type-filter"
-														type="button"
-														data-type-filter="camera"
-													>
-														<i class="bi bi-check"></i>カメラ制御
-													</button>
-												</li>
-												<li>
-													<button
-														class="dropdown-item type-filter"
-														type="button"
-														data-type-filter="track"
-													>
-														<i class="bi bi-check"></i>トラックバー
-													</button>
-												</li>
-												<li>
+
+												<li class="ps-3">
 													<a
 														href="https://team-apm.github.io/apm/#%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%81%A8%E3%81%AF"
 														class="dropdown-item"
 														type="button"
 													>
-														<i class="bi bi-info-circle me-1"></i>タイプについて
+														<i class="bi bi-info-circle me-1"></i>これは何？
 													</a>
 												</li>
 											</ul>

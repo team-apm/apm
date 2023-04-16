@@ -43,6 +43,9 @@ function parsePackageType(packageType: string[]) {
   for (const type of packageType) {
     switch (type) {
       // plugin
+      case 'plugin':
+        result.push('入力', '出力', 'フィルター', '色変換', '言語');
+        break;
       case 'input':
         result.push('入力');
         break;
@@ -59,6 +62,16 @@ function parsePackageType(packageType: string[]) {
         result.push('言語');
         break;
       // script
+      case 'script':
+        result.push(
+          'アニメーション効果',
+          'カスタムオブジェクト',
+          'シーンチェンジ',
+          'カメラ制御',
+          'トラックバー',
+          'スクリプト配布サイト'
+        );
+        break;
       case 'animation':
         result.push('アニメーション効果');
         break;

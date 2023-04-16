@@ -1238,11 +1238,13 @@ function listFilter(
 
     let filterFunc;
     if (column === 'type') {
-      const query = packageUtil
-        .parsePackageType([btn.dataset.typeFilter])
-        .toString();
+      const query = packageUtil.parsePackageType([btn.dataset.typeFilter]);
       filterFunc = (item: ListItem) => {
-        if ((item.values() as { type: string[] }).type.includes(query)) {
+        if (
+          query.some((q) =>
+            (item.values() as { type: string }).type.includes(q)
+          )
+        ) {
           return true;
         } else {
           return false;
