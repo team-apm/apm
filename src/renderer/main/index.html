@@ -231,280 +231,307 @@
 			>
 				<div class="container-lg">
 					<div class="row card border-top-0 border-bottom-0 rounded-0">
-						<div class="card-body d-flex flex-column py-2">
-							<div class="row justify-content-between border-bottom">
-								<div class="col-auto">
-									<button
-										type="button"
-										class="btn btn-outline-primary mb-2"
-										id="install-package"
+						<div class="card-body py-2">
+							<div class="row">
+								<div class="col-sm-auto overflow-auto">
+									<input
+										class="fuzzy-search form-control mb-2"
+										placeholder="検索"
+										aria-label="検索"
+									/>
+									<ul
+										id="filter"
+										class="list-unstyled"
+										aria-labelledby="type-filter"
 									>
-										インストール
-									</button>
-									<button
-										type="button"
-										class="btn btn-outline-primary mb-2"
-										id="uninstall-package"
-									>
-										アンインストール
-									</button>
-									<button
-										type="button"
-										class="btn btn-outline-primary mb-2"
-										id="open-package-folder"
-									>
-										ダウンロードフォルダを開く
-									</button>
-								</div>
-								<div class="col-auto">
-									<div class="d-inline-block align-middle mb-2 ms-1">
-										<div class="input-group">
-											<button
-												class="input-group-text dropdown-toggle"
-												type="button"
-												id="filter"
-												data-bs-toggle="dropdown"
-												aria-expanded="false"
-											>
-												絞り込み
+										<li>
+											<button class="dropdown-item ps-0" type="button">
+												<i class="bi bi-check me-1"></i
+												><i class="bi bi-box-seam me-1"></i>パッケージ
 											</button>
-											<ul class="dropdown-menu" aria-labelledby="type-filter">
+											<ul class="list-unstyled ps-3" aria-labelledby="">
 												<li>
-													<ul class="list-unstyled ps-3" aria-labelledby="">
-														<li>
-															<button
-																class="dropdown-item install-filter"
-																type="button"
-																data-install-filter="true"
-															>
-																<i class="bi bi-check"></i>インストール済み
-															</button>
-														</li>
-														<li>
-															<button
-																class="dropdown-item install-filter"
-																type="button"
-																data-install-filter="manual"
-															>
-																<i class="bi bi-check"></i>手動インストール済み
-															</button>
-														</li>
-														<li>
-															<button
-																class="dropdown-item install-filter"
-																type="button"
-																data-install-filter="false"
-															>
-																<i class="bi bi-check"></i>未インストール
-															</button>
-														</li>
-													</ul>
+													<button
+														class="dropdown-item install-filter ps-0"
+														type="button"
+														data-install-filter="true"
+													>
+														<i class="bi bi-check"></i>インストール済み
+													</button>
 												</li>
 												<li>
 													<button
-														class="dropdown-item type-filter"
+														class="dropdown-item install-filter ps-0"
 														type="button"
-														data-type-filter="plugin"
+														data-install-filter="manual"
 													>
-														<i class="bi bi-check"></i>プラグイン
+														<i class="bi bi-check"></i>手動インストール済み
 													</button>
-													<ul class="list-unstyled ps-3" aria-labelledby="">
-														<li>
-															<button
-																class="dropdown-item type-filter"
-																type="button"
-																data-type-filter="input"
-															>
-																<i class="bi bi-check"></i>入力
-															</button>
-														</li>
-														<li>
-															<button
-																class="dropdown-item type-filter"
-																type="button"
-																data-type-filter="output"
-															>
-																<i class="bi bi-check"></i>出力
-															</button>
-														</li>
-														<li>
-															<button
-																class="dropdown-item type-filter"
-																type="button"
-																data-type-filter="filter"
-															>
-																<i class="bi bi-check"></i>フィルター
-															</button>
-														</li>
-														<li>
-															<button
-																class="dropdown-item type-filter"
-																type="button"
-																data-type-filter="color"
-															>
-																<i class="bi bi-check"></i>色変換
-															</button>
-														</li>
-														<li>
-															<button
-																class="dropdown-item type-filter"
-																type="button"
-																data-type-filter="language"
-															>
-																<i class="bi bi-check"></i>言語
-															</button>
-														</li>
-													</ul>
 												</li>
 												<li>
 													<button
-														class="dropdown-item type-filter"
+														class="dropdown-item install-filter ps-0"
 														type="button"
-														data-type-filter="script"
+														data-install-filter="false"
 													>
-														<i class="bi bi-check"></i>スクリプト
+														<i class="bi bi-check"></i>未インストール
 													</button>
-													<ul class="list-unstyled ps-3" aria-labelledby="">
-														<li>
-															<button
-																class="dropdown-item type-filter"
-																type="button"
-																data-type-filter="script-dist"
-															>
-																<i class="bi bi-check"></i>配布サイトから探す
-															</button>
-														</li>
-														<li><hr class="ms-4 dropdown-divider" /></li>
-														<li>
-															<button
-																class="dropdown-item type-filter"
-																type="button"
-																data-type-filter="animation"
-															>
-																<i class="bi bi-check"></i>アニメーション効果
-															</button>
-														</li>
-														<li>
-															<button
-																class="dropdown-item type-filter"
-																type="button"
-																data-type-filter="object"
-															>
-																<i class="bi bi-check"></i>カスタムオブジェクト
-															</button>
-														</li>
-														<li>
-															<button
-																class="dropdown-item type-filter"
-																type="button"
-																data-type-filter="scene"
-															>
-																<i class="bi bi-check"></i>シーンチェンジ
-															</button>
-														</li>
-														<li>
-															<button
-																class="dropdown-item type-filter"
-																type="button"
-																data-type-filter="camera"
-															>
-																<i class="bi bi-check"></i>カメラ制御
-															</button>
-														</li>
-														<li>
-															<button
-																class="dropdown-item type-filter"
-																type="button"
-																data-type-filter="track"
-															>
-																<i class="bi bi-check"></i>トラックバー
-															</button>
-														</li>
-													</ul>
-												</li>
-
-												<li class="ps-3">
-													<a
-														href="https://team-apm.github.io/apm/#%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%81%A8%E3%81%AF"
-														class="dropdown-item"
-														type="button"
-													>
-														<i class="bi bi-info-circle me-1"></i>これは何？
-													</a>
 												</li>
 											</ul>
-											<input
-												class="fuzzy-search form-control"
-												placeholder="検索"
-												aria-label="検索"
-											/>
+										</li>
+										<li>
+											<button
+												class="dropdown-item type-filter ps-0"
+												type="button"
+												data-type-filter="plugin"
+											>
+												<i class="bi bi-check me-1"></i
+												><i class="bi bi-film me-1"></i>プラグイン
+											</button>
+											<ul class="list-unstyled ps-3" aria-labelledby="">
+												<li>
+													<button
+														class="dropdown-item type-filter ps-0"
+														type="button"
+														data-type-filter="input"
+													>
+														<i class="bi bi-check"></i>入力
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter ps-0"
+														type="button"
+														data-type-filter="output"
+													>
+														<i class="bi bi-check"></i>出力
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter ps-0"
+														type="button"
+														data-type-filter="filter"
+													>
+														<i class="bi bi-check"></i>フィルター
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter ps-0"
+														type="button"
+														data-type-filter="color"
+													>
+														<i class="bi bi-check"></i>色変換
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter ps-0"
+														type="button"
+														data-type-filter="language"
+													>
+														<i class="bi bi-check"></i>言語
+													</button>
+												</li>
+											</ul>
+										</li>
+										<li>
+											<button
+												class="dropdown-item type-filter ps-0"
+												type="button"
+												data-type-filter="script"
+											>
+												<i class="bi bi-check me-1"></i
+												><i class="bi bi-calendar3-range me-1"></i>スクリプト
+											</button>
+											<ul class="list-unstyled ps-3" aria-labelledby="">
+												<li>
+													<button
+														class="dropdown-item type-filter ps-0"
+														type="button"
+														data-type-filter="script-dist"
+													>
+														<i class="bi bi-check"></i>配布サイトから探す
+													</button>
+												</li>
+												<li><hr class="mx-3 dropdown-divider" /></li>
+												<li>
+													<button
+														class="dropdown-item type-filter ps-0"
+														type="button"
+														data-type-filter="animation"
+													>
+														<i class="bi bi-check"></i>アニメーション効果
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter ps-0"
+														type="button"
+														data-type-filter="object"
+													>
+														<i class="bi bi-check"></i>カスタムオブジェクト
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter ps-0"
+														type="button"
+														data-type-filter="scene"
+													>
+														<i class="bi bi-check"></i>シーンチェンジ
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter ps-0"
+														type="button"
+														data-type-filter="camera"
+													>
+														<i class="bi bi-check"></i>カメラ制御
+													</button>
+												</li>
+												<li>
+													<button
+														class="dropdown-item type-filter ps-0"
+														type="button"
+														data-type-filter="track"
+													>
+														<i class="bi bi-check"></i>トラックバー
+													</button>
+												</li>
+											</ul>
+										</li>
+
+										<li class="ps-0">
+											<a
+												href="https://team-apm.github.io/apm/#%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%81%A8%E3%81%AF"
+												class="dropdown-item"
+												type="button"
+											>
+												<i class="bi bi-info-circle me-1"></i>これは何？<i
+													class="bi bi-box-arrow-up-right ms-1"
+												></i>
+											</a>
+										</li>
+										<li class="ps-0">
+											<a
+												href="https://docs.google.com/forms/d/e/1FAIpQLSf0N-X_u_abi8rrWHVDdiK3YeYuQ7J1f8bQAy6QTD-OR94DWQ/viewform?usp=sf_link"
+												class="dropdown-item"
+												type="button"
+											>
+												<i class="bi bi-megaphone me-1"></i>パッケージの提案<i
+													class="bi bi-box-arrow-up-right ms-1"
+												></i>
+											</a>
+										</li>
+										<li class="ps-0">
+											<a
+												href="https://team-apm.github.io/apm-web/"
+												class="dropdown-item"
+												type="button"
+											>
+												<i class="bi bi-pencil me-1"></i>パッケージを作る<i
+													class="bi bi-box-arrow-up-right ms-1"
+												></i>
+											</a>
+										</li>
+									</ul>
+								</div>
+								<div class="col d-flex flex-column">
+									<div class="">
+										<button
+											type="button"
+											class="btn btn-outline-primary mb-2"
+											id="install-package"
+										>
+											インストール
+										</button>
+										<button
+											type="button"
+											class="btn btn-outline-primary mb-2"
+											id="uninstall-package"
+										>
+											アンインストール
+										</button>
+										<button
+											type="button"
+											class="btn btn-outline-primary mb-2"
+											id="open-package-folder"
+										>
+											ダウンロードフォルダを開く
+										</button>
+									</div>
+									<div class="my-1 ms-auto" id="packages-sort"></div>
+									<div class="row flex-grow-1 overflow-auto">
+										<div class="col" id="packages-table">
+											<ul
+												class="list list-group list-group-flush"
+												id="packages-list"
+											></ul>
+											<ul
+												class="list-group list-group-flush"
+												id="packages-list2"
+											></ul>
+										</div>
+										<div
+											class="d-flex justify-content-center align-items-center fade"
+											id="packages-table-overlay"
+										>
+											<div class="spinner-border" role="status">
+												<span class="visually-hidden">Loading...</span>
+											</div>
 										</div>
 									</div>
-								</div>
-							</div>
-							<div class="my-1 ms-auto" id="packages-sort"></div>
-							<div class="row flex-grow-1 overflow-auto">
-								<div class="col" id="packages-table">
-									<ul
-										class="list list-group list-group-flush"
-										id="packages-list"
-									></ul>
-									<ul
-										class="list-group list-group-flush"
-										id="packages-list2"
-									></ul>
-								</div>
-								<div
-									class="d-flex justify-content-center align-items-center fade"
-									id="packages-table-overlay"
-								>
-									<div class="spinner-border" role="status">
-										<span class="visually-hidden">Loading...</span>
-									</div>
-								</div>
-							</div>
-							<div class="d-none">
-								<div
-									id="sort-template"
-									class="sort rounded-pill d-inline-block px-2 mx-1 list-group-item-secondary small border"
-								></div>
-								<span
-									id="tag-template"
-									class="rounded-pill d-inline-block px-2 mx-1 list-group-item-secondary small border"
-								></span>
-								<li
-									id="list-template"
-									class="list-group-item list-group-item-action"
-								>
-									<input type="radio" name="accordion" />
-									<label class="d-block">
-										<div class="row">
-											<div class="col-sm-9">
-												<h5 class="d-inline-block name"></h5>
-												<div
-													class="text-primary d-inline-block ms-2 developer"
-												></div>
-												<div class="d-inline-block ms-1 type"></div>
-												<br />
-												<div
-													class="d-inline-block text-break overview text-muted"
-												></div>
-												<div class="accordion-detail">
-													<div class="text-break description"></div>
-													<div class="text-break dependencyInformation"></div>
-													<div class="text-break"><a class="pageURL"></a></div>
+									<div class="d-none">
+										<div
+											id="sort-template"
+											class="sort rounded-pill d-inline-block px-2 mx-1 list-group-item-secondary small border"
+										></div>
+										<span
+											id="tag-template"
+											class="rounded-pill d-inline-block px-2 mx-1 list-group-item-secondary small border"
+										></span>
+										<li
+											id="list-template"
+											class="list-group-item list-group-item-action"
+										>
+											<input type="radio" name="accordion" />
+											<label class="d-block">
+												<div class="row">
+													<div class="col-sm-9">
+														<h5 class="d-inline-block name"></h5>
+														<div
+															class="text-primary d-inline-block ms-2 developer"
+														></div>
+														<div class="d-inline-block ms-1 type"></div>
+														<br />
+														<div
+															class="d-inline-block text-break overview text-muted"
+														></div>
+														<div class="accordion-detail">
+															<div class="text-break description"></div>
+															<div
+																class="text-break dependencyInformation"
+															></div>
+															<div class="text-break">
+																<a class="pageURL"></a>
+															</div>
+														</div>
+													</div>
+													<div class="col-sm-3">
+														<div class="text-break latestVersion"></div>
+														<div class="text-break statusInformation"></div>
+														<div
+															class="text-break installationStatus text-muted"
+														></div>
+													</div>
 												</div>
-											</div>
-											<div class="col-sm-3">
-												<div class="text-break latestVersion"></div>
-												<div class="text-break statusInformation"></div>
-												<div
-													class="text-break installationStatus text-muted"
-												></div>
-											</div>
-										</div>
-									</label>
-								</li>
+											</label>
+										</li>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>

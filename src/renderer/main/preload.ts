@@ -130,7 +130,7 @@ window.addEventListener('load', () => {
     await packageMain.openPackageFolder();
   });
 
-  const filterDropdown = document.getElementById('filter').parentElement;
+  const filterDropdown = document.getElementById('filter');
   const typeFilterBtns = filterDropdown.getElementsByClassName(
     'type-filter'
   ) as HTMLCollectionOf<HTMLButtonElement>;

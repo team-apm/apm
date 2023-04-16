@@ -7,6 +7,8 @@ section,
 section#packages .container-lg,
 section#packages .container-lg > .card,
 section#packages .container-lg > .card > .card-body,
+section#packages .container-lg > .card > .card-body > div,
+section#packages .container-lg > .card > .card-body > div > div,
 section#nicommons .container-lg,
 section#nicommons .container-lg > .card,
 section#nicommons .container-lg > .card > .card-body {
@@ -28,7 +30,7 @@ main {
 .title-bar {
   height: env(titlebar-area-height, var(--fallback-title-bar-height));
 }
-button.dropdown-item:not(.selected) i {
+button.dropdown-item:not(.selected) .bi-check {
   visibility: hidden;
 }
 #packages-table ul {
