@@ -77,7 +77,7 @@
     "@types/react-dom": "^18.2.4",
     "@types/ssri": "^7.1.1",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
-    "@typescript-eslint/parser": "^5.59.6",
+    "@typescript-eslint/parser": "^5.59.7",
     "@vercel/webpack-asset-relocator-loader": "1.7.3",
     "apm-schema": "team-apm/apm-schema#v3.2.1",
     "commitizen": "^4.3.0",
