@@ -326,13 +326,13 @@
     fs-extra "^10.0.0"
     got "^11.8.5"
 
-"@electron-forge/plugin-auto-unpack-natives@^6.1.1":
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.1.1.tgz#13e309172dc93ccb132317a2f403eee1ffabb1b9"
-  integrity sha512-Vl36aRxb8KJ1X6Zgqx6B3ay6qqiwWNxe6JF6gClmXwlKUP7P/NqMYKbAGlMBzq7V7CypddkJWBf48LamTPfKiQ==
+"@electron-forge/plugin-auto-unpack-natives@^6.2.1":
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.2.1.tgz#226d13fbde078aa5587c4d464e0c27f1fbc53d56"
+  integrity sha512-VLarvnGrA3hX7EWgedp9g+MWGWhJ0A07apkJ28pbrXgegMoLQL5IzSJKIkVMu43AFvc+pMDNSGP7MX9Xh6yoLw==
   dependencies:
-    "@electron-forge/plugin-base" "6.1.1"
-    "@electron-forge/shared-types" "6.1.1"
+    "@electron-forge/plugin-base" "6.2.1"
+    "@electron-forge/shared-types" "6.2.1"
 
 "@electron-forge/plugin-base@6.1.1":
   version "6.1.1"
@@ -340,6 +340,13 @@
   integrity sha512-xZWZxvD2fQYnkFREK+46FS59vMEsPFINwydtD24QGTBoRMOKXkfXv16yN4eexVi+02Hj6mihYY8zhxJi56OmxA==
   dependencies:
     "@electron-forge/shared-types" "6.1.1"
+
+"@electron-forge/plugin-base@6.2.1":
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-base/-/plugin-base-6.2.1.tgz#55d46e0025c236240869ba961c2ba94ec89f5061"
+  integrity sha512-8mVbFgTlxQKDZ7jzeHyWrzOSiv/DpE29flPLgpyeFuz/zbC7oLNdxBCYo7WptQgI+HArphqehKUBf1UOkXmRPg==
+  dependencies:
+    "@electron-forge/shared-types" "6.2.1"
 
 "@electron-forge/plugin-webpack@6.1.1":
   version "6.1.1"
