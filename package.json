@@ -105,7 +105,7 @@
     "prettier-plugin-md-nocjsp": "^1.5.1",
     "standard-version": "^9.5.0",
     "style-loader": "^3.3.3",
-    "ts-loader": "^9.4.3",
+    "ts-loader": "^9.4.4",
     "ts-node": "^10.9.1",
     "typescript": "~5.1.5"
   },
