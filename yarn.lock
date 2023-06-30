@@ -3263,10 +3263,10 @@ dot-prop@^6.0.1:
   dependencies:
     is-obj "^2.0.0"
 
-dot-prop@^8.0.0:
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/dot-prop/-/dot-prop-8.0.0.tgz#bfd2dcfd1b0e836c961b033d840a2918736490d5"
-  integrity sha512-XHcoBL9YPvqIz6K9m9TLf9+6Iyf2ix6yYN+sZ4AI8JPg+8XQpm05V6qzPFZYzyuHfr496TqKlhzHuEvW4ME7Pw==
+dot-prop@^8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/dot-prop/-/dot-prop-8.0.1.tgz#5c1552816b2a311e1721e8e54f02732770211381"
+  integrity sha512-iGSfpEt8JjvdDFBrRplg5faL1dWBF6ae+vd02QF9CLP7SaOA8CFBgbBfVVZ1aNYK2dfXDJS3KK6qJzd/b5QyLQ==
   dependencies:
     type-fest "^3.8.0"
 
