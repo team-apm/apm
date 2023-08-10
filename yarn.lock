@@ -347,13 +347,13 @@
     fs-extra "^10.0.0"
     got "^11.8.5"
 
-"@electron-forge/plugin-auto-unpack-natives@^6.2.1":
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.2.1.tgz#226d13fbde078aa5587c4d464e0c27f1fbc53d56"
-  integrity sha512-VLarvnGrA3hX7EWgedp9g+MWGWhJ0A07apkJ28pbrXgegMoLQL5IzSJKIkVMu43AFvc+pMDNSGP7MX9Xh6yoLw==
+"@electron-forge/plugin-auto-unpack-natives@^6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.3.0.tgz#6e0713136c8e513116fda7f342cda14de7068295"
+  integrity sha512-D4JcdJfBdOjGag7xoetDftYJ29F2FUh9KK6fcfJewQCqDG1UN7ynH8jlBeajQgQfeYmvgiR4k5jzfyQMsMTcIA==
   dependencies:
-    "@electron-forge/plugin-base" "6.2.1"
-    "@electron-forge/shared-types" "6.2.1"
+    "@electron-forge/plugin-base" "6.3.0"
+    "@electron-forge/shared-types" "6.3.0"
 
 "@electron-forge/plugin-base@6.2.1":
   version "6.2.1"
