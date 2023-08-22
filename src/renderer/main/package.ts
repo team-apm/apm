@@ -14,7 +14,6 @@ import {
 import { ListItem } from 'list.js';
 import * as matcher from 'matcher';
 import path from 'path';
-import twemoji from 'twemoji';
 import * as apmJson from '../../lib/apmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import compareVersion from '../../lib/compareVersion';
@@ -416,9 +415,6 @@ async function setPackagesList(instPath: string) {
     listJS.reIndex();
     listJS.update(searchFunction);
   }
-
-  // parse emoji
-  twemoji.parse(packagesList);
 
   // list manually added packages
   for (const ef of manuallyInstalledFiles) {
