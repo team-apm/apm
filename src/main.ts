@@ -2,12 +2,13 @@ import { execSync } from 'child_process';
 import {
   app,
   BrowserWindow,
+  clipboard,
   dialog,
   ipcMain,
   Menu,
+  nativeTheme,
   net,
   shell,
-  nativeTheme,
 } from 'electron';
 import debug from 'electron-debug';
 import { download } from 'electron-dl';
@@ -281,6 +282,10 @@ ipcMain.handle('get-nicommons-data', (event, id) => {
     });
     request.end();
   });
+});
+
+ipcMain.handle('clipboard-writeText', async (event, text) => {
+  clipboard.writeText(text);
 });
 
 const allowedHosts: string[] = [];

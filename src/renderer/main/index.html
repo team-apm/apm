@@ -257,7 +257,7 @@
 									</button>
 								</div>
 								<div class="col-auto">
-									<div class="d-inline-block align-middle mb-2 ms-1">
+									<div class="d-inline-block align-middle mb-2">
 										<div class="input-group">
 											<button
 												class="input-group-text dropdown-toggle"
@@ -266,7 +266,7 @@
 												data-bs-toggle="dropdown"
 												aria-expanded="false"
 											>
-												絞り込み
+												<i class="bi bi-funnel"></i>
 											</button>
 											<ul class="dropdown-menu" aria-labelledby="type-filter">
 												<li>
@@ -408,15 +408,28 @@
 												</li>
 											</ul>
 											<input
-												class="fuzzy-search form-control"
-												placeholder="検索"
-												aria-label="検索"
+												class="fuzzy-search-wrapped form-control"
+												placeholder="検索 / 🍎️🎞︎🎬︎"
+												aria-label="検索 / インポート"
 											/>
 										</div>
 									</div>
+									<button
+										type="button"
+										class="btn btn-outline-primary mb-2"
+										id="share-packages"
+									>
+										共有
+									</button>
 								</div>
 							</div>
-							<div class="my-1 ms-auto" id="packages-sort"></div>
+							<div id="custom-search-alert"></div>
+							<div class="position-relative">
+								<div
+									class="pt-1 pe-3 position-absolute end-0 zindex-lower-dropdown"
+									id="packages-sort"
+								></div>
+							</div>
 							<div class="row flex-grow-1 overflow-auto">
 								<div class="col" id="packages-table">
 									<ul
@@ -454,6 +467,7 @@
 									<label class="d-block">
 										<div class="row">
 											<div class="col-sm-9">
+												<div class="d-none packageID"></div>
 												<h5 class="d-inline-block name"></h5>
 												<div
 													class="text-primary d-inline-block ms-2 developer"
@@ -479,6 +493,19 @@
 										</div>
 									</label>
 								</li>
+								<div
+									id="alert-template"
+									class="mt-2 mb-1 alert alert-info alert-dismissible fade show"
+									role="alert"
+								>
+									<div class="alert-text"></div>
+									<button
+										type="button"
+										class="btn-close"
+										data-bs-dismiss="alert"
+										aria-label="Close"
+									></button>
+								</div>
 							</div>
 						</div>
 					</div>
