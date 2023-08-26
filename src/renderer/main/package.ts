@@ -963,7 +963,7 @@ async function openPackageFolder() {
   ) as HTMLButtonElement;
   const { enableButton } = buttonTransition.loading(
     btn,
-    'ダウンロードフォルダを開く'
+    'ダウンロードフォルダ'
   );
 
   if (selectedEntryType !== entryType.package) {
@@ -1280,26 +1280,29 @@ function listFilter(
   btns: HTMLCollectionOf<HTMLButtonElement>,
   btn: HTMLButtonElement
 ) {
-  if (btn.classList.contains('selected')) {
-    btn.classList.remove('selected');
+  const isClear =
+    btn.classList.contains('selected') || btn.dataset.installFilter === 'clear';
+
+  for (const element of Array.from(btns)) {
+    filterButtons.add(element);
+  }
+  for (const element of Array.from(filterButtons)) {
+    element.classList.remove('selected');
+  }
+
+  if (isClear) {
     listJS.filter();
     listJS.update();
   } else {
-    for (const element of Array.from(btns)) {
-      filterButtons.add(element);
-    }
-
-    for (const element of Array.from(filterButtons)) {
-      element.classList.remove('selected');
-    }
-
     let filterFunc;
     if (column === 'type') {
-      const query = packageUtil
-        .parsePackageType([btn.dataset.typeFilter])
-        .toString();
+      const query = packageUtil.parsePackageType([btn.dataset.typeFilter]);
       filterFunc = (item: ListItem) => {
-        if ((item.values() as { type: string[] }).type.includes(query)) {
+        if (
+          query.some((q) =>
+            (item.values() as { type: string }).type.includes(q)
+          )
+        ) {
           return true;
         } else {
           return false;
