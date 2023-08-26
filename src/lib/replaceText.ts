@@ -1,6 +1,5 @@
 /**
  * Replaces innerText.
- *
  * @param {string} selector - A string of id.
  * @param {string} text - A text to replace.
  */

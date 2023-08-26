@@ -19,7 +19,7 @@ const AssetRelocatorPlugin: WebpackPluginInstance = {
       'webpack-asset-relocator-loader',
       (compilation) => {
         relocateLoader.initAssetCache(compilation, 'native_modules');
-      }
+      },
     );
   },
 };

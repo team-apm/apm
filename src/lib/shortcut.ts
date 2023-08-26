@@ -7,7 +7,6 @@ const getShortcutPath = (appDataPath: string) =>
 
 /**
  * Add a shortcut to the Start menu
- *
  * @param {string} appDataPath - The path to AppData
  * @param {string} targetEXE - The path to aviutl.exe
  */
@@ -22,7 +21,6 @@ export function addAviUtlShortcut(appDataPath: string, targetEXE: string) {
 
 /**
  * Remove the shortcut from the Start menu
- *
  * @param {string} appDataPath - The path to AppData
  */
 export function removeAviUtlShortcut(appDataPath: string) {
@@ -36,7 +34,6 @@ export function removeAviUtlShortcut(appDataPath: string) {
 
 /**
  * Uninstaller for shortcuts. This function must be executed before uninstalling apm. Therefore, it is placed before the interpretation of squirrelCommand.
- *
  * @param {string} appDataPath - The path to AppData
  */
 export function uninstaller(appDataPath: string) {

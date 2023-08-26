@@ -23,7 +23,7 @@ log.catchErrors({
       `予期しないエラーが発生しました。\nログファイル: ${
         log.transports.file.getFile().path
       }`,
-      'error'
+      'error',
     );
   },
 });
@@ -52,17 +52,17 @@ window.addEventListener('DOMContentLoaded', async () => {
     tutorialAlert.classList.remove('d-none');
   }
   const installationPath = document.getElementById(
-    'installation-path'
+    'installation-path',
   ) as HTMLInputElement;
   installationPath.value = instPath;
   const dataURL = document.getElementById('data-url') as HTMLInputElement;
   dataURL.value = modList.getDataUrl();
   const extraDataURL = document.getElementById(
-    'extra-data-url'
+    'extra-data-url',
   ) as HTMLInputElement;
   extraDataURL.value = modList.getExtraDataUrl();
   const zoomFactorSelect = document.getElementById(
-    'zoom-factor-select'
+    'zoom-factor-select',
   ) as HTMLSelectElement;
   setting.setZoomFactor(zoomFactorSelect);
 
@@ -88,7 +88,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 window.addEventListener('load', () => {
   const installationPath = document.getElementById(
-    'installation-path'
+    'installation-path',
   ) as HTMLInputElement;
 
   // core
@@ -98,7 +98,7 @@ window.addEventListener('load', () => {
   });
 
   const selectInstallationPathBtn = document.getElementById(
-    'select-installation-path'
+    'select-installation-path',
   );
   selectInstallationPathBtn.addEventListener('click', async () => {
     await core.selectInstallationPath(installationPath);
@@ -132,7 +132,7 @@ window.addEventListener('load', () => {
 
   const filterSidebar = document.getElementById('filter');
   const typeFilterBtns = filterSidebar.getElementsByClassName(
-    'type-filter'
+    'type-filter',
   ) as HTMLCollectionOf<HTMLButtonElement>;
   Array.from(typeFilterBtns).forEach((element: HTMLButtonElement) => {
     element.addEventListener('click', () => {
@@ -140,7 +140,7 @@ window.addEventListener('load', () => {
     });
   });
   const installFilterBtns = filterSidebar.getElementsByClassName(
-    'install-filter'
+    'install-filter',
   ) as HTMLCollectionOf<HTMLButtonElement>;
   Array.from(installFilterBtns).forEach((element: HTMLButtonElement) => {
     element.addEventListener('click', () => {
@@ -160,14 +160,14 @@ window.addEventListener('load', () => {
   const setDataUrlBtn = document.getElementById('set-data-url');
   const dataURL = document.getElementById('data-url') as HTMLInputElement;
   const extraDataURL = document.getElementById(
-    'extra-data-url'
+    'extra-data-url',
   ) as HTMLInputElement;
   setDataUrlBtn.addEventListener('click', async () => {
     await setting.setDataUrl(dataURL, extraDataURL.value);
   });
 
   const zoomFactorSelect = document.getElementById(
-    'zoom-factor-select'
+    'zoom-factor-select',
   ) as HTMLInputElement;
   zoomFactorSelect.addEventListener('input', async () => {
     await setting.changeZoomFactor(zoomFactorSelect.value);

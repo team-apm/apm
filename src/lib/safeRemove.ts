@@ -4,7 +4,6 @@ import { isParent } from './apmPath';
 
 /**
  * Deletes the file specified in {path}
- *
  * @param {string} path  -
  * @param {string} parentFolder - The folder containing the file to be deleted.
  */

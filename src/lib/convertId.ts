@@ -6,12 +6,11 @@ import * as modList from './modList';
 
 /**
  * Returns the id conversion dictionary.
- *
  * @param {boolean} update - Download the json file.
  * @returns {Promise<object>} Dictionary of id relationships.
  */
 export async function getIdDict(
-  update = false
+  update = false,
 ): Promise<{ [key: string]: string }> {
   const dictUrl = await modList.getConvertDataUrl();
   if (update) {
@@ -23,7 +22,7 @@ export async function getIdDict(
   } else {
     const convertJson = await existsTempFile(
       path.join('package', path.basename(dictUrl)),
-      dictUrl
+      dictUrl,
     );
     if (convertJson.exists) {
       return await fs.readJson(convertJson.path);
@@ -35,7 +34,6 @@ export async function getIdDict(
 
 /**
  * Converts id.
- *
  * @param {string} instPath - An installation path
  * @param {number} modTime - A mod time.
  */

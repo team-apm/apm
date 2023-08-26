@@ -43,7 +43,7 @@ const store = new Store();
 // https://github.com/sindresorhus/matcher/issues/32
 const isMatch = (
   input: string | readonly string[],
-  pattern: readonly string[]
+  pattern: readonly string[],
 ) => pattern.some((p) => matcher.isMatch(input, p));
 
 let selectedEntry: PackageItem | Scripts['webpage'][number];
@@ -54,14 +54,13 @@ const shareStringVersion = '1.0';
 
 /**
  * Get the date today
- *
  * @returns {string} Today's date
  */
 function getDate() {
   const d = new Date();
   return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(
     2,
-    '0'
+    '0',
   )}/${String(d.getDate()).padStart(2, '0')}`;
 }
 
@@ -69,7 +68,6 @@ function getDate() {
 
 /**
  * Get packages
- *
  * @param {string} instPath - An installation path
  * @returns {Promise.<object[]>} An object of packages
  */
@@ -79,7 +77,6 @@ async function getPackages(instPath: string) {
 
 /**
  * Sets rows of each package in the table.
- *
  * @param {string} instPath - An installation path.
  */
 async function setPackagesList(instPath: string) {
@@ -143,7 +140,7 @@ async function setPackagesList(instPath: string) {
   for (const p of packages.filter(
     (p) =>
       p.info.releases &&
-      p.installationStatus === packageUtil.states.manuallyInstalled
+      p.installationStatus === packageUtil.states.manuallyInstalled,
   )) {
     for (const release of p.info.releases) {
       if (await checkIntegrity(instPath, release.integrity.file)) {
@@ -158,7 +155,7 @@ async function setPackagesList(instPath: string) {
   if (modified) {
     const packagesExtraMod = await packageUtil.getPackagesExtra(
       packages,
-      instPath
+      instPath,
     );
     manuallyInstalledFiles = packagesExtraMod.manuallyInstalledFiles;
     packages = packagesExtraMod.packages;
@@ -177,7 +174,7 @@ async function setPackagesList(instPath: string) {
     };
     columnList.forEach(
       (tdName) =>
-        (result[tdName] = li.getElementsByClassName(tdName)[0] as HTMLElement)
+        (result[tdName] = li.getElementsByClassName(tdName)[0] as HTMLElement),
     );
     return result;
   };
@@ -189,7 +186,7 @@ async function setPackagesList(instPath: string) {
       !(
         p.info.isHidden &&
         p.installationStatus === packageUtil.states.notInstalled
-      )
+      ),
   )) {
     const {
       li,
@@ -261,9 +258,9 @@ async function setPackagesList(instPath: string) {
             new Set(
               ids
                 .split('|')
-                .map((id) => packages.find((p) => p.id === id)?.info?.name)
-            )
-          ).join(' or ')
+                .map((id) => packages.find((p) => p.id === id)?.info?.name),
+            ),
+          ).join(' or '),
         )
         .flatMap((text) => (text ? ['🔗 ' + text] : []))
         .join(' ') ?? '';
@@ -341,7 +338,7 @@ async function setPackagesList(instPath: string) {
     typeItem.removeAttribute('id');
     typeItem.classList.replace(
       'list-group-item-secondary',
-      'list-group-item-success'
+      'list-group-item-success',
     );
     typeItem.innerText = 'スクリプト配布サイト';
     type.appendChild(typeItem);
@@ -362,7 +359,7 @@ async function setPackagesList(instPath: string) {
   // Variation Selectors for text (U+FE0E) or color (U+FE0F) are added to 🍎, 🎞 and 🎬.
   const searchFunction: UpdatableList['searchFunction'] = (
     items: { values: () => { packageID?: string }; found?: boolean }[],
-    searchString
+    searchString,
   ) => {
     items.forEach((item) => (item.found = false));
     const searchStringArray = searchString.toLowerCase().match(searchRegex);
@@ -375,7 +372,7 @@ async function setPackagesList(instPath: string) {
     };
     searchVersions.packages.forEach((id) => {
       const foundItem = items.find(
-        (item) => item.values().packageID.toLowerCase() === id
+        (item) => item.values().packageID.toLowerCase() === id,
       );
       if (foundItem) foundItem.found = true;
     });
@@ -383,16 +380,16 @@ async function setPackagesList(instPath: string) {
       const alertStrings = [];
       if (compareVersion(shareStringVersion, searchVersions.share) < 0)
         alertStrings.push(
-          '新しいバージョンのapmに対応したデータです。正しく読み込むためにapmの更新が必要な場合があります。'
+          '新しいバージョンのapmに対応したデータです。正しく読み込むためにapmの更新が必要な場合があります。',
         );
       for (const program of programs) {
         const currentVersion = (await apmJson.get(
           instPath,
-          'core.' + program
+          'core.' + program,
         )) as string;
         if (compareVersion(currentVersion, searchVersions[program]) !== 0)
           alertStrings.push(
-            `${programsDisp[program]} ${searchVersions[program]} 用のデータです。使用中の ${programsDisp[program]} ${currentVersion} には非対応の場合があります。`
+            `${programsDisp[program]} ${searchVersions[program]} 用のデータです。使用中の ${programsDisp[program]} ${currentVersion} には非対応の場合があります。`,
           );
       }
       return alertStrings.join('\n');
@@ -409,7 +406,7 @@ async function setPackagesList(instPath: string) {
       {
         valueNames: columns,
         fuzzySearch: { distance: 10000 }, // Ensure that searches are performed even on long strings.
-      }
+      },
     );
   } else {
     listJS.reIndex();
@@ -479,12 +476,11 @@ async function setPackagesList(instPath: string) {
 
 /**
  * Checks the packages list.
- *
  * @param {string} instPath - An installation path.
  */
 async function checkPackagesList(instPath: string) {
   const btn = document.getElementById(
-    'check-packages-list'
+    'check-packages-list',
   ) as HTMLButtonElement;
   const enableButton = btn
     ? buttonTransition.loading(btn, '更新').enableButton
@@ -503,7 +499,7 @@ async function checkPackagesList(instPath: string) {
     const modInfo = await modList.getInfo();
     store.set(
       'modDate.packages',
-      Math.max(...modInfo.packages.map((p) => new Date(p.modified).getTime()))
+      Math.max(...modInfo.packages.map((p) => new Date(p.modified).getTime())),
     );
     await setPackagesList(instPath);
     await displayNicommonsIdList(instPath);
@@ -528,7 +524,6 @@ async function checkPackagesList(instPath: string) {
 
 /**
  * Checks the scripts list.
- *
  * @param {boolean} update - Download the json file.
  * @returns {Promise<Scripts>} - An object parsed from scripts.json.
  */
@@ -555,7 +550,9 @@ async function getScriptsList(update = false) {
     const currentMod = await modList.getInfo();
     store.set(
       'modDate.scripts',
-      Math.max(...currentMod.scripts.map((p) => new Date(p.modified).getTime()))
+      Math.max(
+        ...currentMod.scripts.map((p) => new Date(p.modified).getTime()),
+      ),
     );
   }
 
@@ -564,7 +561,6 @@ async function getScriptsList(update = false) {
 
 /**
  * Installs a package to installation path.
- *
  * @param {string} instPath - An installation path.
  * @param {object} [packageToInstall] - A package to install.
  * @param {boolean} [direct] - Install from the direct link to the zip.
@@ -574,7 +570,7 @@ async function installPackage(
   instPath: string,
   packageToInstall?: PackageItem,
   direct = false,
-  strArchivePath?: string
+  strArchivePath?: string,
 ) {
   const roles = {
     Event_Handler: 'Event_Handler',
@@ -612,7 +608,7 @@ async function installPackage(
       buttonTransition.message(
         btn,
         'インストール先フォルダを指定してください。',
-        'danger'
+        'danger',
       );
       setTimeout(() => {
         enableButton();
@@ -632,7 +628,7 @@ async function installPackage(
         buttonTransition.message(
           btn,
           'プラグインまたはスクリプトを選択してください。',
-          'danger'
+          'danger',
         );
         setTimeout(() => {
           enableButton();
@@ -647,7 +643,7 @@ async function installPackage(
         buttonTransition.message(
           btn,
           'このスクリプトは上書きインストールできません。',
-          'danger'
+          'danger',
         );
         setTimeout(() => {
           enableButton();
@@ -674,7 +670,7 @@ async function installPackage(
         buttonTransition.message(
           btn,
           'ダウンロード中にエラーが発生しました。',
-          'danger'
+          'danger',
         );
         setTimeout(() => {
           enableButton();
@@ -684,7 +680,7 @@ async function installPackage(
     }
 
     const integrityForArchive = installedPackage.info.releases?.find(
-      (r) => r.version === installedPackage.info.latestVersion
+      (r) => r.version === installedPackage.info.latestVersion,
     )?.integrity?.archive;
 
     if (integrityForArchive) {
@@ -692,18 +688,18 @@ async function installPackage(
       while (!(await verifyFile(archivePath, integrityForArchive))) {
         const dialogResult = await openYesNoDialog(
           'エラー',
-          'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
+          'ダウンロードされたファイルは破損しています。再ダウンロードしますか？',
         );
 
         if (!dialogResult) {
           log.error(
-            `The downloaded archive file is corrupt. URL:${installedPackage.info.directURL}`
+            `The downloaded archive file is corrupt. URL:${installedPackage.info.directURL}`,
           );
           if (btn) {
             buttonTransition.message(
               btn,
               'ダウンロードされたファイルは破損しています。',
-              'danger'
+              'danger',
             );
             setTimeout(() => {
               enableButton();
@@ -718,13 +714,13 @@ async function installPackage(
         });
         if (!archivePath) {
           log.error(
-            `Failed downloading the archive file. URL:${installedPackage.info.directURL}`
+            `Failed downloading the archive file. URL:${installedPackage.info.directURL}`,
           );
           if (btn) {
             buttonTransition.message(
               btn,
               'ファイルのダウンロードに失敗しました。',
-              'danger'
+              'danger',
             );
             setTimeout(() => {
               enableButton();
@@ -740,7 +736,7 @@ async function installPackage(
 
     const downloadResult = await openBrowser(
       installedPackage.info.downloadURLs[0],
-      'package'
+      'package',
     );
 
     if (!downloadResult) {
@@ -749,7 +745,7 @@ async function installPackage(
         buttonTransition.message(
           btn,
           'インストールがキャンセルされました。',
-          'info'
+          'info',
         );
         setTimeout(() => {
           enableButton();
@@ -771,12 +767,12 @@ async function installPackage(
         // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
         const newFolder = path.join(
           path.dirname(archivePath),
-          installedPackage.id
+          installedPackage.id,
         );
         await mkdir(newFolder, { recursive: true });
         await rename(
           archivePath,
-          path.join(newFolder, path.basename(archivePath))
+          path.join(newFolder, path.basename(archivePath)),
         );
         return newFolder;
       }
@@ -793,7 +789,7 @@ async function installPackage(
         for (const dirent of dirents) {
           if (dirent.isDirectory()) {
             const childResult = await searchFiles(
-              path.join(dirName, dirent.name)
+              path.join(dirName, dirent.name),
             );
             result = result.concat(childResult);
           } else {
@@ -821,7 +817,7 @@ async function installPackage(
       installResult = await install(
         unzippedPath,
         instPath,
-        installedPackage.info.files
+        installedPackage.info.files,
       );
     }
   } catch (e) {
@@ -853,7 +849,6 @@ async function installPackage(
 
 /**
  * Uninstalls a package to installation path.
- *
  * @param {string} instPath - An installation path.
  */
 async function uninstallPackage(instPath: string) {
@@ -865,7 +860,7 @@ async function uninstallPackage(instPath: string) {
     buttonTransition.message(
       btn,
       'プラグインまたはスクリプトを選択してください。',
-      'danger'
+      'danger',
     );
     setTimeout(() => {
       enableButton();
@@ -878,7 +873,7 @@ async function uninstallPackage(instPath: string) {
     buttonTransition.message(
       btn,
       'インストール先フォルダを指定してください。',
-      'danger'
+      'danger',
     );
     setTimeout(() => {
       enableButton();
@@ -891,7 +886,7 @@ async function uninstallPackage(instPath: string) {
     buttonTransition.message(
       btn,
       'プラグインまたはスクリプトを選択してください。',
-      'danger'
+      'danger',
     );
     setTimeout(() => {
       enableButton();
@@ -909,7 +904,7 @@ async function uninstallPackage(instPath: string) {
 
   try {
     await Promise.all(
-      filesToRemove.map((filePath) => safeRemove(filePath, instPath))
+      filesToRemove.map((filePath) => safeRemove(filePath, instPath)),
     );
   } catch (e) {
     log.error(e);
@@ -939,7 +934,7 @@ async function uninstallPackage(instPath: string) {
     } else {
       await parseJson.removePackage(
         modList.getLocalPackagesDataUrl(instPath),
-        uninstalledPackage
+        uninstalledPackage,
       );
       await checkPackagesList(instPath);
     }
@@ -959,11 +954,11 @@ async function uninstallPackage(instPath: string) {
  */
 async function openPackageFolder() {
   const btn = document.getElementById(
-    'open-package-folder'
+    'open-package-folder',
   ) as HTMLButtonElement;
   const { enableButton } = buttonTransition.loading(
     btn,
-    'ダウンロードフォルダ'
+    'ダウンロードフォルダ',
   );
 
   if (selectedEntryType !== entryType.package) {
@@ -971,7 +966,7 @@ async function openPackageFolder() {
     buttonTransition.message(
       btn,
       'プラグインまたはスクリプトを選択してください。',
-      'danger'
+      'danger',
     );
     setTimeout(() => {
       enableButton();
@@ -984,7 +979,7 @@ async function openPackageFolder() {
     buttonTransition.message(
       btn,
       'プラグインまたはスクリプトを選択してください。',
-      'danger'
+      'danger',
     );
     setTimeout(() => {
       enableButton();
@@ -999,7 +994,7 @@ async function openPackageFolder() {
     buttonTransition.message(
       btn,
       'このパッケージはダウンロードされていません。',
-      'danger'
+      'danger',
     );
     setTimeout(() => {
       enableButton();
@@ -1014,7 +1009,6 @@ async function openPackageFolder() {
 
 /**
  * Installs a script to installation path.
- *
  * @param {string} instPath - An installation path.
  */
 async function installScript(instPath: string) {
@@ -1027,7 +1021,7 @@ async function installScript(instPath: string) {
     buttonTransition.message(
       btn,
       'インストール先フォルダを指定してください。',
-      'danger'
+      'danger',
     );
     setTimeout(() => {
       enableButton();
@@ -1041,7 +1035,7 @@ async function installScript(instPath: string) {
     buttonTransition.message(
       btn,
       'インストールがキャンセルされました。',
-      'info'
+      'info',
     );
     setTimeout(() => {
       enableButton();
@@ -1073,20 +1067,20 @@ async function installScript(instPath: string) {
     const packageId = matchInfo.redirect
       .split('|')
       .find((candidate: string) =>
-        packages.find((p) => p.id === candidate && p.doNotInstall !== true)
+        packages.find((p) => p.id === candidate && p.doNotInstall !== true),
       );
     if (packageId) {
       await installPackage(
         instPath,
         packages.find((p) => p.id === packageId),
         undefined,
-        archivePath
+        archivePath,
       );
     } else {
       buttonTransition.message(
         btn,
         '指定されたパッケージは存在しません。',
-        'danger'
+        'danger',
       );
     }
     setTimeout(() => {
@@ -1101,7 +1095,7 @@ async function installScript(instPath: string) {
   // https://zenn.dev/repomn/scraps/d80ccd5c9183f0
   const asyncFlatMap = async <Item, Res>(
     arr: Item[],
-    callback: (value: Item, index: number, array: Item[]) => Promise<Res>
+    callback: (value: Item, index: number, array: Item[]) => Promise<Res>,
   ) => {
     const a = await Promise.all(arr.map(callback));
     return a.flat();
@@ -1115,13 +1109,13 @@ async function installScript(instPath: string) {
       ? [dirName]
       : await asyncFlatMap(
           dirents.filter((i) => i.isDirectory()),
-          (i) => searchScriptRoot(path.join(dirName, i.name))
+          (i) => searchScriptRoot(path.join(dirName, i.name)),
         );
   };
 
   const extExists = async (
     dirName: string,
-    regex: RegExp
+    regex: RegExp,
   ): Promise<boolean> => {
     const dirents = await readdir(dirName, {
       withFileTypes: true,
@@ -1131,7 +1125,7 @@ async function installScript(instPath: string) {
       : (
           await asyncFlatMap(
             dirents.filter((i) => i.isDirectory()),
-            (i) => extExists(path.join(dirName, i.name), regex)
+            (i) => extExists(path.join(dirName, i.name), regex),
           )
         ).some((e) => e);
   };
@@ -1144,12 +1138,12 @@ async function installScript(instPath: string) {
         // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
         const newFolder = path.join(
           path.dirname(archivePath),
-          'tmp_' + path.basename(archivePath)
+          'tmp_' + path.basename(archivePath),
         );
         await mkdir(newFolder, { recursive: true });
         await rename(
           archivePath,
-          path.join(newFolder, path.basename(archivePath))
+          path.join(newFolder, path.basename(archivePath)),
         );
         return newFolder;
       }
@@ -1169,7 +1163,7 @@ async function installScript(instPath: string) {
       buttonTransition.message(
         btn,
         'プラグインが含まれているためインストールできません。',
-        'danger'
+        'danger',
       );
       setTimeout(() => {
         enableButton();
@@ -1210,7 +1204,7 @@ async function installScript(instPath: string) {
       recursive: true,
     });
     await Promise.all(
-      entriesToCopy.map((filePath) => copy(filePath.src, filePath.dest))
+      entriesToCopy.map((filePath) => copy(filePath.src, filePath.dest)),
     );
 
     // Constructing package information
@@ -1221,7 +1215,7 @@ async function installScript(instPath: string) {
     const filteredFiles = files.filter((f) => scriptExtRegex.test(f.filename));
     const name = path.basename(
       filteredFiles[0].filename,
-      path.extname(filteredFiles[0].filename)
+      path.extname(filteredFiles[0].filename),
     );
     const id = 'script_' + getHash(name);
 
@@ -1248,7 +1242,7 @@ async function installScript(instPath: string) {
 
     await parseJson.addPackage(
       modList.getLocalPackagesDataUrl(instPath),
-      packageItem
+      packageItem,
     );
     await apmJson.addPackage(instPath, {
       id: packageItem.id,
@@ -1270,7 +1264,6 @@ async function installScript(instPath: string) {
 const filterButtons: Set<HTMLButtonElement> = new Set();
 /**
  * Filter the list.
- *
  * @param {string} column - A column name to filter
  * @param {HTMLCollection} btns - A list of buttons
  * @param {HTMLButtonElement} btn - A button selected
@@ -1278,7 +1271,7 @@ const filterButtons: Set<HTMLButtonElement> = new Set();
 function listFilter(
   column: string,
   btns: HTMLCollectionOf<HTMLButtonElement>,
-  btn: HTMLButtonElement
+  btn: HTMLButtonElement,
 ) {
   const isClear =
     btn.classList.contains('selected') || btn.dataset.installFilter === 'clear';
@@ -1300,7 +1293,7 @@ function listFilter(
       filterFunc = (item: ListItem) => {
         if (
           query.some((q) =>
-            (item.values() as { type: string }).type.includes(q)
+            (item.values() as { type: string }).type.includes(q),
           )
         ) {
           return true;
@@ -1358,7 +1351,6 @@ function listFilter(
 
 /**
  * Returns a nicommonsID list separated by space.
- *
  * @param {string} instPath - An installation path.
  */
 async function displayNicommonsIdList(instPath: string) {
@@ -1375,7 +1367,7 @@ async function displayNicommonsIdList(instPath: string) {
 
   const asyncFilter = async <T>(
     array: T[],
-    predicate: (value: T, index: number, array: T[]) => Promise<unknown>
+    predicate: (value: T, index: number, array: T[]) => Promise<unknown>,
   ) => {
     const bits = await Promise.all(array.map(predicate));
     return array.filter((_, i) => bits[i]);
@@ -1384,7 +1376,7 @@ async function displayNicommonsIdList(instPath: string) {
   const packagesWithNicommonsId: [
     PackageItemWithNicommonsId,
     PackageItemWithNicommonsId,
-    ...PackageItem[]
+    ...PackageItem[],
   ] = [
     {
       info: { name: 'AviUtl', developer: 'KENくん', nicommons: 'im1696493' },
@@ -1402,7 +1394,7 @@ async function displayNicommonsIdList(instPath: string) {
       packages,
       async (value) =>
         (await apmJson.has(instPath, 'packages.' + value.id)) &&
-        value.info.nicommons
+        value.info.nicommons,
     )),
   ];
 
@@ -1418,7 +1410,7 @@ async function displayNicommonsIdList(instPath: string) {
     };
     columnList.forEach(
       (tdName) =>
-        (result[tdName] = li.getElementsByClassName(tdName)[0] as HTMLElement)
+        (result[tdName] = li.getElementsByClassName(tdName)[0] as HTMLElement),
     );
     return result;
   };
@@ -1426,13 +1418,15 @@ async function displayNicommonsIdList(instPath: string) {
   const updateTextarea = () => {
     const checkedId: string[] = [];
     Array.from(
-      document.getElementsByName('nicommons-id') as NodeListOf<HTMLInputElement>
+      document.getElementsByName(
+        'nicommons-id',
+      ) as NodeListOf<HTMLInputElement>,
     ).forEach((checkbox) => {
       if (checkbox.checked) checkedId.push(checkbox.value);
     });
 
     const nicommonsIdTextarea = document.getElementById(
-      'nicommons-id-textarea'
+      'nicommons-id-textarea',
     ) as HTMLTextAreaElement;
     nicommonsIdTextarea.value = checkedId.join(' ');
   };
@@ -1442,7 +1436,7 @@ async function displayNicommonsIdList(instPath: string) {
 
   for (const packageItem of packagesWithNicommonsId) {
     const { li, thumbnail, name, developer, type, nicommons } = makeLiFromArray(
-      columns
+      columns,
     ) as {
       li: HTMLLIElement;
       thumbnail: HTMLDivElement;
@@ -1472,7 +1466,7 @@ async function displayNicommonsIdList(instPath: string) {
     nicommons.innerText = packageItem.info.nicommons;
 
     const nicommonsData = (await getNicommonsData(
-      packageItem.info.nicommons
+      packageItem.info.nicommons,
     )) as { [key: string]: { [key: string]: string } };
     if (nicommonsData && 'node' in nicommonsData) {
       const img = document.createElement('img');
@@ -1489,7 +1483,6 @@ async function displayNicommonsIdList(instPath: string) {
 
 /**
  * Returns a nicommonsID list separated by space.
- *
  * @param {string} instPath - An installation path.
  */
 async function sharePackages(instPath: string) {
@@ -1508,7 +1501,7 @@ async function sharePackages(instPath: string) {
   for (const program of programs) {
     const currentVersion = (await apmJson.get(
       instPath,
-      'core.' + program
+      'core.' + program,
     )) as string;
     ver[program] = currentVersion;
   }
@@ -1518,7 +1511,7 @@ async function sharePackages(instPath: string) {
     .filter(
       (p) =>
         p.installationStatus === packageUtil.states.installed ||
-        p.installationStatus === packageUtil.states.manuallyInstalled
+        p.installationStatus === packageUtil.states.manuallyInstalled,
     )
     .map((p) => p.id)
     .filter((id) => id.includes('/'))
@@ -1532,7 +1525,7 @@ async function sharePackages(instPath: string) {
     //  Variation Selectors: 🍎️(color), 🎞︎(text), 🎬︎(text)
     `ここにタイトルを入力🍎️${ver.share}:${ver.apm},🎞︎${ver.aviutl},🎬︎${
       ver.exedit
-    },${ver.packages.join(',')}`
+    },${ver.packages.join(',')}`,
   );
 
   buttonTransition.message(btn, 'コピーしました', 'info');

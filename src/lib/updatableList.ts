@@ -11,14 +11,13 @@ export interface UpdatableList extends List {
   filterFunction: (item: List.ListItem) => boolean;
   searchFunction: (
     items: ListItemMaybeFound[],
-    searchString: string
+    searchString: string,
   ) => Promise<string>;
   update: (searchFunction?: UpdatableList['searchFunction']) => void;
 }
 
 /**
  * Keep the state of the table even after update() is executed
- *
  * @param {string | HTMLElement} element id of the list area
  * @param {{regex, searchFunction}} apmCustomSearch add different search methods
  * @param {RegExp} apmCustomSearch.regex condition for activating the search method
@@ -34,16 +33,16 @@ function createList(
     searchFunction: UpdatableList['searchFunction'];
   },
   options?: List.ListOptions,
-  values?: object[]
+  values?: object[],
 ) {
   const searchBox = document.getElementsByClassName(
-    'fuzzy-search-wrapped'
+    'fuzzy-search-wrapped',
   )?.[0] as HTMLInputElement;
   const searchAlertRoot = document.getElementById(
-    'custom-search-alert'
+    'custom-search-alert',
   ) as HTMLDivElement;
   const searchAlertTemplate = document.getElementById(
-    'alert-template'
+    'alert-template',
   ) as HTMLDivElement;
 
   const parentList = new List(element, options, values);
@@ -52,13 +51,13 @@ function createList(
   const prepareSortState = () => {
     const sortAsc = Array.from(
       document.getElementsByClassName(
-        'sort asc'
-      ) as HTMLCollectionOf<HTMLDivElement>
+        'sort asc',
+      ) as HTMLCollectionOf<HTMLDivElement>,
     );
     const sortDesc = Array.from(
       document.getElementsByClassName(
-        'sort desc'
-      ) as HTMLCollectionOf<HTMLDivElement>
+        'sort desc',
+      ) as HTMLCollectionOf<HTMLDivElement>,
     );
     if (sortAsc.length !== 0)
       updatableList.sortState = {
@@ -89,18 +88,18 @@ function createList(
         ((escapedSearchString: string) =>
           (searchFunctionPromise = updatableList.searchFunction(
             parentList.items as List.ListItem[],
-            escapedSearchString.replaceAll('\\', '')
-          ))) as never
+            escapedSearchString.replaceAll('\\', ''),
+          ))) as never,
       );
       const alertString = await searchFunctionPromise;
       if (alertString) {
         const searchAlert = searchAlertTemplate.cloneNode(
-          true
+          true,
         ) as HTMLDivElement;
         searchAlert.removeAttribute('id');
         (
           searchAlert.getElementsByClassName(
-            'alert-text'
+            'alert-text',
           )?.[0] as HTMLDivElement
         ).innerText = alertString;
         searchAlertRoot.appendChild(searchAlert);
@@ -111,7 +110,7 @@ function createList(
     updatableList.sortState &&
       parentList.sort(
         updatableList.sortState.value,
-        updatableList.sortState.options
+        updatableList.sortState.options,
       );
   };
   searchBox.addEventListener('input', async () => await doSearch());

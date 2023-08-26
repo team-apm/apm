@@ -2,7 +2,6 @@ import crypto from 'crypto';
 
 /**
  *  Returns the hash value of the text.
- *
  * @param {string} text - Text to hash
  * @param {number} limit - The length of the string to return.
  * @returns {string} Hashed text

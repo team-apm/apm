@@ -15,7 +15,6 @@ type Files = {
 
 /**
  * Verifys files by count.
- *
  * @param {string} instPath - An installation path.
  * @param {object[]} files - An array of the files to be installed.
  * @returns {boolean} Whether all files exist.
@@ -36,7 +35,6 @@ export function verifyFilesByCount(instPath: string, files: Files) {
 
 /**
  * Install some package.
- *
  * @param {string} unzippedPath - A path of the unzipped directory.
  * @param {string} instPath - An installation path.
  * @param {object[]} files - An array of the files to be installed.
@@ -46,7 +44,7 @@ export async function install(
   unzippedPath: string,
   instPath: string,
   files: Files,
-  isProgram = false
+  isProgram = false,
 ) {
   try {
     if (isProgram) {
@@ -62,7 +60,7 @@ export async function install(
       // Copying files (main body of the installation)
       const filesToCopy = [];
       const filesToInstall = files.filter(
-        (file) => !file.isUninstallOnly && !file.isObsolete
+        (file) => !file.isUninstallOnly && !file.isObsolete,
       );
       for (const file of filesToInstall) {
         if (!file.archivePath) {
@@ -75,7 +73,7 @@ export async function install(
             path.join(
               unzippedPath,
               file.archivePath,
-              path.basename(file.filename)
+              path.basename(file.filename),
             ),
             path.join(instPath, file.filename),
           ]);
@@ -83,7 +81,7 @@ export async function install(
       }
 
       await Promise.all(
-        filesToCopy.map((filePath) => copy(filePath[0], filePath[1]))
+        filesToCopy.map((filePath) => copy(filePath[0], filePath[1])),
       );
     }
 

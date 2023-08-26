@@ -9,7 +9,6 @@ const store = new Store();
 
 /**
  * Resolve paths.
- *
  * @param {string} base - base path
  * @param {string} relative - relative path
  * @returns {string} - absolute path
@@ -23,7 +22,7 @@ function resolvePath(base: string, relative: string) {
     }
     if (!isParent(baseURL.pathname, retURL.pathname)) {
       throw new Error(
-        'list.json can only specify files in the same or child directories.'
+        'list.json can only specify files in the same or child directories.',
       );
     }
     return retURL.href;
@@ -31,7 +30,7 @@ function resolvePath(base: string, relative: string) {
     const retStr = path.resolve(base, relative);
     if (!isParent(base, retStr)) {
       throw new Error(
-        'list.json can only specify files in the same or child directories.'
+        'list.json can only specify files in the same or child directories.',
       );
     }
     return retStr;
@@ -47,9 +46,9 @@ async function setPackagesDataUrl() {
     .filter((url) => url !== '');
   const packages = ([] as string[]).concat(
     (await getInfo()).packages.map((packageItem) =>
-      resolvePath(getDataUrl(), packageItem.path)
+      resolvePath(getDataUrl(), packageItem.path),
     ),
-    URLs
+    URLs,
   );
   store.set('dataURL.packages', packages);
 }
@@ -66,7 +65,6 @@ export async function updateInfo() {
 
 /**
  * Returns an object parsed from list.json.
- *
  * @returns {Promise<object>} - An object parsed from list.json.
  */
 export async function getInfo() {
@@ -84,7 +82,6 @@ export async function getInfo() {
 
 /**
  * Returns a data files URL.
- *
  * @returns {string} - A data files URL.
  */
 export function getDataUrl() {
@@ -93,7 +90,6 @@ export function getDataUrl() {
 
 /**
  * Returns extra data files URLs.
- *
  * @returns {string} - Data files URLs.
  */
 export function getExtraDataUrl() {
@@ -102,7 +98,6 @@ export function getExtraDataUrl() {
 
 /**
  * Returns a core data file URL.
- *
  * @returns {string} - A core data file URL.
  */
 export async function getCoreDataUrl() {
@@ -111,7 +106,6 @@ export async function getCoreDataUrl() {
 
 /**
  * Returns package data files URLs.
- *
  * @param {string} instPath - An installation path.
  * @returns {Array.<string>} -Package data files URLs.
  */
@@ -121,13 +115,12 @@ export function getPackagesDataUrl(instPath: string) {
       instPath.length > 0 &&
       fs.existsSync(getLocalPackagesDataUrl(instPath))
       ? [getLocalPackagesDataUrl(instPath)]
-      : []
+      : [],
   );
 }
 
 /**
  * Returns a local package data file URL.
- *
  * @param {string} instPath - An installation path.
  * @returns {string} - A package data file URL.
  */
@@ -137,7 +130,6 @@ export function getLocalPackagesDataUrl(instPath: string) {
 
 /**
  * Returns a convert data file URL.
- *
  * @returns {string} - A convert data file URL.
  */
 export async function getConvertDataUrl() {
@@ -146,11 +138,10 @@ export async function getConvertDataUrl() {
 
 /**
  * Returns a scripts data file URL.
- *
  * @returns {string[]} - A scripts data file URL.
  */
 export async function getScriptsDataUrl() {
   return (await getInfo()).scripts.map((script) =>
-    resolvePath(getDataUrl(), script.path)
+    resolvePath(getDataUrl(), script.path),
   );
 }
