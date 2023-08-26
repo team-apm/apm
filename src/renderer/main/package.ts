@@ -1505,7 +1505,6 @@ async function sharePackages(instPath: string) {
     exedit: '',
     packages: [''],
   };
-  await app.getVersion();
   for (const program of programs) {
     const currentVersion = (await apmJson.get(
       instPath,
