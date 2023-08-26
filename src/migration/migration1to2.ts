@@ -14,7 +14,6 @@ const store = new Store();
 
 /**
  * Migration of common settings.
- *
  * @returns {Promise<boolean>} True on successful completion
  */
 async function global() {
@@ -47,20 +46,20 @@ async function global() {
         await openDialog(
           'エラー',
           '有効なURLまたは場所を入力してください。',
-          'error'
+          'error',
         );
         continue;
       } else if (path.extname(newDataURL) === '.xml') {
         await openDialog(
           'エラー',
           'フォルダのURLを入力してください。',
-          'error'
+          'error',
         );
         continue;
       } else {
         const oldDataURL = store.get('dataURL.main') as string;
         const urls = (store.get('dataURL.packages') as string[]).filter(
-          (url: string) => !url.includes(oldDataURL)
+          (url: string) => !url.includes(oldDataURL),
         );
         urls.push(path.join(newDataURL, 'packages.xml'));
         store.set('dataURL.main', newDataURL);
@@ -89,7 +88,7 @@ async function global() {
     )
       .filter(
         (dirent) =>
-          dirent.isFile() && dirent.name.endsWith('_packages_list.xml')
+          dirent.isFile() && dirent.name.endsWith('_packages_list.xml'),
       )
       .map(({ name }) => path.join(dataFolder, 'package/', name)),
   ];
@@ -114,7 +113,6 @@ async function global() {
 
 /**
  * Migration of the AviUtl installation folder.
- *
  * @param {string} instPath - An installation path.
  */
 async function byFolder(instPath: string) {
@@ -137,7 +135,7 @@ async function byFolder(instPath: string) {
     if (existsSync(path.join(instPath, 'packages_list.xml'))) {
       await rename(
         path.join(instPath, 'packages_list.xml'),
-        path.join(instPath, 'packages.xml')
+        path.join(instPath, 'packages.xml'),
       );
     }
   } catch (e) {
@@ -153,15 +151,15 @@ async function byFolder(instPath: string) {
     let text = packages[id].repository;
     text = text.replaceAll(
       'apm-data@main\\data\\packages_list.xml',
-      'apm-data@main\\v2\\data\\packages.xml'
+      'apm-data@main\\v2\\data\\packages.xml',
     );
     text = text.replaceAll(
       'apm-data@main/data/packages_list.xml',
-      'apm-data@main/v2/data/packages.xml'
+      'apm-data@main/v2/data/packages.xml',
     );
     text = text.replaceAll(
       path.join(instPath, 'packages_list.xml'),
-      path.join(instPath, 'packages.xml')
+      path.join(instPath, 'packages.xml'),
     );
     if (store.has('migration1to2')) {
       const dataURLs = store.get('migration1to2') as {
@@ -170,7 +168,7 @@ async function byFolder(instPath: string) {
       };
       text = text.replaceAll(
         path.join(dataURLs.oldDataURL, 'packages_list.xml'),
-        path.join(dataURLs.newDataURL, 'packages.xml')
+        path.join(dataURLs.newDataURL, 'packages.xml'),
       );
     }
     packages[id].repository = text;

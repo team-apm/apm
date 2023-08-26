@@ -4,14 +4,13 @@ import { checkStream } from 'ssri';
 
 /**
  * Check for integrity.
- *
  * @param {string} instPath - An installation path.
  * @param {object[]} integrities - List of integrity objects.
  * @returns {Promise<boolean>} Integrities match or don't match.
  */
 export async function checkIntegrity(
   instPath: string,
-  integrities: { target: string; hash: string }[]
+  integrities: { target: string; hash: string }[],
 ) {
   if (integrities.length === 0) return false;
 
@@ -27,7 +26,6 @@ export async function checkIntegrity(
 
 /**
  * Check the integrity of the file.
- *
  * @param {string} filePath - An file path.
  * @param {string} integrity - Integrity of the file.
  * @returns {Promise<boolean>} Integrities match or don't match.

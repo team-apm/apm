@@ -12,7 +12,6 @@ const buttonTypes = [
 
 /**
  * Show loading spinner in the button.
- *
  * @param {HTMLButtonElement} btn - An element of the button to be
  * @param {string} [message] - A message to show.
  * @returns {{enableButton:()=>void}} Returns a function to enable the button.
@@ -34,7 +33,6 @@ export function loading(btn: HTMLButtonElement, message?: string) {
 
 /**
  * Show a message in the button.
- *
  * @param {HTMLButtonElement} btn - An element of the button to be changed
  * @param {string} message - A message to be shown
  * @param {string} [type] - A type of the button to be changed to
@@ -42,7 +40,7 @@ export function loading(btn: HTMLButtonElement, message?: string) {
 export function message(
   btn: HTMLButtonElement,
   message: string,
-  type?: string
+  type?: string,
 ) {
   if (type) {
     for (const originalType of buttonTypes) {

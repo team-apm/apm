@@ -42,7 +42,6 @@ async function initCore() {
 
 /**
  * Displays installed version.
- *
  * @param {string} instPath - An installation path.
  */
 async function displayInstalledVersion(instPath: string) {
@@ -63,7 +62,7 @@ async function displayInstalledVersion(instPath: string) {
       if (await apmJson.has(instPath, 'core.' + program)) {
         const installedVersion = (await apmJson.get(
           instPath,
-          'core.' + program
+          'core.' + program,
         )) as string;
         const description =
           compareVersion(installedVersion, progInfo.latestVersion) === -1
@@ -74,7 +73,7 @@ async function displayInstalledVersion(instPath: string) {
         if (verifyFilesByCount(instPath, progInfo.files)) {
           replaceText(
             `${program}-installed-version`,
-            'バージョン: ' + installedVersion + description
+            'バージョン: ' + installedVersion + description,
           );
           isInstalled[program] = true;
         } else {
@@ -83,7 +82,7 @@ async function displayInstalledVersion(instPath: string) {
             'バージョン: ' +
               installedVersion +
               description +
-              '（ファイルの存在が確認できませんでした。）'
+              '（ファイルの存在が確認できませんでした。）',
           );
         }
       } else {
@@ -149,12 +148,11 @@ async function displayInstalledVersion(instPath: string) {
 
 /**
  * Returns an object parsed from core.json.
- *
  * @returns {Promise<Core>} - An object parsed from core.json.
  */
 async function getCoreInfo() {
   const coreFile = await existsTempFile(
-    path.join('core', path.basename(await modList.getCoreDataUrl()))
+    path.join('core', path.basename(await modList.getCoreDataUrl())),
   );
   if (!coreFile.exists) return null;
 
@@ -168,7 +166,6 @@ async function getCoreInfo() {
 
 /**
  * Sets versions of each program in selects.
- *
  * @param {string} instPath - An installation path.
  */
 async function setCoreVersions(instPath: string) {
@@ -190,10 +187,10 @@ async function setCoreVersions(instPath: string) {
   }
 
   const installAviutlBtn = document.getElementById(
-    'install-aviutl'
+    'install-aviutl',
   ) as HTMLButtonElement;
   const installExeditBtn = document.getElementById(
-    'install-exedit'
+    'install-exedit',
   ) as HTMLButtonElement;
 
   for (const program of programs) {
@@ -216,7 +213,7 @@ async function setCoreVersions(instPath: string) {
             installAviutlBtn,
             program,
             release.version,
-            instPath
+            instPath,
           );
         });
         aviutlVersionSelect.appendChild(li);
@@ -226,7 +223,7 @@ async function setCoreVersions(instPath: string) {
             installExeditBtn,
             program,
             release.version,
-            instPath
+            instPath,
           );
         });
         exeditVersionSelect.appendChild(li);
@@ -237,12 +234,11 @@ async function setCoreVersions(instPath: string) {
 
 /**
  * Checks the latest versionof programs.
- *
  * @param {string} instPath - An installation path.
  */
 async function checkLatestVersion(instPath: string) {
   const btn = document.getElementById(
-    'check-core-version'
+    'check-core-version',
   ) as HTMLButtonElement;
   const { enableButton } = buttonTransition.loading(btn, '更新');
 
@@ -269,21 +265,20 @@ async function checkLatestVersion(instPath: string) {
 
 /**
  * Shows a dialog to select installation path and set it.
- *
  * @param {HTMLInputElement} input - A HTMLElement of input.
  */
 async function selectInstallationPath(input: HTMLInputElement) {
   const originalPath = input.value;
   const selectedPath = await openDirDialog(
     'インストール先フォルダを選択',
-    originalPath
+    originalPath,
   );
   if (selectedPath.length !== 0 && selectedPath[0] !== originalPath) {
     if (fs.existsSync(path.join(selectedPath[0], 'plugins/exedit.auf'))) {
       await openDialog(
         'エラー',
         '拡張編集が「plugins」フォルダに配置されています。apmは拡張編集を「aviutl.exe」と同じフォルダに配置する場合のみに対応しています。',
-        'error'
+        'error',
       );
       return;
     }
@@ -296,7 +291,6 @@ async function selectInstallationPath(input: HTMLInputElement) {
 
 /**
  * Change the installation path.
- *
  * @param {string} instPath - An installation path.
  */
 async function changeInstallationPath(instPath: string) {
@@ -312,7 +306,7 @@ async function changeInstallationPath(instPath: string) {
 
     if (fs.existsSync(apmJson.getPath(instPath)) && currentMod.convert) {
       const oldConvertMod = new Date(
-        (await apmJson.get(instPath, 'convertMod', 0)) as number
+        (await apmJson.get(instPath, 'convertMod', 0)) as number,
       );
       const currentConvertMod = new Date(currentMod.convert.modified).getTime();
 
@@ -351,7 +345,6 @@ async function changeInstallationPath(instPath: string) {
 
 /**
  * Installs a program to installation path.
- *
  * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} program - A program name to install.
  * @param {string} version - A version to install.
@@ -361,7 +354,7 @@ async function installProgram(
   btn: HTMLButtonElement,
   program: (typeof programs)[number],
   version: string,
-  instPath: string
+  instPath: string,
 ) {
   const { enableButton } = btn
     ? buttonTransition.loading(btn)
@@ -373,7 +366,7 @@ async function installProgram(
       buttonTransition.message(
         btn,
         'インストール先フォルダを指定してください。',
-        'danger'
+        'danger',
       );
       setTimeout(() => {
         enableButton();
@@ -401,7 +394,7 @@ async function installProgram(
       buttonTransition.message(
         btn,
         'バージョンデータが存在しません。',
-        'danger'
+        'danger',
       );
       setTimeout(() => {
         enableButton();
@@ -420,7 +413,7 @@ async function installProgram(
       buttonTransition.message(
         btn,
         'ダウンロード中にエラーが発生しました。',
-        'danger'
+        'danger',
       );
       setTimeout(() => {
         enableButton();
@@ -430,7 +423,7 @@ async function installProgram(
   }
 
   const integrityForArchive = progInfo.releases.find(
-    (r) => r.version === version
+    (r) => r.version === version,
   ).integrity.archive;
 
   if (integrityForArchive) {
@@ -438,7 +431,7 @@ async function installProgram(
     while (!(await verifyFile(archivePath, integrityForArchive))) {
       const dialogResult = await openYesNoDialog(
         'エラー',
-        'ダウンロードされたファイルは破損しています。再ダウンロードしますか？'
+        'ダウンロードされたファイルは破損しています。再ダウンロードしますか？',
       );
 
       if (!dialogResult) {
@@ -447,7 +440,7 @@ async function installProgram(
           buttonTransition.message(
             btn,
             'ダウンロードされたファイルは破損しています。',
-            'danger'
+            'danger',
           );
           setTimeout(() => {
             enableButton();
@@ -463,7 +456,7 @@ async function installProgram(
           buttonTransition.message(
             btn,
             'ファイルのダウンロードに失敗しました。',
-            'danger'
+            'danger',
           );
           setTimeout(() => {
             enableButton();
@@ -500,7 +493,6 @@ async function installProgram(
 
 /**
  * Perform a batch installation.
- *
  * @param {string} instPath - An installation path.
  */
 async function batchInstall(instPath: string) {
@@ -513,7 +505,7 @@ async function batchInstall(instPath: string) {
       buttonTransition.message(
         btn,
         'インストール先フォルダを指定してください。',
-        'danger'
+        'danger',
       );
       setTimeout(() => {
         enableButton();
@@ -531,13 +523,13 @@ async function batchInstall(instPath: string) {
     const allPackages = (
       await packageUtil.getPackagesExtra(
         await packageMain.getPackages(instPath),
-        instPath
+        instPath,
       )
     ).packages;
     const packages = allPackages.filter(
       (p) =>
         p.info.directURL &&
-        p.installationStatus === packageUtil.states.notInstalled
+        p.installationStatus === packageUtil.states.notInstalled,
     );
     for (const packageItem of packages) {
       await packageMain.installPackage(instPath, packageItem, true);

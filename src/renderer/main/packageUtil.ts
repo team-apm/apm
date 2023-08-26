@@ -34,7 +34,6 @@ const states = {
 
 /**
  * Convert type from internal expression to display
- *
  * @param {string[]} packageType - A list of package types
  * @returns {string[]} Parsed package types
  */
@@ -69,7 +68,7 @@ function parsePackageType(packageType: string[]) {
           'シーンチェンジ',
           'カメラ制御',
           'トラックバー',
-          'スクリプト配布サイト'
+          'スクリプト配布サイト',
         );
         break;
       case 'animation':
@@ -101,7 +100,6 @@ function parsePackageType(packageType: string[]) {
 
 /**
  * Returns an object parsed from packages.json
- *
  * @param {string[]} packageDataUrls - URLs of the repository
  * @returns {Promise<object[]>} - A list of object parsed from packages.json
  */
@@ -111,7 +109,7 @@ async function getPackages(packageDataUrls: string[]) {
   for (const packageRepository of packageDataUrls) {
     const packagesListFile = await existsTempFile(
       `package/${path.basename(packageRepository)}`,
-      packageRepository
+      packageRepository,
     );
     if (packagesListFile.exists) {
       try {
@@ -124,7 +122,7 @@ async function getPackages(packageDataUrls: string[]) {
             '\n' +
             'URL: ' +
             packageRepository,
-          'error'
+          'error',
         );
       }
     }
@@ -168,7 +166,6 @@ async function downloadRepository(packageDataUrls: string[]) {
 
 /**
  * Returns a list of installed files.
- *
  * @param {string} instPath - An installation path
  * @returns {string[]} List of installed files
  */
@@ -186,7 +183,7 @@ async function getInstalledFiles(instPath: string) {
   // https://zenn.dev/repomn/scraps/d80ccd5c9183f0
   const asyncFlatMap = async <Item, Res>(
     arr: Item[],
-    callback: (value: Item, index: number, array: Item[]) => Promise<Res>
+    callback: (value: Item, index: number, array: Item[]) => Promise<Res>,
   ) => {
     const a = await Promise.all(arr.map(callback));
     return a.flat();
@@ -203,14 +200,13 @@ async function getInstalledFiles(instPath: string) {
         .filter((i) => i.isDirectory())
         .map((i) => 'script/' + i.name),
       async (i) =>
-        (await readdir(path.join(instPath, i))).map((j) => i + '/' + j)
-    )
+        (await readdir(path.join(instPath, i))).map((j) => i + '/' + j),
+    ),
   );
 }
 
 /**
  * Returns a list of files that were manually installed.
- *
  * @param {string[]} files - List of installed files
  * @param {object[]} installedPackages - A list of object from apmJson
  * @param {object[]} packages - A list of object parsed from packages.json
@@ -219,7 +215,7 @@ async function getInstalledFiles(instPath: string) {
 function getManuallyInstalledFiles(
   files: string[],
   installedPackages: ApmJsonObject['packages'],
-  packages: PackageItem[]
+  packages: PackageItem[],
 ) {
   let retFiles = [...files];
   for (const packageItem of packages) {
@@ -240,7 +236,6 @@ function getManuallyInstalledFiles(
 
 /**
  * Returns the installed version or installation status of the package.
- *
  * @param {object} packageItem - A Package
  * @param {string[]} installedFiles - List of installed files
  * @param {string[]} manuallyInstalledFiles - List of manually installed files
@@ -253,7 +248,7 @@ function getInstalledVersionOfPackage(
   installedFiles: string[],
   manuallyInstalledFiles: string[],
   installedPackages: ApmJsonObject['packages'],
-  instPath: string
+  instPath: string,
 ) {
   let installationStatus;
   let version;
@@ -271,7 +266,7 @@ function getInstalledVersionOfPackage(
     : states.notInstalled;
 
   for (const [installedId, installedPackage] of Object.entries(
-    installedPackages
+    installedPackages,
   )) {
     if (installedId === packageItem.id) {
       if (packageItem.info.files.some((file) => file.isObsolete)) {
@@ -295,7 +290,6 @@ function getInstalledVersionOfPackage(
 
 /**
  * Updates the installedVersion of the packages given as argument and returns a list of manually installed files
- *
  * @param {object[]} _packages - A list of object parsed from packages.json
  * @param {string} instPath - An installation path
  * @returns {object} List of manually installed files
@@ -306,13 +300,13 @@ async function getPackagesExtra(_packages: PackageItem[], instPath: string) {
   });
   const tmpInstalledPackages = (await apmJson.get(
     instPath,
-    'packages'
+    'packages',
   )) as ApmJsonObject['packages'];
   const tmpInstalledFiles = await getInstalledFiles(instPath);
   const tmpManuallyInstalledFiles = getManuallyInstalledFiles(
     tmpInstalledFiles,
     tmpInstalledPackages,
-    packages
+    packages,
   );
   packages.forEach((p) => {
     [p.installationStatus, p.version] = getInstalledVersionOfPackage(
@@ -320,7 +314,7 @@ async function getPackagesExtra(_packages: PackageItem[], instPath: string) {
       tmpInstalledFiles,
       tmpManuallyInstalledFiles,
       tmpInstalledPackages,
-      instPath
+      instPath,
     );
   });
   return {
@@ -331,7 +325,6 @@ async function getPackagesExtra(_packages: PackageItem[], instPath: string) {
 
 /**
  * Updates the installedVersion of the packages given as argument and returns a list of manually installed files
- *
  * @param {string} instPath - An installation path
  * @param {object[]} _packages - A list of object parsed from packages.json and getPackagesExtra()
  * @returns {object[]} - packages
@@ -429,7 +422,7 @@ async function getPackagesStatus(instPath: string, _packages: PackageItem[]) {
               if (ps.length > 0) return ps;
             }
             return [];
-          })
+          }),
         );
       }
       return lists;

@@ -2,14 +2,13 @@ import { compareVersions } from 'compare-versions';
 
 /**
  *  Compare the two given versions.
- *
  * @param {string} firstVersion - First version to compare
  * @param {string} secondVersion - Second version to compare
  * @returns {number} A number representing the version order
  */
 export default function compareVersion(
   firstVersion: string,
-  secondVersion: string
+  secondVersion: string,
 ) {
   if (firstVersion === secondVersion) return 0;
   const isDate1 = firstVersion.match(/^\d{4}\/\d{2}\/\d{2}$/);
@@ -18,7 +17,7 @@ export default function compareVersion(
   if (isDate1 && isDate2) {
     return compareVersions(
       firstVersion.replaceAll('/', '.'),
-      secondVersion.replaceAll('/', '.')
+      secondVersion.replaceAll('/', '.'),
     ); // 2022/02/02 -> 2022.02.02
   }
 

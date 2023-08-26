@@ -71,7 +71,6 @@ function parseFiles(parsedData) {
 class PackageInfo {
   /**
    * Returns the package's information.
-   *
    * @param {object} parsedPackage - An object parsed from XML.
    */
   constructor(parsedPackage) {
@@ -142,7 +141,6 @@ class PackagesList extends Object {
 
 /**
  * Returns a list of packages.
- *
  * @param {string} packagesListPath - A path of xml file.
  * @returns {Promise<PackagesList>} A list of packages.
  */

@@ -19,7 +19,6 @@ async function initSettings() {
 
 /**
  * Sets a data files URL.
- *
  * @param {HTMLInputElement} dataUrl - An input element that contains a data files URL to set.
  * @param {string} dataUrl.value - value
  * @param {string} extraDataUrls - Data files URLs to set.
@@ -41,7 +40,7 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
     await openDialog(
       'エラー',
       '有効なURLまたは場所を入力してください。',
-      'error'
+      'error',
     );
     error = true;
   }
@@ -60,7 +59,7 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
       await openDialog(
         'エラー',
         `有効なURLまたは場所を入力してください。(${tmpDataUrl})`,
-        'error'
+        'error',
       );
       error = true;
     }
@@ -68,7 +67,7 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
       await openDialog(
         'エラー',
         `有効なJsonファイルのURLまたは場所を入力してください。(${tmpDataUrl})`,
-        'error'
+        'error',
       );
       error = true;
     }
@@ -98,7 +97,6 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
 
 /**
  * Sets a zoom factor.
- *
  * @param {HTMLSelectElement} zoomFactorSelect - A zoom factor select to change value.
  */
 function setZoomFactor(zoomFactorSelect: HTMLSelectElement) {
@@ -113,7 +111,6 @@ function setZoomFactor(zoomFactorSelect: HTMLSelectElement) {
 
 /**
  * Changes a zoom factor.
- *
  * @param {string} zoomFactor - A zoom factor to change.
  */
 async function changeZoomFactor(zoomFactor: string) {

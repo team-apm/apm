@@ -17,7 +17,6 @@ export const app = {
 
   /**
    * Gets a path to a special directory or file associated with `name`.
-   *
    * @param {string} name - A name associated with a special directory or file you get.
    */
   getPath: async function (
@@ -37,7 +36,7 @@ export const app = {
       | 'videos'
       | 'recent'
       | 'logs'
-      | 'crashDumps'
+      | 'crashDumps',
   ) {
     return (await ipcRenderer.invoke('app-get-path', name)) as string;
   },
@@ -66,7 +65,6 @@ export async function checkUpdate() {
 
 /**
  * Opens a file explorer and returns whether the directory exists.
- *
  * @param {string} relativePath - A relative path from the data directory.
  */
 export async function openPath(relativePath: string) {
@@ -75,24 +73,22 @@ export async function openPath(relativePath: string) {
 
 /**
  * Returns whether the temporary file exists and the path.
- *
  * @param {string} relativePath - A relative path from the data directory.
  * @param {string} [keyText] - String used to generate the hash.
  */
 export async function existsTempFile(
   relativePath: string,
-  keyText: string = undefined
+  keyText: string = undefined,
 ) {
   return (await ipcRenderer.invoke(
     'exists-temp-file',
     relativePath,
-    keyText
+    keyText,
   )) as { exists: boolean; path: string };
 }
 
 /**
  * Opens a directory dialog and returns the path selected by a user.
- *
  * @param {string} title - A title of the dialog.
  * @param {string} defaultPath - A path of the initial directory.
  */
@@ -100,13 +96,12 @@ export async function openDirDialog(title: string, defaultPath: string) {
   return (await ipcRenderer.invoke(
     'open-dir-dialog',
     title,
-    defaultPath
+    defaultPath,
   )) as string[];
 }
 
 /**
  * Opens a error dialog.
- *
  * @param {string} title - A title of the dialog.
  * @param {string} message - A message showed in the dialog.
  * @param {'none' | 'info' | 'error' | 'question' | 'warning'} [type] - A type of the dialog.
@@ -114,14 +109,13 @@ export async function openDirDialog(title: string, defaultPath: string) {
 export async function openDialog(
   title: string,
   message: string,
-  type?: 'none' | 'info' | 'error' | 'question' | 'warning'
+  type?: 'none' | 'info' | 'error' | 'question' | 'warning',
 ) {
   await ipcRenderer.invoke('open-dialog', title, message, type);
 }
 
 /**
  * Opens a yes-no dialog and returns a response.
- *
  * @param {string} title - A title of the dialog.
  * @param {string} message - A message showed in the dialog.
  */
@@ -129,13 +123,12 @@ export async function openYesNoDialog(title: string, message: string) {
   return (await ipcRenderer.invoke(
     'open-yes-no-dialog',
     title,
-    message
+    message,
   )) as boolean;
 }
 
 /**
  * Gets nicommons' data.
- *
  * @param {string} id - A nicommons ID.
  */
 export async function getNicommonsData(id: string) {
@@ -161,13 +154,12 @@ export async function migration1to2ConfirmDialog() {
  */
 export async function migration1to2DataurlInputDialog() {
   return (await ipcRenderer.invoke(
-    'migration1to2-dataurl-input-dialog'
+    'migration1to2-dataurl-input-dialog',
   )) as string;
 }
 
 /**
  * Changes the zoom factor of the main window.
- *
  * @param {number} zoomFactor - A zoom factor to be changed to. Zoom factor is zoom percent divided by 100, so 300% = 3.0.
  */
 export async function changeMainZoomFactor(zoomFactor: number) {
@@ -176,24 +168,22 @@ export async function changeMainZoomFactor(zoomFactor: number) {
 
 /**
  * Downloads a file.
- *
  * @param {string} url - The URL of a file to download.
  * @param {object} [options] - Options
- * @param {boolean} [options.loadCache=false] - Whether to load a cache file.
- * @param {string} [options.subDir=''] - A directory name under a data directory.
+ * @param {boolean} [options.loadCache] - Whether to load a cache file.
+ * @param {string} [options.subDir] - A directory name under a data directory.
  * @param {string} [options.keyText] - String used to generate the hash.
  * @returns {Promise<string>} File path (on success) or undefined (on failure).
  */
 export async function download(
   url: string,
-  options?: { loadCache?: boolean; subDir?: string; keyText?: string }
+  options?: { loadCache?: boolean; subDir?: string; keyText?: string },
 ) {
   return (await ipcRenderer.invoke('download', url, options)) as string;
 }
 
 /**
  * Opens the browser window.
- *
  * @param {string} url - A URL to be opened.
  * @param {'core'|'package'} type - A type of the file to be downloaded.
  */
@@ -206,7 +196,6 @@ export async function openBrowser(url: string, type: 'core' | 'package') {
 
 /**
  * Writes the text into the clipboard as plain text.
- *
  * @param {string} text - plain text.
  */
 export async function clipboardWriteText(text: string) {

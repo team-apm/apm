@@ -63,7 +63,6 @@ const store = new Store();
 
 /**
  * Checks whether it is the installed version of apm.
- *
  * @returns {boolean} Whether it is the installed version of apm.
  */
 function isExeVersion() {
@@ -83,7 +82,6 @@ if (!store.has('autoUpdate')) {
 
 /**
  * Checks whether a newer version is available.
- *
  * @param {boolean} [silent] - Whether the dialog is not shown if apm is up to date.
  */
 async function checkUpdate(silent = true) {
@@ -212,7 +210,7 @@ ipcMain.handle('exists-temp-file', (event, relativePath, keyText) => {
   if (keyText) {
     filePath = path.join(
       path.dirname(filePath),
-      getHash(keyText) + '_' + path.basename(filePath)
+      getHash(keyText) + '_' + path.basename(filePath),
     );
   }
   return { exists: fs.existsSync(filePath), path: filePath };
@@ -254,7 +252,7 @@ ipcMain.handle('open-yes-no-dialog', async (event, title, message) => {
 
 ipcMain.handle('get-nicommons-data', (event, id) => {
   const request = net.request(
-    `https://public-api.commons.nicovideo.jp/v1/tree/node/${id}?with_meta=1`
+    `https://public-api.commons.nicovideo.jp/v1/tree/node/${id}?with_meta=1`,
   );
   return new Promise((resolve) => {
     request.on('response', (response) => {
@@ -317,7 +315,7 @@ app.on(
         }
       }
     }
-  }
+  },
 );
 
 /**
@@ -455,7 +453,7 @@ async function launch() {
         height: 300,
         type: 'input',
       },
-      mainWindow
+      mainWindow,
     );
   });
 
@@ -474,7 +472,7 @@ async function launch() {
           subDir,
           ['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(url))
             ? 'archive'
-            : ''
+            : '',
         ),
         filename: (keyText ? getHash(keyText) + '_' : '') + path.basename(url),
       };
@@ -493,7 +491,7 @@ async function launch() {
         log.error(e);
         return undefined;
       }
-    }
+    },
   );
 
   ipcMain.handle('open-browser', async (event, url, type) => {
@@ -530,7 +528,7 @@ async function launch() {
         const dir = path.join(app.getPath('userData'), 'Data');
         if (['.zip', '.lzh', '.7z', '.rar'].includes(ext)) {
           item.setSavePath(
-            path.join(dir, type, 'archive/', item.getFilename())
+            path.join(dir, type, 'archive/', item.getFilename()),
           );
         } else {
           item.setSavePath(path.join(dir, type, item.getFilename()));

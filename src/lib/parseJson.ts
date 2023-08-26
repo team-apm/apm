@@ -8,7 +8,6 @@ import { getIdDict } from './convertId';
 
 /**
  * Returns a list of core programs.
- *
  * @param {string} coreListPath - A path of Json file.
  * @returns {Core} A list of core programs.
  */
@@ -22,7 +21,6 @@ export async function getCore(coreListPath: string): Promise<Core> {
 
 /**
  * Returns a list of packages.
- *
  * @param {string} packagesListPath - A path of Json file.
  * @returns {Promise<object>} A list of packages.
  */
@@ -46,30 +44,28 @@ export async function getPackages(packagesListPath: string) {
 
 /**
  * Write the packages in Json.
- *
  * @param {string} packagesListPath - A path of Json file.
  * @param {object} packages - A list of packages.
  */
 async function setPackages(
   packagesListPath: string,
-  packages: Packages['packages']
+  packages: Packages['packages'],
 ) {
   await writeJson(packagesListPath, { version: 3, packages: packages });
 }
 
 /**
  * Add the packages to Json.
- *
  * @param {string} packagesListPath - A path of Json file.
  * @param {object} packageItem - A package.
  */
 export async function addPackage(
   packagesListPath: string,
-  packageItem: Packages['packages'][number]
+  packageItem: Packages['packages'][number],
 ) {
   const packages: Packages['packages'] = fs.existsSync(packagesListPath)
     ? (await getPackages(packagesListPath)).filter(
-        (p) => p.id !== packageItem.id
+        (p) => p.id !== packageItem.id,
       )
     : [];
   packages.push(packageItem);
@@ -78,16 +74,15 @@ export async function addPackage(
 
 /**
  * Remove the packages in Json.
- *
  * @param {string} packagesListPath - A path of Json file.
  * @param {object} packageItem - A package.
  */
 export async function removePackage(
   packagesListPath: string,
-  packageItem: PackageItem
+  packageItem: PackageItem,
 ) {
   const packages = (await getPackages(packagesListPath)).filter(
-    (p) => p.id !== packageItem.id
+    (p) => p.id !== packageItem.id,
   );
   if (packages.length > 0) {
     await setPackages(packagesListPath, packages);
@@ -98,7 +93,6 @@ export async function removePackage(
 
 /**
  * Returns an object which contains mod dates.
- *
  * @param {string} packagesListPath - A path of Json file.
  * @returns {List} An object which contains mod dates.
  */

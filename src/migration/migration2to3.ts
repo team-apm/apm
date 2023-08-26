@@ -10,7 +10,6 @@ const store = new Store();
 
 /**
  * Migration of common settings.
- *
  * @returns {Promise<boolean>} True on successful completion
  */
 async function global(): Promise<boolean> {
@@ -43,7 +42,7 @@ async function global(): Promise<boolean> {
   await openDialog(
     'アップデート',
     'v2.x.xからv3.x.xへのアップデートに伴い、データ取得先がリセットされました。\nデフォルト以外のURLを設定していた場合は、再設定してください。',
-    'info'
+    'info',
   );
   log.info('End of migration: migration2to3.global())');
   return true;
@@ -51,7 +50,6 @@ async function global(): Promise<boolean> {
 
 /**
  * Migration of the AviUtl installation folder.
- *
  * @param {string} instPath - An installation path.
  */
 async function byFolder(instPath: string) {
@@ -92,8 +90,8 @@ async function byFolder(instPath: string) {
       let v3Packages = JSON.parse(
         JSON.stringify(Object.values(packagesList)).replaceAll(
           'isOptional',
-          'isUninstallOnly'
-        )
+          'isUninstallOnly',
+        ),
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       v3Packages = v3Packages.map((p: any) => {

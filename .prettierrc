@@ -1,7 +1,3 @@
 {
-  "singleQuote": true,
-  "overrides": [
-    { "files": ["*.md"], "options": { "parser": "markdown-nocjsp" } },
-    { "files": ["*.mdx"], "options": { "parser": "mdx-nocjsp" } }
-  ]
+  "singleQuote": true
 }

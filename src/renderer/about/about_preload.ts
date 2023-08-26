@@ -10,7 +10,7 @@ log.catchErrors({
       `予期しないエラーが発生しました。\nログファイル: ${
         log.transports.file.getFile().path
       }`,
-      'error'
+      'error',
     );
   },
 });

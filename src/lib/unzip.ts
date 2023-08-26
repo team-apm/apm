@@ -13,7 +13,6 @@ if (!isDevEnv) {
 
 /**
  * Unzips zip archive.
- *
  * @param {string} zipPath - A path to zip archive.
  * @param {string} [folderName] - Name of the extracted folder.
  * @returns {Promise<string>} A path to unzipped directory.
@@ -24,12 +23,12 @@ async function unzip(zipPath: string, folderName?: string) {
       return path.resolve(
         path.dirname(zipPath),
         '../',
-        folderName ?? path.basename(zipPath, path.extname(zipPath))
+        folderName ?? path.basename(zipPath, path.extname(zipPath)),
       );
     } else {
       return path.resolve(
         path.dirname(zipPath),
-        folderName ?? path.basename(zipPath, path.extname(zipPath))
+        folderName ?? path.basename(zipPath, path.extname(zipPath)),
       );
     }
   };
