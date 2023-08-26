@@ -1224,7 +1224,7 @@ function listFilter(
   btn: HTMLButtonElement
 ) {
   const isClear =
-    btn.classList.contains('selected') || btn.dataset.installFilter == 'clear';
+    btn.classList.contains('selected') || btn.dataset.installFilter === 'clear';
 
   for (const element of Array.from(btns)) {
     filterButtons.add(element);
