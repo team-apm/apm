@@ -6,6 +6,7 @@ import {
   dialog,
   ipcMain,
   Menu,
+  MessageBoxSyncOptions,
   nativeTheme,
   net,
   shell,
@@ -32,7 +33,7 @@ declare const ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 log.catchErrors({
   showDialog: false,
   onError: () => {
-    const options = {
+    const options: MessageBoxSyncOptions = {
       title: 'エラー',
       message: `予期しないエラーが発生したため、AviUtl Package Managerを終了します。\nログファイル: ${
         log.transports.file.getFile().path
