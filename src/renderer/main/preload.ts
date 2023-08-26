@@ -148,6 +148,11 @@ window.addEventListener('load', () => {
     });
   });
 
+  const sharePackagesBtn = document.getElementById('share-packages');
+  sharePackagesBtn.addEventListener('click', async () => {
+    await packageMain.sharePackages(installationPath.value);
+  });
+
   // nicommons ID
   new ClipboardJS('#copy-nicommons-id-textarea');
 

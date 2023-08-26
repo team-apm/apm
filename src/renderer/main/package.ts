@@ -11,16 +11,17 @@ import {
   rename,
   rm,
 } from 'fs-extra';
-import List, { ListItem } from 'list.js';
+import { ListItem } from 'list.js';
 import * as matcher from 'matcher';
 import path from 'path';
-import { safeRemove } from '../../lib/safeRemove';
 import * as apmJson from '../../lib/apmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import compareVersion from '../../lib/compareVersion';
 import { getHash } from '../../lib/getHash';
 import { checkIntegrity, verifyFile } from '../../lib/integrity';
 import {
+  app,
+  clipboardWriteText,
   download,
   getNicommonsData,
   openBrowser,
@@ -30,10 +31,11 @@ import {
 import * as modList from '../../lib/modList';
 import * as parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
+import { safeRemove } from '../../lib/safeRemove';
 import unzip from '../../lib/unzip';
-import createList from '../../lib/updatableList';
+import createList, { UpdatableList } from '../../lib/updatableList';
 import { PackageItem } from '../../types/packageItem';
-import { install, verifyFilesByCount } from './common';
+import { install, programs, programsDisp, verifyFilesByCount } from './common';
 import packageUtil from './packageUtil';
 const store = new Store();
 
@@ -47,7 +49,8 @@ const isMatch = (
 let selectedEntry: PackageItem | Scripts['webpage'][number];
 let selectedEntryType: string;
 const entryType = { package: 'package', scriptSite: 'script' };
-let listJS: List;
+let listJS: UpdatableList;
+const shareStringVersion = '1.0';
 
 /**
  * Get the date today
@@ -86,6 +89,7 @@ async function setPackagesList(instPath: string) {
   packagesList2.innerHTML = null;
 
   const columns = [
+    'packageID',
     'name',
     'overview',
     'developer',
@@ -97,6 +101,7 @@ async function setPackagesList(instPath: string) {
     'dependencyInformation',
   ];
   const columnsDisp = [
+    'ID',
     '名前',
     '概要',
     '開発者',
@@ -188,6 +193,7 @@ async function setPackagesList(instPath: string) {
   )) {
     const {
       li,
+      packageID,
       name,
       developer,
       type,
@@ -200,6 +206,7 @@ async function setPackagesList(instPath: string) {
       installationStatus,
     } = makeLiFromArray([...columns, 'statusInformation']) as {
       li: HTMLLIElement;
+      packageID: HTMLDivElement;
       name: HTMLHeadingElement;
       developer: HTMLDivElement;
       type: HTMLDivElement;
@@ -224,6 +231,7 @@ async function setPackagesList(instPath: string) {
           ? '更新'
           : 'インストール';
     });
+    packageID.innerText = packageItem.id;
     name.innerText = packageItem.info.name;
     overview.innerText = packageItem.info.overview;
     developer.innerText = packageItem.info.originalDeveloper
@@ -349,14 +357,63 @@ async function setPackagesList(instPath: string) {
   }
 
   // sorting and filtering
-  if (typeof listJS === 'undefined') {
-    listJS = createList('packages', {
-      valueNames: columns,
-      fuzzySearch: { distance: 10000 }, // Ensure that searches are performed even on long strings.
+  const searchRegex =
+    /^.*🍎[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+):([A-Za-z0-9.]+),🎞[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+),🎬[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+)((,[A-Za-z0-9]+\/[A-Za-z0-9]+)*)$/u;
+  // Variation Selectors for text (U+FE0E) or color (U+FE0F) are added to 🍎, 🎞 and 🎬.
+  const searchFunction: UpdatableList['searchFunction'] = (
+    items: { values: () => { packageID?: string }; found?: boolean }[],
+    searchString
+  ) => {
+    items.forEach((item) => (item.found = false));
+    const searchStringArray = searchString.toLowerCase().match(searchRegex);
+    const searchVersions = {
+      share: searchStringArray[1],
+      apm: searchStringArray[2],
+      aviutl: searchStringArray[3],
+      exedit: searchStringArray[4],
+      packages: searchStringArray[5].split(',').slice(1),
+    };
+    searchVersions.packages.forEach((id) => {
+      const foundItem = items.find(
+        (item) => item.values().packageID.toLowerCase() === id
+      );
+      if (foundItem) foundItem.found = true;
     });
+    return (async () => {
+      const alertStrings = [];
+      if (compareVersion(shareStringVersion, searchVersions.share) < 0)
+        alertStrings.push(
+          '新しいバージョンのapmに対応したデータです。正しく読み込むためにapmの更新が必要な場合があります。'
+        );
+      for (const program of programs) {
+        const currentVersion = (await apmJson.get(
+          instPath,
+          'core.' + program
+        )) as string;
+        if (compareVersion(currentVersion, searchVersions[program]) !== 0)
+          alertStrings.push(
+            `${programsDisp[program]} ${searchVersions[program]} 用のデータです。使用中の ${programsDisp[program]} ${currentVersion} には非対応の場合があります。`
+          );
+      }
+      return alertStrings.join('\n');
+    })();
+  };
+
+  if (typeof listJS === 'undefined') {
+    listJS = createList(
+      'packages',
+      {
+        regex: searchRegex,
+        searchFunction: searchFunction,
+      },
+      {
+        valueNames: columns,
+        fuzzySearch: { distance: 10000 }, // Ensure that searches are performed even on long strings.
+      }
+    );
   } else {
     listJS.reIndex();
-    listJS.update();
+    listJS.update(searchFunction);
   }
 
   // list manually added packages
@@ -1430,6 +1487,63 @@ async function displayNicommonsIdList(instPath: string) {
   updateTextarea();
 }
 
+/**
+ * Returns a nicommonsID list separated by space.
+ *
+ * @param {string} instPath - An installation path.
+ */
+async function sharePackages(instPath: string) {
+  const btn = document.getElementById('share-packages') as HTMLButtonElement;
+  const { enableButton } = btn
+    ? buttonTransition.loading(btn, '共有')
+    : { enableButton: null };
+
+  const ver = {
+    share: shareStringVersion, // version of this data
+    apm: await app.getVersion(),
+    aviutl: '',
+    exedit: '',
+    packages: [''],
+  };
+  await app.getVersion();
+  for (const program of programs) {
+    const currentVersion = (await apmJson.get(
+      instPath,
+      'core.' + program
+    )) as string;
+    ver[program] = currentVersion;
+  }
+  ver.packages = (
+    await packageUtil.getPackagesExtra(await getPackages(instPath), instPath)
+  ).packages
+    .filter(
+      (p) =>
+        p.installationStatus === packageUtil.states.installed ||
+        p.installationStatus === packageUtil.states.manuallyInstalled
+    )
+    .map((p) => p.id)
+    .filter((id) => id.includes('/'))
+    .sort((a, b) => {
+      const compare = (a: string, b: string) => (a > b ? 1 : a < b ? -1 : 0);
+      const a2 = a.split('/');
+      const b2 = b.split('/');
+      return a2[0] === b2[0] ? compare(a2[1], b2[1]) : compare(a2[0], b2[0]);
+    });
+  await clipboardWriteText(
+    //  Variation Selectors: 🍎️(color), 🎞︎(text), 🎬︎(text)
+    `ここにタイトルを入力🍎️${ver.share}:${ver.apm},🎞︎${ver.aviutl},🎬︎${
+      ver.exedit
+    },${ver.packages.join(',')}`
+  );
+
+  buttonTransition.message(btn, 'コピーしました', 'info');
+  if (btn) {
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+  }
+}
+
 const packageMain = {
   getPackages,
   setPackagesList,
@@ -1441,5 +1555,6 @@ const packageMain = {
   installScript,
   listFilter,
   displayNicommonsIdList,
+  sharePackages,
 };
 export default packageMain;

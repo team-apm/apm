@@ -203,3 +203,12 @@ export async function openBrowser(url: string, type: 'core' | 'package') {
     history: string[];
   } | null;
 }
+
+/**
+ * Writes the text into the clipboard as plain text.
+ *
+ * @param {string} text - plain text.
+ */
+export async function clipboardWriteText(text: string) {
+  await ipcRenderer.invoke('clipboard-writeText', text);
+}
