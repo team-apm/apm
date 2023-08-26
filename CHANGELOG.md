@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.7.0](https://github.com/team-apm/apm/compare/v3.6.3...v3.7.0) (2023-08-26)
+
+### Features
+
+- add export functionality ([5bb4693](https://github.com/team-apm/apm/commit/5bb46936c4f91bc4f98b55848568be139346f565))
+- add id search functionality ([b012dc8](https://github.com/team-apm/apm/commit/b012dc846049e62f9ef744d6bf0e326d092884e8))
+- add import functionality ([e7d39e7](https://github.com/team-apm/apm/commit/e7d39e77055c71d8bc8ef05e6bc2cf672734fc3f))
+- add sidebar for filtering ([3cf6de9](https://github.com/team-apm/apm/commit/3cf6de9fc4dab2f91098be8ab4e9be54c33f994b))
+- add version to data ([9d9b060](https://github.com/team-apm/apm/commit/9d9b06095679116d981abebc368a3fa527e74e67))
+- change emojis ([cf25681](https://github.com/team-apm/apm/commit/cf256815d3454cd3a8a6315a0d40c92fc2e0e24f))
+- filtering plugins and scripts ([0415c1f](https://github.com/team-apm/apm/commit/0415c1f371e5414af67978ae684fa93e08445ac5))
+- **index:** appearance of the sort button ([acc473a](https://github.com/team-apm/apm/commit/acc473a96636879ba1f8c59f853c9b934f6444ea))
+- rename variables and buttons ([4be404e](https://github.com/team-apm/apm/commit/4be404ee018a6b14ed169b93148d25d57b37c124))
+- **sidebar:** adjustment of margins ([37c42d8](https://github.com/team-apm/apm/commit/37c42d8f43be53e3e2dabcfa55ed5b2947e3bc64))
+- **sidebar:** improvements in design ([4d85150](https://github.com/team-apm/apm/commit/4d85150eec19339bfdd88116c21370b201ffbcbe))
+- **twemoji:** remove non-working Twemoji ([9d8764d](https://github.com/team-apm/apm/commit/9d8764d711f822508585daee23337c449f4a3185)), closes [#1078](https://github.com/team-apm/apm/issues/1078)
+
+### Bug Fixes
+
+- fix for disappearance of the sorting symbol ([9839f3d](https://github.com/team-apm/apm/commit/9839f3d4dd4af6891aa0788413edbd422ac07729))
+- **unzip.ts:** no codepoint when unzipping .7z ([0d47d44](https://github.com/team-apm/apm/commit/0d47d440fbde526804135252372a6da2323e1b04)), closes [#1188](https://github.com/team-apm/apm/issues/1188)
+
 ### [3.6.3](https://github.com/team-apm/apm/compare/v3.6.2...v3.6.3) (2023-02-23)
 
 ### [3.6.2](https://github.com/team-apm/apm/compare/v3.6.1...v3.6.2) (2022-12-09)

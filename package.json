@@ -1,7 +1,7 @@
 {
   "name": "apm",
   "productName": "AviUtl Package Manager",
-  "version": "3.6.3",
+  "version": "3.7.0",
   "description": "A package manager for AviUtl",
   "main": ".webpack/main",
   "repository": "https://github.com/team-apm/apm.git",
