@@ -537,7 +537,7 @@ async function launch() {
         item.once('done', () => {
           history.push(...item.getURLChain(), item.getFilename());
           resolve({ savePath: item.getSavePath(), history: history });
-          browserWindow.destroy();
+          browserWindow.close();
         });
       });
 
