@@ -288,15 +288,6 @@
     username "^5.1.0"
     yarn-or-npm "^3.0.1"
 
-"@electron-forge/maker-base@6.4.1":
-  version "6.4.1"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.4.1.tgz#676520fdc726e9a157c53fa9fd54465a230e09ae"
-  integrity sha512-c4Vdy6beT4wtWbsDK7pBM1iEX9RT2PKGn1NT2Ygyosnzuzgp3Bh4bZyfpJRdKqUOsdJ3gWLpGDN3VcxghldfxA==
-  dependencies:
-    "@electron-forge/shared-types" "6.4.1"
-    fs-extra "^10.0.0"
-    which "^2.0.2"
-
 "@electron-forge/maker-base@6.4.2":
   version "6.4.2"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.4.2.tgz#0403f12773f816089f37c42792025162e067defe"
@@ -306,13 +297,13 @@
     fs-extra "^10.0.0"
     which "^2.0.2"
 
-"@electron-forge/maker-deb@^6.4.1":
-  version "6.4.1"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.4.1.tgz#f40461c1e27be8862ced511cabe51fd5bfb392bb"
-  integrity sha512-B1tNu9jKQygsV4nK0F8+ZHz1XPmB8h6zYhogiGDCH7R4nlCkokq5skhN4JhonKUbQx4UNC1a0Yf+VaRfjWSGKg==
+"@electron-forge/maker-deb@^6.4.2":
+  version "6.4.2"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.4.2.tgz#8b2c1a85641d8c7f46a22d5c747ed1da393c51b5"
+  integrity sha512-tlV8ffivgBP94vtYXgAeXgzeKCaRyLuWH9LT8PQW1QrYbAFpCMmuwk/zFaJkyMklImCWmDFTPYMEqdEJGd7Npg==
   dependencies:
-    "@electron-forge/maker-base" "6.4.1"
-    "@electron-forge/shared-types" "6.4.1"
+    "@electron-forge/maker-base" "6.4.2"
+    "@electron-forge/shared-types" "6.4.2"
   optionalDependencies:
     electron-installer-debian "^3.2.0"
 
