@@ -67,6 +67,7 @@ const config: ForgeConfig = {
             preload: {
               js: './src/renderer/main/preload.ts',
             },
+            nodeIntegration: true,
           },
           {
             html: './src/renderer/about/about.html',
@@ -75,6 +76,7 @@ const config: ForgeConfig = {
             preload: {
               js: './src/renderer/about/about_preload.ts',
             },
+            nodeIntegration: true,
           },
           {
             html: './src/renderer/splash/splash.html',
