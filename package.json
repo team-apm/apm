@@ -70,7 +70,7 @@
     "@types/bootstrap": "^5.2.6",
     "@types/electron-prompt": "^1.6.1",
     "@types/electron-window-state": "^5.0.0",
-    "@types/fs-extra": "^11.0.1",
+    "@types/fs-extra": "^11.0.2",
     "@types/list.js": "^2.3.2",
     "@types/node-7z": "^2.1.5",
     "@types/react": "^18.2.21",
