@@ -56,6 +56,12 @@ After launching the AviUtl Package Manager, please perform the following setting
 2. Uncheck the plugins or scripts you do not want to register and click the "コピー" button.
 3. paste it into the Commons ID input field when you post a Nico Nico Douga, or into an external tool such as [コンテンツツリー登録支援ツール](https://textblog.minibird.jp/twitter/#contents-tree).
 
+### Updating apm
+
+- For the exe version, update using the automatic update feature or run the new exe file and install it.
+- For the zip version, download the new version and replace it with the old version.
+- The configuration files are stored under `Users\user\AppData` and in `apm.json` in each AviUtl folder, so the settings will be inherited in both cases.
+
 ## Other
 
 - If a package cannot be installed using the above method, it can be installed using the traditional method of manually copying the files.
