@@ -1111,10 +1111,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.2.tgz#ee771e2ba4b3dc5b372935d549fd9617bf345b8c"
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
-"@types/node-7z@^2.1.5":
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/@types/node-7z/-/node-7z-2.1.5.tgz#d63c728e5bada21704df98395260a98f87474d46"
-  integrity sha512-ZTcXeMhJPcGzZBjkpc6m3FsWpKlr5OotizwzRNyIjoMo57OQ7RkM5GganOHVE1brMX9tvyr6YEYvfj8LSrx0Nw==
+"@types/node-7z@^2.1.6":
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/@types/node-7z/-/node-7z-2.1.6.tgz#a9d9116e6ad254b3198e7be4690c7729beff7475"
+  integrity sha512-26aONb5grye/fklu1FXy5NEnbT2QyLA7DoCjQVTT3zAUJRjp/D44oiYrBVj/CLGmAeCJMkVbdxL6vROxaf7JYQ==
   dependencies:
     "@types/node" "*"
 
