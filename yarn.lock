@@ -1218,10 +1218,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/ssri@^7.1.1":
-  version "7.1.1"
-  resolved "https://registry.yarnpkg.com/@types/ssri/-/ssri-7.1.1.tgz#2a2c94abf0d3a8c3b07bb4ff08142dd571407bb5"
-  integrity sha512-DPP/jkDaqGiyU75MyMURxLWyYLwKSjnAuGe9ZCsLp9QZOpXmDfuevk769F0BS86TmRuD5krnp06qw9nSoNO+0g==
+"@types/ssri@^7.1.2":
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/@types/ssri/-/ssri-7.1.2.tgz#978430fa4c56ce08c8726243df20c98a00491ee3"
+  integrity sha512-Mbo/NaBiZlXNlOFTLK+PXeVEzKFxi+ZVELuzmk4VxdRz6aqKpmP9bhcNqsIB2c/s78355WBHwUCGYhQDydcfEg==
   dependencies:
     "@types/node" "*"
 
