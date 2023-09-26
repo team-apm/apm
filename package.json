@@ -75,7 +75,7 @@
     "@types/node-7z": "^2.1.6",
     "@types/react": "^18.2.22",
     "@types/react-dom": "^18.2.7",
-    "@types/ssri": "^7.1.1",
+    "@types/ssri": "^7.1.2",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vercel/webpack-asset-relocator-loader": "1.7.3",
