@@ -414,7 +414,6 @@ async function launch() {
       icon: icon,
       webPreferences: {
         preload: ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY,
-        sandbox: false,
       },
     });
     aboutWindow.once('close', () => {
