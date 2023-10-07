@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.7.2](https://github.com/team-apm/apm/compare/v3.7.1...v3.7.2) (2023-10-07)
+
+### Bug Fixes
+
+- **main.ts:** close only when window is present ([fc13e33](https://github.com/team-apm/apm/commit/fc13e3376830b58f0e6906ad205c32e0b2048f72)), closes [#1485](https://github.com/team-apm/apm/issues/1485)
+
 ### [3.7.1](https://github.com/team-apm/apm/compare/v3.7.0...v3.7.1) (2023-09-16)
 
 ### Bug Fixes
