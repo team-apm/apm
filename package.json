@@ -68,7 +68,7 @@
     "@electron-forge/plugin-webpack": "6.4.1",
     "@electron-forge/publisher-github": "^6.4.1",
     "@types/bootstrap": "^5.2.7",
-    "@types/electron-prompt": "^1.6.2",
+    "@types/electron-prompt": "^1.6.3",
     "@types/electron-window-state": "^5.0.0",
     "@types/fs-extra": "^11.0.2",
     "@types/list.js": "^2.3.2",
