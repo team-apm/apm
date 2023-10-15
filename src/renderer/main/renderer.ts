@@ -1,4 +1,4 @@
-import '../../../node_modules/bootstrap-dark-5/dist/css/bootstrap-dark.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../../node_modules/bootstrap-icons/font/bootstrap-icons.css';
 import '../main.css';
 import './index.css';

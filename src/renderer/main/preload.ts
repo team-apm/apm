@@ -29,6 +29,19 @@ log.catchErrors({
 });
 
 window.addEventListener('DOMContentLoaded', async () => {
+  // dark-theme
+  const updateTheme = () => {
+    document.querySelector('html').dataset.bsTheme = window.matchMedia(
+      '(prefers-color-scheme: dark)',
+    ).matches
+      ? 'dark'
+      : 'light';
+  };
+  window
+    .matchMedia('(prefers-color-scheme: dark)')
+    .addEventListener('change', updateTheme);
+  updateTheme();
+
   // *global*
   // migration
   if (!(await migration2to3.global())) {

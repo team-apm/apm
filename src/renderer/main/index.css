@@ -72,19 +72,11 @@ div#packages-table-overlay {
 }
 .sort.desc:after {
   border-width: 0 0.3em 0.6em;
-  border-color: #505050 transparent;
+  border-color: var(--bs-body-color) transparent;
 }
 .sort.asc:after {
   border-width: 0.6em 0.3em 0;
-  border-color: #505050 transparent;
-}
-@media (prefers-color-scheme: dark) {
-  .sort.desc:after {
-    border-color: #a0a0a0 transparent;
-  }
-  .sort.asc:after {
-    border-color: #a0a0a0 transparent;
-  }
+  border-color: var(--bs-body-color) transparent;
 }
 
 img.emoji {
