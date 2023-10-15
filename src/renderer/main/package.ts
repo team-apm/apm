@@ -445,18 +445,22 @@ async function setPackagesList(instPath: string) {
 
   // update the batch installation text
   const batchInstallElm = document.getElementById('batch-install-packages');
-  batchInstallElm.innerHTML = null;
+  [...batchInstallElm.getElementsByClassName('batch-install-package')].map(
+    (e) => e.remove(),
+  );
   packages
     .filter((p) => p.info.directURL)
-    .flatMap((p) => {
-      if (p.installationStatus !== packageUtil.states.notInstalled) {
-        const pTag = document.createElement('span');
-        pTag.classList.add('text-muted');
-        pTag.innerText = '✔' + p.info.name;
-        return [document.createTextNode(' + '), pTag];
-      } else {
-        return [document.createTextNode(' + ' + p.info.name)];
-      }
+    .map((p) => {
+      const liTag = document
+        .getElementById('batch-install-package-template')
+        .cloneNode(true) as HTMLSpanElement;
+      liTag.removeAttribute('id');
+      (liTag.getElementsByClassName('name')[0] as HTMLElement).innerText =
+        p.info.name;
+      (
+        liTag.getElementsByClassName('installed-version')[0] as HTMLElement
+      ).innerText = p.installationStatus;
+      return liTag;
     })
     .forEach((e) => batchInstallElm.appendChild(e));
 

@@ -96,8 +96,10 @@
 									src="../../../icon/apm32.png"
 									alt=""
 									class="d-inline-block"
+									width="20"
+									height="20"
 								/>
-								<span class="align-middle">AviUtl Package Manager</span>
+								<span class="ms-1 align-middle">AviUtl Package Manager</span>
 							</span>
 						</div>
 					</nav>
@@ -122,101 +124,92 @@
 							></button>
 						</div>
 					</div>
-					<div class="row my-2">
-						<div class="card">
-							<div class="card-body">
-								<div class="row mb-3">
-									<label for="installation-path" class="col-sm-3 col-form-label"
-										>AviUtlフォルダ</label
-									>
-									<div class="col-sm-6">
-										<input
-											class="form-control-plaintext"
-											id="installation-path"
-											type="text"
-											placeholder="AviUtlフォルダ"
-											aria-label="Installation path"
-											readonly
-										/>
-									</div>
-									<div class="col-sm-3">
-										<button
-											type="button"
-											class="btn btn-outline-primary w-100"
-											id="select-installation-path"
-										>
-											フォルダを選択
-										</button>
-									</div>
+					<div class="row my-2 card">
+						<div class="card-body">
+							<div class="mb-3 d-flex">
+								<div
+									class="flex-grow-1 border rounded-start d-flex align-items-center px-3"
+									id="addon-wrapping"
+								>
+									<i class="bi bi-folder2 me-3"></i>
+									<span id="installation-path"></span>
 								</div>
-								<div class="row mb-4">
-									<p class="col-sm-3 col-form-label">おすすめインストール</p>
-									<p class="col-sm-6 col-form-label">
-										<span id="batch-install-programs"></span
-										><span id="batch-install-packages"></span>
-									</p>
-									<div class="col-sm-3">
-										<button
-											type="button"
-											class="btn btn-outline-primary w-100"
-											id="batch-install"
-										>
-											インストール
-										</button>
+								<button
+									type="button"
+									class="btn btn-outline-primary rounded-0 rounded-end"
+									id="select-installation-path"
+								>
+									AviUtlフォルダを選択
+								</button>
+							</div>
+							<ul class="list-group mb-3" id="batch-install-packages">
+								<li class="list-group-item py-0 pe-0 d-flex">
+									<div class="d-flex align-items-center flex-grow-1">
+										<i class="bi bi-film me-3"></i> AviUtl
 									</div>
-								</div>
-								<div class="row mb-4">
-									<p class="col-sm-3 col-form-label">
-										<i class="bi bi-film me-1"></i> AviUtl
-									</p>
-									<p class="col-sm-6 col-form-label">
+									<div>
 										<span id="aviutl-installed-version"></span>
-									</p>
-									<div class="col-sm-3">
+										<button
+											type="button"
+											class="btn btn-outline-primary dropdown-toggle"
+											id="install-aviutl"
+											data-bs-toggle="dropdown"
+											aria-expanded="false"
+										></button>
 										<div class="dropdown bg-body">
-											<button
-												type="button"
-												class="btn btn-outline-primary w-100 dropdown-toggle"
-												id="install-aviutl"
-												data-bs-toggle="dropdown"
-												aria-expanded="false"
-											>
-												インストール
-											</button>
 											<ul
-												class="dropdown-menu"
+												class="dropdown-menu dropdown-menu-end"
 												id="aviutl-version-select"
 												aria-labelledby="install-aviutl"
 											></ul>
 										</div>
 									</div>
-								</div>
-								<div class="row mb-4">
-									<p class="col-sm-3 col-form-label">
-										<i class="bi bi-calendar3-range me-1"></i> 拡張編集
-									</p>
-									<p class="col-sm-6 col-form-label">
+								</li>
+								<li class="list-group-item py-0 pe-0 d-flex">
+									<div class="d-flex align-items-center flex-grow-1">
+										<i class="bi bi-calendar3-range me-3"></i> 拡張編集
+									</div>
+									<div>
 										<span id="exedit-installed-version"></span>
-									</p>
-									<div class="col-sm-3">
+										<button
+											type="button"
+											class="btn btn-outline-primary dropdown-toggle"
+											id="install-exedit"
+											data-bs-toggle="dropdown"
+											aria-expanded="false"
+										></button>
 										<div class="dropdown bg-body">
-											<button
-												type="button"
-												class="btn btn-outline-primary w-100 dropdown-toggle"
-												id="install-exedit"
-												data-bs-toggle="dropdown"
-												aria-expanded="false"
-											>
-												インストール
-											</button>
 											<ul
-												class="dropdown-menu"
+												class="dropdown-menu dropdown-menu-end"
 												id="exedit-version-select"
 												aria-labelledby="install-exedit"
 											></ul>
 										</div>
 									</div>
-								</div>
+								</li>
+							</ul>
+							<div class="d-none">
+								<li
+									id="batch-install-package-template"
+									class="list-group-item py-0 d-flex py-2 batch-install-package"
+								>
+									<div class="d-flex align-items-center flex-grow-1">
+										<i class="bi bi-box-seam me-3"></i>
+										<div class="name"></div>
+									</div>
+									<div>
+										<span class="installed-version"></span>
+									</div>
+								</li>
+							</div>
+							<div class="d-flex justify-content-end">
+								<button
+									type="button"
+									class="btn btn-outline-primary"
+									id="batch-install"
+								>
+									最新版のAviUtl・拡張編集とおすすめプラグインをインストール
+								</button>
 							</div>
 						</div>
 					</div>

@@ -100,24 +100,6 @@ async function displayInstalledVersion(instPath: string) {
     }
   }
 
-  // update the batch installation text
-  const batchInstallElm = document.getElementById('batch-install-programs');
-  batchInstallElm.innerHTML = null;
-  programs
-    .map((p) => {
-      if (isInstalled[p]) {
-        const pTag = document.createElement('span');
-        pTag.classList.add('text-muted');
-        pTag.innerText = '✔' + programsDisp[p];
-        batchInstallElm.appendChild(pTag);
-        return [pTag];
-      } else {
-        return [document.createTextNode(programsDisp[p])];
-      }
-    })
-    .reduce((a, b) => [].concat(a, document.createTextNode(' + '), b))
-    .forEach((e) => batchInstallElm.appendChild(e));
-
   if (store.has('modDate.core')) {
     const modDate = new Date(store.get('modDate.core') as number);
     replaceText('core-mod-date', modDate.toLocaleString());
@@ -265,10 +247,10 @@ async function checkLatestVersion(instPath: string) {
 
 /**
  * Shows a dialog to select installation path and set it.
- * @param {HTMLInputElement} input - A HTMLElement of input.
+ * @param {HTMLInputElement} installationPath - A HTMLElement of input.
  */
-async function selectInstallationPath(input: HTMLInputElement) {
-  const originalPath = input.value;
+async function selectInstallationPath(installationPath: HTMLSpanElement) {
+  const originalPath = installationPath.innerText;
   const selectedPath = await openDirDialog(
     'インストール先フォルダを選択',
     originalPath,
@@ -285,7 +267,7 @@ async function selectInstallationPath(input: HTMLInputElement) {
 
     const instPath = selectedPath[0];
     await changeInstallationPath(instPath);
-    input.value = instPath;
+    installationPath.innerText = instPath;
   }
 }
 
@@ -497,7 +479,10 @@ async function installProgram(
  */
 async function batchInstall(instPath: string) {
   const btn = document.getElementById('batch-install') as HTMLButtonElement;
-  const { enableButton } = buttonTransition.loading(btn, 'インストール');
+  const { enableButton } = buttonTransition.loading(
+    btn,
+    '最新版のAviUtl・拡張編集とおすすめプラグインをインストール',
+  );
 
   if (!instPath) {
     log.error('An installation path is not selected.');
