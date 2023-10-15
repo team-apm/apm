@@ -139,7 +139,7 @@
 									class="btn btn-primary rounded-0 rounded-end"
 									id="select-installation-path"
 								>
-									AviUtlフォルダを選択
+									AviUtlインストールフォルダを選択
 								</button>
 							</div>
 							<ul class="list-group mb-3" id="batch-install-packages">
@@ -269,7 +269,9 @@
 								</div>
 								<div class="h-100 min-h-0">
 									<div class="row h-100">
-										<div class="col-sm-auto overflow-auto h-100">
+										<div
+											class="col-sm-auto overflow-x-hidden overflow-y-auto h-100"
+										>
 											<ul
 												id="filter"
 												class="list-unstyled dropdown-menu d-block position-static border-0"
@@ -282,7 +284,7 @@
 														data-install-filter="clear"
 													>
 														<i class="bi bi-check me-1"></i
-														><i class="bi bi-box-seam me-1"></i>
+														><i class="bi bi-box-seam me-1"></i>パッケージ
 													</button>
 													<ul class="list-unstyled ps-3" aria-labelledby="">
 														<li>
@@ -390,16 +392,6 @@
 															<button
 																class="dropdown-item type-filter px-0"
 																type="button"
-																data-type-filter="script-dist"
-															>
-																<i class="bi bi-check"></i>配布サイトから探す
-															</button>
-														</li>
-														<li><hr class="mx-2 dropdown-divider" /></li>
-														<li>
-															<button
-																class="dropdown-item type-filter px-0"
-																type="button"
 																data-type-filter="animation"
 															>
 																<i class="bi bi-check"></i>アニメーション効果
@@ -439,6 +431,15 @@
 																data-type-filter="track"
 															>
 																<i class="bi bi-check"></i>トラックバー
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item type-filter px-0"
+																type="button"
+																data-type-filter="script-dist"
+															>
+																<i class="bi bi-check"></i>配布サイトから探す
 															</button>
 														</li>
 													</ul>
