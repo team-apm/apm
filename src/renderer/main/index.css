@@ -7,8 +7,6 @@ section,
 section#packages .container-lg,
 section#packages .container-lg > .card,
 section#packages .container-lg > .card > .card-body,
-section#packages .container-lg > .card > .card-body > div,
-section#packages .container-lg > .card > .card-body > div > div,
 section#nicommons .container-lg,
 section#nicommons .container-lg > .card,
 section#nicommons .container-lg > .card > .card-body {
@@ -20,6 +18,9 @@ main {
       env(titlebar-area-height, var(--fallback-title-bar-height))
   );
   overflow-y: auto;
+}
+.min-h-0 {
+  min-height: 0;
 }
 .draggable {
   -webkit-app-region: drag;
@@ -100,8 +101,4 @@ section#nicommons img {
   section#nicommons img {
     max-height: 96px;
   }
-}
-
-#install-package {
-  min-width: 8rem;
 }

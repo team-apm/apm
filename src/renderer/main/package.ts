@@ -225,7 +225,7 @@ async function setPackagesList(instPath: string) {
       li.classList.add('list-group-item-secondary');
       document.getElementById('install-package').innerText =
         installationStatus.innerText.startsWith('インストール済み')
-          ? '更新'
+          ? '　　更新　　'
           : 'インストール';
     });
     packageID.innerText = packageItem.id;
@@ -239,7 +239,7 @@ async function setPackagesList(instPath: string) {
         .getElementById('tag-template')
         .cloneNode(true) as HTMLSpanElement;
       typeItem.removeAttribute('id');
-      typeItem.innerText = e;
+      typeItem.innerText = '🏷️' + e;
       type.appendChild(typeItem);
     });
     latestVersion.innerText = packageItem.info.latestVersion;
@@ -268,7 +268,8 @@ async function setPackagesList(instPath: string) {
     packageItem.detached.forEach((p) => {
       const aTag = document.createElement('a');
       aTag.href = '#';
-      aTag.innerText = `❗ 要導入: ${p.info.name}\r\n`;
+      aTag.classList.add('text-danger');
+      aTag.innerText = `要導入: ${p.info.name}\r\n`;
       statusInformation.appendChild(aTag);
       aTag.addEventListener('click', async () => {
         await installPackage(instPath, p);
@@ -276,9 +277,8 @@ async function setPackagesList(instPath: string) {
       });
     });
     const verText = document.createElement('div');
-    verText.innerText = packageItem.doNotInstall
-      ? '⚠️インストール不可\r\n'
-      : '';
+    verText.classList.add('text-warning');
+    verText.innerText = packageItem.doNotInstall ? 'インストール不可\r\n' : '';
     statusInformation.appendChild(verText);
     if (
       packageItem.installationStatus === packageUtil.states.installed &&
@@ -340,7 +340,7 @@ async function setPackagesList(instPath: string) {
       'list-group-item-secondary',
       'list-group-item-success',
     );
-    typeItem.innerText = 'スクリプト配布サイト';
+    typeItem.innerText = '🏷️スクリプト配布サイト';
     type.appendChild(typeItem);
     latestVersion.innerText = '';
     installationStatus.innerText = '';
