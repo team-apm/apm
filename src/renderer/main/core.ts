@@ -247,10 +247,10 @@ async function checkLatestVersion(instPath: string) {
 
 /**
  * Shows a dialog to select installation path and set it.
- * @param {HTMLInputElement} installationPath - A HTMLElement of input.
+ * @param {HTMLInputElement} input - A HTMLElement of input.
  */
-async function selectInstallationPath(installationPath: HTMLSpanElement) {
-  const originalPath = installationPath.innerText;
+async function selectInstallationPath(input: HTMLInputElement) {
+  const originalPath = input.value;
   const selectedPath = await openDirDialog(
     'インストール先フォルダを選択',
     originalPath,
@@ -267,7 +267,7 @@ async function selectInstallationPath(installationPath: HTMLSpanElement) {
 
     const instPath = selectedPath[0];
     await changeInstallationPath(instPath);
-    installationPath.innerText = instPath;
+    input.value = instPath;
   }
 }
 

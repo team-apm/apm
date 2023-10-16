@@ -53,8 +53,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   const installationPath = document.getElementById(
     'installation-path',
-  ) as HTMLSpanElement;
-  installationPath.innerText = instPath;
+  ) as HTMLInputElement;
+  installationPath.value = instPath;
   const dataURL = document.getElementById('data-url') as HTMLInputElement;
   dataURL.value = modList.getDataUrl();
   const extraDataURL = document.getElementById(
@@ -89,12 +89,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 window.addEventListener('load', () => {
   const installationPath = document.getElementById(
     'installation-path',
-  ) as HTMLSpanElement;
+  ) as HTMLInputElement;
 
   // core
   const checkCoreVersionBtn = document.getElementById('check-core-version');
   checkCoreVersionBtn.addEventListener('click', async () => {
-    await core.checkLatestVersion(installationPath.innerText);
+    await core.checkLatestVersion(installationPath.value);
   });
 
   const selectInstallationPathBtn = document.getElementById(
@@ -106,23 +106,23 @@ window.addEventListener('load', () => {
 
   const batchInstallBtn = document.getElementById('batch-install');
   batchInstallBtn.addEventListener('click', async () => {
-    await core.batchInstall(installationPath.innerText);
+    await core.batchInstall(installationPath.value);
   });
 
   // packages
   const checkPackagesListBtn = document.getElementById('check-packages-list');
   checkPackagesListBtn.addEventListener('click', async () => {
-    await packageMain.checkPackagesList(installationPath.innerText);
+    await packageMain.checkPackagesList(installationPath.value);
   });
 
   const installPackageBtn = document.getElementById('install-package');
   installPackageBtn.addEventListener('click', async () => {
-    await packageMain.installPackage(installationPath.innerText);
+    await packageMain.installPackage(installationPath.value);
   });
 
   const uninstallPackageBtn = document.getElementById('uninstall-package');
   uninstallPackageBtn.addEventListener('click', async () => {
-    await packageMain.uninstallPackage(installationPath.innerText);
+    await packageMain.uninstallPackage(installationPath.value);
   });
 
   const openPackageFolderBtn = document.getElementById('open-package-folder');
@@ -150,7 +150,7 @@ window.addEventListener('load', () => {
 
   const sharePackagesBtn = document.getElementById('share-packages');
   sharePackagesBtn.addEventListener('click', async () => {
-    await packageMain.sharePackages(installationPath.innerText);
+    await packageMain.sharePackages(installationPath.value);
   });
 
   // nicommons ID
