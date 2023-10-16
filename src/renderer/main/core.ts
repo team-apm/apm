@@ -481,7 +481,7 @@ async function batchInstall(instPath: string) {
   const btn = document.getElementById('batch-install') as HTMLButtonElement;
   const { enableButton } = buttonTransition.loading(
     btn,
-    '最新版のAviUtl・拡張編集とおすすめプラグインをインストール',
+    'AviUtl・拡張編集とおすすめプラグインのインストール',
   );
 
   if (!instPath) {
