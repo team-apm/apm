@@ -1107,10 +1107,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/list.js@^2.3.2":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@types/list.js/-/list.js-2.3.2.tgz#3a924d333f9afa78620aec613e228d71534f5bc2"
-  integrity sha512-sAS9zrpwSE9+Yc7N+xKBW6D42yjh55XQzjySGXr1gKltHDUp3FD7oZZ4aqjMU1QSZjJugve2AKH41T425QAo+g==
+"@types/list.js@^2.3.3":
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/@types/list.js/-/list.js-2.3.3.tgz#93c60c37787e36ccb5caf8794de33ce9a83a6c17"
+  integrity sha512-NgHSEPbS0eNglpWKvr0C5HjzeJ5A8U1OKoCZZqicyBcG5bF8mEid9MgHO/T09XrVonUhjFB8urVf06kY4qSJsg==
 
 "@types/mime@^1":
   version "1.3.2"
