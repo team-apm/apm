@@ -965,10 +965,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/electron-prompt@^1.6.3":
-  version "1.6.3"
-  resolved "https://registry.yarnpkg.com/@types/electron-prompt/-/electron-prompt-1.6.3.tgz#81d209b6c7a82e28f41aa153ffba9af1c8ff0b1e"
-  integrity sha512-I5p0RmHoXViUk2C9/HPPAFqkQr1rpoMtUiYKw2E80FmzMM3kdZ6NR8g/7PWSJLucyKvf+PLkpgVTatqI0FR+Lw==
+"@types/electron-prompt@^1.6.4":
+  version "1.6.4"
+  resolved "https://registry.yarnpkg.com/@types/electron-prompt/-/electron-prompt-1.6.4.tgz#d453e09c7cf9a1ff83fb95799f5f2059e6503507"
+  integrity sha512-oFUzBW7r1VT+lvcnwvAV7kQWbMicroAf7dYtP6eziKhRUMjED+Y/UhHu7XikgknkXc1BPiOeFyyRO+36ZGHI1w==
   dependencies:
     electron latest
 
