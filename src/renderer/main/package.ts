@@ -239,7 +239,7 @@ async function setPackagesList(instPath: string) {
         .getElementById('tag-template')
         .cloneNode(true) as HTMLSpanElement;
       typeItem.removeAttribute('id');
-      typeItem.innerText = '🏷️' + e;
+      typeItem.innerText = e;
       type.appendChild(typeItem);
     });
     latestVersion.innerText = packageItem.info.latestVersion;
@@ -340,7 +340,7 @@ async function setPackagesList(instPath: string) {
       'list-group-item-secondary',
       'list-group-item-success',
     );
-    typeItem.innerText = '🏷️スクリプト配布サイト';
+    typeItem.innerText = 'スクリプト配布サイト';
     type.appendChild(typeItem);
     latestVersion.innerText = '';
     installationStatus.innerText = '';

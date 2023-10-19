@@ -517,10 +517,10 @@
 													id="sort-template"
 													class="sort rounded-pill d-inline-block px-2 mx-1 my-auto list-group-item-secondary small border"
 												></div>
-												<span
+												<div
 													id="tag-template"
-													class="d-inline-block small"
-												></span>
+													class="badge list-group-item-secondary d-block border fw-normal"
+												></div>
 												<li
 													id="list-template"
 													class="list-group-item list-group-item-action text-muted"
@@ -528,19 +528,16 @@
 													<input type="radio" name="accordion" />
 													<label class="d-block">
 														<div class="row">
-															<div class="col-sm-9">
+															<div class="col-sm-9 clearfix">
 																<div class="d-none packageID"></div>
+																<div class="float-end ms-2 type"></div>
 																<h5
-																	class="mb-1 text-body d-inline-block name"
+																	class="float-none d-inline mb-1 me-2 text-break text-body name"
 																></h5>
-																<div
-																	class="d-inline-block ms-2 developer"
-																></div>
-																<div class="d-inline-block ms-1 type"></div>
-																<br />
-																<div
-																	class="d-inline-block text-break overview"
-																></div>
+																<span
+																	class="text-primary text-break developer"
+																></span>
+																<div class="text-break overview"></div>
 																<div class="accordion-detail mt-2">
 																	<div class="text-break description"></div>
 																	<div
