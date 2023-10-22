@@ -225,7 +225,7 @@ async function setPackagesList(instPath: string) {
       li.classList.add('list-group-item-secondary');
       document.getElementById('install-package').innerText =
         installationStatus.innerText.startsWith('インストール済み')
-          ? '更新'
+          ? '　　更新　　'
           : 'インストール';
     });
     packageID.innerText = packageItem.id;
@@ -268,7 +268,8 @@ async function setPackagesList(instPath: string) {
     packageItem.detached.forEach((p) => {
       const aTag = document.createElement('a');
       aTag.href = '#';
-      aTag.innerText = `❗ 要導入: ${p.info.name}\r\n`;
+      aTag.classList.add('text-danger');
+      aTag.innerText = `要導入: ${p.info.name}\r\n`;
       statusInformation.appendChild(aTag);
       aTag.addEventListener('click', async () => {
         await installPackage(instPath, p);
@@ -276,9 +277,8 @@ async function setPackagesList(instPath: string) {
       });
     });
     const verText = document.createElement('div');
-    verText.innerText = packageItem.doNotInstall
-      ? '⚠️インストール不可\r\n'
-      : '';
+    verText.classList.add('text-warning');
+    verText.innerText = packageItem.doNotInstall ? 'インストール不可\r\n' : '';
     statusInformation.appendChild(verText);
     if (
       packageItem.installationStatus === packageUtil.states.installed &&
@@ -445,18 +445,22 @@ async function setPackagesList(instPath: string) {
 
   // update the batch installation text
   const batchInstallElm = document.getElementById('batch-install-packages');
-  batchInstallElm.innerHTML = null;
+  [...batchInstallElm.getElementsByClassName('batch-install-package')].map(
+    (e) => e.remove(),
+  );
   packages
     .filter((p) => p.info.directURL)
-    .flatMap((p) => {
-      if (p.installationStatus !== packageUtil.states.notInstalled) {
-        const pTag = document.createElement('span');
-        pTag.classList.add('text-muted');
-        pTag.innerText = '✔' + p.info.name;
-        return [document.createTextNode(' + '), pTag];
-      } else {
-        return [document.createTextNode(' + ' + p.info.name)];
-      }
+    .map((p) => {
+      const liTag = document
+        .getElementById('batch-install-package-template')
+        .cloneNode(true) as HTMLSpanElement;
+      liTag.removeAttribute('id');
+      (liTag.getElementsByClassName('name')[0] as HTMLElement).innerText =
+        p.info.name;
+      (
+        liTag.getElementsByClassName('installed-version')[0] as HTMLElement
+      ).innerText = p.installationStatus;
+      return liTag;
     })
     .forEach((e) => batchInstallElm.appendChild(e));
 

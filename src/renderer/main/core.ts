@@ -100,24 +100,6 @@ async function displayInstalledVersion(instPath: string) {
     }
   }
 
-  // update the batch installation text
-  const batchInstallElm = document.getElementById('batch-install-programs');
-  batchInstallElm.innerHTML = null;
-  programs
-    .map((p) => {
-      if (isInstalled[p]) {
-        const pTag = document.createElement('span');
-        pTag.classList.add('text-muted');
-        pTag.innerText = '✔' + programsDisp[p];
-        batchInstallElm.appendChild(pTag);
-        return [pTag];
-      } else {
-        return [document.createTextNode(programsDisp[p])];
-      }
-    })
-    .reduce((a, b) => [].concat(a, document.createTextNode(' + '), b))
-    .forEach((e) => batchInstallElm.appendChild(e));
-
   if (store.has('modDate.core')) {
     const modDate = new Date(store.get('modDate.core') as number);
     replaceText('core-mod-date', modDate.toLocaleString());
@@ -497,7 +479,10 @@ async function installProgram(
  */
 async function batchInstall(instPath: string) {
   const btn = document.getElementById('batch-install') as HTMLButtonElement;
-  const { enableButton } = buttonTransition.loading(btn, 'インストール');
+  const { enableButton } = buttonTransition.loading(
+    btn,
+    'AviUtl・拡張編集とおすすめプラグインのインストール',
+  );
 
   if (!instPath) {
     log.error('An installation path is not selected.');
