@@ -13,7 +13,7 @@
 	</head>
 
 	<body>
-		<nav class="bg-light draggable">
+		<nav class="bg-body-tertiary draggable">
 			<div
 				class="title-bar app-name d-flex justify-content-center align-items-center text-muted"
 			></div>
@@ -81,7 +81,7 @@
 			</div>
 		</nav>
 
-		<main class="tab-content bg-white" id="nav-tabContent">
+		<main class="tab-content" id="nav-tabContent">
 			<section
 				class="tab-pane fade show active"
 				id="aviutl"
@@ -143,10 +143,10 @@
 								</div>
 								<button
 									type="button"
-									class="btn btn-outline-primary rounded-0 rounded-end"
+									class="btn btn-primary rounded-0 rounded-end"
 									id="select-installation-path"
 								>
-									AviUtlフォルダを選択
+									AviUtlインストールフォルダを選択
 								</button>
 							</div>
 							<ul class="list-group mb-3" id="batch-install-packages">
@@ -158,7 +158,7 @@
 										<span id="aviutl-installed-version"></span>
 										<button
 											type="button"
-											class="btn btn-outline-primary dropdown-toggle"
+											class="btn btn-primary dropdown-toggle"
 											id="install-aviutl"
 											data-bs-toggle="dropdown"
 											aria-expanded="false"
@@ -180,7 +180,7 @@
 										<span id="exedit-installed-version"></span>
 										<button
 											type="button"
-											class="btn btn-outline-primary dropdown-toggle"
+											class="btn btn-primary dropdown-toggle"
 											id="install-exedit"
 											data-bs-toggle="dropdown"
 											aria-expanded="false"
@@ -212,7 +212,7 @@
 							<div class="d-flex justify-content-end">
 								<button
 									type="button"
-									class="btn btn-outline-primary"
+									class="btn btn-primary"
 									id="batch-install"
 								>
 									AviUtl・拡張編集とおすすめプラグインのインストール
@@ -246,28 +246,28 @@
 										</div>
 										<button
 											type="button"
-											class="btn btn-outline-primary ms-2"
+											class="btn btn-primary ms-2"
 											id="install-package"
 										>
 											インストール
 										</button>
 										<button
 											type="button"
-											class="btn btn-outline-primary ms-2"
+											class="btn btn-primary ms-2"
 											id="uninstall-package"
 										>
 											アンインストール
 										</button>
 										<button
 											type="button"
-											class="btn btn-outline-primary ms-2"
+											class="btn btn-primary ms-2"
 											id="open-package-folder"
 										>
 											ダウンロードフォルダ
 										</button>
 										<button
 											type="button"
-											class="btn btn-outline-primary ms-2"
+											class="btn btn-primary ms-2"
 											id="share-packages"
 										>
 											共有
@@ -276,10 +276,12 @@
 								</div>
 								<div class="h-100 min-h-0">
 									<div class="row h-100">
-										<div class="col-sm-auto overflow-auto h-100">
+										<div
+											class="col-sm-auto overflow-x-hidden overflow-y-auto h-100"
+										>
 											<ul
 												id="filter"
-												class="list-unstyled"
+												class="list-unstyled dropdown-menu d-block position-static border-0"
 												aria-labelledby="type-filter"
 											>
 												<li>
@@ -289,7 +291,7 @@
 														data-install-filter="clear"
 													>
 														<i class="bi bi-check me-1"></i
-														><i class="bi bi-box-seam me-1"></i>
+														><i class="bi bi-box-seam me-1"></i>パッケージ
 													</button>
 													<ul class="list-unstyled ps-3" aria-labelledby="">
 														<li>
@@ -397,16 +399,6 @@
 															<button
 																class="dropdown-item type-filter px-0"
 																type="button"
-																data-type-filter="script-dist"
-															>
-																<i class="bi bi-check"></i>配布サイトから探す
-															</button>
-														</li>
-														<li><hr class="mx-2 dropdown-divider" /></li>
-														<li>
-															<button
-																class="dropdown-item type-filter px-0"
-																type="button"
 																data-type-filter="animation"
 															>
 																<i class="bi bi-check"></i>アニメーション効果
@@ -446,6 +438,15 @@
 																data-type-filter="track"
 															>
 																<i class="bi bi-check"></i>トラックバー
+															</button>
+														</li>
+														<li>
+															<button
+																class="dropdown-item type-filter px-0"
+																type="button"
+																data-type-filter="script-dist"
+															>
+																<i class="bi bi-check"></i>配布サイトから探す
 															</button>
 														</li>
 													</ul>
@@ -596,7 +597,7 @@
 								<div class="col-auto">
 									<button
 										type="button"
-										class="btn btn-copy btn-outline-primary"
+										class="btn btn-copy btn-primary"
 										id="copy-nicommons-id-textarea"
 										data-clipboard-target="#nicommons-id-textarea"
 									>
@@ -685,7 +686,7 @@
 									<div class="col-sm-3">
 										<button
 											type="button"
-											class="btn btn-outline-primary w-100"
+											class="btn btn-primary w-100"
 											id="set-data-url"
 										>
 											設定
@@ -811,7 +812,7 @@
 													<div class="bg-body">
 														<button
 															type="button"
-															class="btn btn-outline-primary w-100"
+															class="btn btn-primary w-100"
 															id="check-core-version"
 														>
 															更新
@@ -827,7 +828,7 @@
 													<div class="bg-body">
 														<button
 															type="button"
-															class="btn btn-outline-primary w-100"
+															class="btn btn-primary w-100"
 															id="check-packages-list"
 														>
 															更新
@@ -843,7 +844,7 @@
 													<div class="bg-body">
 														<button
 															type="button"
-															class="btn btn-outline-primary w-100"
+															class="btn btn-primary w-100"
 															id="check-apm-update"
 														>
 															更新
@@ -878,7 +879,7 @@
 									<div class="col-sm-6 btn-group-vertical">
 										<button
 											type="button"
-											class="btn btn-outline-primary"
+											class="btn btn-primary"
 											id="open-about-window"
 										>
 											このアプリについて
@@ -888,14 +889,14 @@
 											<a
 												href="https://github.com/team-apm/apm"
 												role="button"
-												class="btn btn-outline-primary"
+												class="btn btn-primary"
 											>
 												<i class="bi bi-github"></i> GitHub
 											</a>
 											<a
 												href="https://discord.gg/YEQRqnGsG2"
 												role="button"
-												class="btn btn-outline-primary"
+												class="btn btn-primary"
 											>
 												<i class="bi bi-discord"></i> Discord
 											</a>
@@ -910,7 +911,7 @@
 										<a
 											href="https://team-apm.github.io/apm-web/"
 											role="button"
-											class="btn btn-outline-primary w-100"
+											class="btn btn-primary w-100"
 										>
 											開く <i class="bi bi-box-arrow-up-right"></i>
 										</a>
@@ -924,7 +925,7 @@
 										<a
 											href="https://docs.google.com/forms/d/e/1FAIpQLSf0N-X_u_abi8rrWHVDdiK3YeYuQ7J1f8bQAy6QTD-OR94DWQ/viewform?usp=sf_link"
 											role="button"
-											class="btn btn-outline-primary w-100"
+											class="btn btn-primary w-100"
 										>
 											Googleフォーム <i class="bi bi-box-arrow-up-right"></i>
 										</a>
@@ -933,7 +934,7 @@
 										<a
 											href="https://github.com/team-apm/apm/issues"
 											role="button"
-											class="btn btn-outline-primary w-100"
+											class="btn btn-primary w-100"
 										>
 											<i class="bi bi-github"></i> GitHub (要アカウント)
 											<i class="bi bi-box-arrow-up-right"></i>
@@ -945,7 +946,7 @@
 									<div class="col-sm-6">
 										<button
 											type="button"
-											class="btn btn-outline-primary w-100"
+											class="btn btn-primary w-100"
 											id="quit-app"
 										>
 											終了

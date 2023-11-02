@@ -220,9 +220,9 @@ async function setPackagesList(instPath: string) {
       selectedEntryType = entryType.package;
       li.getElementsByTagName('input')[0].checked = true;
       for (const tmpli of Array.from(packagesList.getElementsByTagName('li'))) {
-        tmpli.classList.remove('list-group-item-secondary');
+        tmpli.classList.remove('list-group-item-light');
       }
-      li.classList.add('list-group-item-secondary');
+      li.classList.add('list-group-item-light');
       document.getElementById('install-package').innerText =
         installationStatus.innerText.startsWith('インストール済み')
           ? '　　更新　　'

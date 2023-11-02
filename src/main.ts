@@ -357,8 +357,8 @@ async function launch() {
 
   const getTitleBarColor = () => {
     return {
-      color: nativeTheme.shouldUseDarkColors ? '#2e2e2e' : '#f0f2f4',
-      symbolColor: nativeTheme.shouldUseDarkColors ? '#FFF' : '#000',
+      color: nativeTheme.shouldUseDarkColors ? '#2b3035' : '#f8f9fa',
+      symbolColor: nativeTheme.shouldUseDarkColors ? '#dee2e6' : '#212529',
     };
   };
 
