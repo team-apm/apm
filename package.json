@@ -86,7 +86,7 @@
     "cz-conventional-changelog": "3.3.0",
     "cz-conventional-changelog-ja": "^0.0.2",
     "electron": "^25.9.0",
-    "eslint": "^8.52.0",
+    "eslint": "^8.53.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-typescript": "^3.6.1",
