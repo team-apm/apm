@@ -1142,12 +1142,7 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.26.tgz#239e19f8b4ea1a9eb710528061c1d733dc561996"
   integrity sha512-0b+utRBSYj8L7XAp0d+DX7lI4cSmowNaaTkk6/1SKzbKkG+doLuPusB9EOvzLJ8ahJSk03bTLIL6cWaEd4dBKA==
 
-"@types/node@^18.11.18":
-  version "18.17.11"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.17.11.tgz#c04054659d88bfeba94095f41ef99a8ddf4e1813"
-  integrity sha512-r3hjHPBu+3LzbGBa8DHnr/KAeTEEOrahkcL+cZc4MaBMTM+mk8LtXR+zw+nqfjuDZZzYTYgTcpHuP+BEQk069g==
-
-"@types/node@^18.11.9":
+"@types/node@^18.11.18", "@types/node@^18.11.9":
   version "18.18.7"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.18.7.tgz#bb3a7068dc4ba421b6968f2a259298b3a4e129e8"
   integrity sha512-bw+lEsxis6eqJYW8Ql6+yTqkE6RuFtsQPSe5JxXbqYRFQEER5aJA9a5UH9igqDWm3X4iLHIKOHlnAXLM4mi7uQ==
@@ -1234,10 +1229,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/ssri@^7.1.3":
-  version "7.1.3"
-  resolved "https://registry.yarnpkg.com/@types/ssri/-/ssri-7.1.3.tgz#eee91ef1ad2818b53ddcc525850a9d6164119c07"
-  integrity sha512-pn5Fdgnh9aZQ88G1ifC9+OapCGup84gtJk8zaSctwl2qrZ6xo6T7nf2QBSdX0d6tuRovAvoDZuVueVwtGlXZDQ==
+"@types/ssri@^7.1.4":
+  version "7.1.4"
+  resolved "https://registry.yarnpkg.com/@types/ssri/-/ssri-7.1.4.tgz#a9a42c07a3a5100ca755e67133f33a6ea0e1080e"
+  integrity sha512-K2Ys8+BVrgGFY0cVwf55rIS4fa2ZN+4Y/w2h4BnYIf8kvUdmdKT6l6VUpC3uL9HKG8I8EkD5CXIgRUXHOLHcLw==
   dependencies:
     "@types/node" "*"
 
