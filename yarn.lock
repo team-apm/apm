@@ -931,10 +931,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/bootstrap@^5.2.9":
-  version "5.2.9"
-  resolved "https://registry.yarnpkg.com/@types/bootstrap/-/bootstrap-5.2.9.tgz#5040df5d8d12cb9fb6268a33b8d87234af15e09a"
-  integrity sha512-Fcg4nORBKaVUAG4F0ePWcatWQVfr3NAT9XIN+hl1PaiAwb4tq55+iua9R3exsbB3yyfhyQlHYg2foTlW86J+RA==
+"@types/bootstrap@^5.2.10":
+  version "5.2.10"
+  resolved "https://registry.yarnpkg.com/@types/bootstrap/-/bootstrap-5.2.10.tgz#58506463bccc6602bc051487ad8d3a6458f94c6c"
+  integrity sha512-F2X+cd6551tep0MvVZ6nM8v7XgGN/twpdNDjqS1TUM7YFNEtQYWk+dKAnH+T1gr6QgCoGMPl487xw/9hXooa2g==
   dependencies:
     "@popperjs/core" "^2.9.2"
 
