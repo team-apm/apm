@@ -262,8 +262,8 @@ function getInstalledVersionOfPackage(
   installationStatus = isManuallyInstalledPackage
     ? states.manuallyInstalled
     : isInstalledPackage
-    ? states.otherInstalled
-    : states.notInstalled;
+      ? states.otherInstalled
+      : states.notInstalled;
 
   for (const [installedId, installedPackage] of Object.entries(
     installedPackages,

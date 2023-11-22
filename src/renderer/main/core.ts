@@ -68,8 +68,8 @@ async function displayInstalledVersion(instPath: string) {
           compareVersion(installedVersion, progInfo.latestVersion) === -1
             ? ` （最新版: ${progInfo.latestVersion}）`
             : installedVersion.includes('rc')
-            ? '（テスト版）'
-            : ' （最新版）';
+              ? '（テスト版）'
+              : ' （最新版）';
         if (verifyFilesByCount(instPath, progInfo.files)) {
           replaceText(
             `${program}-installed-version`,
