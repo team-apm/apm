@@ -17,6 +17,8 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Assign PRs to me
-        run: gh pr edit --add-assignee @me "$PR_URL"
+        run: gh pr edit --add-assignee $LOGIN "$PR_URL"
+        env:
+          LOGIN: ${{ github.event.review.user.login }}
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --merge "$PR_URL"
