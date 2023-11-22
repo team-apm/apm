@@ -1229,10 +1229,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/ssri@^7.1.4":
-  version "7.1.4"
-  resolved "https://registry.yarnpkg.com/@types/ssri/-/ssri-7.1.4.tgz#a9a42c07a3a5100ca755e67133f33a6ea0e1080e"
-  integrity sha512-K2Ys8+BVrgGFY0cVwf55rIS4fa2ZN+4Y/w2h4BnYIf8kvUdmdKT6l6VUpC3uL9HKG8I8EkD5CXIgRUXHOLHcLw==
+"@types/ssri@^7.1.5":
+  version "7.1.5"
+  resolved "https://registry.yarnpkg.com/@types/ssri/-/ssri-7.1.5.tgz#7147b5ba43957cb0f639a3309a3943fc1829d5e8"
+  integrity sha512-odD/56S3B51liILSk5aXJlnYt99S6Rt9EFDDqGtJM26rKHApHcwyU/UoYHrzKkdkHMAIquGWCuHtQTbes+FRQw==
   dependencies:
     "@types/node" "*"
 
