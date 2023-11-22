@@ -11,15 +11,10 @@ permissions:
 jobs:
   dependabot:
     name: Dependabot auto-merge
-    runs-on: ubuntu-latest
     if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && github.event.review.state == 'approved' }}
-    env:
-      PR_URL: ${{ github.event.pull_request.html_url }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - name: Assign PRs to me
-        run: gh pr edit --add-assignee $LOGIN "$PR_URL"
-        env:
-          LOGIN: ${{ github.event.review.user.login }}
-      - name: Enable auto-merge for Dependabot PRs
-        run: gh pr merge --auto --merge "$PR_URL"
+    uses: hal-shu-sato/actions/.github/workflows/dependabot-auto-merge.yml@main
+    with:
+      pr_url: ${{ github.event.pull_request.html_url }}
+      login: ${{ github.event.review.user.login }}
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
