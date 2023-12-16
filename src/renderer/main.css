@@ -17,11 +17,25 @@ th {
 .nav-tabs .nav-link {
   color: var(--bs-body-color);
 }
-.btn-primary {
-  --bs-btn-disabled-bg: #0b5ed7;
-  --bs-btn-disabled-border-color: #0a58ca;
-  --bs-btn-bg: #0b5ed7;
-  --bs-btn-border-color: #0a58ca;
-  --bs-btn-hover-bg: #0a58ca;
-  --bs-btn-hover-border-color: #0a53be;
+@media (prefers-color-scheme: dark) {
+  .btn-primary {
+    --bs-btn-disabled-bg: #0b5ed7;
+    --bs-btn-disabled-border-color: #0a58ca;
+    --bs-btn-bg: #0b5ed7;
+    --bs-btn-border-color: #0a58ca;
+    --bs-btn-hover-bg: #0a58ca;
+    --bs-btn-hover-border-color: #0a53be;
+  }
+}
+.list-group-item-light {
+  background-color: var(--bs-tertiary-bg);
+}
+.list-group-item-light.list-group-item-action:hover {
+  background-color: var(--bs-tertiary-bg);
+}
+.badge {
+  background-color: var(--bs-list-group-bg);
+  color: var(--bs-list-group-color);
+  border: var(--bs-list-group-border-width) solid
+    var(--bs-list-group-border-color);
 }
