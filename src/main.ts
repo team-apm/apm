@@ -252,7 +252,7 @@ ipcMain.handle('open-yes-no-dialog', async (event, title, message) => {
 
 ipcMain.handle('get-nicommons-data', (event, id) => {
   const request = net.request(
-    `https://public-api.commons.nicovideo.jp/v1/tree/node/${id}?with_meta=1`,
+    `https://public-api.commons.nicovideo.jp/v1/works/${id}?with_meta=1`,
   );
   return new Promise((resolve) => {
     request.on('response', (response) => {
