@@ -5,7 +5,7 @@
 		<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
 		<meta
 			http-equiv="Content-Security-Policy"
-			content="default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp"
+			content="default-src 'self'; script-src-elem 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp"
 		/>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>AviUtl Package Manager</title>
@@ -706,6 +706,23 @@
 										></textarea>
 									</div>
 									<div class="col-sm-3"></div>
+								</div>
+								<div class="row mb-3">
+									<label for="extra-data-url" class="col-sm-3 col-form-label"
+										>追加データ</label
+									>
+									<div class="col-sm-6">
+										<div id="container" class="border rounded"></div>
+									</div>
+									<div class="col-sm-3">
+										<button
+											type="button"
+											class="btn btn-primary w-100"
+											id="save-editor-data"
+										>
+											保存
+										</button>
+									</div>
 								</div>
 								<div class="row mb-3">
 									<label
