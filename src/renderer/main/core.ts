@@ -22,7 +22,7 @@ import replaceText from '../../lib/replaceText';
 import { addAviUtlShortcut, removeAviUtlShortcut } from '../../lib/shortcut';
 import unzip from '../../lib/unzip';
 import migration2to3 from '../../migration/migration2to3';
-import { install, programs, programsDisp, verifyFilesByCount } from './common';
+import { install, programs, verifyFilesByCount } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
 const store = new Store();
