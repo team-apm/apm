@@ -10,6 +10,26 @@ updates:
     schedule:
       interval: 'daily'
     open-pull-requests-limit: 20
+    groups:
+      commitizen:
+        patterns:
+          - 'commitizen'
+          - 'cz-conventional-changelog*'
+      commitlint:
+        patterns:
+          - '@commitlint/*'
+      electron-forge:
+        patterns:
+          - '@electron-forge/*'
+      eslint:
+        patterns:
+          - 'eslint*'
+      typescript-eslint:
+        patterns:
+          - '@typescript-eslint/*'
+      prettier:
+        patterns:
+          - 'prettier*'
 
   - package-ecosystem: 'bundler'
     directory: '/docs'
