@@ -255,6 +255,7 @@ function getInstalledVersionOfPackage(
   let isInstalledPackage = false;
   let isManuallyInstalledPackage = false;
   for (const file of packageItem.info.files) {
+    if (file.isInstallOnly) continue; // isInstallOnly is not used to determine installation status because the file is often shared by multiple packages.
     if (installedFiles.includes(file.filename)) isInstalledPackage = true;
     if (manuallyInstalledFiles.includes(file.filename))
       isManuallyInstalledPackage = true;
@@ -262,7 +263,7 @@ function getInstalledVersionOfPackage(
   installationStatus = isManuallyInstalledPackage
     ? states.manuallyInstalled
     : isInstalledPackage
-      ? states.otherInstalled
+      ? states.otherInstalled // Still an assumption in this line.
       : states.notInstalled;
 
   for (const [installedId, installedPackage] of Object.entries(
