@@ -324,9 +324,9 @@ async function setPackagesList(instPath: string) {
       selectedEntryType = entryType.scriptSite;
       li.getElementsByTagName('input')[0].checked = true;
       for (const tmpli of Array.from(packagesList.getElementsByTagName('li'))) {
-        tmpli.classList.remove('list-group-item-secondary');
+        tmpli.classList.remove('list-group-item-light');
       }
-      li.classList.add('list-group-item-secondary');
+      li.classList.add('list-group-item-light');
       replaceText('install-package', 'インストール');
     });
     name.innerText = webpage.developer;
@@ -337,7 +337,7 @@ async function setPackagesList(instPath: string) {
       .cloneNode(true) as HTMLSpanElement;
     typeItem.removeAttribute('id');
     typeItem.classList.replace(
-      'list-group-item-secondary',
+      'list-group-item-light',
       'list-group-item-success',
     );
     typeItem.innerText = 'スクリプト配布サイト';
