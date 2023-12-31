@@ -2,7 +2,12 @@ import log from 'electron-log';
 import * as fs from 'fs-extra';
 import path from 'path';
 import * as apmJson from '../../lib/apmJson';
-import { download, existsTempFile, openDialog } from '../../lib/ipcWrapper';
+import {
+  download,
+  existsFile,
+  getTempFilePath,
+  openDialog,
+} from '../../lib/ipcWrapper';
 import * as parseJson from '../../lib/parseJson';
 import { ApmJsonObject } from '../../types/apmJson';
 import { PackageItem } from '../../types/packageItem';
@@ -107,13 +112,13 @@ async function getPackages(packageDataUrls: string[]) {
   const jsonList = [];
 
   for (const packageRepository of packageDataUrls) {
-    const packagesListFile = await existsTempFile(
+    const packagesListFilePath = await getTempFilePath(
       `package/${path.basename(packageRepository)}`,
       packageRepository,
     );
-    if (packagesListFile.exists) {
+    if (existsFile(packagesListFilePath)) {
       try {
-        jsonList.push(await parseJson.getPackages(packagesListFile.path));
+        jsonList.push(await parseJson.getPackages(packagesListFilePath));
       } catch {
         log.error('Failed data processing.');
         await openDialog(

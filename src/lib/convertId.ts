@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import path from 'path';
 import * as apmJson from './apmJson';
-import { download, existsTempFile } from './ipcWrapper';
+import { download, existsFile, getTempFilePath } from './ipcWrapper';
 import * as modList from './modList';
 
 /**
@@ -20,12 +20,12 @@ export async function getIdDict(
     });
     return convertJson ? await fs.readJson(convertJson) : {};
   } else {
-    const convertJson = await existsTempFile(
+    const convertJsonPath = await getTempFilePath(
       path.join('package', path.basename(dictUrl)),
       dictUrl,
     );
-    if (convertJson.exists) {
-      return await fs.readJson(convertJson.path);
+    if (existsFile(convertJsonPath)) {
+      return await fs.readJson(convertJsonPath);
     } else {
       return {};
     }

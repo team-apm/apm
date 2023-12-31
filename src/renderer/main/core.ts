@@ -11,7 +11,8 @@ import { checkIntegrity, verifyFile } from '../../lib/integrity';
 import {
   app,
   download,
-  existsTempFile,
+  existsFile,
+  getTempFilePath,
   openDialog,
   openDirDialog,
   openYesNoDialog,
@@ -133,13 +134,13 @@ async function displayInstalledVersion(instPath: string) {
  * @returns {Promise<Core>} - An object parsed from core.json.
  */
 async function getCoreInfo() {
-  const coreFile = await existsTempFile(
+  const coreFilePath = await getTempFilePath(
     path.join('core', path.basename(await modList.getCoreDataUrl())),
   );
-  if (!coreFile.exists) return null;
+  if (!existsFile(coreFilePath)) return null;
 
   try {
-    return await parseJson.getCore(coreFile.path);
+    return await parseJson.getCore(coreFilePath);
   } catch (e) {
     log.error(e);
     return null;
