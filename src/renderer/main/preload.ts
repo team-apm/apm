@@ -1,5 +1,4 @@
 import ClipboardJS from 'clipboard/src/clipboard';
-import log from 'electron-log';
 import Store from 'electron-store';
 import 'source-map-support/register';
 import {
@@ -7,7 +6,6 @@ import {
   checkUpdate,
   isExeVersion,
   openAboutWindow,
-  openDialog,
 } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
 import migration2to3 from '../../migration/migration2to3';
@@ -16,17 +14,17 @@ import packageMain from './package';
 import setting from './setting';
 const store = new Store();
 
-log.catchErrors({
-  onError: async () => {
-    await openDialog(
-      'エラー',
-      `予期しないエラーが発生しました。\nログファイル: ${
-        log.transports.file.getFile().path
-      }`,
-      'error',
-    );
-  },
-});
+// log.errorHandler({
+//   onError: async () => {
+//     await openDialog(
+//       'エラー',
+//       `予期しないエラーが発生しました。\nログファイル: ${
+//         log.transports.file.getFile().path
+//       }`,
+//       'error',
+//     );
+//   },
+// });
 
 window.addEventListener('DOMContentLoaded', async () => {
   // dark-theme
