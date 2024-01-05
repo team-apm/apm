@@ -3,6 +3,113 @@ import { Packages } from 'apm-schema';
 import schema from 'apm-schema/v3/schema/packages.json';
 import React from 'react';
 import * as buttonTransition from '../../lib/buttonTransition';
+import { editor } from 'monaco-editor';
+
+const placeholderStr = `
+apm-data (https://github.com/team-apm/apm-data) に投稿されたパッケージデータをここにコピーアンドペーストすることで動作の確認ができます。
+\t
+下の例のように、全体を[]で囲む必要があります。
+[
+  {
+    id": "AiosCiao/VSThost4aviutl",
+    "name": "VSTホストプラグイン＋α",
+    ...
+  },
+  {
+    "id": "amate/InputPipePlugin",
+    "name": "InputPipePlugin",
+    ...
+  },
+  ...
+]
+\t
+ショートカットキーは Visual Studio Code と同様です。
+Ctrl+Space: サジェスト, Shift+Alt+F: フォーマット など
+`;
+
+/**
+ *  Displays placeholder text when the editor is empty.
+ */
+class PlaceholderContentWidget {
+  static ID = 'editor.widget.placeholderHint';
+  placeholder: string;
+  editor: editor.IStandaloneCodeEditor;
+  domNode: HTMLElement;
+
+  /**
+   * @param {string} placeholder - placeholder text
+   * @param {editor.IStandaloneCodeEditor} editor - monaco editor
+   */
+  constructor(placeholder: string, editor: editor.IStandaloneCodeEditor) {
+    this.placeholder = placeholder;
+    this.editor = editor;
+    editor.onDidChangeModelContent(() => this.onDidChangeModelContent());
+    this.onDidChangeModelContent();
+  }
+
+  /**
+   * onDidChangeModelContent
+   */
+  onDidChangeModelContent() {
+    if (this.editor.getValue() === '') {
+      this.editor.addContentWidget(this);
+    } else {
+      this.editor.removeContentWidget(this);
+    }
+  }
+
+  /**
+   * getId
+   * @returns {string} id
+   */
+  getId(): string {
+    return PlaceholderContentWidget.ID;
+  }
+
+  /**
+   * getDomNode
+   * @returns {HTMLElement} DomElement of Placeholder
+   */
+  getDomNode(): HTMLElement {
+    if (!this.domNode) {
+      this.domNode = document.createElement('div');
+      placeholderStr.split('\n').map((s) => {
+        const spanElm = document.createElement('div');
+        spanElm.textContent = s;
+        this.domNode.appendChild(spanElm);
+      });
+
+      this.domNode.style.whiteSpace = 'pre-wrap';
+      this.domNode.style.width = 'max-content';
+      this.domNode.style.pointerEvents = 'none';
+      this.domNode.style.fontStyle = 'italic';
+      this.editor.applyFontInfo(this.domNode);
+    }
+
+    return this.domNode;
+  }
+
+  /**
+   * getPosition
+   * @returns {object} position
+   */
+  getPosition(): {
+    position: { lineNumber: number; column: number };
+    preference: editor.ContentWidgetPositionPreference[];
+  } {
+    return {
+      position: { lineNumber: 1, column: 1 },
+      preference: [editor.ContentWidgetPositionPreference.EXACT],
+    };
+  }
+
+  /**
+   * dispose
+   */
+  dispose() {
+    this.editor.removeContentWidget(this);
+  }
+}
 
 self.MonacoEnvironment = null;
 type MonacoEditorRendererProps = {
@@ -34,14 +141,17 @@ export const MonacoEditorRenderer: React.FC<MonacoEditorRendererProps> = ({
   };
 
   const editorDidMount: OnMount = (editor, monaco) => {
+    editor.getModel().updateOptions({ tabSize: 2 });
+    new PlaceholderContentWidget(placeholderStr, editor);
     window.editor.setOnload(async (packages: Packages['packages']) => {
+      if (packages.length === 0) return;
       editor.setValue(JSON.stringify(packages));
       await editor.getAction('editor.action.formatDocument').run();
     });
 
     const save = async () => {
       const { enableButton } = saveButton
-        ? buttonTransition.loading(saveButton, '保存')
+        ? buttonTransition.loading(saveButton, '保存 (Ctrl + S)')
         : { enableButton: undefined };
 
       await editor.getAction('editor.action.formatDocument').run();
