@@ -12,9 +12,9 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
-      "*": ["node_modules/*"]
+      "*": ["node_modules/*"],
     },
-    "jsx": "react"
+    "jsx": "react",
   },
-  "include": ["src/**/*", "webpack.*.ts", "*.config.ts"]
+  "include": ["src/**/*", "webpack.*.ts", "*.config.ts"],
 }
