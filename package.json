@@ -56,8 +56,8 @@
     "win-7zip": "^0.1.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^18.4.4",
-    "@commitlint/config-conventional": "^18.4.4",
+    "@commitlint/cli": "^18.5.0",
+    "@commitlint/config-conventional": "^18.5.0",
     "@electron-forge/cli": "^6.4.1",
     "@electron-forge/maker-deb": "^6.4.1",
     "@electron-forge/maker-rpm": "^6.4.1",
