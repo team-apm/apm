@@ -72,19 +72,29 @@ export async function openPath(relativePath: string) {
 }
 
 /**
- * Returns whether the temporary file exists and the path.
+ * Returns the temporary file path.
  * @param {string} relativePath - A relative path from the data directory.
  * @param {string} [keyText] - String used to generate the hash.
+ * @returns {Promise<string>} The temporary file path.
  */
-export async function existsTempFile(
+export async function getTempFilePath(
   relativePath: string,
   keyText: string = undefined,
 ) {
-  return (await ipcRenderer.invoke(
-    'exists-temp-file',
+  return ipcRenderer.invoke(
+    'get-temp-file-path',
     relativePath,
     keyText,
-  )) as { exists: boolean; path: string };
+  ) as Promise<string>;
+}
+
+/**
+ * Returns whether the file exists.
+ * @param {string} filePath - A file path
+ * @returns {Promise<boolean>} Whether the file exists
+ */
+export async function existsFile(filePath: string) {
+  return ipcRenderer.invoke('exists-file', filePath) as Promise<boolean>;
 }
 
 /**

@@ -1,9 +1,9 @@
-import log from 'electron-log';
-import 'source-map-support/register';
-import { app, openDialog } from '../../lib/ipcWrapper';
-import replaceText from '../../lib/replaceText';
+// import log from 'electron-log';
+// import 'source-map-support/register';
+import { contextBridge } from 'electron';
+import { app } from '../../lib/ipcWrapper';
 
-log.catchErrors({
+/* log.catchErrors({
   onError: async () => {
     await openDialog(
       'エラー',
@@ -13,16 +13,10 @@ log.catchErrors({
       'error',
     );
   },
-});
+}); */
 
-window.addEventListener('click', () => {
-  window.close();
-});
-
-window.addEventListener('DOMContentLoaded', async () => {
-  const appVersion = await app.getVersion();
-  replaceText('app-version', appVersion);
-  for (const dependency of ['chrome', 'node', 'electron']) {
-    replaceText(`${dependency}-version`, process.versions[dependency]);
-  }
-});
+contextBridge.exposeInMainWorld(
+  'appVersion',
+  async () => await app.getVersion(),
+);
+contextBridge.exposeInMainWorld('versions', process.versions);

@@ -13,14 +13,21 @@ const relocateLoader: {
   initAssetCache: (compilation: Compilation, outputAssetBase: string) => void;
 } = require('@vercel/webpack-asset-relocator-loader');
 
+const excludeWindow = ['about_window'];
+
 const AssetRelocatorPlugin: WebpackPluginInstance = {
   apply(compiler) {
-    compiler.hooks.compilation.tap(
-      'webpack-asset-relocator-loader',
-      (compilation) => {
-        relocateLoader.initAssetCache(compilation, 'native_modules');
-      },
-    );
+    if (
+      excludeWindow.every(
+        (window) => !compiler.options.output.path.endsWith(window),
+      )
+    )
+      compiler.hooks.compilation.tap(
+        'webpack-asset-relocator-loader',
+        (compilation) => {
+          relocateLoader.initAssetCache(compilation, 'native_modules');
+        },
+      );
   },
 };
 

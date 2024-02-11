@@ -479,6 +479,21 @@ async function setPackagesList(instPath: string) {
 }
 
 /**
+ *
+ * @param {string} instPath - An installation path.
+ */
+async function _checkPackagesList(instPath: string) {
+  await modList.updateInfo();
+  await packageUtil.downloadRepository(modList.getPackagesDataUrl(instPath));
+  store.set('checkDate.packages', Date.now());
+  const modInfo = await modList.getInfo();
+  store.set(
+    'modDate.packages',
+    Math.max(...modInfo.packages.map((p) => new Date(p.modified).getTime())),
+  );
+}
+
+/**
  * Checks the packages list.
  * @param {string} instPath - An installation path.
  */
@@ -497,17 +512,10 @@ async function checkPackagesList(instPath: string) {
   }
 
   try {
-    await modList.updateInfo();
-    await packageUtil.downloadRepository(modList.getPackagesDataUrl(instPath));
-    store.set('checkDate.packages', Date.now());
-    const modInfo = await modList.getInfo();
-    store.set(
-      'modDate.packages',
-      Math.max(...modInfo.packages.map((p) => new Date(p.modified).getTime())),
-    );
+    await _checkPackagesList(instPath);
+
     await setPackagesList(instPath);
     await displayNicommonsIdList(instPath);
-
     if (btn) buttonTransition.message(btn, '更新完了', 'success');
   } catch (e) {
     log.error(e);
@@ -561,6 +569,76 @@ async function getScriptsList(update = false) {
   }
 
   return result;
+}
+
+/**
+ *
+ * @param {string} archivePath
+ * @param {PackageItem} installedPackage
+ * @param {string} instPath - An installation path.
+ * @returns {Promise<boolean>}
+ */
+async function _installPackage(
+  archivePath: string,
+  installedPackage: PackageItem,
+  instPath: string,
+) {
+  const getUnzippedPath = async () => {
+    if (['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(archivePath))) {
+      return await unzip(archivePath, installedPackage.id);
+    } else {
+      // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
+      const newFolder = path.join(
+        path.dirname(archivePath),
+        installedPackage.id,
+      );
+      await mkdir(newFolder, { recursive: true });
+      await rename(
+        archivePath,
+        path.join(newFolder, path.basename(archivePath)),
+      );
+      return newFolder;
+    }
+  };
+
+  const unzippedPath = await getUnzippedPath();
+
+  if (installedPackage.info.installer) {
+    const searchFiles = async (dirName: string) => {
+      let result: string[][] = [];
+      const dirents = await readdir(dirName, {
+        withFileTypes: true,
+      });
+      for (const dirent of dirents) {
+        if (dirent.isDirectory()) {
+          const childResult = await searchFiles(
+            path.join(dirName, dirent.name),
+          );
+          result = result.concat(childResult);
+        } else {
+          if (dirent.name === installedPackage.info.installer) {
+            result.push([path.join(dirName, dirent.name)]);
+            break;
+          }
+        }
+      }
+      return result;
+    };
+
+    const exePath = await searchFiles(unzippedPath);
+    const command =
+      '"' +
+      exePath[0][0] +
+      '" ' +
+      installedPackage.info.installArg
+        .replace('"$instpath"', '$instpath')
+        .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
+    execSync(command);
+
+    return verifyFilesByCount(instPath, installedPackage.info.files);
+  } else {
+    return await install(unzippedPath, instPath, installedPackage.info.files);
+  }
 }
 
 /**
@@ -764,66 +842,11 @@ async function installPackage(
   let installResult = false;
 
   try {
-    const getUnzippedPath = async () => {
-      if (['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(archivePath))) {
-        return await unzip(archivePath, installedPackage.id);
-      } else {
-        // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
-        const newFolder = path.join(
-          path.dirname(archivePath),
-          installedPackage.id,
-        );
-        await mkdir(newFolder, { recursive: true });
-        await rename(
-          archivePath,
-          path.join(newFolder, path.basename(archivePath)),
-        );
-        return newFolder;
-      }
-    };
-
-    const unzippedPath = await getUnzippedPath();
-
-    if (installedPackage.info.installer) {
-      const searchFiles = async (dirName: string) => {
-        let result: string[][] = [];
-        const dirents = await readdir(dirName, {
-          withFileTypes: true,
-        });
-        for (const dirent of dirents) {
-          if (dirent.isDirectory()) {
-            const childResult = await searchFiles(
-              path.join(dirName, dirent.name),
-            );
-            result = result.concat(childResult);
-          } else {
-            if (dirent.name === installedPackage.info.installer) {
-              result.push([path.join(dirName, dirent.name)]);
-              break;
-            }
-          }
-        }
-        return result;
-      };
-
-      const exePath = await searchFiles(unzippedPath);
-      const command =
-        '"' +
-        exePath[0][0] +
-        '" ' +
-        installedPackage.info.installArg
-          .replace('"$instpath"', '$instpath')
-          .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
-      execSync(command);
-
-      installResult = verifyFilesByCount(instPath, installedPackage.info.files);
-    } else {
-      installResult = await install(
-        unzippedPath,
-        instPath,
-        installedPackage.info.files,
-      );
-    }
+    installResult = await _installPackage(
+      archivePath,
+      installedPackage,
+      instPath,
+    );
   } catch (e) {
     log.error(e);
     installResult = false;
@@ -849,6 +872,43 @@ async function installPackage(
       enableButton();
     }, 3000);
   }
+}
+
+/**
+ *
+ * @param {string} instPath - An installation path.
+ * @param {PackageItem} uninstalledPackage
+ */
+async function _uninstallPackage(
+  instPath: string,
+  uninstalledPackage: PackageItem,
+) {
+  const filesToRemove = [];
+  for (const file of uninstalledPackage.info.files) {
+    if (!file.isInstallOnly)
+      filesToRemove.push(path.join(instPath, file.filename));
+  }
+
+  await Promise.all(
+    filesToRemove.map((filePath) => safeRemove(filePath, instPath)),
+  );
+
+  let filesCount = 0;
+  let notExistCount = 0;
+  for (const file of uninstalledPackage.info.files) {
+    if (!file.isInstallOnly) {
+      filesCount++;
+      if (!existsSync(path.join(instPath, file.filename))) {
+        notExistCount++;
+      }
+    }
+  }
+
+  if (filesCount !== notExistCount) {
+    throw new Error('');
+  }
+
+  await apmJson.removePackage(instPath, uninstalledPackage);
 }
 
 /**
@@ -900,38 +960,9 @@ async function uninstallPackage(instPath: string) {
 
   const uninstalledPackage = { ...selectedEntry } as PackageItem;
 
-  const filesToRemove = [];
-  for (const file of uninstalledPackage.info.files) {
-    if (!file.isInstallOnly)
-      filesToRemove.push(path.join(instPath, file.filename));
-  }
-
   try {
-    await Promise.all(
-      filesToRemove.map((filePath) => safeRemove(filePath, instPath)),
-    );
-  } catch (e) {
-    log.error(e);
-    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-    return;
-  }
+    await _uninstallPackage(instPath, uninstalledPackage);
 
-  let filesCount = 0;
-  let notExistCount = 0;
-  for (const file of uninstalledPackage.info.files) {
-    if (!file.isInstallOnly) {
-      filesCount++;
-      if (!existsSync(path.join(instPath, file.filename))) {
-        notExistCount++;
-      }
-    }
-  }
-
-  await apmJson.removePackage(instPath, uninstalledPackage);
-  if (filesCount === notExistCount) {
     if (!uninstalledPackage.id.startsWith('script_')) {
       await setPackagesList(instPath);
       await displayNicommonsIdList(instPath);
@@ -941,16 +972,17 @@ async function uninstallPackage(instPath: string) {
         uninstalledPackage,
       );
       await checkPackagesList(instPath);
+
+      buttonTransition.message(btn, 'アンインストール完了', 'success');
     }
-
-    buttonTransition.message(btn, 'アンインストール完了', 'success');
-  } else {
+  } catch (e) {
+    log.error(e);
     buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+  } finally {
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
   }
-
-  setTimeout(() => {
-    enableButton();
-  }, 3000);
 }
 
 /**
@@ -1012,39 +1044,16 @@ async function openPackageFolder() {
 }
 
 /**
- * Installs a script to installation path.
+ *
+ * @param {string} url
  * @param {string} instPath - An installation path.
+ * @returns {Promise<void>}
  */
-async function installScript(instPath: string) {
-  const btn = document.getElementById('install-package') as HTMLButtonElement;
-  const { enableButton } = buttonTransition.loading(btn);
-  const url = (selectedEntry as Scripts['webpage'][number]).url;
-
-  if (!instPath) {
-    log.error('An installation path is not selected.');
-    buttonTransition.message(
-      btn,
-      'インストール先フォルダを指定してください。',
-      'danger',
-    );
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-    return;
-  }
-
+async function _installScript(url: string, instPath: string) {
   const downloadResult = await openBrowser(url, 'package');
   if (!downloadResult) {
     log.info('The installation was canceled.');
-    buttonTransition.message(
-      btn,
-      'インストールがキャンセルされました。',
-      'info',
-    );
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-    return;
+    throw new Error('インストールがキャンセルされました。');
   }
 
   const archivePath = downloadResult.savePath;
@@ -1055,11 +1064,7 @@ async function installScript(instPath: string) {
 
   if (!matchInfo) {
     log.error('The script is not supported.');
-    buttonTransition.message(btn, '未対応のスクリプトです。', 'danger');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-    return;
+    throw new Error('未対応のスクリプトです。');
   }
 
   if ('redirect' in matchInfo) {
@@ -1081,15 +1086,8 @@ async function installScript(instPath: string) {
         archivePath,
       );
     } else {
-      buttonTransition.message(
-        btn,
-        '指定されたパッケージは存在しません。',
-        'danger',
-      );
+      throw new Error('指定されたパッケージは存在しません。');
     }
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
     return;
   }
 
@@ -1134,135 +1132,149 @@ async function installScript(instPath: string) {
         ).some((e) => e);
   };
 
-  try {
-    const getUnzippedPath = async () => {
-      if (['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(archivePath))) {
-        return await unzip(archivePath);
-      } else {
-        // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
-        const newFolder = path.join(
-          path.dirname(archivePath),
-          'tmp_' + path.basename(archivePath),
-        );
-        await mkdir(newFolder, { recursive: true });
-        await rename(
-          archivePath,
-          path.join(newFolder, path.basename(archivePath)),
-        );
-        return newFolder;
-      }
-    };
-    const unzippedPath = await getUnzippedPath();
-
-    if (!(await extExists(unzippedPath, scriptExtRegex))) {
-      log.error('No script files are included.');
-      buttonTransition.message(btn, 'スクリプトが含まれていません。', 'danger');
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      return;
-    }
-    if (await extExists(unzippedPath, pluginExtRegex)) {
-      log.error('Plugin files are included.');
-      buttonTransition.message(
-        btn,
-        'プラグインが含まれているためインストールできません。',
-        'danger',
+  const getUnzippedPath = async () => {
+    if (['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(archivePath))) {
+      return await unzip(archivePath);
+    } else {
+      // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
+      const newFolder = path.join(
+        path.dirname(archivePath),
+        'tmp_' + path.basename(archivePath),
       );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      return;
+      await mkdir(newFolder, { recursive: true });
+      await rename(
+        archivePath,
+        path.join(newFolder, path.basename(archivePath)),
+      );
+      return newFolder;
     }
+  };
+  const unzippedPath = await getUnzippedPath();
 
-    // Copying files
-    const denyList = [
-      '*readme*',
-      '*copyright*',
-      '*.txt',
-      '*.zip',
-      '*.aup',
-      '*.md',
-      'doc',
-      'old',
-      'old_*',
-    ];
-    const scriptRoot = (await searchScriptRoot(unzippedPath))[0];
-    const entriesToCopy = (
-      await readdir(scriptRoot, {
-        withFileTypes: true,
-      })
-    )
-      .filter((p) => !isMatch([p.name], denyList))
-      .map((p) => {
-        return {
-          src: path.join(scriptRoot, p.name),
-          dest: path.join(instPath, 'script', matchInfo.folder, p.name),
-          filename: path
-            .join('script', matchInfo.folder, p.name)
-            .replaceAll('\\', '/'),
-          isDirectory: p.isDirectory(),
-        };
-      });
-    await mkdir(path.join(instPath, 'script', matchInfo.folder), {
-      recursive: true,
+  if (!(await extExists(unzippedPath, scriptExtRegex))) {
+    log.error('No script files are included.');
+    throw new Error('スクリプトが含まれていません。');
+  }
+  if (await extExists(unzippedPath, pluginExtRegex)) {
+    log.error('Plugin files are included.');
+    throw new Error('プラグインが含まれているためインストールできません。');
+  }
+
+  // Copying files
+  const denyList = [
+    '*readme*',
+    '*copyright*',
+    '*.txt',
+    '*.zip',
+    '*.aup',
+    '*.md',
+    'doc',
+    'old',
+    'old_*',
+  ];
+  const scriptRoot = (await searchScriptRoot(unzippedPath))[0];
+  const entriesToCopy = (
+    await readdir(scriptRoot, {
+      withFileTypes: true,
+    })
+  )
+    .filter((p) => !isMatch([p.name], denyList))
+    .map((p) => {
+      return {
+        src: path.join(scriptRoot, p.name),
+        dest: path.join(instPath, 'script', matchInfo.folder, p.name),
+        filename: path
+          .join('script', matchInfo.folder, p.name)
+          .replaceAll('\\', '/'),
+        isDirectory: p.isDirectory(),
+      };
     });
-    await Promise.all(
-      entriesToCopy.map((filePath) => copy(filePath.src, filePath.dest)),
+  await mkdir(path.join(instPath, 'script', matchInfo.folder), {
+    recursive: true,
+  });
+  await Promise.all(
+    entriesToCopy.map((filePath) => copy(filePath.src, filePath.dest)),
+  );
+
+  // Constructing package information
+  const files = entriesToCopy.map((i) => {
+    return { filename: i.filename, isDirectory: i.isDirectory };
+  });
+
+  const filteredFiles = files.filter((f) => scriptExtRegex.test(f.filename));
+  const name = path.basename(
+    filteredFiles[0].filename,
+    path.extname(filteredFiles[0].filename),
+  );
+  const id = 'script_' + getHash(name);
+
+  // Rename the extracted folder
+  const newPath = path.join(path.dirname(unzippedPath), id);
+  if (existsSync(newPath)) await rm(newPath, { recursive: true });
+  await rename(unzippedPath, newPath);
+
+  // Save package information
+  const packageItem = {
+    id: id,
+    name: name,
+    overview: 'スクリプト',
+    description:
+      'スクリプト一覧: ' +
+      filteredFiles.map((f) => path.basename(f.filename)).join(', '),
+    developer: matchInfo?.developer ?? '-',
+    dependencies: matchInfo?.dependencies,
+    pageURL: url,
+    downloadURLs: [url] as [string, ...string[]],
+    latestVersion: getDate(),
+    files: files,
+  };
+
+  await parseJson.addPackage(
+    modList.getLocalPackagesDataUrl(instPath),
+    packageItem,
+  );
+  await apmJson.addPackage(instPath, {
+    id: packageItem.id,
+    info: packageItem,
+  });
+}
+
+/**
+ * Installs a script to installation path.
+ * @param {string} instPath - An installation path.
+ */
+async function installScript(instPath: string) {
+  const btn = document.getElementById('install-package') as HTMLButtonElement;
+  const { enableButton } = buttonTransition.loading(btn);
+  const url = (selectedEntry as Scripts['webpage'][number]).url;
+
+  if (!instPath) {
+    log.error('An installation path is not selected.');
+    buttonTransition.message(
+      btn,
+      'インストール先フォルダを指定してください。',
+      'danger',
     );
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
+    return;
+  }
 
-    // Constructing package information
-    const files = entriesToCopy.map((i) => {
-      return { filename: i.filename, isDirectory: i.isDirectory };
-    });
+  try {
+    await _installScript(url, instPath);
 
-    const filteredFiles = files.filter((f) => scriptExtRegex.test(f.filename));
-    const name = path.basename(
-      filteredFiles[0].filename,
-      path.extname(filteredFiles[0].filename),
-    );
-    const id = 'script_' + getHash(name);
-
-    // Rename the extracted folder
-    const newPath = path.join(path.dirname(unzippedPath), id);
-    if (existsSync(newPath)) await rm(newPath, { recursive: true });
-    await rename(unzippedPath, newPath);
-
-    // Save package information
-    const packageItem = {
-      id: id,
-      name: name,
-      overview: 'スクリプト',
-      description:
-        'スクリプト一覧: ' +
-        filteredFiles.map((f) => path.basename(f.filename)).join(', '),
-      developer: matchInfo?.developer ?? '-',
-      dependencies: matchInfo?.dependencies,
-      pageURL: url,
-      downloadURLs: [url] as [string, ...string[]],
-      latestVersion: getDate(),
-      files: files,
-    };
-
-    await parseJson.addPackage(
-      modList.getLocalPackagesDataUrl(instPath),
-      packageItem,
-    );
-    await apmJson.addPackage(instPath, {
-      id: packageItem.id,
-      info: packageItem,
-    });
     await checkPackagesList(instPath);
 
     buttonTransition.message(btn, 'インストール完了', 'success');
   } catch (e) {
     log.error(e);
-    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    buttonTransition.message(btn, e.message, 'danger');
+  } finally {
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
   }
-
-  setTimeout(() => {
-    enableButton();
-  }, 3000);
 }
 
 const filterButtons: Set<HTMLButtonElement> = new Set();
