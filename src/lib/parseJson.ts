@@ -47,7 +47,7 @@ export async function getPackages(packagesListPath: string) {
  * @param {string} packagesListPath - A path of Json file.
  * @param {object} packages - A list of packages.
  */
-async function setPackages(
+export async function setPackages(
   packagesListPath: string,
   packages: Packages['packages'],
 ) {
