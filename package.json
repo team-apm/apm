@@ -27,7 +27,7 @@
     "notices": "yarn licenses generate-disclaimer --frozen-lockfile --prod --ignore-platform --ignore-engines --ignore-optional > ThirdPartyNotices.txt"
   },
   "engines": {
-    "node": "18.x || 16.x"
+    "node": "20.x || 18.x || 16.x"
   },
   "dependencies": {
     "7zip-bin": "^5.2.0",
