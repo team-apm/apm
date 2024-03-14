@@ -73,7 +73,7 @@
     "@types/list.js": "^2.3.4",
     "@types/node-7z": "^2.1.8",
     "@types/react": "^18.2.64",
-    "@types/react-dom": "^18.2.21",
+    "@types/react-dom": "^18.2.22",
     "@types/ssri": "^7.1.5",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
