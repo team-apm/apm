@@ -11,7 +11,8 @@ import { checkIntegrity, verifyFile } from '../../lib/integrity';
 import {
   app,
   download,
-  existsTempFile,
+  existsFile,
+  getTempFilePath,
   openDialog,
   openDirDialog,
   openYesNoDialog,
@@ -39,25 +40,54 @@ async function initCore() {
     store.set('installationPath', instPath);
   }
 }
+/**
+ * Set the version of the manually installed program.
+ * @param {string} instPath - An installation path.
+ */
+async function detectManuallyInstalledProgram(instPath: string) {
+  const coreInfo = await getCoreInfo();
+  for (const program of programs) {
+    const progInfo: Program = coreInfo[program];
+
+    if (!(await apmJson.has(instPath, 'core.' + program))) {
+      for (const release of progInfo.releases) {
+        if (await checkIntegrity(instPath, release.integrity.file))
+          await apmJson.setCore(instPath, program, release.version);
+      }
+    }
+  }
+}
+
+/**
+ * Add a shortcut to the Start menu.
+ * @param {string} instPath - An installation path.
+ */
+async function updateAviUtlShortcut(instPath: string) {
+  const appDataPath = await app.getPath('appData');
+  const apmPath = await app.getPath('exe');
+  const aviutlPath = path.join(instPath, 'aviutl.exe');
+  if (
+    fs.existsSync(aviutlPath) &&
+    apmPath.includes(path.dirname(appDataPath)) // Verify that it is the installed version of apm
+  ) {
+    addAviUtlShortcut(appDataPath, aviutlPath);
+  } else {
+    removeAviUtlShortcut(appDataPath);
+  }
+}
 
 /**
  * Displays installed version.
  * @param {string} instPath - An installation path.
  */
 async function displayInstalledVersion(instPath: string) {
+  await detectManuallyInstalledProgram(instPath);
+
   const coreInfo = await getCoreInfo();
   const isInstalled = { aviutl: false, exedit: false };
   if (instPath && coreInfo) {
     for (const program of programs) {
       const progInfo: Program = coreInfo[program];
-
-      // Set the version of the manually installed program
-      if (!(await apmJson.has(instPath, 'core.' + program))) {
-        for (const release of progInfo.releases) {
-          if (await checkIntegrity(instPath, release.integrity.file))
-            await apmJson.setCore(instPath, program, release.version);
-        }
-      }
 
       if (await apmJson.has(instPath, 'core.' + program)) {
         const installedVersion = (await apmJson.get(
@@ -112,19 +142,8 @@ async function displayInstalledVersion(instPath: string) {
     replaceText('core-check-date', '未確認');
   }
 
-  // Add a shortcut to the Start menu
   if (process.platform === 'win32') {
-    const appDataPath = await app.getPath('appData');
-    const apmPath = await app.getPath('exe');
-    const aviutlPath = path.join(instPath, 'aviutl.exe');
-    if (
-      fs.existsSync(aviutlPath) &&
-      apmPath.includes(path.dirname(appDataPath)) // Verify that it is the installed version of apm
-    ) {
-      addAviUtlShortcut(appDataPath, aviutlPath);
-    } else {
-      removeAviUtlShortcut(appDataPath);
-    }
+    await updateAviUtlShortcut(instPath);
   }
 }
 
@@ -133,13 +152,13 @@ async function displayInstalledVersion(instPath: string) {
  * @returns {Promise<Core>} - An object parsed from core.json.
  */
 async function getCoreInfo() {
-  const coreFile = await existsTempFile(
+  const coreFilePath = await getTempFilePath(
     path.join('core', path.basename(await modList.getCoreDataUrl())),
   );
-  if (!coreFile.exists) return null;
+  if (!existsFile(coreFilePath)) return null;
 
   try {
-    return await parseJson.getCore(coreFile.path);
+    return await parseJson.getCore(coreFilePath);
   } catch (e) {
     log.error(e);
     return null;
@@ -215,6 +234,19 @@ async function setCoreVersions(instPath: string) {
 }
 
 /**
+ *
+ */
+async function _checkLatestVersion() {
+  await download(await modList.getCoreDataUrl(), {
+    subDir: 'core',
+  });
+  await modList.updateInfo();
+  store.set('checkDate.core', Date.now());
+  const modInfo = await modList.getInfo();
+  store.set('modDate.core', new Date(modInfo.core.modified).getTime());
+}
+
+/**
  * Checks the latest versionof programs.
  * @param {string} instPath - An installation path.
  */
@@ -225,13 +257,8 @@ async function checkLatestVersion(instPath: string) {
   const { enableButton } = buttonTransition.loading(btn, '更新');
 
   try {
-    await download(await modList.getCoreDataUrl(), {
-      subDir: 'core',
-    });
-    await modList.updateInfo();
-    store.set('checkDate.core', Date.now());
-    const modInfo = await modList.getInfo();
-    store.set('modDate.core', new Date(modInfo.core.modified).getTime());
+    await _checkLatestVersion();
+
     await displayInstalledVersion(instPath);
     await setCoreVersions(instPath);
     buttonTransition.message(btn, '更新完了', 'success');
@@ -326,6 +353,63 @@ async function changeInstallationPath(instPath: string) {
 }
 
 /**
+ *
+ * @param {string} program - A program name to install.
+ * @param {string} version - A version to install.
+ * @param {string} instPath - An installation path.
+ */
+async function _installProgram(
+  program: (typeof programs)[number],
+  version: string,
+  instPath: string,
+) {
+  const coreInfo = await getCoreInfo();
+
+  if (!coreInfo) {
+    log.error('The version data do not exist.');
+    throw new Error('バージョンデータが存在しません。');
+  }
+
+  const progInfo = coreInfo[program] as Program;
+  const url = progInfo.releases.find((r) => r.version === version).url;
+  let archivePath = await download(url, { loadCache: true, subDir: 'core' });
+
+  if (!archivePath) {
+    log.error('Failed downloading a file.');
+    throw new Error('ダウンロード中にエラーが発生しました。');
+  }
+
+  const integrityForArchive = progInfo.releases.find(
+    (r) => r.version === version,
+  ).integrity.archive;
+
+  if (integrityForArchive) {
+    // Verify file integrity
+    while (!(await verifyFile(archivePath, integrityForArchive))) {
+      const dialogResult = await openYesNoDialog(
+        'エラー',
+        'ダウンロードされたファイルは破損しています。再ダウンロードしますか？',
+      );
+
+      if (!dialogResult) {
+        log.error(`The downloaded archive file is corrupt. URL:${url}`);
+        throw new Error('ダウンロードされたファイルは破損しています。');
+      }
+
+      archivePath = await download(url, { subDir: 'core' });
+      if (!archivePath) {
+        log.error(`Failed downloading the archive file. URL:${url}`);
+        throw new Error('ファイルのダウンロードに失敗しました。');
+      }
+    }
+  }
+
+  const unzippedPath = await unzip(archivePath);
+  await install(unzippedPath, instPath, progInfo.files, true);
+  await apmJson.setCore(instPath, program, version);
+}
+
+/**
  * Installs a program to installation path.
  * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
  * @param {string} program - A program name to install.
@@ -368,95 +452,9 @@ async function installProgram(
     return;
   }
 
-  const coreInfo = await getCoreInfo();
-
-  if (!coreInfo) {
-    log.error('The version data do not exist.');
-    if (btn) {
-      buttonTransition.message(
-        btn,
-        'バージョンデータが存在しません。',
-        'danger',
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-    }
-    return;
-  }
-
-  const progInfo = coreInfo[program] as Program;
-  const url = progInfo.releases.find((r) => r.version === version).url;
-  let archivePath = await download(url, { loadCache: true, subDir: 'core' });
-
-  if (!archivePath) {
-    log.error('Failed downloading a file.');
-    if (btn) {
-      buttonTransition.message(
-        btn,
-        'ダウンロード中にエラーが発生しました。',
-        'danger',
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-    }
-    return;
-  }
-
-  const integrityForArchive = progInfo.releases.find(
-    (r) => r.version === version,
-  ).integrity.archive;
-
-  if (integrityForArchive) {
-    // Verify file integrity
-    while (!(await verifyFile(archivePath, integrityForArchive))) {
-      const dialogResult = await openYesNoDialog(
-        'エラー',
-        'ダウンロードされたファイルは破損しています。再ダウンロードしますか？',
-      );
-
-      if (!dialogResult) {
-        log.error(`The downloaded archive file is corrupt. URL:${url}`);
-        if (btn) {
-          buttonTransition.message(
-            btn,
-            'ダウンロードされたファイルは破損しています。',
-            'danger',
-          );
-          setTimeout(() => {
-            enableButton();
-          }, 3000);
-        }
-        return;
-      }
-
-      archivePath = await download(url, { subDir: 'core' });
-      if (!archivePath) {
-        log.error(`Failed downloading the archive file. URL:${url}`);
-        if (btn) {
-          buttonTransition.message(
-            btn,
-            'ファイルのダウンロードに失敗しました。',
-            'danger',
-          );
-          setTimeout(() => {
-            enableButton();
-          }, 3000);
-          return;
-        } else {
-          // Throw an error if not executed from the UI.
-          throw new Error('Failed downloading the archive file.');
-        }
-      }
-    }
-  }
-
   try {
-    const unzippedPath = await unzip(archivePath);
-    await install(unzippedPath, instPath, progInfo.files, true);
+    await _installProgram(program, version, instPath);
 
-    await apmJson.setCore(instPath, program, version);
     await displayInstalledVersion(instPath);
     await packageMain.setPackagesList(instPath);
     await packageMain.displayNicommonsIdList(instPath);
@@ -464,13 +462,39 @@ async function installProgram(
     if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
   } catch (e) {
     log.error(e);
-    if (btn) buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    if (btn) buttonTransition.message(btn, e.message, 'danger');
+  } finally {
+    if (btn)
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
   }
+}
 
-  if (btn)
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
+/**
+ *
+ * @param {string} instPath - An installation path.
+ */
+async function _batchInstall(instPath: string) {
+  const coreInfo = await getCoreInfo();
+  for (const program of programs) {
+    const progInfo = coreInfo[program];
+    await installProgram(null, program, progInfo.latestVersion, instPath);
+  }
+  const allPackages = (
+    await packageUtil.getPackagesExtra(
+      await packageMain.getPackages(instPath),
+      instPath,
+    )
+  ).packages;
+  const packages = allPackages.filter(
+    (p) =>
+      p.info.directURL &&
+      p.installationStatus === packageUtil.states.notInstalled,
+  );
+  for (const packageItem of packages) {
+    await packageMain.installPackage(instPath, packageItem, true);
+  }
 }
 
 /**
@@ -500,35 +524,16 @@ async function batchInstall(instPath: string) {
   }
 
   try {
-    const coreInfo = await getCoreInfo();
-    for (const program of programs) {
-      const progInfo = coreInfo[program];
-      await installProgram(null, program, progInfo.latestVersion, instPath);
-    }
-    const allPackages = (
-      await packageUtil.getPackagesExtra(
-        await packageMain.getPackages(instPath),
-        instPath,
-      )
-    ).packages;
-    const packages = allPackages.filter(
-      (p) =>
-        p.info.directURL &&
-        p.installationStatus === packageUtil.states.notInstalled,
-    );
-    for (const packageItem of packages) {
-      await packageMain.installPackage(instPath, packageItem, true);
-    }
-
+    await _batchInstall(instPath);
     buttonTransition.message(btn, 'インストール完了', 'success');
   } catch (e) {
     log.error(e);
     buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+  } finally {
+    setTimeout(() => {
+      enableButton();
+    }, 3000);
   }
-
-  setTimeout(() => {
-    enableButton();
-  }, 3000);
 }
 
 const core = {

@@ -17,7 +17,7 @@ import log from 'electron-log';
 import prompt from 'electron-prompt';
 import Store from 'electron-store';
 import windowStateKeeper from 'electron-window-state';
-import fs, { mkdir, readJsonSync } from 'fs-extra';
+import fs, { exists, mkdir, readJsonSync } from 'fs-extra';
 import path from 'path';
 import 'source-map-support/register';
 import { updateElectronApp } from 'update-electron-app';
@@ -205,16 +205,18 @@ ipcMain.handle('open-path', (event, relativePath) => {
   return folderExists;
 });
 
-ipcMain.handle('exists-temp-file', (event, relativePath, keyText) => {
-  let filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
+ipcMain.handle('get-temp-file-path', (event, relativePath, keyText) => {
+  const filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
   if (keyText) {
-    filePath = path.join(
+    return path.join(
       path.dirname(filePath),
       getHash(keyText) + '_' + path.basename(filePath),
     );
   }
-  return { exists: fs.existsSync(filePath), path: filePath };
+  return filePath;
 });
+
+ipcMain.handle('exists-file', async (event, filePath) => exists(filePath));
 
 ipcMain.handle('open-dir-dialog', async (event, title, defaultPath) => {
   const win = BrowserWindow.getFocusedWindow();
@@ -414,7 +416,6 @@ async function launch() {
       icon: icon,
       webPreferences: {
         preload: ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY,
-        sandbox: false,
       },
     });
     aboutWindow.once('close', () => {

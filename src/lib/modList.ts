@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
 import { isParent } from './apmPath';
-import { download, existsTempFile } from './ipcWrapper';
+import { download, existsFile, getTempFilePath } from './ipcWrapper';
 import * as parseJson from './parseJson';
 const store = new Store();
 
@@ -68,14 +68,14 @@ export async function updateInfo() {
  * @returns {Promise<object>} - An object parsed from list.json.
  */
 export async function getInfo() {
-  const modFile = await existsTempFile('list.json');
-  if (modFile.exists) {
-    return await parseJson.getMod(modFile.path).catch((): null => null);
+  const modFilePath = await getTempFilePath('list.json');
+  if (existsFile(modFilePath)) {
+    return await parseJson.getMod(modFilePath).catch((): null => null);
   } else {
     await updateInfo();
-    const downloadedModFile = await existsTempFile('list.json');
+    const downloadedModFilePath = await getTempFilePath('list.json');
     return await parseJson
-      .getMod(downloadedModFile.path)
+      .getMod(downloadedModFilePath)
       .catch((): null => null);
   }
 }
