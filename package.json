@@ -43,7 +43,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.1.0",
     "electron-window-state": "^5.0.3",
-    "fast-xml-parser": "^4.3.5",
+    "fast-xml-parser": "^4.4.0",
     "fs-extra": "^11.2.0",
     "list.js": "^2.3.1",
     "matcher": "^5.0.0",
