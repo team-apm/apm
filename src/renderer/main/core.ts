@@ -82,7 +82,7 @@ async function displayInstalledVersion(instPath: string) {
             'バージョン: ' +
               installedVersion +
               description +
-              '（ファイルの存在が確認できませんでした。）',
+              '（未導入ファイルあり）',
           );
         }
       } else {
@@ -514,7 +514,10 @@ async function batchInstall(instPath: string) {
     const packages = allPackages.filter(
       (p) =>
         p.info.directURL &&
-        p.installationStatus === packageUtil.states.notInstalled,
+        [
+          packageUtil.states.notInstalled,
+          packageUtil.states.installedButBroken,
+        ].some((status) => status === p.installationStatus),
     );
     for (const packageItem of packages) {
       await packageMain.installPackage(instPath, packageItem, true);
