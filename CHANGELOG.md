@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.8.0](https://github.com/team-apm/apm/compare/v3.7.2...v3.8.0) (2024-02-11)
+
+### Features
+
+- background color visibility ([5aa002b](https://github.com/team-apm/apm/commit/5aa002bbbeba065b6905f20f8501da0df76c0d83))
+- improvements in main tab ([73c8498](https://github.com/team-apm/apm/commit/73c8498b6810ad625d08e75a44b6bd0e1f0c5f3e))
+- improvements in Plugins & Scripts tab ([05f6fa4](https://github.com/team-apm/apm/commit/05f6fa488213ba4a8e816b1df169d14decffa800))
+- **index.html:** minor modifications to design ([c9cf77b](https://github.com/team-apm/apm/commit/c9cf77b1d5738c79e3fa1a47123403ef3efdbe4d))
+- revert input element ([a2089a3](https://github.com/team-apm/apm/commit/a2089a3b690f16363ecb6db68a60a5c96dc1510e))
+- use bootstrap standard dark theme ([6771dd8](https://github.com/team-apm/apm/commit/6771dd823ad3f26805f5c4cde60b9a87e441eb0a))
+
+### Bug Fixes
+
+- conflict detection algorithm ([de7993e](https://github.com/team-apm/apm/commit/de7993effcf149ffcd2b9f45a4957b72a6fa669d))
+- update nicommons url ([297b4b8](https://github.com/team-apm/apm/commit/297b4b898ca514d1ad9fa6130ead5748bf31d84d))
+- **updateElectronApp:** use named export ([bdb6e36](https://github.com/team-apm/apm/commit/bdb6e36fb09ce8ba4ca70480fbabcd2b7d8475be))
+
 ### [3.7.2](https://github.com/team-apm/apm/compare/v3.7.1...v3.7.2) (2023-10-07)
 
 ### Bug Fixes
