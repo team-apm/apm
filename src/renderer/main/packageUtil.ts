@@ -359,7 +359,16 @@ async function getPackagesStatus(instPath: string, _packages: PackageItem[]) {
           .every((x) => x);
       const otherInstalled =
         thisPackage.installationStatus === states.otherInstalled;
-      const isConflicted = () => otherInstalled; // TODO: || conflictsInstalled();
+      const conflictsInstalled = (): boolean =>
+        (thisPackage.info.conflicts ?? []) // [].some((x) => x) :false
+          .map((andOfID) =>
+            andOfID
+              .split('&')
+              .map((id2) => isInstalled(id2))
+              .every((x) => x),
+          )
+          .some((x) => x);
+      const isConflicted = () => otherInstalled || conflictsInstalled();
       return isDepsInstallable() && !isConflicted();
     } else if (aviUtlR.test(id)) {
       return id === 'aviutl' + aviUtlVer;
