@@ -2,6 +2,7 @@ import log from 'electron-log';
 import * as fs from 'fs-extra';
 import path from 'path';
 import * as apmJson from '../../lib/apmJson';
+import { compareVersionOp } from '../../lib/compareVersion';
 import { download, existsTempFile, openDialog } from '../../lib/ipcWrapper';
 import * as parseJson from '../../lib/parseJson';
 import { ApmJsonObject } from '../../types/apmJson';
@@ -378,14 +379,21 @@ async function getPackagesStatus(instPath: string, _packages: PackageItem[]) {
       return false;
     }
   };
-  const isInstalled = (id: string): boolean => {
+  const isInstalled = (rawId: string): boolean => {
+    const [, id, operator, version] = rawId.match(
+      /^((?:[A-Za-z0-9]+\/[A-Za-z0-9]+)|(?:aviutl[A-Za-z0-9.]+)|(?:exedit[A-Za-z0-9.]+))(?:(<|<=|=|>=|>)([^<=>&|\n]+))?$/u,
+    );
     const thisPackage = packages.filter((p) => p.id === id).find(() => true);
     if (thisPackage) {
-      return (
+      const statusInstalled =
         thisPackage.installationStatus !== states.installedButBroken &&
         thisPackage.installationStatus !== states.notInstalled &&
-        thisPackage.installationStatus !== states.otherInstalled
-      );
+        thisPackage.installationStatus !== states.otherInstalled;
+      const satisfiesVersion =
+        operator && thisPackage.version
+          ? compareVersionOp(thisPackage.version, version, operator)
+          : true;
+      return statusInstalled && satisfiesVersion;
     } else if (aviUtlR.test(id)) {
       return id === 'aviutl' + aviUtlVer;
     } else if (exeditR.test(id)) {

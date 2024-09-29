@@ -16,7 +16,7 @@ import * as matcher from 'matcher';
 import path from 'path';
 import * as apmJson from '../../lib/apmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
-import compareVersion from '../../lib/compareVersion';
+import { compareVersion } from '../../lib/compareVersion';
 import { getHash } from '../../lib/getHash';
 import { checkIntegrity, verifyFile } from '../../lib/integrity';
 import {
