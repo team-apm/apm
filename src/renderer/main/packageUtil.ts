@@ -25,8 +25,7 @@ type aviutlExtention = keyof typeof typeForExtention;
 /** Installation state of packages */
 const states = {
   installed: 'インストール済み',
-  installedButBroken:
-    '未インストール（ファイルの存在が確認できませんでした。）',
+  installedButBroken: 'インストール済み（未導入ファイルあり）',
   manuallyInstalled: '手動インストール済み',
   otherInstalled: '他バージョンがインストール済み',
   notInstalled: '未インストール',
