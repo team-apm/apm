@@ -2,6 +2,7 @@ import log from 'electron-log';
 import * as fs from 'fs-extra';
 import path from 'path';
 import * as apmJson from '../../lib/apmJson';
+import { compareVersionOp } from '../../lib/compareVersion';
 import { download, existsTempFile, openDialog } from '../../lib/ipcWrapper';
 import * as parseJson from '../../lib/parseJson';
 import { ApmJsonObject } from '../../types/apmJson';
@@ -344,90 +345,89 @@ async function getPackagesStatus(instPath: string, _packages: PackageItem[]) {
     log.info(e);
   }
 
-  packages.forEach((p) => {
-    const doNotInstall = (p: PackageItem): boolean => {
-      if (p.installationStatus === states.otherInstalled) {
-        return true;
-      }
-      if (p.info.dependencies) {
-        // Whether there is at least one package that is not installable
-        return p.info.dependencies
-          .map((ids) => {
-            // Whether all ids are not installable
-            return ids
+  const isInstallable = (id: string): boolean => {
+    const thisPackage = packages.filter((p) => p.id === id).find(() => true);
+    if (thisPackage) {
+      const isDepsInstallable = (): boolean =>
+        (thisPackage.info.dependencies ?? []) // [].every((x) => x) :true
+          .map((orOfID) =>
+            orOfID
               .split('|')
-              .map((id) => {
-                if (aviUtlR.test(id)) {
-                  return id !== 'aviutl' + aviUtlVer;
-                }
-                if (exeditR.test(id)) {
-                  return id !== 'exedit' + exeditVer;
-                }
-                // Actually, there is no need to use a list because id is unique
-                return packages
-                  .filter((pp) => pp.id === id)
-                  .map((pp) => doNotInstall(pp))
-                  .some((e) => e);
-              })
-              .every((e) => e);
-          })
-          .some((e) => e);
-      }
+              .map((id2) => isInstallable(id2))
+              .some((x) => x),
+          )
+          .every((x) => x);
+      const otherInstalled =
+        thisPackage.installationStatus === states.otherInstalled;
+      const conflictsInstalled = (): boolean =>
+        (thisPackage.info.conflicts ?? []) // [].some((x) => x) :false
+          .map((andOfID) =>
+            andOfID
+              .split('&')
+              .map((id2) => isInstalled(id2))
+              .every((x) => x),
+          )
+          .some((x) => x);
+      const isConflicted = () => otherInstalled || conflictsInstalled();
+      return isDepsInstallable() && !isConflicted();
+    } else if (aviUtlR.test(id)) {
+      return id === 'aviutl' + aviUtlVer;
+    } else if (exeditR.test(id)) {
+      return id === 'exedit' + exeditVer;
+    } else {
       return false;
-    };
-    p.doNotInstall = doNotInstall(p);
-  });
+    }
+  };
+  const isInstalled = (rawId: string): boolean => {
+    const [, id, operator, version] = rawId.match(
+      /^((?:[A-Za-z0-9]+\/[A-Za-z0-9]+)|(?:aviutl[A-Za-z0-9.]+)|(?:exedit[A-Za-z0-9.]+))(?:(<|<=|=|>=|>)([^<=>&|\n]+))?$/u,
+    );
+    const thisPackage = packages.filter((p) => p.id === id).find(() => true);
+    if (thisPackage) {
+      const statusInstalled =
+        thisPackage.installationStatus !== states.installedButBroken &&
+        thisPackage.installationStatus !== states.notInstalled &&
+        thisPackage.installationStatus !== states.otherInstalled;
+      const satisfiesVersion =
+        operator && thisPackage.version
+          ? compareVersionOp(thisPackage.version, version, operator)
+          : true;
+      return statusInstalled && satisfiesVersion;
+    } else if (aviUtlR.test(id)) {
+      return id === 'aviutl' + aviUtlVer;
+    } else if (exeditR.test(id)) {
+      return id === 'exedit' + exeditVer;
+    } else {
+      return false;
+    }
+  };
+  const missingDeps = (id: string): string[] => {
+    const thisPackage = packages.filter((p) => p.id === id).find(() => true);
+    if (thisPackage && isInstalled(id)) {
+      return (thisPackage.info.dependencies ?? [])
+        .filter(
+          // If any of these are not installed
+          (orOfID) =>
+            !orOfID
+              .split('|')
+              .map((id2) => isInstalled(id2))
+              .some((x) => x),
+        )
+        .flatMap(
+          (orOfID) =>
+            orOfID
+              .split('|')
+              .filter((id2) => isInstallable(id2))
+              .find(() => true) ?? [],
+        );
+    } else return [];
+  };
 
   packages.forEach((p) => {
-    const isInstalled = (p: PackageItem) =>
-      p.installationStatus !== states.installedButBroken &&
-      p.installationStatus !== states.notInstalled &&
-      p.installationStatus !== states.otherInstalled;
-
-    if (!isInstalled(p)) {
-      p.detached = [];
-      return;
-    }
-
-    const detached = (p: PackageItem): PackageItem[] => {
-      const lists = [];
-      if (!isInstalled(p)) lists.push(p);
-
-      if (p.info.dependencies) {
-        lists.push(
-          ...p.info.dependencies.flatMap((ids) => {
-            // Whether all ids are detached or not
-            const isDetached = ids
-              .split('|')
-              .map((id) => {
-                if (aviUtlR.test(id) || exeditR.test(id)) return false;
-                // Actually, there is no need to use a list because id is unique
-                return packages
-                  .filter((pp) => pp.id === id)
-                  .map((pp) => detached(pp).length !== 0)
-                  .some((e) => e);
-              })
-              .every((e) => e);
-
-            if (!isDetached) return [];
-
-            // If all id's are detached, perform a list fetch for the ids
-            for (const id of ids.split('|')) {
-              if (aviUtlR.test(id) || exeditR.test(id)) {
-                continue;
-              }
-              const ps = packages
-                .filter((pp) => pp.id === id)
-                .flatMap((pp) => detached(pp).filter((p) => !p.doNotInstall));
-              if (ps.length > 0) return ps;
-            }
-            return [];
-          }),
-        );
-      }
-      return lists;
-    };
-    p.detached = detached(p);
+    p.doNotInstall = !isInstallable(p.id);
+    p.detached = missingDeps(p.id).map((depsID) =>
+      packages.filter((pp) => pp.id === depsID).find(() => true),
+    );
   });
   return packages;
 }

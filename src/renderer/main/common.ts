@@ -59,25 +59,22 @@ export async function install(
 
       // Copying files (main body of the installation)
       const filesToCopy = [];
-      const filesToInstall = files.filter(
-        (file) => !file.isUninstallOnly && !file.isObsolete,
-      );
+      const filesToInstall = files.filter((file) => !file.isObsolete);
       for (const file of filesToInstall) {
-        if (!file.archivePath) {
-          filesToCopy.push([
-            path.join(unzippedPath, path.basename(file.filename)),
-            path.join(instPath, file.filename),
-          ]);
-        } else {
-          filesToCopy.push([
-            path.join(
-              unzippedPath,
-              file.archivePath,
-              path.basename(file.filename),
-            ),
-            path.join(instPath, file.filename),
-          ]);
-        }
+        const filePath = [
+          file.archivePath
+            ? path.join(
+                unzippedPath,
+                file.archivePath,
+                path.basename(file.filename),
+              )
+            : path.join(unzippedPath, path.basename(file.filename)),
+          path.join(instPath, file.filename),
+        ];
+        if (file.isUninstallOnly) {
+          if (existsSync(filePath[0]) && !existsSync(filePath[1]))
+            filesToCopy.push(filePath);
+        } else filesToCopy.push(filePath);
       }
 
       await Promise.all(

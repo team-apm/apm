@@ -5,7 +5,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import * as apmJson from '../../lib/apmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
-import compareVersion from '../../lib/compareVersion';
+import { compareVersion } from '../../lib/compareVersion';
 import { convertId } from '../../lib/convertId';
 import { checkIntegrity, verifyFile } from '../../lib/integrity';
 import {
