@@ -5,7 +5,7 @@
 		<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
 		<meta
 			http-equiv="Content-Security-Policy"
-			content="default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp"
+			content="default-src 'self'; script-src-elem 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp"
 		/>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>AviUtl Package Manager</title>
@@ -40,7 +40,7 @@
 					aria-controls="packages"
 					aria-selected="false"
 				>
-					プラグイン&スクリプト
+					プラグイン <small>&</small> スクリプト
 				</button>
 				<button
 					class="non-draggable nav-link"
@@ -52,7 +52,7 @@
 					aria-controls="nicommons"
 					aria-selected="false"
 				>
-					ニコニ・コモンズID
+					ニコニ･コモンズ ID
 				</button>
 				<button
 					class="non-draggable nav-link"
@@ -706,6 +706,23 @@
 										></textarea>
 									</div>
 									<div class="col-sm-3"></div>
+								</div>
+								<div class="row mb-3">
+									<label for="container" class="form-label"
+										>追加テキストデータ</label
+									>
+									<div class="col-sm-9">
+										<div id="container" class="border rounded"></div>
+									</div>
+									<div class="col-sm-3">
+										<button
+											type="button"
+											class="btn btn-primary w-100"
+											id="save-editor-data"
+										>
+											保存 (Ctrl + S)
+										</button>
+									</div>
 								</div>
 								<div class="row mb-3">
 									<label

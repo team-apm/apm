@@ -110,12 +110,14 @@ export async function getCoreDataUrl() {
  * @returns {Array.<string>} -Package data files URLs.
  */
 export function getPackagesDataUrl(instPath: string) {
-  return (store.get('dataURL.packages') as string[]).concat(
+  return [].concat(
+    store.get('dataURL.packages') as string[],
     instPath &&
       instPath.length > 0 &&
-      fs.existsSync(getLocalPackagesDataUrl(instPath))
-      ? [getLocalPackagesDataUrl(instPath)]
-      : [],
+      [
+        getLocalPackagesDataUrl(instPath),
+        getEditorPackagesDataUrl(instPath),
+      ].filter((p) => fs.existsSync(p)),
   );
 }
 
@@ -126,6 +128,15 @@ export function getPackagesDataUrl(instPath: string) {
  */
 export function getLocalPackagesDataUrl(instPath: string) {
   return path.join(instPath, 'packages.json');
+}
+
+/**
+ * Returns a local package data file URL.
+ * @param {string} instPath - An installation path.
+ * @returns {string} - A package data file URL.
+ */
+export function getEditorPackagesDataUrl(instPath: string) {
+  return path.join(instPath, 'editorPackages.json');
 }
 
 /**
