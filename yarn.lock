@@ -1048,10 +1048,10 @@
   dependencies:
     electron latest
 
-"@types/electron-window-state@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@types/electron-window-state/-/electron-window-state-5.0.0.tgz#caf38c09d26294d3bed74985be0f666bb6451b0e"
-  integrity sha512-bT4efa3CIsyvI7gTNM/EtIp3AcFqw0sdnf/eYquxVOIANVgL+5NibU3BEibVsf+ow2qo4pRqgtkoJxAUBSlf9A==
+"@types/electron-window-state@^5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@types/electron-window-state/-/electron-window-state-5.0.2.tgz#b3aae242233a652606bc7ff8e77ca0f1ba0a489e"
+  integrity sha512-7+aVlr272+whGu3vYMo0tt0HGYRS2GfLs+0dl6zTurot0wh3fb58BUc4p4ezoNiQbS+dDmDndCle8HKePfgW+g==
   dependencies:
     electron-window-state "*"
 
@@ -1208,10 +1208,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.2.tgz#ee771e2ba4b3dc5b372935d549fd9617bf345b8c"
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
-"@types/node-7z@^2.1.8":
-  version "2.1.8"
-  resolved "https://registry.yarnpkg.com/@types/node-7z/-/node-7z-2.1.8.tgz#af3ac0db0f9b2338d0467d07104d8186ab8d0134"
-  integrity sha512-VjiU7yEbczNc3EFKN4GJcAUqAMkn92P/92r6ARjMSXEdixunMD9lC79mTX81vKxTlNYXuvCJ7zvnzlDbFTt2Vw==
+"@types/node-7z@^2.1.10":
+  version "2.1.10"
+  resolved "https://registry.yarnpkg.com/@types/node-7z/-/node-7z-2.1.10.tgz#37f0703ec9f415393b8413be8ebdc0711d45df09"
+  integrity sha512-LdfuQcGAKsLafyM96+F8VekToCuGQnFy9DMM0UdS6f5pEnaP5kAixp3TQPc1NJU4C6IwLwnednktYBjp/z2LRw==
   dependencies:
     "@types/node" "*"
 
@@ -1252,17 +1252,25 @@
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.4.tgz#cd667bcfdd025213aafb7ca5915a932590acdcdc"
   integrity sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==
 
-"@types/react-dom@^18.3.0":
-  version "18.3.0"
-  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-18.3.0.tgz#0cbc818755d87066ab6ca74fbedb2547d74a82b0"
-  integrity sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==
+"@types/react-dom@^18.3.1":
+  version "18.3.1"
+  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-18.3.1.tgz#1e4654c08a9cdcfb6594c780ac59b55aad42fe07"
+  integrity sha512-qW1Mfv8taImTthu4KoXgDfLuk4bydU6Q/TkADnDWWHwi4NX4BR+LWfTp2sVmTqRrsHvyDDTelgelxJ+SsejKKQ==
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@^18.3.1":
+"@types/react@*":
   version "18.3.1"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-18.3.1.tgz#fed43985caa834a2084d002e4771e15dfcbdbe8e"
   integrity sha512-V0kuGBX3+prX+DQ/7r2qsv1NsdfnCLnTgnRJ1pYnxykBhGMz+qj+box5lq7XsO5mtZsBqpjwwTu/7wszPfMBcw==
+  dependencies:
+    "@types/prop-types" "*"
+    csstype "^3.0.2"
+
+"@types/react@^18.3.12":
+  version "18.3.12"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.3.12.tgz#99419f182ccd69151813b7ee24b792fe08774f60"
+  integrity sha512-D2wOSq/d6Agt28q7rSI3jhU7G6aiuzljDGZ2hTZHIkrTLUI+AF3WMeKkEZ9nN2fkBAlcktT6vcZjDFiIhMYEQw==
   dependencies:
     "@types/prop-types" "*"
     csstype "^3.0.2"
