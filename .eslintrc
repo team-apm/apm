@@ -12,7 +12,6 @@
   "plugins": ["jsdoc", "@typescript-eslint", "import"],
   "extends": [
     "eslint:recommended",
-    "google",
     "plugin:jsdoc/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
