@@ -1769,9 +1769,10 @@ anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apm-schema@team-apm/apm-schema#v3.2.1:
+apm-schema@team-apm/apm-schema#v3.3.0:
   version "3.2.1"
-  resolved "https://codeload.github.com/team-apm/apm-schema/tar.gz/da25e00299ba69d99e3678ee251d1d58ebfc631c"
+  uid fb121da649acc40cf3cb3ff69b0521840b2c457d
+  resolved "https://codeload.github.com/team-apm/apm-schema/tar.gz/fb121da649acc40cf3cb3ff69b0521840b2c457d"
 
 "aproba@^1.0.3 || ^2.0.0":
   version "2.0.0"
