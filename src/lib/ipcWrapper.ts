@@ -1,18 +1,19 @@
 import { ipcRenderer } from 'electron';
+import { IPC_CHANNELS } from '../common/ipc';
 
 export const app = {
   /**
    * Gets the app's name.
    */
   getName: async function () {
-    return (await ipcRenderer.invoke('get-app-name')) as string;
+    return (await ipcRenderer.invoke(IPC_CHANNELS.GET_APP_NAME)) as string;
   },
 
   /**
    * Gets the app's version.
    */
   getVersion: async function () {
-    return (await ipcRenderer.invoke('get-app-version')) as string;
+    return (await ipcRenderer.invoke(IPC_CHANNELS.GET_APP_VERSION)) as string;
   },
 
   /**
@@ -38,14 +39,17 @@ export const app = {
       | 'logs'
       | 'crashDumps',
   ) {
-    return (await ipcRenderer.invoke('app-get-path', name)) as string;
+    return (await ipcRenderer.invoke(
+      IPC_CHANNELS.APP_GET_PATH,
+      name,
+    )) as string;
   },
 
   /**
    * Quits the app.
    */
   quit: async function () {
-    await ipcRenderer.invoke('app-quit');
+    await ipcRenderer.invoke(IPC_CHANNELS.APP_QUIT);
   },
 };
 
@@ -53,14 +57,14 @@ export const app = {
  * Whether the app is exe version.
  */
 export async function isExeVersion() {
-  return (await ipcRenderer.invoke('is-exe-version')) as boolean;
+  return (await ipcRenderer.invoke(IPC_CHANNELS.IS_EXE_VERSION)) as boolean;
 }
 
 /**
  * Check the update of the app.
  */
 export async function checkUpdate() {
-  await ipcRenderer.invoke('check-update');
+  await ipcRenderer.invoke(IPC_CHANNELS.CHECK_UPDATE);
 }
 
 /**
@@ -68,7 +72,10 @@ export async function checkUpdate() {
  * @param {string} relativePath - A relative path from the data directory.
  */
 export async function openPath(relativePath: string) {
-  return (await ipcRenderer.invoke('open-path', relativePath)) as boolean;
+  return (await ipcRenderer.invoke(
+    IPC_CHANNELS.OPEN_PATH,
+    relativePath,
+  )) as boolean;
 }
 
 /**
@@ -81,7 +88,7 @@ export async function existsTempFile(
   keyText: string = undefined,
 ) {
   return (await ipcRenderer.invoke(
-    'exists-temp-file',
+    IPC_CHANNELS.EXISTS_TEMP_FILE,
     relativePath,
     keyText,
   )) as { exists: boolean; path: string };
@@ -94,7 +101,7 @@ export async function existsTempFile(
  */
 export async function openDirDialog(title: string, defaultPath: string) {
   return (await ipcRenderer.invoke(
-    'open-dir-dialog',
+    IPC_CHANNELS.OPEN_DIR_DIALOG,
     title,
     defaultPath,
   )) as string[];
@@ -111,7 +118,7 @@ export async function openDialog(
   message: string,
   type?: 'none' | 'info' | 'error' | 'question' | 'warning',
 ) {
-  await ipcRenderer.invoke('open-dialog', title, message, type);
+  await ipcRenderer.invoke(IPC_CHANNELS.OPEN_DIALOG, title, message, type);
 }
 
 /**
@@ -121,7 +128,7 @@ export async function openDialog(
  */
 export async function openYesNoDialog(title: string, message: string) {
   return (await ipcRenderer.invoke(
-    'open-yes-no-dialog',
+    IPC_CHANNELS.OPEN_YES_NO_DIALOG,
     title,
     message,
   )) as boolean;
@@ -132,21 +139,26 @@ export async function openYesNoDialog(title: string, message: string) {
  * @param {string} id - A nicommons ID.
  */
 export async function getNicommonsData(id: string) {
-  return (await ipcRenderer.invoke('get-nicommons-data', id)) as unknown;
+  return (await ipcRenderer.invoke(
+    IPC_CHANNELS.GET_NICOMMONS_DATA,
+    id,
+  )) as unknown;
 }
 
 /**
  * Opens the about window.
  */
 export async function openAboutWindow() {
-  await ipcRenderer.invoke('open-about-window');
+  await ipcRenderer.invoke(IPC_CHANNELS.OPEN_ABOUT_WINDOW);
 }
 
 /**
  * Opens the confirm dialog for migration v1 to v2.
  */
 export async function migration1to2ConfirmDialog() {
-  return (await ipcRenderer.invoke('migration1to2-confirm-dialog')) as number;
+  return (await ipcRenderer.invoke(
+    IPC_CHANNELS.MIGRATION1TO2_CONFIRM_DIALOG,
+  )) as number;
 }
 
 /**
@@ -154,7 +166,7 @@ export async function migration1to2ConfirmDialog() {
  */
 export async function migration1to2DataurlInputDialog() {
   return (await ipcRenderer.invoke(
-    'migration1to2-dataurl-input-dialog',
+    IPC_CHANNELS.MIGRATION1TO2_DATAURL_INPUT_DIALOG,
   )) as string;
 }
 
@@ -163,7 +175,7 @@ export async function migration1to2DataurlInputDialog() {
  * @param {number} zoomFactor - A zoom factor to be changed to. Zoom factor is zoom percent divided by 100, so 300% = 3.0.
  */
 export async function changeMainZoomFactor(zoomFactor: number) {
-  await ipcRenderer.invoke('change-main-zoom-factor', zoomFactor);
+  await ipcRenderer.invoke(IPC_CHANNELS.CHANGE_MAIN_ZOOM_FACTOR, zoomFactor);
 }
 
 /**
@@ -179,7 +191,11 @@ export async function download(
   url: string,
   options?: { loadCache?: boolean; subDir?: string; keyText?: string },
 ) {
-  return (await ipcRenderer.invoke('download', url, options)) as string;
+  return (await ipcRenderer.invoke(
+    IPC_CHANNELS.DOWNLOAD,
+    url,
+    options,
+  )) as string;
 }
 
 /**
@@ -188,7 +204,7 @@ export async function download(
  * @param {'core'|'package'} type - A type of the file to be downloaded.
  */
 export async function openBrowser(url: string, type: 'core' | 'package') {
-  return (await ipcRenderer.invoke('open-browser', url, type)) as {
+  return (await ipcRenderer.invoke(IPC_CHANNELS.OPEN_BROWSER, url, type)) as {
     savePath: string;
     history: string[];
   } | null;
@@ -199,5 +215,5 @@ export async function openBrowser(url: string, type: 'core' | 'package') {
  * @param {string} text - plain text.
  */
 export async function clipboardWriteText(text: string) {
-  await ipcRenderer.invoke('clipboard-writeText', text);
+  await ipcRenderer.invoke(IPC_CHANNELS.CLIPBOARD_WRITE_TEXT, text);
 }

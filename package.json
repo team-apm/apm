@@ -117,5 +117,6 @@
       "eslint --fix"
     ],
     "*.{ts,tsx,json,yml,md,html,css,scss}": "prettier --write"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }
