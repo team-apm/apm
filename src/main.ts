@@ -23,6 +23,7 @@ import 'source-map-support/register';
 import { updateElectronApp } from 'update-electron-app';
 import { getHash } from './lib/getHash';
 import * as shortcut from './lib/shortcut';
+import { IPC_CHANNELS } from './common/ipc';
 
 declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -174,83 +175,95 @@ const icon =
     ? path.join(__dirname, '../icon/apm1024.png')
     : undefined;
 
-ipcMain.handle('get-app-name', () => {
+ipcMain.handle(IPC_CHANNELS.GET_APP_NAME, () => {
   return app.name;
 });
 
-ipcMain.handle('get-app-version', () => {
+ipcMain.handle(IPC_CHANNELS.GET_APP_VERSION, () => {
   return app.getVersion();
 });
 
-ipcMain.handle('app-get-path', (event, name) => {
+ipcMain.handle(IPC_CHANNELS.APP_GET_PATH, (event, name) => {
   return app.getPath(name);
 });
 
-ipcMain.handle('app-quit', () => {
+ipcMain.handle(IPC_CHANNELS.APP_QUIT, () => {
   app.quit();
 });
 
-ipcMain.handle('is-exe-version', () => {
+ipcMain.handle(IPC_CHANNELS.IS_EXE_VERSION, () => {
   return isExeVersion();
 });
 
-ipcMain.handle('check-update', async () => {
+ipcMain.handle(IPC_CHANNELS.CHECK_UPDATE, async () => {
   await checkUpdate(false);
 });
 
-ipcMain.handle('open-path', (event, relativePath) => {
+ipcMain.handle(IPC_CHANNELS.OPEN_PATH, (event, relativePath) => {
   const folderPath = path.join(app.getPath('userData'), 'Data/', relativePath);
   const folderExists = fs.existsSync(folderPath);
   if (folderExists) execSync(`start "" "${folderPath}"`);
   return folderExists;
 });
 
-ipcMain.handle('exists-temp-file', (event, relativePath, keyText) => {
-  let filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
-  if (keyText) {
-    filePath = path.join(
-      path.dirname(filePath),
-      getHash(keyText) + '_' + path.basename(filePath),
-    );
-  }
-  return { exists: fs.existsSync(filePath), path: filePath };
-});
+ipcMain.handle(
+  IPC_CHANNELS.EXISTS_TEMP_FILE,
+  (event, relativePath, keyText) => {
+    let filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
+    if (keyText) {
+      filePath = path.join(
+        path.dirname(filePath),
+        getHash(keyText) + '_' + path.basename(filePath),
+      );
+    }
+    return { exists: fs.existsSync(filePath), path: filePath };
+  },
+);
 
-ipcMain.handle('open-dir-dialog', async (event, title, defaultPath) => {
-  const win = BrowserWindow.getFocusedWindow();
-  const dir = await dialog.showOpenDialog(win, {
-    title: title,
-    defaultPath: defaultPath,
-    properties: ['openDirectory'],
-  });
-  return dir.filePaths;
-});
+ipcMain.handle(
+  IPC_CHANNELS.OPEN_DIR_DIALOG,
+  async (event, title, defaultPath) => {
+    const win = BrowserWindow.getFocusedWindow();
+    const dir = await dialog.showOpenDialog(win, {
+      title: title,
+      defaultPath: defaultPath,
+      properties: ['openDirectory'],
+    });
+    return dir.filePaths;
+  },
+);
 
-ipcMain.handle('open-dialog', async (event, title, message, type) => {
-  await dialog.showMessageBox({
-    title: title,
-    message: message,
-    type: type,
-  });
-});
+ipcMain.handle(
+  IPC_CHANNELS.OPEN_DIALOG,
+  async (event, title, message, type) => {
+    await dialog.showMessageBox({
+      title: title,
+      message: message,
+      type: type,
+    });
+  },
+);
 
-ipcMain.handle('open-yes-no-dialog', async (event, title, message) => {
-  const win = BrowserWindow.getFocusedWindow();
-  const response = await dialog.showMessageBox(win, {
-    title: title,
-    message: message,
-    type: 'warning',
-    buttons: ['はい', `いいえ`],
-    cancelId: 1,
-  });
-  if (response.response === 0) {
-    return true;
-  } else {
-    return false;
-  }
-});
+ipcMain.handle(
+  IPC_CHANNELS.OPEN_YES_NO_DIALOG,
+  async (event, title, message) => {
+    const win = BrowserWindow.getFocusedWindow();
+    const response = await dialog.showMessageBox(win, {
+      title: title,
+      message: message,
+      type: 'warning',
+      buttons: ['はい', `いいえ`],
+      cancelId: 1,
+    });
+    if (response.response === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+);
 
-ipcMain.handle('get-nicommons-data', (event, id) => {
+ipcMain.handle(IPC_CHANNELS.GET_NICOMMONS_DATA, (event, id) => {
   const request = net.request(
     `https://public-api.commons.nicovideo.jp/v1/works/${id}?with_meta=1`,
   );
@@ -283,7 +296,7 @@ ipcMain.handle('get-nicommons-data', (event, id) => {
   });
 });
 
-ipcMain.handle('clipboard-writeText', async (event, text) => {
+ipcMain.handle(IPC_CHANNELS.CLIPBOARD_WRITE_TEXT, async (event, text) => {
   clipboard.writeText(text);
 });
 
@@ -402,7 +415,7 @@ async function launch() {
     mainWindowState.manage(mainWindow);
   });
 
-  ipcMain.handle('open-about-window', async () => {
+  ipcMain.handle(IPC_CHANNELS.OPEN_ABOUT_WINDOW, async () => {
     const aboutPath = ABOUT_WINDOW_WEBPACK_ENTRY;
     const aboutWindow = new BrowserWindow({
       width: 480,
@@ -428,7 +441,7 @@ async function launch() {
     void aboutWindow.loadURL(aboutPath);
   });
 
-  ipcMain.handle('migration1to2-confirm-dialog', async () => {
+  ipcMain.handle(IPC_CHANNELS.MIGRATION1TO2_CONFIRM_DIALOG, async () => {
     return (
       await dialog.showMessageBox(mainWindow, {
         title: '確認',
@@ -444,7 +457,7 @@ async function launch() {
     ).response;
   });
 
-  ipcMain.handle('migration1to2-dataurl-input-dialog', async () => {
+  ipcMain.handle(IPC_CHANNELS.MIGRATION1TO2_DATAURL_INPUT_DIALOG, async () => {
     return await prompt(
       {
         title: '新しいデータ取得先の入力',
@@ -457,12 +470,12 @@ async function launch() {
     );
   });
 
-  ipcMain.handle('change-main-zoom-factor', (event, zoomFactor) => {
+  ipcMain.handle(IPC_CHANNELS.CHANGE_MAIN_ZOOM_FACTOR, (event, zoomFactor) => {
     mainWindow.webContents.setZoomFactor(zoomFactor);
   });
 
   ipcMain.handle(
-    'download',
+    IPC_CHANNELS.DOWNLOAD,
     async (event, url, { loadCache = false, subDir = '', keyText } = {}) => {
       const opt = {
         overwrite: true,
@@ -494,7 +507,7 @@ async function launch() {
     },
   );
 
-  ipcMain.handle('open-browser', async (event, url, type) => {
+  ipcMain.handle(IPC_CHANNELS.OPEN_BROWSER, async (event, url, type) => {
     const browserWindow = new BrowserWindow({
       width: 800,
       height: 600,
