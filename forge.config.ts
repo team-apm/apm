@@ -69,11 +69,11 @@ const config: ForgeConfig = {
             },
           },
           {
-            html: './src/renderer/about/about.html',
-            js: './src/renderer/about/about_renderer.ts',
+            html: './src/renderer/about/index.html',
+            js: './src/renderer/about/renderer.ts',
             name: 'about_window',
             preload: {
-              js: './src/renderer/about/about_preload.ts',
+              js: './src/renderer/about/preload.ts',
             },
           },
           {
