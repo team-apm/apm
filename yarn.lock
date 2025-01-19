@@ -6177,7 +6177,7 @@ is-unicode-supported@^0.1.0:
   resolved "https://registry.yarnpkg.com/is-unicode-supported/-/is-unicode-supported-0.1.0.tgz#3f26c76a809593b52bfa2ecb5710ed2779b522a7"
   integrity sha512-knxG2q4UC3u8stRGyAVJCOdxFmv5DZiRcdlIaAQXAbSfJya+OhopNotLQrstBhququ4ZpuKbDc/8S6mgXgPFPw==
 
-is-url@^1.1.0, is-url@^1.2.4:
+is-url@^1.1.0:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/is-url/-/is-url-1.2.4.tgz#04a4df46d28c4cff3d73d01ff06abeb318a1aa52"
   integrity sha512-ITvGim8FhRiYe4IQ5uHSkj7pVaPDrCTkNd3yq3cV7iZAcJdHTUMPMEHcqSOy9xZ9qFenQCvi+2wjH9a1nXqHww==
@@ -9972,13 +9972,12 @@ update-browserslist-db@^1.1.1:
     escalade "^3.2.0"
     picocolors "^1.1.0"
 
-update-electron-app@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/update-electron-app/-/update-electron-app-3.0.0.tgz#d705889e5bd86939f22e144c0c8b5f919a90f954"
-  integrity sha512-Ccs46fgUEcMpSRPMNw82DFMux2MGi5tkKkEpV723JmtPNI3qAtxvTeiYkKczN2/LehA3U7JGrGr4MhraxGdRTw==
+update-electron-app@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/update-electron-app/-/update-electron-app-3.1.0.tgz#754008e2d67389b681d9d43a27f131b12592bd3e"
+  integrity sha512-6U5BXxw+CTtk9pXgRBFosuaOlsXjHKq3heLZMAt6j/5cNMOuEZiN576b70zccMXO8WQuoprUPtSRyseGoXE7Jw==
   dependencies:
     github-url-to-object "^4.0.4"
-    is-url "^1.2.4"
     ms "^2.1.1"
 
 uri-js@^4.2.2:
