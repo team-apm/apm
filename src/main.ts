@@ -16,14 +16,16 @@ import { download } from 'electron-dl';
 import log from 'electron-log/main';
 import prompt from 'electron-prompt';
 import Store from 'electron-store';
+import { createIPCHandler } from 'electron-trpc/main';
 import windowStateKeeper from 'electron-window-state';
 import fs, { mkdir, readJsonSync } from 'fs-extra';
 import path from 'path';
 import 'source-map-support/register';
 import { updateElectronApp } from 'update-electron-app';
+import { router } from './api';
+import { IPC_CHANNELS } from './common/ipc';
 import { getHash } from './lib/getHash';
 import * as shortcut from './lib/shortcut';
-import { IPC_CHANNELS } from './common/ipc';
 
 declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -432,6 +434,7 @@ async function launch() {
         sandbox: false,
       },
     });
+    createIPCHandler({ router, windows: [aboutWindow] });
     aboutWindow.once('close', () => {
       if (!aboutWindow.isDestroyed()) {
         aboutWindow.destroy();
