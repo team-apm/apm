@@ -30,6 +30,12 @@ updates:
       prettier:
         patterns:
           - 'prettier*'
+      react:
+        patterns:
+          - '@types/react'
+          - '@types/react-dom'
+          - 'react'
+          - 'react-dom'
 
   - package-ecosystem: 'bundler'
     directory: '/docs'
