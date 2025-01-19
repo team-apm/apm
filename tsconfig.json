@@ -14,7 +14,7 @@
     "paths": {
       "*": ["node_modules/*"]
     },
-    "jsx": "react"
+    "jsx": "react-jsx"
   },
   "include": ["src/**/*", "webpack.*.ts", "*.config.ts"]
 }
