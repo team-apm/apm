@@ -51,7 +51,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "source-map-support": "^0.5.21",
-    "ssri": "^10.0.6",
+    "ssri": "^12.0.0",
     "update-electron-app": "^3.1.0",
     "win-7zip": "^0.1.1"
   },
