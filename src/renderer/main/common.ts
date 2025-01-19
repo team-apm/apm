@@ -39,6 +39,7 @@ export function verifyFilesByCount(instPath: string, files: Files) {
  * @param {string} instPath - An installation path.
  * @param {object[]} files - An array of the files to be installed.
  * @param {boolean} isProgram - Whether it is a program.
+ * @returns {Promise<boolean>} Whether the installation was successful.
  */
 export async function install(
   unzippedPath: string,

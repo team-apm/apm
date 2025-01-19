@@ -4,6 +4,7 @@ import { IPC_CHANNELS } from '../common/ipc';
 export const app = {
   /**
    * Gets the app's name.
+   * @returns {Promise<string>} The app's name.
    */
   getName: async function () {
     return (await ipcRenderer.invoke(IPC_CHANNELS.GET_APP_NAME)) as string;
@@ -11,6 +12,7 @@ export const app = {
 
   /**
    * Gets the app's version.
+   * @returns {Promise<string>} The app's version.
    */
   getVersion: async function () {
     return (await ipcRenderer.invoke(IPC_CHANNELS.GET_APP_VERSION)) as string;
@@ -19,6 +21,7 @@ export const app = {
   /**
    * Gets a path to a special directory or file associated with `name`.
    * @param {string} name - A name associated with a special directory or file you get.
+   * @returns {Promise<string>} The path to the special directory or file.
    */
   getPath: async function (
     name:
@@ -55,6 +58,7 @@ export const app = {
 
 /**
  * Whether the app is exe version.
+ * @returns {Promise<boolean>} Whether the app is exe version.
  */
 export async function isExeVersion() {
   return (await ipcRenderer.invoke(IPC_CHANNELS.IS_EXE_VERSION)) as boolean;
@@ -70,6 +74,7 @@ export async function checkUpdate() {
 /**
  * Opens a file explorer and returns whether the directory exists.
  * @param {string} relativePath - A relative path from the data directory.
+ * @returns {Promise<boolean>} Whether the directory exists.
  */
 export async function openPath(relativePath: string) {
   return (await ipcRenderer.invoke(
@@ -82,6 +87,7 @@ export async function openPath(relativePath: string) {
  * Returns whether the temporary file exists and the path.
  * @param {string} relativePath - A relative path from the data directory.
  * @param {string} [keyText] - String used to generate the hash.
+ * @returns {Promise<{ exists: boolean; path: string }>} An object containing the existence status and the path.
  */
 export async function existsTempFile(
   relativePath: string,
@@ -98,6 +104,7 @@ export async function existsTempFile(
  * Opens a directory dialog and returns the path selected by a user.
  * @param {string} title - A title of the dialog.
  * @param {string} defaultPath - A path of the initial directory.
+ * @returns {Promise<string[]>} The path selected by the user.
  */
 export async function openDirDialog(title: string, defaultPath: string) {
   return (await ipcRenderer.invoke(
@@ -125,6 +132,7 @@ export async function openDialog(
  * Opens a yes-no dialog and returns a response.
  * @param {string} title - A title of the dialog.
  * @param {string} message - A message showed in the dialog.
+ * @returns {Promise<boolean>} The user's response.
  */
 export async function openYesNoDialog(title: string, message: string) {
   return (await ipcRenderer.invoke(
@@ -137,6 +145,7 @@ export async function openYesNoDialog(title: string, message: string) {
 /**
  * Gets nicommons' data.
  * @param {string} id - A nicommons ID.
+ * @returns {Promise<unknown>} The nicommons data.
  */
 export async function getNicommonsData(id: string) {
   return (await ipcRenderer.invoke(
@@ -154,6 +163,7 @@ export async function openAboutWindow() {
 
 /**
  * Opens the confirm dialog for migration v1 to v2.
+ * @returns {Promise<number>} The result of the dialog.
  */
 export async function migration1to2ConfirmDialog() {
   return (await ipcRenderer.invoke(
@@ -163,6 +173,7 @@ export async function migration1to2ConfirmDialog() {
 
 /**
  * Opens the input dialog of a data url for migration v1 to v2.
+ * @returns {Promise<string>} The data URL entered by the user.
  */
 export async function migration1to2DataurlInputDialog() {
   return (await ipcRenderer.invoke(
@@ -202,6 +213,7 @@ export async function download(
  * Opens the browser window.
  * @param {string} url - A URL to be opened.
  * @param {'core'|'package'} type - A type of the file to be downloaded.
+ * @returns {Promise<{ savePath: string; history: string[] } | null>} The save path and history, or null if failed.
  */
 export async function openBrowser(url: string, type: 'core' | 'package') {
   return (await ipcRenderer.invoke(IPC_CHANNELS.OPEN_BROWSER, url, type)) as {
