@@ -1,4 +1,4 @@
-import log from 'electron-log';
+import log from 'electron-log/renderer';
 import fs, { copy, existsSync } from 'fs-extra';
 import path from 'path';
 import { safeRemove } from '../../lib/safeRemove';

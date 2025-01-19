@@ -1,4 +1,4 @@
-import log from 'electron-log';
+import log from 'electron-log/renderer';
 import * as fs from 'fs-extra';
 import path from 'path';
 import * as apmJson from '../../lib/apmJson';

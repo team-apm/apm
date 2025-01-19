@@ -1,5 +1,5 @@
 import { Core, Program } from 'apm-schema';
-import log from 'electron-log';
+import log from 'electron-log/renderer';
 import Store from 'electron-store';
 import fs from 'fs-extra';
 import path from 'path';
