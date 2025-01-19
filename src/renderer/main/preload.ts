@@ -1,5 +1,5 @@
 import ClipboardJS from 'clipboard/src/clipboard';
-import log from 'electron-log';
+import log from 'electron-log/renderer';
 import Store from 'electron-store';
 import 'source-map-support/register';
 import {
@@ -16,15 +16,9 @@ import packageMain from './package';
 import setting from './setting';
 const store = new Store();
 
-log.catchErrors({
+log.errorHandler.startCatching({
   onError: async () => {
-    await openDialog(
-      'エラー',
-      `予期しないエラーが発生しました。\nログファイル: ${
-        log.transports.file.getFile().path
-      }`,
-      'error',
-    );
+    await openDialog('エラー', '予期しないエラーが発生しました。', 'error');
   },
 });
 

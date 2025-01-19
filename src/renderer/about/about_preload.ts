@@ -1,17 +1,11 @@
-import log from 'electron-log';
+import log from 'electron-log/renderer';
 import 'source-map-support/register';
 import { app, openDialog } from '../../lib/ipcWrapper';
 import replaceText from '../../lib/replaceText';
 
-log.catchErrors({
+log.errorHandler.startCatching({
   onError: async () => {
-    await openDialog(
-      'エラー',
-      `予期しないエラーが発生しました。\nログファイル: ${
-        log.transports.file.getFile().path
-      }`,
-      'error',
-    );
+    await openDialog('エラー', '予期しないエラーが発生しました。', 'error');
   },
 });
 
