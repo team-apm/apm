@@ -40,7 +40,7 @@
     "electron-dl": "^3.5.2",
     "electron-log": "^5.2.4",
     "electron-prompt": "^1.7.0",
-    "electron-squirrel-startup": "^1.0.0",
+    "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^8.1.0",
     "electron-window-state": "^5.0.3",
     "fast-xml-parser": "^4.3.5",
