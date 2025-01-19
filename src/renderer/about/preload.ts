@@ -1,7 +1,8 @@
+import { contextBridge } from 'electron';
 import log from 'electron-log/renderer';
+import { exposeElectronTRPC } from 'electron-trpc/main';
 import 'source-map-support/register';
-import { app, openDialog } from '../../lib/ipcWrapper';
-import replaceText from '../../lib/replaceText';
+import { openDialog } from '../../lib/ipcWrapper';
 
 log.errorHandler.startCatching({
   onError: async () => {
@@ -13,10 +14,10 @@ window.addEventListener('click', () => {
   window.close();
 });
 
-window.addEventListener('DOMContentLoaded', async () => {
-  const appVersion = await app.getVersion();
-  replaceText('app-version', appVersion);
-  for (const dependency of ['chrome', 'node', 'electron']) {
-    replaceText(`${dependency}-version`, process.versions[dependency]);
-  }
+process.once('loaded', async () => {
+  exposeElectronTRPC();
+});
+
+contextBridge.exposeInMainWorld('process', {
+  versions: process.versions,
 });
