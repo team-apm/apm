@@ -102,7 +102,7 @@
     "prettier": "^3.4.2",
     "standard-version": "^9.5.0",
     "style-loader": "^4.0.0",
-    "ts-loader": "^9.5.1",
+    "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "typescript": "~5.4.5"
   },
