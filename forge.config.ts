@@ -77,8 +77,8 @@ const config: ForgeConfig = {
             },
           },
           {
-            html: './src/renderer/splash/splash.html',
-            js: './src/renderer/splash/splash_renderer.ts',
+            html: './src/renderer/splash/index.html',
+            js: './src/renderer/splash/renderer.ts',
             name: 'splash_window',
           },
         ],
