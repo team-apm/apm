@@ -1,21 +1,21 @@
 import log from 'electron-log';
-import Store from 'electron-store';
 import fs, { writeJson } from 'fs-extra';
 import path from 'path';
 import ApmJson from '../lib/ApmJson';
+import Config from '../lib/Config';
 import { download, openDialog } from '../lib/ipcWrapper';
 import migration1to2 from './migration1to2';
 import parseXML from './parseXML';
-const store = new Store();
+const config = new Config();
 
 /**
  * Migration of common settings.
  * @returns {Promise<boolean>} True on successful completion
  */
 async function global(): Promise<boolean> {
-  const firstLaunch = !store.has('dataURL.main');
+  const firstLaunch = !config.dataURL.hasMain();
   if (firstLaunch) {
-    store.set('dataVersion', '3');
+    config.setDataVersion('3');
     return true;
   }
 
@@ -26,19 +26,19 @@ async function global(): Promise<boolean> {
   // Guard condition
   // The 'dataVersion' is always present due to previous migrations.
   // version: '2' or '3' or later
-  const version = store.get('dataVersion') as string;
+  const version = config.getDataVersion();
   if (version !== '2') return true;
 
   // Main
   log.info('Start migration: migration2to3.global())');
 
   // 1. Triggers initialization
-  store.delete('modDate');
-  store.delete('checkDate');
-  store.delete('dataURL');
+  config.delete('modDate');
+  config.delete('checkDate');
+  config.delete('dataURL');
 
   // Finalize
-  store.set('dataVersion', '3');
+  config.setDataVersion('3');
   await openDialog(
     'アップデート',
     'v2.x.xからv3.x.xへのアップデートに伴い、データ取得先がリセットされました。\nデフォルト以外のURLを設定していた場合は、再設定してください。',

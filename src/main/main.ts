@@ -22,10 +22,11 @@ import fs, { mkdir, readJsonSync } from 'fs-extra';
 import path from 'path';
 import 'source-map-support/register';
 import { updateElectronApp } from 'update-electron-app';
-import { router } from './api';
 import { IPC_CHANNELS } from '../common/ipc';
+import Config from '../lib/Config';
 import { getHash } from '../lib/getHash';
 import * as shortcut from '../lib/shortcut';
+import { router } from './api';
 
 declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -64,7 +65,7 @@ if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Dev');
 debug({ showDevTools: false }); // Press F12 to open DevTools
 
 Store.initRenderer();
-const store = new Store();
+const config = new Config();
 
 /**
  * Checks whether it is the installed version of apm.
@@ -80,9 +81,9 @@ function isExeVersion() {
   }
 }
 
-if (!store.has('autoUpdate')) {
+if (!config.hasAutoUpdate()) {
   const doAutoUpdate = isExeVersion() ? 'download' : 'notify';
-  store.set('autoUpdate', doAutoUpdate);
+  config.setAutoUpdate(doAutoUpdate);
 }
 
 /**
@@ -340,7 +341,7 @@ app.on(
  */
 async function launch() {
   try {
-    const doAutoUpdate = store.get('autoUpdate');
+    const doAutoUpdate = config.getAutoUpdate();
     if (!isDevEnv && typeof doAutoUpdate === 'string') {
       if (doAutoUpdate === 'download') {
         updateElectronApp({ repo: 'team-apm/apm', logger: log });

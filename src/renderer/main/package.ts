@@ -1,7 +1,6 @@
 import { Scripts } from 'apm-schema';
 import { execSync } from 'child_process';
 import log from 'electron-log/renderer';
-import Store from 'electron-store';
 import {
   copy,
   existsSync,
@@ -35,9 +34,10 @@ import { safeRemove } from '../../lib/safeRemove';
 import unzip from '../../lib/unzip';
 import createList, { UpdatableList } from '../../lib/updatableList';
 import { PackageItem } from '../../types/packageItem';
+import Config from '../../lib/Config';
 import { install, programs, programsDisp, verifyFilesByCount } from './common';
 import packageUtil from './packageUtil';
-const store = new Store();
+const config = new Config();
 
 // To avoid a bug in the library
 // https://github.com/sindresorhus/matcher/issues/32
@@ -461,11 +461,11 @@ async function setPackagesList(instPath: string) {
     .forEach((e) => batchInstallElm.appendChild(e));
 
   // settings page
-  if (store.has('modDate.packages')) {
-    const modDate = new Date(store.get('modDate.packages') as number);
+  if (config.modDate.hasPackages()) {
+    const modDate = new Date(config.modDate.getPackages());
     replaceText('packages-mod-date', modDate.toLocaleString());
 
-    const checkDate = new Date(store.get('checkDate.packages') as number);
+    const checkDate = new Date(config.modDate.getPackages());
     replaceText('packages-check-date', checkDate.toLocaleString());
   } else {
     replaceText('packages-mod-date', '未取得');
@@ -495,10 +495,9 @@ async function checkPackagesList(instPath: string) {
   try {
     await modList.updateInfo();
     await packageUtil.downloadRepository(modList.getPackagesDataUrl(instPath));
-    store.set('checkDate.packages', Date.now());
+    config.checkDate.setPackages(Date.now());
     const modInfo = await modList.getInfo();
-    store.set(
-      'modDate.packages',
+    config.modDate.setPackages(
       Math.max(...modInfo.packages.map((p) => new Date(p.modified).getTime())),
     );
     await setPackagesList(instPath);
@@ -548,8 +547,7 @@ async function getScriptsList(update = false) {
 
   if (update) {
     const currentMod = await modList.getInfo();
-    store.set(
-      'modDate.scripts',
+    config.modDate.setScripts(
       Math.max(
         ...currentMod.scripts.map((p) => new Date(p.modified).getTime()),
       ),

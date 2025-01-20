@@ -1,8 +1,8 @@
 import log from 'electron-log';
-import Store from 'electron-store';
 import { existsSync, readdir, rename, unlink } from 'fs-extra';
 import path from 'path';
 import ApmJson from '../lib/ApmJson';
+import Config from '../lib/Config';
 import {
   app,
   download,
@@ -10,7 +10,7 @@ import {
   migration1to2DataurlInputDialog,
   openDialog,
 } from '../lib/ipcWrapper';
-const store = new Store();
+const config = new Config();
 
 /**
  * Migration of common settings.
@@ -18,13 +18,13 @@ const store = new Store();
  */
 async function global() {
   // Guard condition
-  const isVerOne = !store.has('dataVersion');
+  const isVerOne = !config.hasDataVersion();
   if (!isVerOne) return true;
 
   // Show the dialogs for those using custom dataURL.main
   let useDefaultDataURL = true;
   if (
-    store.get('dataURL.main') !==
+    config.dataURL.getMain() !==
     'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/data/'
   ) {
     for (;;) {
@@ -57,14 +57,14 @@ async function global() {
         );
         continue;
       } else {
-        const oldDataURL = store.get('dataURL.main') as string;
-        const urls = (store.get('dataURL.packages') as string[]).filter(
-          (url: string) => !url.includes(oldDataURL),
-        );
+        const oldDataURL = config.dataURL.getMain();
+        const urls = config.dataURL
+          .getPackages()
+          .filter((url) => !url.includes(oldDataURL));
         urls.push(path.join(newDataURL, 'packages.xml'));
-        store.set('dataURL.main', newDataURL);
-        store.set('dataURL.packages', urls);
-        store.set('migration1to2', {
+        config.dataURL.setMain(newDataURL);
+        config.dataURL.setPackages(urls);
+        config.set('migration1to2', {
           oldDataURL: oldDataURL,
           newDataURL: newDataURL,
         });
@@ -101,12 +101,12 @@ async function global() {
   });
 
   // 2. Triggers initialization
-  store.delete('modDate');
+  config.delete('modDate');
   // 3. Triggers initialization
-  if (useDefaultDataURL) store.delete('dataURL.main');
+  if (useDefaultDataURL) config.dataURL.setMain(undefined);
 
   // Finalize
-  store.set('dataVersion', '2');
+  config.setDataVersion('2');
   log.info('End of migration: migration1to2.global())');
   return true;
 }
@@ -162,11 +162,8 @@ async function byFolder(instPath: string) {
       path.join(instPath, 'packages_list.xml'),
       path.join(instPath, 'packages.xml'),
     );
-    if (store.has('migration1to2')) {
-      const dataURLs = store.get('migration1to2') as {
-        oldDataURL: string;
-        newDataURL: string;
-      };
+    if (config.has('migration1to2')) {
+      const dataURLs = config.get('migration1to2');
       text = text.replaceAll(
         path.join(dataURLs.oldDataURL, 'packages_list.xml'),
         path.join(dataURLs.newDataURL, 'packages.xml'),

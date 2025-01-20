@@ -1,20 +1,20 @@
 import log from 'electron-log/renderer';
-import Store from 'electron-store';
 import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
 import * as buttonTransition from '../../lib/buttonTransition';
+import Config from '../../lib/Config';
 import { changeMainZoomFactor, openDialog } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
-const store = new Store();
+const config = new Config();
 
 /**
  * Initializes settings
  */
 async function initSettings() {
-  if (!store.has('dataURL.extra')) store.set('dataURL.extra', '');
-  if (!store.has('dataURL.main'))
-    await setDataUrl({ value: '' }, store.get('dataURL.extra') as string);
+  if (!config.dataURL.hasExtra()) config.dataURL.setExtra('');
+  if (!config.dataURL.hasMain())
+    await setDataUrl({ value: '' }, config.dataURL.getExtra());
 }
 
 /**
@@ -74,8 +74,8 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
   }
 
   if (!error) {
-    store.set('dataURL.main', value);
-    store.set('dataURL.extra', tmpExtraUrls.join(os.EOL));
+    config.dataURL.setMain(value);
+    config.dataURL.setExtra(tmpExtraUrls.join(os.EOL));
     await modList.updateInfo();
 
     if (btn instanceof HTMLButtonElement) {
@@ -100,7 +100,7 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
  * @param {HTMLSelectElement} zoomFactorSelect - A zoom factor select to change value.
  */
 function setZoomFactor(zoomFactorSelect: HTMLSelectElement) {
-  const zoomFactor = store.get('zoomFactor');
+  const zoomFactor = config.getZoomFactor();
   for (const optionElement of Array.from(zoomFactorSelect.options)) {
     if (optionElement.getAttribute('value') === zoomFactor) {
       optionElement.selected = true;
@@ -114,7 +114,7 @@ function setZoomFactor(zoomFactorSelect: HTMLSelectElement) {
  * @param {string} zoomFactor - A zoom factor to change.
  */
 async function changeZoomFactor(zoomFactor: string) {
-  store.set('zoomFactor', zoomFactor);
+  config.setZoomFactor(zoomFactor);
   await changeMainZoomFactor(parseInt(zoomFactor) / 100);
 }
 

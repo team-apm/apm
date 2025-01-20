@@ -1,11 +1,11 @@
 import { Core, Program } from 'apm-schema';
 import log from 'electron-log/renderer';
-import Store from 'electron-store';
 import fs from 'fs-extra';
 import path from 'path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { compareVersion } from '../../lib/compareVersion';
+import Config from '../../lib/Config';
 import { convertId } from '../../lib/convertId';
 import { checkIntegrity, verifyFile } from '../../lib/integrity';
 import {
@@ -25,7 +25,7 @@ import migration2to3 from '../../migration/migration2to3';
 import { install, programs, verifyFilesByCount } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
-const store = new Store();
+const config = new Config();
 
 // Functions to be exported
 
@@ -34,9 +34,9 @@ const store = new Store();
  *
  */
 async function initCore() {
-  if (!store.has('installationPath')) {
+  if (!config.hasInstallationPath()) {
     const instPath = path.join(await app.getPath('home'), 'aviutl');
-    store.set('installationPath', instPath);
+    config.setInstallationPath(instPath);
   }
 }
 
@@ -100,11 +100,11 @@ async function displayInstalledVersion(instPath: string) {
     }
   }
 
-  if (store.has('modDate.core')) {
-    const modDate = new Date(store.get('modDate.core') as number);
+  if (config.modDate.hasCore()) {
+    const modDate = new Date(config.modDate.getCore());
     replaceText('core-mod-date', modDate.toLocaleString());
 
-    const checkDate = new Date(store.get('checkDate.core') as number);
+    const checkDate = new Date(config.checkDate.getCore());
     replaceText('core-check-date', checkDate.toLocaleString());
   } else {
     replaceText('core-mod-date', '未取得');
@@ -229,9 +229,9 @@ async function checkLatestVersion(instPath: string) {
       subDir: 'core',
     });
     await modList.updateInfo();
-    store.set('checkDate.core', Date.now());
+    config.checkDate.setCore(Date.now());
     const modInfo = await modList.getInfo();
-    store.set('modDate.core', new Date(modInfo.core.modified).getTime());
+    config.modDate.setCore(new Date(modInfo.core.modified).getTime());
     await displayInstalledVersion(instPath);
     await setCoreVersions(instPath);
     buttonTransition.message(btn, '更新完了', 'success');
@@ -276,7 +276,7 @@ async function selectInstallationPath(input: HTMLInputElement) {
  * @param {string} instPath - An installation path.
  */
 async function changeInstallationPath(instPath: string) {
-  store.set('installationPath', instPath);
+  config.setInstallationPath(instPath);
 
   // update 1
   await modList.updateInfo();
@@ -299,9 +299,9 @@ async function changeInstallationPath(instPath: string) {
   }
 
   // update 2
-  const oldScriptsMod = new Date(store.get('modDate.scripts', 0) as number);
-  const oldCoreMod = new Date(store.get('modDate.core', 0) as number);
-  const oldPackagesMod = new Date(store.get('modDate.packages', 0) as number);
+  const oldScriptsMod = new Date(config.modDate.getScripts());
+  const oldCoreMod = new Date(config.modDate.getCore());
+  const oldPackagesMod = new Date(config.modDate.getPackages());
 
   if (
     oldScriptsMod.getTime() <

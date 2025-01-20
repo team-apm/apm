@@ -1,11 +1,11 @@
-import Store from 'electron-store';
 import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
 import { isParent } from './apmPath';
+import Config from './Config';
 import { download, existsTempFile } from './ipcWrapper';
 import * as parseJson from './parseJson';
-const store = new Store();
+const config = new Config();
 
 /**
  * Resolve paths.
@@ -41,7 +41,8 @@ function resolvePath(base: string, relative: string) {
  * Sets package data files URLs.
  */
 async function setPackagesDataUrl() {
-  const URLs = (store.get('dataURL.extra') as string)
+  const URLs = config.dataURL
+    .getExtra()
     .split(os.EOL)
     .filter((url) => url !== '');
   const packages = ([] as string[]).concat(
@@ -50,7 +51,7 @@ async function setPackagesDataUrl() {
     ),
     URLs,
   );
-  store.set('dataURL.packages', packages);
+  config.dataURL.setPackages(packages);
 }
 
 // Functions to be exported
@@ -85,7 +86,7 @@ export async function getInfo() {
  * @returns {string} - A data files URL.
  */
 export function getDataUrl() {
-  return store.get('dataURL.main') as string;
+  return config.dataURL.getMain();
 }
 
 /**
@@ -93,7 +94,7 @@ export function getDataUrl() {
  * @returns {string} - Data files URLs.
  */
 export function getExtraDataUrl() {
-  return store.get('dataURL.extra') as string;
+  return config.dataURL.getExtra();
 }
 
 /**
@@ -110,13 +111,15 @@ export async function getCoreDataUrl() {
  * @returns {Array.<string>} -Package data files URLs.
  */
 export function getPackagesDataUrl(instPath: string) {
-  return (store.get('dataURL.packages') as string[]).concat(
-    instPath &&
-      instPath.length > 0 &&
-      fs.existsSync(getLocalPackagesDataUrl(instPath))
-      ? [getLocalPackagesDataUrl(instPath)]
-      : [],
-  );
+  return config.dataURL
+    .getPackages()
+    .concat(
+      instPath &&
+        instPath.length > 0 &&
+        fs.existsSync(getLocalPackagesDataUrl(instPath))
+        ? [getLocalPackagesDataUrl(instPath)]
+        : [],
+    );
 }
 
 /**
