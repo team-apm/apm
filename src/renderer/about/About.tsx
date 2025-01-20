@@ -1,6 +1,6 @@
 import React, { type JSX } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
-import { TRPCReact } from '../../trpc';
+import { TRPCReact } from '../trpc';
 
 /**
  * About component.

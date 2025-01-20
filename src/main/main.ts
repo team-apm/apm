@@ -23,9 +23,9 @@ import path from 'path';
 import 'source-map-support/register';
 import { updateElectronApp } from 'update-electron-app';
 import { router } from './api';
-import { IPC_CHANNELS } from './common/ipc';
-import { getHash } from './lib/getHash';
-import * as shortcut from './lib/shortcut';
+import { IPC_CHANNELS } from '../common/ipc';
+import { getHash } from '../lib/getHash';
+import * as shortcut from '../lib/shortcut';
 
 declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
