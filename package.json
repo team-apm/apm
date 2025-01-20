@@ -1,12 +1,11 @@
 {
   "name": "apm",
-  "productName": "AviUtl Package Manager",
   "version": "3.8.0",
   "description": "A package manager for AviUtl",
-  "main": ".webpack/main",
   "repository": "https://github.com/team-apm/apm.git",
-  "author": "ato lash <hal-shu-sato@users.noreply.github.com>",
   "license": "MIT",
+  "author": "ato lash <hal-shu-sato@users.noreply.github.com>",
+  "main": ".webpack/main",
   "scripts": {
     "start": "cross-env NODE_ENV=development electron-forge start",
     "package": "yarn run notices && electron-forge package",
@@ -26,8 +25,17 @@
     "release:major": "standard-version --release-as major && conventional-github-releaser -p angular --draft",
     "notices": "yarn licenses generate-disclaimer --frozen-lockfile --prod --ignore-platform --ignore-engines --ignore-optional > ThirdPartyNotices.txt"
   },
-  "engines": {
-    "node": "22.x || 20.x || 18.x"
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{ts,tsx,json,yml,md,html,css,scss}": "prettier --write"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   },
   "dependencies": {
     "7zip-bin": "^5.2.0",
@@ -100,23 +108,16 @@
     "node-loader": "^2.1.0",
     "npm-run-all2": "^7.0.2",
     "prettier": "^3.4.2",
+    "prettier-plugin-packagejson": "^2.5.8",
     "standard-version": "^9.5.0",
     "style-loader": "^4.0.0",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "typescript": "~5.4.5"
   },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+  "packageManager": "yarn@1.22.22",
+  "engines": {
+    "node": "22.x || 20.x || 18.x"
   },
-  "lint-staged": {
-    "*.js": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "*.{ts,tsx,json,yml,md,html,css,scss}": "prettier --write"
-  },
-  "packageManager": "yarn@1.22.22"
+  "productName": "AviUtl Package Manager"
 }
