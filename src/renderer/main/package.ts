@@ -465,7 +465,7 @@ async function setPackagesList(instPath: string) {
     const modDate = new Date(config.modDate.getPackages());
     replaceText('packages-mod-date', modDate.toLocaleString());
 
-    const checkDate = new Date(config.modDate.getPackages());
+    const checkDate = new Date(config.checkDate.getPackages());
     replaceText('packages-check-date', checkDate.toLocaleString());
   } else {
     replaceText('packages-mod-date', '未取得');
