@@ -1,6 +1,6 @@
 {
   "name": "apm",
-  "version": "3.8.0",
+  "version": "3.9.0",
   "description": "A package manager for AviUtl",
   "repository": "https://github.com/team-apm/apm.git",
   "license": "MIT",

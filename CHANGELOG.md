@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.9.0](https://github.com/team-apm/apm/compare/v3.8.0...v3.9.0) (2025-01-20)
+
+### Features
+
+- implement conflicts ([6353bb1](https://github.com/team-apm/apm/commit/6353bb10207629e9320bdbc243da85f2974261f0))
+- improve isUninstallOnly ([d86ea54](https://github.com/team-apm/apm/commit/d86ea54eb0f90cf0bc581ff89e4a0ca6670ac206))
+- version range for conflicts ([e89ae3c](https://github.com/team-apm/apm/commit/e89ae3cd1c4485b6aa14cdac752790a6682bfe6b))
+
+### Bug Fixes
+
+- **core:** allow reinstallation of broken package ([329bea5](https://github.com/team-apm/apm/commit/329bea5fdbd774823c344486871bfa1680372a64))
+
 ## [3.8.0](https://github.com/team-apm/apm/compare/v3.7.2...v3.8.0) (2024-02-11)
 
 ### Features
