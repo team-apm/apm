@@ -14,6 +14,11 @@ rules.push({
   use: [MiniCssExtractPlugin.loader, 'css-loader'],
 });
 
+rules.push({
+  test: /\.(svg|png|jpg|gif)$/,
+  type: 'asset/inline',
+});
+
 plugins.push(new MiniCssExtractPlugin());
 
 export const rendererConfig: Configuration = {

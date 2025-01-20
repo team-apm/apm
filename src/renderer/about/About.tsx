@@ -1,6 +1,7 @@
 import React, { type JSX } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
 import { TRPCReact } from '../trpc';
+import apmLogo from '../../../icon/apm1024.png';
 
 /**
  * About component.
@@ -20,7 +21,7 @@ function About() {
           </h1>
         </Col>
         <Col xs="3">
-          <Image thumbnail src="../../../icon/apm1024.png" alt="apm Logo" />
+          <Image thumbnail src={apmLogo} alt="apm Logo" />
         </Col>
       </Row>
 
