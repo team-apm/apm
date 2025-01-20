@@ -1,7 +1,7 @@
 import ClipboardJS from 'clipboard/src/clipboard';
 import log from 'electron-log/renderer';
-import Store from 'electron-store';
 import 'source-map-support/register';
+import Config from '../../lib/Config';
 import {
   app,
   checkUpdate,
@@ -14,7 +14,7 @@ import migration2to3 from '../../migration/migration2to3';
 import core from './core';
 import packageMain from './package';
 import setting from './setting';
-const store = new Store();
+const config = new Config();
 
 log.errorHandler.startCatching({
   onError: async () => {
@@ -44,12 +44,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   // init
-  const firstLaunch = !store.has('dataURL.main');
+  const firstLaunch = !config.dataURL.hasMain();
   await setting.initSettings();
   await core.initCore();
 
   // *local*
-  const instPath = store.get('installationPath', '') as string;
+  const instPath = config.getInstallationPath();
   await core.changeInstallationPath(instPath);
 
   // *UI*
@@ -73,7 +73,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   ) as HTMLSelectElement;
   setting.setZoomFactor(zoomFactorSelect);
 
-  const doAutoUpdate = store.get('autoUpdate');
+  const doAutoUpdate = config.getAutoUpdate();
   const autoUpdateRadios = document.getElementsByName('auto-update');
   autoUpdateRadios.forEach((element: HTMLInputElement) => {
     if (element instanceof HTMLInputElement)
@@ -188,7 +188,7 @@ window.addEventListener('load', () => {
   const autoUpdateRadios = document.getElementsByName('auto-update');
   autoUpdateRadios.forEach((element: HTMLInputElement) => {
     element.addEventListener('change', () => {
-      store.set('autoUpdate', element.value);
+      config.setAutoUpdate(element.value as 'download' | 'notify' | 'disable');
     });
   });
 
