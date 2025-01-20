@@ -14,7 +14,7 @@ import {
 import { ListItem } from 'list.js';
 import * as matcher from 'matcher';
 import path from 'path';
-import * as apmJson from '../../lib/apmJson';
+import * as apmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { compareVersion } from '../../lib/compareVersion';
 import { getHash } from '../../lib/getHash';

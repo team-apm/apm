@@ -2,7 +2,7 @@ import log from 'electron-log';
 import Store from 'electron-store';
 import { existsSync, readdir, rename, unlink } from 'fs-extra';
 import path from 'path';
-import * as apmJson from '../lib/apmJson';
+import * as apmJson from '../lib/ApmJson';
 import {
   app,
   download,

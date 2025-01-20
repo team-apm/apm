@@ -1,7 +1,7 @@
 import log from 'electron-log/renderer';
 import * as fs from 'fs-extra';
 import path from 'path';
-import * as apmJson from '../../lib/apmJson';
+import * as apmJson from '../../lib/ApmJson';
 import { compareVersionOp } from '../../lib/compareVersion';
 import { download, existsTempFile, openDialog } from '../../lib/ipcWrapper';
 import * as parseJson from '../../lib/parseJson';

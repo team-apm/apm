@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import path from 'path';
-import * as apmJson from './apmJson';
+import * as apmJson from './ApmJson';
 import { download, existsTempFile } from './ipcWrapper';
 import * as modList from './modList';
 

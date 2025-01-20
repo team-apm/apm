@@ -3,7 +3,7 @@ import log from 'electron-log/renderer';
 import Store from 'electron-store';
 import fs from 'fs-extra';
 import path from 'path';
-import * as apmJson from '../../lib/apmJson';
+import * as apmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { compareVersion } from '../../lib/compareVersion';
 import { convertId } from '../../lib/convertId';

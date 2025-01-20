@@ -2,7 +2,7 @@ import log from 'electron-log';
 import Store from 'electron-store';
 import fs, { writeJson } from 'fs-extra';
 import path from 'path';
-import * as apmJson from '../lib/apmJson';
+import * as apmJson from '../lib/ApmJson';
 import { download, openDialog } from '../lib/ipcWrapper';
 import migration1to2 from './migration1to2';
 import parseXML from './parseXML';
