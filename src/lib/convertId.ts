@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import path from 'path';
-import * as apmJson from './apmJson';
+import ApmJson from './ApmJson';
 import { download, existsTempFile } from './ipcWrapper';
 import * as modList from './modList';
 
@@ -38,7 +38,8 @@ export async function getIdDict(
  * @param {number} modTime - A mod time.
  */
 export async function convertId(instPath: string, modTime: number) {
-  const packages = (await apmJson.get(instPath, 'packages')) as {
+  const apmJson = await ApmJson.load(instPath);
+  const packages = (await apmJson.get('packages')) as {
     [key: string]: { id: string };
   };
 
@@ -52,6 +53,6 @@ export async function convertId(instPath: string, modTime: number) {
     }
   }
 
-  await apmJson.set(instPath, 'packages', packages);
-  await apmJson.set(instPath, 'convertMod', modTime);
+  await apmJson.set('packages', packages);
+  await apmJson.set('convertMod', modTime);
 }

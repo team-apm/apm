@@ -3,7 +3,7 @@ import log from 'electron-log/renderer';
 import Store from 'electron-store';
 import fs from 'fs-extra';
 import path from 'path';
-import * as apmJson from '../../lib/apmJson';
+import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { compareVersion } from '../../lib/compareVersion';
 import { convertId } from '../../lib/convertId';
@@ -52,16 +52,16 @@ async function displayInstalledVersion(instPath: string) {
       const progInfo: Program = coreInfo[program];
 
       // Set the version of the manually installed program
-      if (!(await apmJson.has(instPath, 'core.' + program))) {
+      const apmJson = await ApmJson.load(instPath);
+      if (!(await apmJson.has('core.' + program))) {
         for (const release of progInfo.releases) {
           if (await checkIntegrity(instPath, release.integrity.file))
-            await apmJson.setCore(instPath, program, release.version);
+            await apmJson.setCore(program, release.version);
         }
       }
 
-      if (await apmJson.has(instPath, 'core.' + program)) {
+      if (await apmJson.has('core.' + program)) {
         const installedVersion = (await apmJson.get(
-          instPath,
           'core.' + program,
         )) as string;
         const description =
@@ -286,9 +286,10 @@ async function changeInstallationPath(instPath: string) {
     // migration
     await migration2to3.byFolder(instPath);
 
-    if (fs.existsSync(apmJson.getPath(instPath)) && currentMod.convert) {
+    if (fs.existsSync(ApmJson.getPath(instPath)) && currentMod.convert) {
+      const apmJson = await ApmJson.load(instPath);
       const oldConvertMod = new Date(
-        (await apmJson.get(instPath, 'convertMod', 0)) as number,
+        (await apmJson.get('convertMod', 0)) as number,
       );
       const currentConvertMod = new Date(currentMod.convert.modified).getTime();
 
@@ -456,7 +457,8 @@ async function installProgram(
     const unzippedPath = await unzip(archivePath);
     await install(unzippedPath, instPath, progInfo.files, true);
 
-    await apmJson.setCore(instPath, program, version);
+    const apmJson = await ApmJson.load(instPath);
+    await apmJson.setCore(program, version);
     await displayInstalledVersion(instPath);
     await packageMain.setPackagesList(instPath);
     await packageMain.displayNicommonsIdList(instPath);

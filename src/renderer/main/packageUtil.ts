@@ -1,7 +1,7 @@
 import log from 'electron-log/renderer';
 import * as fs from 'fs-extra';
 import path from 'path';
-import * as apmJson from '../../lib/apmJson';
+import ApmJson from '../../lib/ApmJson';
 import { compareVersionOp } from '../../lib/compareVersion';
 import { download, existsTempFile, openDialog } from '../../lib/ipcWrapper';
 import * as parseJson from '../../lib/parseJson';
@@ -299,8 +299,8 @@ async function getPackagesExtra(_packages: PackageItem[], instPath: string) {
   const packages = [..._packages].map((p) => {
     return { ...p };
   });
+  const apmJson = await ApmJson.load(instPath);
   const tmpInstalledPackages = (await apmJson.get(
-    instPath,
     'packages',
   )) as ApmJsonObject['packages'];
   const tmpInstalledFiles = await getInstalledFiles(instPath);
@@ -339,8 +339,9 @@ async function getPackagesStatus(instPath: string, _packages: PackageItem[]) {
   const aviUtlR = /aviutl\d/;
   const exeditR = /exedit\d/;
   try {
-    aviUtlVer = (await apmJson.get(instPath, 'core.' + 'aviutl', '')) as string;
-    exeditVer = (await apmJson.get(instPath, 'core.' + 'exedit', '')) as string;
+    const apmJson = await ApmJson.load(instPath);
+    aviUtlVer = (await apmJson.get('core.' + 'aviutl', '')) as string;
+    exeditVer = (await apmJson.get('core.' + 'exedit', '')) as string;
   } catch (e) {
     log.info(e);
   }

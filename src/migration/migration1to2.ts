@@ -2,7 +2,7 @@ import log from 'electron-log';
 import Store from 'electron-store';
 import { existsSync, readdir, rename, unlink } from 'fs-extra';
 import path from 'path';
-import * as apmJson from '../lib/apmJson';
+import ApmJson from '../lib/ApmJson';
 import {
   app,
   download,
@@ -117,11 +117,12 @@ async function global() {
  */
 async function byFolder(instPath: string) {
   // Guard condition
-  const jsonPath = apmJson.getPath(instPath);
+  const jsonPath = ApmJson.getPath(instPath);
   const jsonExists = existsSync(jsonPath);
   if (!jsonExists) return;
 
-  const isVerOne = !(await apmJson.has(instPath, 'dataVersion'));
+  const apmJson = await ApmJson.load(instPath);
+  const isVerOne = !(await apmJson.has('dataVersion'));
   if (!isVerOne) return;
 
   // Main
@@ -143,7 +144,7 @@ async function byFolder(instPath: string) {
   }
 
   // 3. Update the path to the online and local xml files.
-  const packages = (await apmJson.get(instPath, 'packages')) as {
+  const packages = (await apmJson.get('packages')) as {
     [key: string]: { repository: string };
   };
 
@@ -174,10 +175,10 @@ async function byFolder(instPath: string) {
     packages[id].repository = text;
   }
 
-  await apmJson.set(instPath, 'packages', packages);
+  await apmJson.set('packages', packages);
 
   // Finalize
-  await apmJson.set(instPath, 'dataVersion', '2');
+  await apmJson.set('dataVersion', '2');
   log.info(`End of migration: migration1to2.byFolder(${instPath})`);
 }
 

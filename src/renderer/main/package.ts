@@ -14,7 +14,7 @@ import {
 import { ListItem } from 'list.js';
 import * as matcher from 'matcher';
 import path from 'path';
-import * as apmJson from '../../lib/apmJson';
+import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { compareVersion } from '../../lib/compareVersion';
 import { getHash } from '../../lib/getHash';
@@ -135,6 +135,8 @@ async function setPackagesList(instPath: string) {
   manuallyInstalledFiles = packagesExtra.manuallyInstalledFiles;
   packages = packagesExtra.packages;
 
+  const apmJson = await ApmJson.load(instPath);
+
   // guess which packages are installed from integrity
   let modified = false;
   for (const p of packages.filter(
@@ -144,10 +146,7 @@ async function setPackagesList(instPath: string) {
   )) {
     for (const release of p.info.releases) {
       if (await checkIntegrity(instPath, release.integrity.file)) {
-        await apmJson.addPackage(instPath, {
-          ...p,
-          info: { ...p.info, latestVersion: release.version },
-        });
+        await apmJson.addPackage(p.id, release.version);
         modified = true;
       }
     }
@@ -383,10 +382,7 @@ async function setPackagesList(instPath: string) {
           '新しいバージョンのapmに対応したデータです。正しく読み込むためにapmの更新が必要な場合があります。',
         );
       for (const program of programs) {
-        const currentVersion = (await apmJson.get(
-          instPath,
-          'core.' + program,
-        )) as string;
+        const currentVersion = (await apmJson.get('core.' + program)) as string;
         if (compareVersion(currentVersion, searchVersions[program]) !== 0)
           alertStrings.push(
             `${programsDisp[program]} ${searchVersions[program]} 用のデータです。使用中の ${programsDisp[program]} ${currentVersion} には非対応の場合があります。`,
@@ -835,7 +831,11 @@ async function installPackage(
         ...installedPackage.info,
         latestVersion: getDate(),
       };
-    await apmJson.addPackage(instPath, installedPackage);
+    const apmJson = await ApmJson.load(instPath);
+    await apmJson.addPackage(
+      installedPackage.id,
+      installedPackage.info.latestVersion,
+    );
     await setPackagesList(instPath);
     await displayNicommonsIdList(instPath);
 
@@ -930,7 +930,8 @@ async function uninstallPackage(instPath: string) {
     }
   }
 
-  await apmJson.removePackage(instPath, uninstalledPackage);
+  const apmJson = await ApmJson.load(instPath);
+  await apmJson.removePackage(uninstalledPackage.id);
   if (filesCount === notExistCount) {
     if (!uninstalledPackage.id.startsWith('script_')) {
       await setPackagesList(instPath);
@@ -1248,10 +1249,8 @@ async function installScript(instPath: string) {
       modList.getLocalPackagesDataUrl(instPath),
       packageItem,
     );
-    await apmJson.addPackage(instPath, {
-      id: packageItem.id,
-      info: packageItem,
-    });
+    const apmJson = await ApmJson.load(instPath);
+    await apmJson.addPackage(packageItem.id, packageItem.latestVersion);
     await checkPackagesList(instPath);
 
     buttonTransition.message(btn, 'インストール完了', 'success');
@@ -1377,6 +1376,8 @@ async function displayNicommonsIdList(instPath: string) {
     return array.filter((_, i) => bits[i]);
   };
 
+  const apmJson = await ApmJson.load(instPath);
+
   const packagesWithNicommonsId: [
     PackageItemWithNicommonsId,
     PackageItemWithNicommonsId,
@@ -1397,8 +1398,7 @@ async function displayNicommonsIdList(instPath: string) {
     ...(await asyncFilter(
       packages,
       async (value) =>
-        (await apmJson.has(instPath, 'packages.' + value.id)) &&
-        value.info.nicommons,
+        (await apmJson.has('packages.' + value.id)) && value.info.nicommons,
     )),
   ];
 
@@ -1502,11 +1502,11 @@ async function sharePackages(instPath: string) {
     exedit: '',
     packages: [''],
   };
+
+  const apmJson = await ApmJson.load(instPath);
+
   for (const program of programs) {
-    const currentVersion = (await apmJson.get(
-      instPath,
-      'core.' + program,
-    )) as string;
+    const currentVersion = (await apmJson.get('core.' + program)) as string;
     ver[program] = currentVersion;
   }
   ver.packages = (
