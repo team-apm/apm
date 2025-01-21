@@ -62,7 +62,7 @@
     "matcher": "^5.0.0",
     "node-7z": "^3.0.0",
     "react": "^19.0.0",
-    "react-bootstrap": "^2.10.7",
+    "react-bootstrap": "^2.10.8",
     "react-dom": "^19.0.0",
     "source-map-support": "^0.5.21",
     "ssri": "^12.0.0",
