@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.9.1](https://github.com/team-apm/apm/compare/v3.9.0...v3.9.1) (2025-01-28)
+
+### Bug Fixes
+
+- **packageUtil:** match() may return null ([abe20cb](https://github.com/team-apm/apm/commit/abe20cb74d9064e0af054f4f0d6129db1d988cd6)), closes [#1969](https://github.com/team-apm/apm/issues/1969)
+
 ## [3.9.0](https://github.com/team-apm/apm/compare/v3.8.0...v3.9.0) (2025-01-20)
 
 ### Features
