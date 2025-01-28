@@ -380,9 +380,10 @@ async function getPackagesStatus(instPath: string, _packages: PackageItem[]) {
     }
   };
   const isInstalled = (rawId: string): boolean => {
-    const [, id, operator, version] = rawId.match(
-      /^((?:[A-Za-z0-9]+\/[A-Za-z0-9]+)|(?:aviutl[A-Za-z0-9.]+)|(?:exedit[A-Za-z0-9.]+))(?:(<|<=|=|>=|>)([^<=>&|\n]+))?$/u,
-    );
+    const [, id, operator, version] =
+      rawId.match(
+        /^((?:[A-Za-z0-9]+\/[A-Za-z0-9]+)|(?:aviutl[A-Za-z0-9.]+)|(?:exedit[A-Za-z0-9.]+))(?:(<|<=|=|>=|>)([^<=>&|\n]+))?$/u,
+      ) ?? [];
     const thisPackage = packages.filter((p) => p.id === id).find(() => true);
     if (thisPackage) {
       const statusInstalled =
