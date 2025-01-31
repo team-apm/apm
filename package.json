@@ -66,7 +66,7 @@
     "react-dom": "^19.0.0",
     "source-map-support": "^0.5.21",
     "ssri": "^12.0.0",
-    "update-electron-app": "^3.1.0",
+    "update-electron-app": "^3.1.1",
     "win-7zip": "^0.1.1"
   },
   "devDependencies": {
