@@ -202,7 +202,7 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@electron-forge/cli@^6.4.1":
+"@electron-forge/cli@6.4.1":
   version "6.4.1"
   resolved "https://registry.yarnpkg.com/@electron-forge/cli/-/cli-6.4.1.tgz#8b663a96991c9eaca8ba6c802e4f1dc3534babf8"
   integrity sha512-pwOKbqheuXP1VpSEwrcPGLmlibGPZBDhoxZ90rc368Uf6Bu7h1P0zWajZ2TU+7kbuYmQhm/GKSD+eafmFxll9g==
@@ -282,7 +282,7 @@
     fs-extra "^10.0.0"
     which "^2.0.2"
 
-"@electron-forge/maker-deb@^6.4.1":
+"@electron-forge/maker-deb@6.4.1":
   version "6.4.1"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.4.1.tgz#f40461c1e27be8862ced511cabe51fd5bfb392bb"
   integrity sha512-B1tNu9jKQygsV4nK0F8+ZHz1XPmB8h6zYhogiGDCH7R4nlCkokq5skhN4JhonKUbQx4UNC1a0Yf+VaRfjWSGKg==
@@ -292,7 +292,7 @@
   optionalDependencies:
     electron-installer-debian "^3.2.0"
 
-"@electron-forge/maker-rpm@^6.4.1":
+"@electron-forge/maker-rpm@6.4.1":
   version "6.4.1"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.4.1.tgz#232a2e73869d94ebe83a989058e33ff6e611395b"
   integrity sha512-toEL+HenSVlnVoKNpj2uk7uVl6WJsT0vxkX0KTCtwEc8sT5IOedLUs2/abB/flAy7vPuBD+DaO46wdQjDb6Ehg==
@@ -302,7 +302,7 @@
   optionalDependencies:
     electron-installer-redhat "^3.2.0"
 
-"@electron-forge/maker-squirrel@^6.4.1":
+"@electron-forge/maker-squirrel@6.4.1":
   version "6.4.1"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-squirrel/-/maker-squirrel-6.4.1.tgz#6b972d9fb1d79eac3da97a041c05c903a1a6f195"
   integrity sha512-si2gMiX4pm6IHs3dACMAxLYf5XfhDA7ZabKM6hrvhHsSKHYUysZuJ6KYbBnBE9OI98Q43xoivlzZfPuEL71Z3w==
@@ -313,7 +313,7 @@
   optionalDependencies:
     electron-winstaller "^5.0.0"
 
-"@electron-forge/maker-zip@^6.4.1":
+"@electron-forge/maker-zip@6.4.1":
   version "6.4.1"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-zip/-/maker-zip-6.4.1.tgz#a70eac920a06e4c9548d584b0596bec5d34ed6fb"
   integrity sha512-ENDNjzhaM5zSVGzuIVnBl6yzLsdDr9R8b6DtLEpTE417rnxd1z16i8Y7GBZSIrEWQYn3HSL2SjDhAzSKQAmXwA==
@@ -324,7 +324,7 @@
     fs-extra "^10.0.0"
     got "^11.8.5"
 
-"@electron-forge/plugin-auto-unpack-natives@^6.4.1":
+"@electron-forge/plugin-auto-unpack-natives@6.4.1":
   version "6.4.1"
   resolved "https://registry.yarnpkg.com/@electron-forge/plugin-auto-unpack-natives/-/plugin-auto-unpack-natives-6.4.1.tgz#14d8f66dcb1905c61ee738ea74b38e0b50c2f00b"
   integrity sha512-6EPVt3G/vnHBKhrVnOcA+o3ayLNJ3M1ptvLbgULSYzLxL6erfILOmCeXKuOAyBebGPDsZoVliJ0Hh7uaNg+1Og==
@@ -363,20 +363,13 @@
   dependencies:
     "@electron-forge/shared-types" "6.4.1"
 
-"@electron-forge/publisher-base@6.4.2":
-  version "6.4.2"
-  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-base/-/publisher-base-6.4.2.tgz#89a5a85a889bfc96ae760b801a91da39f212f6b5"
-  integrity sha512-Tnf9O8MFzdT1gsb5EDDaQUoslt7gUuUywtsr+lT/fpBlBQbei2fvioTwvZ1Q1cmsKnld7XhRh6unfgdWLTZzgw==
+"@electron-forge/publisher-github@6.4.1":
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-github/-/publisher-github-6.4.1.tgz#9d099dd568ce8be76d0a67d09e98e95eb050fb5b"
+  integrity sha512-gfk+NXstZol6dL3G5VX/tnXG3Ja+fjnGH21HPbmCKje7B6a7mHqezkn/rS7zxMz9QHybI98RRjlP4q2JudVWYg==
   dependencies:
-    "@electron-forge/shared-types" "6.4.2"
-
-"@electron-forge/publisher-github@^6.4.2":
-  version "6.4.2"
-  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-github/-/publisher-github-6.4.2.tgz#34ead6fea30a39be83a22aff0cb77dc83c481503"
-  integrity sha512-SUb2JxU8hHx8vbc1UA97lcs3ChyDeiTzx8Q5/DtooC/2sSqD85bct5ewLaANRXK/58cBVpyHMgo4uiq7mlyQWg==
-  dependencies:
-    "@electron-forge/publisher-base" "6.4.2"
-    "@electron-forge/shared-types" "6.4.2"
+    "@electron-forge/publisher-base" "6.4.1"
+    "@electron-forge/shared-types" "6.4.1"
     "@octokit/core" "^3.2.4"
     "@octokit/plugin-retry" "^3.0.9"
     "@octokit/rest" "^18.0.11"
@@ -389,15 +382,6 @@
   version "6.4.1"
   resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.4.1.tgz#1f36f4a2bab30d856118a727291893c1e12bcd0e"
   integrity sha512-Nr4ZLBzXX7ycqkNYJ+wQ2lCttQfkTN1OPOuY1jEGESNjCqcJ/apZszaLurVb5UwKucpk3/CzRGtg9DH4GIEEkw==
-  dependencies:
-    "@electron/rebuild" "^3.2.10"
-    electron-packager "^17.1.2"
-    listr2 "^5.0.3"
-
-"@electron-forge/shared-types@6.4.2":
-  version "6.4.2"
-  resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.4.2.tgz#ffc25a21d1bc7e6cb8fcf8dc1e1767c6a8c52d02"
-  integrity sha512-DKOUMsdTXZIq8XiqY0Hi3C+dam/JKUnvfBjwcUeyZqPdgEE1qry8xZmmjorXuLrRf1Jq8rhxYGQInSK4af0QYw==
   dependencies:
     "@electron/rebuild" "^3.2.10"
     electron-packager "^17.1.2"
