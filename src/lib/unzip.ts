@@ -1,6 +1,6 @@
 import { path7za } from '7zip-bin';
 import { extractFull } from 'node-7z';
-import path from 'path';
+import path from 'node:path';
 import win7zip from 'win-7zip';
 const isDevEnv = process.env.NODE_ENV === 'development';
 

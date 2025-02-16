@@ -1,4 +1,3 @@
-import { execSync } from 'child_process';
 import {
   app,
   BrowserWindow,
@@ -19,7 +18,8 @@ import Store from 'electron-store';
 import { createIPCHandler } from 'electron-trpc/main';
 import windowStateKeeper from 'electron-window-state';
 import fs, { mkdir, readJsonSync } from 'fs-extra';
-import path from 'path';
+import { execSync } from 'node:child_process';
+import path from 'node:path';
 import 'source-map-support/register';
 import { updateElectronApp } from 'update-electron-app';
 import { IPC_CHANNELS } from '../common/ipc';

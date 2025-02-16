@@ -1,4 +1,4 @@
-// import path from 'path';
+// import path from 'node:path';
 import { Core, List, Packages } from 'apm-schema';
 import fs, { readJson, unlink, writeJson } from 'fs-extra';
 import { PackageItem } from '../types/packageItem';

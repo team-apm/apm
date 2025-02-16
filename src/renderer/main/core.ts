@@ -1,7 +1,7 @@
 import { Core, Program } from 'apm-schema';
 import log from 'electron-log/renderer';
 import fs from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { compareVersion } from '../../lib/compareVersion';

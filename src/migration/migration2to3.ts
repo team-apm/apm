@@ -1,6 +1,6 @@
 import log from 'electron-log';
 import fs, { writeJson } from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
 import ApmJson from '../lib/ApmJson';
 import Config from '../lib/Config';
 import { download, openDialog } from '../lib/ipcWrapper';

@@ -1,5 +1,5 @@
 import * as fs from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
 import ApmJson from './ApmJson';
 import { download, existsTempFile } from './ipcWrapper';
 import * as modList from './modList';
