@@ -1,6 +1,6 @@
 import log from 'electron-log';
 import { existsSync, readdir, rename, unlink } from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
 import ApmJson from '../lib/ApmJson';
 import Config from '../lib/Config';
 import {

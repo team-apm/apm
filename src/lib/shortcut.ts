@@ -1,6 +1,6 @@
 import { shell } from 'electron';
 import { existsSync, unlinkSync } from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
 
 const getShortcutPath = (appDataPath: string) =>
   path.join(appDataPath, 'Microsoft/Windows/Start Menu/Programs', 'AviUtl.lnk');

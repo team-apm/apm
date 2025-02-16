@@ -1,5 +1,4 @@
 import { Scripts } from 'apm-schema';
-import { execSync } from 'child_process';
 import log from 'electron-log/renderer';
 import {
   copy,
@@ -12,10 +11,12 @@ import {
 } from 'fs-extra';
 import { ListItem } from 'list.js';
 import * as matcher from 'matcher';
-import path from 'path';
+import { execSync } from 'node:child_process';
+import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { compareVersion } from '../../lib/compareVersion';
+import Config from '../../lib/Config';
 import { getHash } from '../../lib/getHash';
 import { checkIntegrity, verifyFile } from '../../lib/integrity';
 import {
@@ -34,7 +35,6 @@ import { safeRemove } from '../../lib/safeRemove';
 import unzip from '../../lib/unzip';
 import createList, { UpdatableList } from '../../lib/updatableList';
 import { PackageItem } from '../../types/packageItem';
-import Config from '../../lib/Config';
 import { install, programs, programsDisp, verifyFilesByCount } from './common';
 import packageUtil from './packageUtil';
 const config = new Config();

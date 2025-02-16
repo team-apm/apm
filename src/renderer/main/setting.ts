@@ -1,7 +1,7 @@
 import log from 'electron-log/renderer';
 import fs from 'fs-extra';
-import * as os from 'os';
-import path from 'path';
+import * as os from 'node:os';
+import path from 'node:path';
 import * as buttonTransition from '../../lib/buttonTransition';
 import Config from '../../lib/Config';
 import { changeMainZoomFactor, openDialog } from '../../lib/ipcWrapper';

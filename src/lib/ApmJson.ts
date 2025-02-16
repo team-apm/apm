@@ -6,7 +6,7 @@ import {
 } from 'dot-prop';
 import log from 'electron-log';
 import { readJson, writeJson } from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
 import { type ApmJsonObject } from '../types/apmJson';
 
 class ApmJson {

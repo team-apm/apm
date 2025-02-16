@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
-import * as os from 'os';
-import path from 'path';
+import * as os from 'node:os';
+import path from 'node:path';
 import { isParent } from './apmPath';
 import Config from './Config';
 import { download, existsTempFile } from './ipcWrapper';

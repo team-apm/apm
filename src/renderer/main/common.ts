@@ -1,6 +1,6 @@
 import log from 'electron-log/renderer';
 import fs, { copy, existsSync } from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
 import { safeRemove } from '../../lib/safeRemove';
 
 export const programs = ['aviutl', 'exedit'] as const;
