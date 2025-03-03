@@ -3445,10 +3445,10 @@ electron-localshortcut@^3.2.1:
     keyboardevent-from-electron-accelerator "^2.0.0"
     keyboardevents-areequal "^0.2.1"
 
-electron-log@^5.3.0:
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-5.3.0.tgz#503a911983db09156965595a7ee9a39f2d9d6384"
-  integrity sha512-ILgbh2k9IKbSaN8NAbQriVteEhmkdLo/e4J1dg+JIBTFzXS/kO8zNRZBh/4YPwIT/zeyxF1jP6Xz8GLsPE2IBQ==
+electron-log@^5.3.1:
+  version "5.3.1"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-5.3.1.tgz#08d48db8aa21f24dc681c212066b205ea5a03078"
+  integrity sha512-STiavmnpomuGdmOy5ctskK8ftHqrZRICFiX+VzzXwhI8gt4ZY0zJSGy9sRZpRHn4Mshh/O8UNXw05D0WaDRxRQ==
 
 electron-packager@^17.1.2:
   version "17.1.2"
