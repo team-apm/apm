@@ -50,7 +50,7 @@
     "dot-prop": "^9.0.0",
     "electron-debug": "^4.1.0",
     "electron-dl": "^4.0.0",
-    "electron-log": "^5.3.2",
+    "electron-log": "^5.4.0",
     "electron-prompt": "^1.7.0",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^8.2.0",
