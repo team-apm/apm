@@ -114,7 +114,7 @@
     "node-loader": "^2.1.0",
     "npm-run-all2": "^8.0.3",
     "prettier": "^3.5.3",
-    "prettier-plugin-packagejson": "^2.5.12",
+    "prettier-plugin-packagejson": "^2.5.14",
     "standard-version": "^9.5.0",
     "style-loader": "^4.0.0",
     "ts-loader": "^9.5.2",
