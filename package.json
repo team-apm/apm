@@ -112,7 +112,7 @@
     "lint-staged": "^16.0.0",
     "mini-css-extract-plugin": "^2.9.2",
     "node-loader": "^2.1.0",
-    "npm-run-all2": "^8.0.3",
+    "npm-run-all2": "^8.0.4",
     "prettier": "^3.5.3",
     "prettier-plugin-packagejson": "^2.5.14",
     "standard-version": "^9.5.0",
