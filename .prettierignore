@@ -1,0 +1,5 @@
+.github/**/*.md
+.webpack
+docs/_site
+out
+CODE_OF_CONDUCT.md
