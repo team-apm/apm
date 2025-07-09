@@ -25,6 +25,7 @@ export default tseslint.config(
       parserOptions: {
         projectService: {
           allowDefaultProject: [
+            'commitlint.config.ts',
             'eslint.config.mjs',
             'forge.config.ts',
             'webpack.*.ts',
