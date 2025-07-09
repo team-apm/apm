@@ -28,6 +28,10 @@
     "prepare": "husky",
     "publish": "electron-forge publish",
     "release": "release-it",
+    "release:major": "release-it major",
+    "release:minor": "release-it minor",
+    "release:patch": "release-it patch",
+    "release:prerelease": "release-it prerelease",
     "start": "electron-forge start"
   },
   "config": {
