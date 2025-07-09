@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 import importPlugin from "eslint-plugin-import";
 import { globalIgnores } from "eslint/config";
 import globals from "globals";
@@ -39,4 +40,5 @@ export default tseslint.config(
       },
     },
   },
+  eslintConfigPrettier,
 );
