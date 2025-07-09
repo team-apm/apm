@@ -1,12 +1,12 @@
-import js from "@eslint/js";
-import eslintConfigPrettier from "eslint-config-prettier/flat";
-import importPlugin from "eslint-plugin-import";
-import { globalIgnores } from "eslint/config";
-import globals from "globals";
-import * as tseslint from "typescript-eslint";
+import js from '@eslint/js';
+import eslintConfigPrettier from 'eslint-config-prettier/flat';
+import importPlugin from 'eslint-plugin-import';
+import { globalIgnores } from 'eslint/config';
+import globals from 'globals';
+import * as tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  globalIgnores(["node_modules/**/*", "out/**/*", ".webpack/**/*"]),
+  globalIgnores(['node_modules/**/*', 'out/**/*', '.webpack/**/*']),
   js.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   {
@@ -25,9 +25,9 @@ export default tseslint.config(
       parserOptions: {
         projectService: {
           allowDefaultProject: [
-            "eslint.config.mjs",
-            "forge.config.ts",
-            "webpack.*.ts",
+            'eslint.config.mjs',
+            'forge.config.ts',
+            'webpack.*.ts',
           ],
         },
         tsconfigRootDir: import.meta.dirname,
@@ -35,7 +35,7 @@ export default tseslint.config(
     },
 
     settings: {
-      "import/resolver": {
+      'import/resolver': {
         typescript: {},
       },
     },
