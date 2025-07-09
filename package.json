@@ -24,6 +24,7 @@
     "lint:prettier": "prettier --check .",
     "make": "electron-forge make",
     "package": "electron-forge package",
+    "prepare": "husky",
     "publish": "electron-forge publish",
     "start": "electron-forge start"
   },
@@ -55,6 +56,8 @@
     "eslint-plugin-import": "^2.32.0",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
     "globals": "^16.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "node-loader": "^2.1.0",
     "npm-run-all2": "^8.0.4",
     "prettier": "3.6.2",
