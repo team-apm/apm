@@ -16,7 +16,12 @@
   "author": "ato lash <28973861+hal-shu-sato@users.noreply.github.com>",
   "main": ".webpack/main",
   "scripts": {
-    "lint": "eslint --ext .ts,.tsx .",
+    "fix": "run-s -c fix:eslint fix:prettier",
+    "fix:eslint": "eslint --fix .",
+    "fix:prettier": "prettier --write .",
+    "lint": "run-s -c lint:eslint lint:prettier",
+    "lint:eslint": "eslint .",
+    "lint:prettier": "prettier --check .",
     "make": "electron-forge make",
     "package": "electron-forge package",
     "publish": "electron-forge publish",
