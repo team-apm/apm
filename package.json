@@ -1,0 +1,54 @@
+{
+  "name": "apm",
+  "version": "4.0.0-alpha.0",
+  "private": true,
+  "description": "A package manager for AviUtl",
+  "keywords": [],
+  "homepage": "https://github.com/team-apm/apm#readme",
+  "bugs": {
+    "url": "https://github.com/team-apm/apm/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/team-apm/apm.git"
+  },
+  "license": "MIT",
+  "author": "ato lash <28973861+hal-shu-sato@users.noreply.github.com>",
+  "main": ".webpack/main",
+  "scripts": {
+    "lint": "eslint --ext .ts,.tsx .",
+    "make": "electron-forge make",
+    "package": "electron-forge package",
+    "publish": "electron-forge publish",
+    "start": "electron-forge start"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.1"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.8.1",
+    "@electron-forge/maker-deb": "^7.8.1",
+    "@electron-forge/maker-rpm": "^7.8.1",
+    "@electron-forge/maker-squirrel": "^7.8.1",
+    "@electron-forge/maker-zip": "^7.8.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
+    "@electron-forge/plugin-fuses": "^7.8.1",
+    "@electron-forge/plugin-webpack": "^7.8.1",
+    "@electron/fuses": "^1.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
+    "@vercel/webpack-asset-relocator-loader": "1.7.3",
+    "css-loader": "^7.1.2",
+    "electron": "37.2.1",
+    "eslint": "^9.31.0",
+    "eslint-plugin-import": "^2.32.0",
+    "fork-ts-checker-webpack-plugin": "^9.1.0",
+    "node-loader": "^2.1.0",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.2",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.8.3"
+  },
+  "packageManager": "yarn@1.22.22",
+  "productName": "AviUtl Package Manager"
+}
