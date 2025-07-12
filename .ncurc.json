@@ -1,3 +1,3 @@
 {
-  "reject": ["@vercel/webpack-asset-relocator-loader"]
+  "reject": ["@vercel/webpack-asset-relocator-loader", "electron-store"]
 }
