@@ -4,6 +4,7 @@ import {
   dialog,
   type MessageBoxSyncOptions,
 } from 'electron';
+import isDev from 'electron-is-dev';
 import log from 'electron-log/main.js';
 import { app, BrowserWindow } from 'electron';
 
@@ -45,6 +46,11 @@ if (require('electron-squirrel-startup')) {
 
 // Log the versions
 log.debug(process.versions);
+
+// Set the user data path to a different directory in development mode
+if (isDev) {
+  app.setPath('userData', app.getPath('userData') + '_Dev');
+}
 
 const createWindow = (): void => {
   // Create the browser window.
