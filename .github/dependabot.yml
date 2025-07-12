@@ -13,6 +13,8 @@ updates:
     ignore:
       - dependency-name: '@vercel/webpack-asset-relocator-loader'
         versions: ['>1.7.3']
+      - dependency-name: 'electron-store'
+        versions: ['>=9.0.0']
     groups:
       commitizen:
         patterns:
