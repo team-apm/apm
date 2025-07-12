@@ -24,9 +24,6 @@ updates:
       eslint:
         patterns:
           - 'eslint*'
-      typescript-eslint:
-        patterns:
-          - '@typescript-eslint/*'
       prettier:
         patterns:
           - 'prettier*'
