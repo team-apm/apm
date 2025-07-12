@@ -41,9 +41,16 @@
     }
   },
   "dependencies": {
+    "electron-debug": "^4.1.0",
+    "electron-is-dev": "^3.0.1",
+    "electron-log": "^5.4.1",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-store": "^8.2.0",
+    "electron-window-state": "^5.0.3",
+    "fs-extra": "^11.3.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "update-electron-app": "^3.1.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
