@@ -3,9 +3,11 @@ import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
-import { PublisherGithub } from '@electron-forge/publisher-github';
-import { WebpackPlugin } from '@electron-forge/plugin-webpack';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
+import { WebpackPlugin } from '@electron-forge/plugin-webpack';
+import { FusesPlugin } from '@electron-forge/plugin-fuses';
+import { FuseV1Options, FuseVersion } from '@electron/fuses';
+import { PublisherGithub } from '@electron-forge/publisher-github';
 
 import path from 'node:path';
 
@@ -15,16 +17,16 @@ import { rendererConfig } from './webpack.renderer.config';
 const config: ForgeConfig = {
   packagerConfig: {
     executableName: 'apm',
-    icon: 'icon/apm',
-    asar: {
-      unpack: '**/.webpack/**/native_modules/**/*',
-    },
+    icon: './icon/apm',
+    asar: true,
     extraResource: 'ThirdPartyNotices.txt',
   },
+  rebuildConfig: {},
   makers: [
     new MakerSquirrel({
       name: 'apm',
       exe: 'apm.exe',
+      authors: 'Team apm',
       iconUrl: path.join(__dirname, 'icon/apm.ico'),
     }),
     new MakerZIP({}, ['win32', 'darwin', 'linux']),
@@ -36,10 +38,40 @@ const config: ForgeConfig = {
     }),
     new MakerDeb({
       options: {
-        maintainer: 'ato lash',
+        maintainer: 'Team apm',
         homepage: 'https://team-apm.github.io/apm/',
         icon: path.join(__dirname, 'icon/apm1024.png'),
       },
+    }),
+  ],
+  plugins: [
+    new AutoUnpackNativesPlugin({}),
+    new WebpackPlugin({
+      mainConfig,
+      renderer: {
+        config: rendererConfig,
+        entryPoints: [
+          {
+            html: './src/renderer/windows/main/index.html',
+            js: './src/renderer/windows/main/renderer.ts',
+            name: 'main_window',
+            preload: {
+              js: './src/renderer/windows/main/preload.ts',
+            },
+          },
+        ],
+      },
+    }),
+    // Fuses are used to enable/disable various Electron functionality
+    // at package time, before code signing the application
+    new FusesPlugin({
+      version: FuseVersion.V1,
+      [FuseV1Options.RunAsNode]: false,
+      [FuseV1Options.EnableCookieEncryption]: true,
+      [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
+      [FuseV1Options.EnableNodeCliInspectArguments]: false,
+      [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
+      [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
   publishers: [
@@ -50,41 +82,6 @@ const config: ForgeConfig = {
       },
       draft: true,
     }),
-  ],
-  plugins: [
-    new WebpackPlugin({
-      mainConfig: mainConfig,
-      devServer: { liveReload: false },
-      devContentSecurityPolicy:
-        "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp",
-      renderer: {
-        config: rendererConfig,
-        entryPoints: [
-          {
-            html: './src/renderer/main/index.html',
-            js: './src/renderer/main/renderer.ts',
-            name: 'main_window',
-            preload: {
-              js: './src/renderer/main/preload.ts',
-            },
-          },
-          {
-            html: './src/renderer/about/index.html',
-            js: './src/renderer/about/renderer.ts',
-            name: 'about_window',
-            preload: {
-              js: './src/renderer/about/preload.ts',
-            },
-          },
-          {
-            html: './src/renderer/splash/index.html',
-            js: './src/renderer/splash/renderer.ts',
-            name: 'splash_window',
-          },
-        ],
-      },
-    }),
-    new AutoUnpackNativesPlugin({}),
   ],
 };
 
