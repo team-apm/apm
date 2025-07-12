@@ -4,6 +4,7 @@ import {
   dialog,
   type MessageBoxSyncOptions,
 } from 'electron';
+import debug from 'electron-debug';
 import isDev from 'electron-is-dev';
 import log from 'electron-log/main.js';
 import { app, BrowserWindow } from 'electron';
@@ -51,6 +52,8 @@ log.debug(process.versions);
 if (isDev) {
   app.setPath('userData', app.getPath('userData') + '_Dev');
 }
+// Initialize electron-debug
+debug({ showDevTools: false }); // Press F12 to open DevTools
 
 const createWindow = (): void => {
   // Create the browser window.
