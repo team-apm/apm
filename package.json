@@ -110,7 +110,7 @@
     "html-loader": "^5.1.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.0",
-    "mini-css-extract-plugin": "^2.9.2",
+    "mini-css-extract-plugin": "^2.9.3",
     "node-loader": "^2.1.0",
     "npm-run-all2": "^8.0.4",
     "prettier": "^3.5.3",
