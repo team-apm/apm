@@ -566,13 +566,11 @@ async function launch() {
     });
   });
 
-  mainWindow.once('ready-to-show', () => {
-    setTimeout(() => {
-      mainWindow.show();
-      splashWindow.hide();
-      splashWindow.destroy();
-    }, 2000);
-  });
+  setTimeout(() => {
+    mainWindow.show();
+    splashWindow.hide();
+    splashWindow.destroy();
+  }, 2000);
 
   void mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 }
