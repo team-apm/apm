@@ -95,7 +95,7 @@
     "apm-schema": "team-apm/apm-schema#v3.3.0",
     "commitizen": "^4.3.1",
     "conventional-github-releaser": "^3.1.5",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.0.0",
     "css-loader": "^7.1.2",
     "cz-conventional-changelog": "3.3.0",
     "cz-conventional-changelog-ja": "^0.0.2",
