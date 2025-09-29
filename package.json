@@ -53,7 +53,7 @@
     "electron-log": "^5.3.2",
     "electron-prompt": "^1.7.0",
     "electron-squirrel-startup": "^1.0.1",
-    "electron-store": "^8.2.0",
+    "electron-store": "^11.0.0",
     "electron-trpc": "^0.7.1",
     "electron-window-state": "^5.0.3",
     "fast-xml-parser": "^5.2.3",
