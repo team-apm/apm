@@ -6395,10 +6395,10 @@ matcher@^3.0.0:
   dependencies:
     escape-string-regexp "^4.0.0"
 
-matcher@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/matcher/-/matcher-5.0.0.tgz#cd82f1c7ae7ee472a9eeaf8ec7cac45e0fe0da62"
-  integrity sha512-s2EMBOWtXFc8dgqvoAzKJXxNHibcdJMV0gwqKUaw9E2JBJuGUK7DrNKrA6g/i+v72TT16+6sVm5mS3thaMLQUw==
+matcher@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/matcher/-/matcher-6.0.0.tgz#adb96076a0d045cdd601898395b52891755c0cf8"
+  integrity sha512-TzDerdcNtI79w7Av4GT57bLdElPA/VAkjqdMZv8yhuc8geU2z0ljW9anXbX/55aHEMTpYypZb1lxsA/46r9oOQ==
   dependencies:
     escape-string-regexp "^5.0.0"
 
