@@ -871,10 +871,10 @@
   dependencies:
     "@octokit/openapi-types" "^12.11.0"
 
-"@pkgr/core@^0.2.4":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@pkgr/core/-/core-0.2.4.tgz#d897170a2b0ba51f78a099edccd968f7b103387c"
-  integrity sha512-ROFF39F6ZrnzSUEmQQZUar0Jt4xVoP9WnDRdWwF4NNcXs3xBTLgBUDoOwW141y1jP+S8nahIbdxbFC7IShw9Iw==
+"@pkgr/core@^0.2.9":
+  version "0.2.9"
+  resolved "https://registry.yarnpkg.com/@pkgr/core/-/core-0.2.9.tgz#d229a7b7f9dac167a156992ef23c7f023653f53b"
+  integrity sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==
 
 "@popperjs/core@^2.11.8", "@popperjs/core@^2.9.2":
   version "2.11.8"
@@ -7523,18 +7523,18 @@ prepend-http@^2.0.0:
   resolved "https://registry.yarnpkg.com/prepend-http/-/prepend-http-2.0.0.tgz#e92434bfa5ea8c19f41cdfd401d741a3c819d897"
   integrity sha512-ravE6m9Atw9Z/jjttRUZ+clIXogdghyZAuWJ3qEzjT+jI/dL1ifAqhZeC5VHzQp1MSt1+jxKkFNemj/iO7tVUA==
 
-prettier-plugin-packagejson@^2.5.15:
-  version "2.5.15"
-  resolved "https://registry.yarnpkg.com/prettier-plugin-packagejson/-/prettier-plugin-packagejson-2.5.15.tgz#7ea880d4bb1681b5331ea7044efd3d653776f469"
-  integrity sha512-2QSx6y4IT6LTwXtCvXAopENW5IP/aujC8fobEM2pDbs0IGkiVjW/ipPuYAHuXigbNe64aGWF7vIetukuzM3CBw==
+prettier-plugin-packagejson@^2.5.19:
+  version "2.5.19"
+  resolved "https://registry.yarnpkg.com/prettier-plugin-packagejson/-/prettier-plugin-packagejson-2.5.19.tgz#2e25664fe828ac6c5660b765a598ca075e3587bc"
+  integrity sha512-Qsqp4+jsZbKMpEGZB1UP1pxeAT8sCzne2IwnKkr+QhUe665EXUo3BAvTf1kAPCqyMv9kg3ZmO0+7eOni/C6Uag==
   dependencies:
-    sort-package-json "3.2.1"
-    synckit "0.11.8"
+    sort-package-json "3.4.0"
+    synckit "0.11.11"
 
-prettier@^3.5.3:
-  version "3.5.3"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.5.3.tgz#4fc2ce0d657e7a02e602549f053b239cb7dfe1b5"
-  integrity sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==
+prettier@^3.6.2:
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.6.2.tgz#ccda02a1003ebbb2bfda6f83a074978f608b9393"
+  integrity sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==
 
 pretty-error@^4.0.0:
   version "4.0.0"
@@ -8495,10 +8495,10 @@ sort-object-keys@^1.1.3:
   resolved "https://registry.yarnpkg.com/sort-object-keys/-/sort-object-keys-1.1.3.tgz#bff833fe85cab147b34742e45863453c1e190b45"
   integrity sha512-855pvK+VkU7PaKYPc+Jjnmt4EzejQHyhhF33q31qG8x7maDzkeFhAAThdCYay11CISO+qAMwjOBP+fPZe0IPyg==
 
-sort-package-json@3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/sort-package-json/-/sort-package-json-3.2.1.tgz#889f3bdf43ceeff5fa4278a7c53ae5b1520d287e"
-  integrity sha512-rTfRdb20vuoAn7LDlEtCqOkYfl2X+Qze6cLbNOzcDpbmKEhJI30tTN44d5shbKJnXsvz24QQhlCm81Bag7EOKg==
+sort-package-json@3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/sort-package-json/-/sort-package-json-3.4.0.tgz#98e42b78848c517736b069f8aa4fa322fae56677"
+  integrity sha512-97oFRRMM2/Js4oEA9LJhjyMlde+2ewpZQf53pgue27UkbEXfHJnDzHlUxQ/DWUkzqmp7DFwJp8D+wi/TYeQhpA==
   dependencies:
     detect-indent "^7.0.1"
     detect-newline "^4.0.1"
@@ -8872,12 +8872,12 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-synckit@0.11.8:
-  version "0.11.8"
-  resolved "https://registry.yarnpkg.com/synckit/-/synckit-0.11.8.tgz#b2aaae998a4ef47ded60773ad06e7cb821f55457"
-  integrity sha512-+XZ+r1XGIJGeQk3VvXhT6xx/VpbHsRzsTkGgF6E5RX9TTXD0118l87puaEBZ566FhqblC6U0d4XnubznJDm30A==
+synckit@0.11.11:
+  version "0.11.11"
+  resolved "https://registry.yarnpkg.com/synckit/-/synckit-0.11.11.tgz#c0b619cf258a97faa209155d9cd1699b5c998cb0"
+  integrity sha512-MeQTA1r0litLUf0Rp/iisCaL8761lKAZHaimlbGK4j0HysC4PLfqygQj9srcs0m2RdtDYnF8UuYyKpbjHYp7Jw==
   dependencies:
-    "@pkgr/core" "^0.2.4"
+    "@pkgr/core" "^0.2.9"
 
 tapable@^2.0.0, tapable@^2.1.1, tapable@^2.2.0, tapable@^2.2.1:
   version "2.2.1"
