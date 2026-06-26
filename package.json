@@ -14,6 +14,7 @@
     "lint": "run-s lint:prettier lint:eslint",
     "lint:eslint": "eslint --fix-dry-run .",
     "lint:prettier": "prettier --check .",
+    "lint:ts": "tsc --noEmit",
     "make": "yarn run notices && electron-forge make",
     "notices": "yarn licenses generate-disclaimer --frozen-lockfile --prod --ignore-platform --ignore-engines --ignore-optional > ThirdPartyNotices.txt",
     "package": "yarn run notices && electron-forge package",
