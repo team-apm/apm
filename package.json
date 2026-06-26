@@ -123,7 +123,7 @@
   },
   "packageManager": "yarn@1.22.22",
   "engines": {
-    "node": "22.x || 20.x || 18.x"
+    "node": "24.x || 22.x || 20.x || 18.x"
   },
   "productName": "AviUtl Package Manager"
 }
