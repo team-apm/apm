@@ -1,3 +1,14 @@
 {
-  "reject": ["@vercel/webpack-asset-relocator-loader", "electron-store"]
+  "reject": [
+    "@vercel/webpack-asset-relocator-loader",
+    "electron-store",
+    "@electron-forge/cli",
+    "@electron-forge/maker-deb",
+    "@electron-forge/maker-rpm",
+    "@electron-forge/maker-squirrel",
+    "@electron-forge/maker-zip",
+    "@electron-forge/plugin-auto-unpack-natives",
+    "@electron-forge/plugin-webpack",
+    "@electron-forge/publisher-github"
+  ]
 }
