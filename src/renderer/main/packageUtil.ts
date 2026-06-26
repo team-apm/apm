@@ -415,13 +415,13 @@ async function getPackagesStatus(instPath: string, _packages: PackageItem[]) {
               .map((id2) => isInstalled(id2))
               .some((x) => x),
         )
-        .flatMap(
-          (orOfID) =>
-            orOfID
-              .split('|')
-              .filter((id2) => isInstallable(id2))
-              .find(() => true) ?? [],
-        );
+        .flatMap((orOfID): string[] => {
+          const candidate = orOfID
+            .split('|')
+            .filter((id2) => isInstallable(id2))
+            .find(() => true);
+          return candidate ? [candidate] : [];
+        });
     } else return [];
   };
 
