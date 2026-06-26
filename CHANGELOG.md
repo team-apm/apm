@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [release-it](https://github.com/release-it/release-it) for release guidelines.
 
 ### [3.9.1](https://github.com/team-apm/apm/compare/v3.9.0...v3.9.1) (2025-01-28)
 
