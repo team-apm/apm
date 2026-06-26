@@ -9,7 +9,28 @@ updates:
     directory: '/' # Location of package manifests
     schedule:
       interval: 'daily'
-    open-pull-requests-limit: 20
+    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: 'electron'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'electron-store'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@electron-forge/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@trpc/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@typescript-eslint/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'cross-env'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@commitlint/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'dot-prop'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'matcher'
+        update-types: ['version-update:semver-major']
     groups:
       commitizen:
         patterns:
