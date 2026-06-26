@@ -4,7 +4,7 @@ This project uses [release-it](https://github.com/release-it/release-it) with [@
 
 ## Prerequisites
 
-- Node.js 22 or 24 (22.22.2+ recommended; see `package.json` engines)
+- Node.js 22 (22.22.2+ recommended; see `package.json` engines). Release CI also pins Node 22 because electron-forge 6.4.1 does not complete `make`/`publish` on Node 24 yet.
 - Yarn 1.x
 - `GITHUB_TOKEN` with permission to create releases (when publishing release notes to GitHub)
 - Write access to this repository
@@ -62,3 +62,4 @@ Release notes are generated from [Conventional Commits](https://www.conventional
 
 - If GitHub release creation fails, set `GITHUB_TOKEN` and retry, or create the release manually from `CHANGELOG.md`.
 - If CI publish fails on one OS, check the workflow log; you may need to re-run the failed job after fixing the issue.
+- If the draft release has no assets but CI is green, check that `release.yml` uses Node 22 and that `yarn make` completes locally (`Making distributables` / `Artifacts available` in the log). Node 24 can exit early during packaging with no error.
