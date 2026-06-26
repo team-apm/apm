@@ -1,5 +1,12 @@
 # Changelog
 
+# [3.10.0](https://github.com/team-apm/apm/compare/v3.9.1...v3.10.0) (2026-06-26)
+
+### Bug Fixes
+
+- **main.ts:** bypassing load event ([e99620e](https://github.com/team-apm/apm/commit/e99620eb3a96730c12a480ee98fb52a09ac7f64f)), closes [#2038](https://github.com/team-apm/apm/issues/2038)
+- **packageUtil:** clarify flatMap return type for TypeScript 5.9 ([5371dba](https://github.com/team-apm/apm/commit/5371dba8521873b6916cdfb347eaf183a1429398))
+
 All notable changes to this project will be documented in this file. See [release-it](https://github.com/release-it/release-it) for release guidelines.
 
 ### [3.9.1](https://github.com/team-apm/apm/compare/v3.9.0...v3.9.1) (2025-01-28)
