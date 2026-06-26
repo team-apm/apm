@@ -3,11 +3,13 @@
   "git": {
     "commit": true,
     "tag": true,
-    "push": false
+    "push": false,
+    "commitMessage": "chore(release): ${version}"
   },
   "github": {
     "release": true,
-    "draft": true
+    "draft": true,
+    "releaseName": "AviUtl Package Manager v${version}"
   },
   "npm": {
     "publish": false

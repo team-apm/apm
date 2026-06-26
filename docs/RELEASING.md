@@ -26,7 +26,7 @@ This will:
 - Bump `package.json` version
 - Update `CHANGELOG.md`
 - Create a git commit and tag (`vX.Y.Z`)
-- Create a **draft** GitHub Release with generated notes
+- Create a **draft** GitHub Release titled `AviUtl Package Manager vX.Y.Z` with generated notes
 
 `git.push` is disabled in `.release-it.json`. Push manually after verifying the commit and tag.
 
