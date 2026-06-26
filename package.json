@@ -120,7 +120,7 @@
     "style-loader": "^4.0.0",
     "ts-loader": "^9.6.2",
     "ts-node": "^10.9.2",
-    "typescript": "~5.9.3"
+    "typescript": "~6.0.3"
   },
   "packageManager": "yarn@1.22.22",
   "engines": {
