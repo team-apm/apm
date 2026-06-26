@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Currently, we are providing support with security updates for these versions of apm.
+Security updates are provided for the following versions of apm.
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -11,10 +11,33 @@ Currently, we are providing support with security updates for these versions of 
 
 ## Reporting a Vulnerability
 
-To be added in the future
+If you discover a security vulnerability, please report it responsibly.
 
-<!-- Use this section to tell people how to report a vulnerability.
+**Preferred:** [GitHub Security Advisories](https://github.com/team-apm/apm/security/advisories/new) (private report)
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.-->
+**Alternative:** Open a minimal public issue asking for a private contact channel, or contact the maintainers listed in [package.json](./package.json).
+
+Please do **not** disclose security issues in public issues with full exploit details before a fix is available.
+
+### What to include
+
+- Description of the vulnerability
+- Steps to reproduce
+- Affected versions
+- Impact assessment (if known)
+
+### What to expect
+
+- **Acknowledgement:** within 7 days
+- **Status update:** within 30 days, or an explanation of delay
+- **Fix:** coordinated disclosure after a patch release when possible
+
+We appreciate responsible disclosure and will credit reporters in the release notes when appropriate.
+
+## Custom data sources
+
+apm allows users to configure custom package data URLs in settings. Pointing apm at an untrusted mirror can expose you to malicious package metadata or downloads. Use only sources you trust. Integrity checks (SSRI) reduce but do not eliminate this risk.
+
+## Platform support
+
+apm is tested primarily on **Windows**. Builds for macOS and Linux are provided without a support guarantee. Security fixes target Windows behavior first.
