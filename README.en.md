@@ -65,6 +65,7 @@ After launching the AviUtl Package Manager, please perform the following setting
 ## Other
 
 - If a package cannot be installed using the above method, it can be installed using the traditional method of manually copying the files.
+- Settings allow custom package data URLs. Untrusted mirrors may serve malicious package metadata or downloads. Use the official [apm-data](https://github.com/team-apm/apm-data) repository or sources you trust.
 - We have tested the Windows version only; we are not supporting the operation of the Mac or Linux versions.
   - If you encounter any problems, regardless of OS, please create an Issue and report it to us.
 - If you have any requests for additions, updates or deletions to the list of plugins and scripts, please contact [apm-data](https://github.com/team-apm/apm-data/issues).
@@ -74,7 +75,7 @@ After launching the AviUtl Package Manager, please perform the following setting
 ### Prerequisites
 
 - [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/) LTS Version (Current: 18.x.x)
+- [Node.js](https://nodejs.org/) LTS (18.x / 20.x / 22.x)
 - [Yarn 1](https://classic.yarnpkg.com/)
 
 ### Clone
@@ -115,10 +116,10 @@ Also, I'm Japanese, so any pull requests related to English or i18n are most wel
 ## Languages & Framework
 
 - Electron (Node.js)
-  - HTML
-  - CSS
-  - JavaScript
   - TypeScript
+  - HTML / CSS
+  - JavaScript
+  - React (About window; main window migration in progress)
 
 ## License
 

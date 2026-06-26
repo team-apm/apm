@@ -60,6 +60,7 @@ _Read this in [English](./README.en.md)_.
 ## その他
 
 - 上記の方法で導入できないパッケージも、手動でファイルをコピーする従来の方法により導入できます。
+- 設定の「データ取得先」には任意の URL を指定できます。信頼できない第三者のミラーを指定すると、悪意のあるパッケージ情報やダウンロードに誘導される恐れがあります。公式の [apm-data](https://github.com/team-apm/apm-data) または信頼できるソースのみを使用してください。
 - 動作確認は、Windows版のみで行っています。
   - Mac版・Linux版は動作保証しておりませんが、問題等が発生した場合はIssueを作成して報告いただければ、対応します。
 - プラグイン・スクリプト一覧への追加・更新・削除等の要望がありましたら[apm-data](https://github.com/team-apm/apm-data/issues)までご連絡ください。
@@ -69,7 +70,7 @@ _Read this in [English](./README.en.md)_.
 ### 前提条件
 
 - [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/) LTSバージョン（現在18.x.x）
+- [Node.js](https://nodejs.org/) LTS（18.x / 20.x / 22.x）
 - [Yarn 1](https://classic.yarnpkg.com/)
 
 ### クローン
@@ -110,10 +111,10 @@ yarn start
 ### 使用言語・フレームワーク
 
 - Electron (Node.js)
-  - HTML
-  - CSS
-  - JavaScript
   - TypeScript
+  - HTML / CSS
+  - JavaScript
+  - React (About window; main window migration in progress)
 
 ## ライセンス
 
