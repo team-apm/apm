@@ -8,13 +8,15 @@ Here is a guide on how to contribute.
 
 ## Technology/Language Used
 
-This application has been created using [Electron](https://www.electronjs.org/).
+This application is built with [Electron](https://www.electronjs.org/).
 
-The languages used are:
+The languages and frameworks used include:
 
+- TypeScript
 - JavaScript (Node.js)
-- HTML
-- CSS
+- HTML / CSS
+- React (About window; main window migration in progress)
+- tRPC (partial)
 
 ## Issues
 
@@ -31,7 +33,7 @@ We also welcome fundamental improvement issues, such as how to develop, how to s
 
 Pull Requests are also welcome.
 
-We accept the following types of pull requests. You don't need to make an Issue for basic Pull Requests.
+We accept the following types of pull requests. **You do not need to open an issue first** for small bug fixes, dependency updates, documentation fixes, or refactors with limited scope.
 
 If you have a question about a new feature, improvement, or fix, or if the impact of a major new feature or change is significant, please make an Issue to discuss it.
 
@@ -43,7 +45,7 @@ If you have a question about a new feature, improvement, or fix, or if the impac
 
 When the pull request is merged, your contribution will be added to the [Contributors list](https://github.com/team-apm/apm/graphs/contributors), and the [MIT License](./LICENSE) will be applied to the code content.
 
-And after that, if you don't mind, add your name to [credits](./src/about.html) and send a pull request.
+And after that, if you don't mind, add your name to the credits in [`src/renderer/about/About.tsx`](./src/renderer/about/About.tsx) and send a pull request.
 
 Submissions containing content that violates the [CODE OF CONDUCT](./CODE_OF_CONDUCT.md) will not be accepted.
 
@@ -65,23 +67,20 @@ By running `yarn package`, the packaged app is output to `out/`, so run it.
 
 ## Directory Structure
 
-Under `src`, place HTML, CSS, and preloaded JavaScript for each screen, and cut directories for each library and each section, and place modules under them.
-
 ```text
-└── src
-    ├── core
-    │   └── core.js
-    ├── lib
-    │   └── someLibrary.js
-    ├── package
-    │   └── package.js
-    ├── setting
-    │   └── setting.js
-    ├── some_window.html
-    ├── some_window.css
-    ├── some_window_preload.ts
-    └── some_window_renderer.ts
+src/
+├── common/          # Shared constants (IPC channel names)
+├── lib/             # Shared libraries (config, paths, integrity, etc.)
+├── main/            # Electron main process
+├── migration/       # Data version migrations
+├── renderer/
+│   ├── about/       # About window (React)
+│   ├── main/        # Main window (legacy DOM; being migrated)
+│   └── splash/      # Splash screen
+└── types/           # TypeScript declarations
 ```
+
+See [BRANCHING.md](./BRANCHING.md) for branch workflow.
 
 ## Commit Message Convention
 
@@ -91,7 +90,7 @@ We are using Conventional Changelog, which is based on Angular's Commit Message 
 
 The commit message is automatically checked by [commitlint](https://commitlint.js.org/) at commit time, and the commit will fail if it does not follow the conventions.
 
-Since [Standard Version](https://github.com/conventional-changelog/standard-version) is used to output the changelog, commits that contain new features or bug fixes should especially follow this convention.
+Since [release-it](https://github.com/release-it/release-it) is used to manage releases and changelogs, commits that contain new features or bug fixes should especially follow this convention.
 
 ### How to Commit
 
@@ -109,9 +108,9 @@ This project has the following writing style/rules, but you may not need to worr
 
 We are using [ESLint](https://eslint.org/) for linting, and the settings are based on the [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html). The contents are as follows.
 
-- ECMAScript 2020 can be used.
+- ECMAScript 2022 can be used.
 - Basically, use `const` / `let` to declare variables.
-- Use `require` to load modules.
+- Use ES `import` / `export` to load modules.
 - Comment functions with JSDoc.
 
 ### Formatting
