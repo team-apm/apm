@@ -71,8 +71,8 @@
     "win-7zip": "^0.1.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/cli": "^21.1.0",
+    "@commitlint/config-conventional": "^21.1.0",
     "@electron-forge/cli": "6.4.1",
     "@electron-forge/maker-deb": "6.4.1",
     "@electron-forge/maker-rpm": "6.4.1",
@@ -96,7 +96,7 @@
     "@vercel/webpack-asset-relocator-loader": "1.7.3",
     "apm-schema": "team-apm/apm-schema#v3.3.0",
     "commitizen": "^4.3.2",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.1.0",
     "css-loader": "^7.1.4",
     "cz-conventional-changelog": "3.3.0",
     "cz-conventional-changelog-ja": "^0.0.2",
@@ -110,10 +110,10 @@
     "fork-ts-checker-webpack-plugin": "^9.1.0",
     "html-loader": "^5.1.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.4.0",
+    "lint-staged": "^17.0.8",
     "mini-css-extract-plugin": "^2.10.2",
     "node-loader": "^2.1.0",
-    "npm-run-all2": "^8.0.4",
+    "npm-run-all2": "^9.0.2",
     "prettier": "^3.8.5",
     "prettier-plugin-packagejson": "^2.5.22",
     "release-it": "^20.2.1",
@@ -124,7 +124,7 @@
   },
   "packageManager": "yarn@1.22.22",
   "engines": {
-    "node": "24.x || 22.x || 20.x || 18.x"
+    "node": "24.x || 22.x"
   },
   "productName": "AviUtl Package Manager"
 }

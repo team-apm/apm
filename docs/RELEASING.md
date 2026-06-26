@@ -4,7 +4,7 @@ This project uses [release-it](https://github.com/release-it/release-it) with [@
 
 ## Prerequisites
 
-- Node.js 18, 20, or 22
+- Node.js 22 or 24 (22.22.2+ recommended; see `package.json` engines)
 - Yarn 1.x
 - `GITHUB_TOKEN` with permission to create releases (when publishing release notes to GitHub)
 - Write access to this repository

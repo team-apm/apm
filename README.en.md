@@ -75,7 +75,7 @@ After launching the AviUtl Package Manager, please perform the following setting
 ### Prerequisites
 
 - [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/) LTS (18.x / 20.x / 22.x)
+- [Node.js](https://nodejs.org/) LTS (22.x / 24.x)
 - [Yarn 1](https://classic.yarnpkg.com/)
 
 ### Clone

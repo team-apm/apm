@@ -70,7 +70,7 @@ _Read this in [English](./README.en.md)_.
 ### 前提条件
 
 - [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/) LTS（18.x / 20.x / 22.x）
+- [Node.js](https://nodejs.org/) LTS（22.x / 24.x）
 - [Yarn 1](https://classic.yarnpkg.com/)
 
 ### クローン
