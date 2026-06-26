@@ -18,7 +18,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: 'lts/*'
 
       - uses: doyensec/electronegativity-action@v2.0
 
