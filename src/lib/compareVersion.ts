@@ -16,19 +16,24 @@ const toSemver = (v: string) =>
     .replaceAll(/[a-z]\d/g, (m) => m[0] + '.' + m[1]) // rc2 -> rc.2
     .replaceAll(/^\d+\.\d+-/g, (m) => m.slice(0, -1) + '.0-') // 1.0-beta -> 1.0.0-beta
     .replaceAll(/^\d+-/g, (m) => m.slice(0, -1) + '.0.0-'); // 1-beta -> 1.0.0-beta
-const isDate = (v: string) => v.match(/^\d{4}\/\d{2}\/\d{2}$/);
+// Must return a boolean: two `match()` results would never be equal by
+// reference, so `isDate(a) !== isDate(b)` would be true even for two dates.
+const isDate = (v: string) => /^\d{4}\/\d{2}\/\d{2}$/.test(v);
 
 /**
  *  Compare the two given versions.
  * @param {string} firstVersion - First version to compare
  * @param {string} secondVersion - Second version to compare
- * @returns {number} A number representing the version order
+ * @returns {number} A number representing the version order. Returns
+ * `Number.NaN` when the versions cannot be compared (e.g. a date-style and a
+ * semver-style version). Check with `Number.isNaN()`; note that NaN makes
+ * every comparison operator return false.
  */
 export function compareVersion(firstVersion: string, secondVersion: string) {
   if (firstVersion === secondVersion) return 0;
   const isDate1 = isDate(firstVersion);
   const isDate2 = isDate(secondVersion);
-  if (isDate1 !== isDate2) return 0;
+  if (isDate1 !== isDate2) return Number.NaN;
   if (isDate1 && isDate2) {
     return compareVersions(
       firstVersion.replaceAll('/', '.'),
@@ -38,7 +43,7 @@ export function compareVersion(firstVersion: string, secondVersion: string) {
   try {
     return compareVersions(toSemver(firstVersion), toSemver(secondVersion));
   } catch {
-    return 0;
+    return Number.NaN;
   }
 }
 
