@@ -44,14 +44,6 @@ export function getDataUrl() {
 }
 
 /**
- * Returns extra data files URLs.
- * @returns {string} - Data files URLs.
- */
-export function getExtraDataUrl() {
-  return config.dataURL.getExtra();
-}
-
-/**
  * Returns a core data file URL.
  * @returns {string} - A core data file URL.
  */

@@ -11,7 +11,7 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import { IPC_CHANNELS } from '../common/ipc';
 import { isParent } from '../shared/apmPath';
-import { checkUpdate, isExeVersion } from './services/appUpdate';
+import { checkUpdate } from './services/appUpdate';
 import { getNicommonsData } from './services/nicommons';
 import { existsTempFile } from './services/tempFile';
 
@@ -55,10 +55,6 @@ export function registerIpcHandlers() {
 
   ipcMain.handle(IPC_CHANNELS.APP_QUIT, () => {
     app.quit();
-  });
-
-  ipcMain.handle(IPC_CHANNELS.IS_EXE_VERSION, () => {
-    return isExeVersion();
   });
 
   ipcMain.handle(IPC_CHANNELS.CHECK_UPDATE, async () => {
