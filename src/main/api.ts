@@ -1,7 +1,8 @@
 import { initTRPC } from '@trpc/server';
-import { app, type IpcMainInvokeEvent } from 'electron';
+import { app, BrowserWindow, type IpcMainInvokeEvent } from 'electron';
 import type { CreateContextOptions } from 'electron-trpc/main';
 import { getConfig } from '../lib/Config';
+import { updateInfo } from './services/modList';
 import { ensureExtraDataUrl, setDataUrls } from './services/settings';
 
 export type Context = {
@@ -60,6 +61,13 @@ export const router = t.router({
         getConfig().setZoomFactor(input);
         ctx.event.sender.setZoomFactor(parseInt(input) / 100);
       }),
+  }),
+  modList: t.router({
+    updateInfo: procedure.mutation(async ({ ctx }) => {
+      const win = BrowserWindow.fromWebContents(ctx.event.sender);
+      if (!win) throw new Error('The calling window was not found.');
+      await updateInfo(win, getConfig());
+    }),
   }),
 });
 
