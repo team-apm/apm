@@ -127,6 +127,8 @@ async function byFolder(instPath: string) {
 
   // Main
   log.info(`Start migration: migration1to2.byFolder(${instPath})`);
+  // packages の変換と dataVersion の更新を 1 回の書き込みで確定させる
+  apmJson.begin();
 
   // 1. Backup apm.json
   await download(jsonPath, { subDir: 'migration1to2', keyText: jsonPath });
@@ -176,6 +178,7 @@ async function byFolder(instPath: string) {
 
   // Finalize
   await apmJson.set('dataVersion', '2');
+  await apmJson.commit();
   log.info(`End of migration: migration1to2.byFolder(${instPath})`);
 }
 

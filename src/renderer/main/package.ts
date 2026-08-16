@@ -139,6 +139,7 @@ async function setPackagesList(instPath: string) {
 
   // guess which packages are installed from integrity
   let modified = false;
+  apmJson.begin();
   for (const p of packages.filter(
     (p) =>
       p.info.releases &&
@@ -151,6 +152,7 @@ async function setPackagesList(instPath: string) {
       }
     }
   }
+  await apmJson.commit();
   if (modified) {
     const packagesExtraMod = await packageUtil.getPackagesExtra(
       packages,
