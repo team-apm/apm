@@ -4,7 +4,11 @@ import type { CreateContextOptions } from 'electron-trpc/main';
 import { getConfig } from '../lib/Config';
 import { openAboutWindow } from './aboutWindow';
 import { isExeVersion } from './services/appUpdate';
-import { getCoreInfo } from './services/core';
+import {
+  checkCoreLatestVersion,
+  getCoreInfo,
+  installCoreProgram,
+} from './services/core';
 import { updateInfo } from './services/modList';
 import { ensureExtraDataUrl, setDataUrls } from './services/settings';
 
@@ -52,6 +56,19 @@ const autoUpdateInput = (value: unknown): 'download' | 'notify' | 'disable' => {
   )
     throw new TypeError('One of download, notify, or disable is expected.');
   return value as 'download' | 'notify' | 'disable';
+};
+
+const installProgramInput = (
+  value: unknown,
+): { program: 'aviutl' | 'exedit'; version: string; instPath: string } => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { program, version, instPath } = value as Record<string, unknown>;
+  if (program !== 'aviutl' && program !== 'exedit')
+    throw new TypeError('program is expected to be aviutl or exedit.');
+  if (typeof version !== 'string' || typeof instPath !== 'string')
+    throw new TypeError('version and instPath are expected to be strings.');
+  return { program, version, instPath };
 };
 
 const DIALOG_TYPES = ['none', 'info', 'error', 'question', 'warning'] as const;
@@ -131,6 +148,24 @@ export const router = t.router({
       if (!win) throw new Error('The calling window was not found.');
       return await getCoreInfo(win, getConfig());
     }),
+    checkLatestVersion: procedure.mutation(async ({ ctx }) => {
+      const win = BrowserWindow.fromWebContents(ctx.event.sender);
+      if (!win) throw new Error('The calling window was not found.');
+      await checkCoreLatestVersion(win, getConfig());
+    }),
+    installProgram: procedure
+      .input(installProgramInput)
+      .mutation(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        return await installCoreProgram(
+          win,
+          getConfig(),
+          input.program,
+          input.version,
+          input.instPath,
+        );
+      }),
   }),
 });
 

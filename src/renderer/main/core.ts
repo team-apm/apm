@@ -6,25 +6,18 @@ import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { getConfig } from '../../lib/Config';
 import { convertId } from '../../lib/convertId';
-import {
-  app,
-  download,
-  openDialog,
-  openDirDialog,
-  openYesNoDialog,
-} from '../../lib/ipcWrapper';
+import { app, openDialog, openDirDialog } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
 import replaceText from '../../lib/replaceText';
 import { addAviUtlShortcut, removeAviUtlShortcut } from '../../lib/shortcut';
 import { trpc } from '../../lib/trpcClient';
-import unzip from '../../lib/unzip';
 import migration2to3 from '../../migration/migration2to3';
 import {
   installedVersionText,
   releaseLabel,
 } from '../../shared/coreVersionText';
-import { checkIntegrity, verifyFile } from '../../shared/integrity';
-import { install, programs, verifyFilesByCount } from './common';
+import { checkIntegrity } from '../../shared/integrity';
+import { programs, verifyFilesByCount } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
 
@@ -198,13 +191,8 @@ async function checkLatestVersion(instPath: string) {
   const { enableButton } = buttonTransition.loading(btn, '更新');
 
   try {
-    await download(await modList.getCoreDataUrl(), {
-      subDir: 'core',
-    });
-    await modList.updateInfo();
-    config.checkDate.setCore(Date.now());
-    const modInfo = await modList.getInfo();
-    config.modDate.setCore(new Date(modInfo.core.modified).getTime());
+    // ダウンロードと日付更新は main プロセス側(services/core.ts)へ移設済み
+    await trpc.core.checkLatestVersion.mutate();
     await displayInstalledVersion(instPath);
     await setCoreVersions(instPath);
     buttonTransition.message(btn, '更新完了', 'success');
@@ -316,127 +304,79 @@ async function installProgram(
     ? buttonTransition.loading(btn)
     : { enableButton: null };
 
-  if (!instPath) {
-    log.error('An installation path is not selected.');
+  // ボタンへのエラー表示と復帰(旧コードの各分岐と同じ動き)
+  const showError = (message: string) => {
     if (btn) {
-      buttonTransition.message(
-        btn,
-        'インストール先フォルダを指定してください。',
-        'danger',
-      );
+      buttonTransition.message(btn, message, 'danger');
       setTimeout(() => {
         enableButton();
       }, 3000);
     }
+  };
+
+  if (!instPath) {
+    log.error('An installation path is not selected.');
+    showError('インストール先フォルダを指定してください。');
     return;
   }
 
   if (!version) {
     log.error('A version is not selected.');
-    if (btn) {
-      buttonTransition.message(btn, 'バージョンを指定してください。', 'danger');
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-    }
+    showError('バージョンを指定してください。');
     return;
   }
 
-  const coreInfo = await getCoreInfo();
-
-  if (!coreInfo) {
-    log.error('The version data do not exist.');
-    if (btn) {
-      buttonTransition.message(
-        btn,
-        'バージョンデータが存在しません。',
-        'danger',
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-    }
+  // ダウンロード・整合性検証・展開・配置は main プロセス側(services/core.ts)へ移設済み
+  let result: Awaited<ReturnType<typeof trpc.core.installProgram.mutate>>;
+  try {
+    result = await trpc.core.installProgram.mutate({
+      program,
+      version,
+      instPath,
+    });
+  } catch (e) {
+    log.error(e);
+    showError('エラーが発生しました。');
     return;
   }
 
-  const progInfo = coreInfo[program] as Program;
-  const url = progInfo.releases.find((r) => r.version === version).url;
-  let archivePath = await download(url, { loadCache: true, subDir: 'core' });
-
-  if (!archivePath) {
-    log.error('Failed downloading a file.');
-    if (btn) {
-      buttonTransition.message(
-        btn,
-        'ダウンロード中にエラーが発生しました。',
-        'danger',
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-    }
+  if (result === 'noVersionData') {
+    showError('バージョンデータが存在しません。');
     return;
   }
 
-  const integrityForArchive = progInfo.releases.find(
-    (r) => r.version === version,
-  ).integrity.archive;
+  if (result === 'downloadFailed') {
+    showError('ダウンロード中にエラーが発生しました。');
+    return;
+  }
 
-  if (integrityForArchive) {
-    // Verify file integrity
-    while (!(await verifyFile(archivePath, integrityForArchive))) {
-      const dialogResult = await openYesNoDialog(
-        'エラー',
-        'ダウンロードされたファイルは破損しています。再ダウンロードしますか？',
-      );
+  if (result === 'corrupt') {
+    showError('ダウンロードされたファイルは破損しています。');
+    return;
+  }
 
-      if (!dialogResult) {
-        log.error(`The downloaded archive file is corrupt. URL:${url}`);
-        if (btn) {
-          buttonTransition.message(
-            btn,
-            'ダウンロードされたファイルは破損しています。',
-            'danger',
-          );
-          setTimeout(() => {
-            enableButton();
-          }, 3000);
-        }
-        return;
-      }
-
-      archivePath = await download(url, { subDir: 'core' });
-      if (!archivePath) {
-        log.error(`Failed downloading the archive file. URL:${url}`);
-        if (btn) {
-          buttonTransition.message(
-            btn,
-            'ファイルのダウンロードに失敗しました。',
-            'danger',
-          );
-          setTimeout(() => {
-            enableButton();
-          }, 3000);
-          return;
-        } else {
-          // Throw an error if not executed from the UI.
-          throw new Error('Failed downloading the archive file.');
-        }
-      }
+  if (result === 'redownloadFailed') {
+    if (btn) {
+      showError('ファイルのダウンロードに失敗しました。');
+      return;
+    } else {
+      // Throw an error if not executed from the UI.
+      throw new Error('Failed downloading the archive file.');
     }
   }
 
   try {
-    const unzippedPath = await unzip(archivePath);
-    await install(unzippedPath, instPath, progInfo.files, true);
+    if (result === 'success') {
+      await displayInstalledVersion(instPath);
+      await packageMain.setPackagesList(instPath);
+      await packageMain.displayNicommonsIdList(instPath);
 
-    const apmJson = await ApmJson.load(instPath);
-    await apmJson.setCore(program, version);
-    await displayInstalledVersion(instPath);
-    await packageMain.setPackagesList(instPath);
-    await packageMain.displayNicommonsIdList(instPath);
-
-    if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
+      if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
+    } else {
+      // installFailed: エラー内容は main プロセス側でログ済み
+      if (btn)
+        buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    }
   } catch (e) {
     log.error(e);
     if (btn) buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
