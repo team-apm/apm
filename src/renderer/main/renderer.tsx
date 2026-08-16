@@ -6,9 +6,10 @@ import '../../../node_modules/bootstrap-icons/font/bootstrap-icons.css';
 import '../main.css';
 import './index.css';
 import { MonacoEditorRenderer } from './monacoEditorRenderer';
+import OthersTab from './others/OthersTab';
 import DataUrlSettings from './settings/DataUrlSettings';
 import PreferencesSettings from './settings/PreferencesSettings';
-import { SettingsProvider } from './settings/SettingsProvider';
+import { TrpcProvider } from './TrpcProvider';
 
 window.addEventListener('DOMContentLoaded', () => {
   const root = createRoot(document.getElementById('container'));
@@ -21,13 +22,18 @@ window.addEventListener('DOMContentLoaded', () => {
   );
 
   createRoot(document.getElementById('settings-data-url-root')).render(
-    <SettingsProvider>
+    <TrpcProvider>
       <DataUrlSettings />
-    </SettingsProvider>,
+    </TrpcProvider>,
   );
   createRoot(document.getElementById('settings-preferences-root')).render(
-    <SettingsProvider>
+    <TrpcProvider>
       <PreferencesSettings />
-    </SettingsProvider>,
+    </TrpcProvider>,
+  );
+  createRoot(document.getElementById('others-root')).render(
+    <TrpcProvider>
+      <OthersTab />
+    </TrpcProvider>,
   );
 });

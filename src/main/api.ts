@@ -2,6 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { app, BrowserWindow, dialog, type IpcMainInvokeEvent } from 'electron';
 import type { CreateContextOptions } from 'electron-trpc/main';
 import { getConfig } from '../lib/Config';
+import { openAboutWindow } from './aboutWindow';
 import { isExeVersion } from './services/appUpdate';
 import { updateInfo } from './services/modList';
 import { ensureExtraDataUrl, setDataUrls } from './services/settings';
@@ -74,6 +75,13 @@ export const router = t.router({
     return app.getVersion();
   }),
   isExeVersion: procedure.query(() => isExeVersion()),
+  getAppName: procedure.query(() => app.getName()),
+  quitApp: procedure.mutation(() => {
+    app.quit();
+  }),
+  openAboutWindow: procedure.mutation(() => {
+    openAboutWindow();
+  }),
   openDialog: procedure.input(dialogInput).mutation(async ({ input }) => {
     await dialog.showMessageBox({
       title: input.title,
