@@ -11,9 +11,9 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import { IPC_CHANNELS } from '../common/ipc';
 import { isParent } from '../shared/apmPath';
-import { getHash } from '../shared/getHash';
 import { checkUpdate, isExeVersion } from './services/appUpdate';
 import { getNicommonsData } from './services/nicommons';
+import { existsTempFile } from './services/tempFile';
 
 const APP_PATH_NAMES = new Set([
   'home',
@@ -83,18 +83,7 @@ export function registerIpcHandlers() {
   ipcMain.handle(
     IPC_CHANNELS.EXISTS_TEMP_FILE,
     (event, relativePath, keyText) => {
-      const dataDir = path.join(app.getPath('userData'), 'Data/');
-      let filePath = path.join(dataDir, relativePath);
-      if (!isParent(dataDir, filePath)) {
-        throw new Error(`An invalid path was requested: ${relativePath}`);
-      }
-      if (keyText) {
-        filePath = path.join(
-          path.dirname(filePath),
-          getHash(keyText) + '_' + path.basename(filePath),
-        );
-      }
-      return { exists: fs.existsSync(filePath), path: filePath };
+      return existsTempFile(relativePath, keyText);
     },
   );
 

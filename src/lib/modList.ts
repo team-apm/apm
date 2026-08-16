@@ -1,38 +1,21 @@
 import fs from 'fs-extra';
-import * as os from 'node:os';
 import path from 'node:path';
 import { resolvePath } from '../shared/resolvePath';
 import { getConfig } from './Config';
-import { download, existsTempFile } from './ipcWrapper';
+import { existsTempFile } from './ipcWrapper';
 import * as parseJson from './parseJson';
+import { trpc } from './trpcClient';
 
 const config = getConfig();
-
-/**
- * Sets package data files URLs.
- */
-async function setPackagesDataUrl() {
-  const URLs = config.dataURL
-    .getExtra()
-    .split(os.EOL)
-    .filter((url) => url !== '');
-  const packages = ([] as string[]).concat(
-    (await getInfo()).packages.map((packageItem) =>
-      resolvePath(getDataUrl(), packageItem.path),
-    ),
-    URLs,
-  );
-  config.dataURL.setPackages(packages);
-}
 
 // Functions to be exported
 
 /**
  * Download list.json.
+ * 実装は main プロセス側(src/main/services/modList.ts)へ移設済み。
  */
 export async function updateInfo() {
-  await download(path.join(getDataUrl(), 'list.json'));
-  await setPackagesDataUrl();
+  await trpc.modList.updateInfo.mutate();
 }
 
 /**
