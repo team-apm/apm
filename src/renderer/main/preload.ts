@@ -74,7 +74,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const zoomFactorSelect = document.getElementById(
     'zoom-factor-select',
   ) as HTMLSelectElement;
-  setting.setZoomFactor(zoomFactorSelect);
+  await setting.setZoomFactor(zoomFactorSelect);
 
   const doAutoUpdate = config.getAutoUpdate();
   const autoUpdateRadios = document.getElementsByName('auto-update');

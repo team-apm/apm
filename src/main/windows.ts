@@ -13,7 +13,7 @@ import windowStateKeeper from 'electron-window-state';
 import path from 'node:path';
 import { IPC_CHANNELS } from '../common/ipc';
 import type Config from '../lib/Config';
-import { router } from './api';
+import { createContext, router } from './api';
 import { runAutoUpdate } from './services/appUpdate';
 import { downloadFile } from './services/download';
 
@@ -81,6 +81,14 @@ export async function launch(config: Config) {
     },
   });
 
+  // ipcMain へのリスナー登録は 1 回だけにし、窓の追加は attachWindow で行う
+  // (窓を開くたびに createIPCHandler を呼ぶとリスナーが重複する)
+  const ipcHandler = createIPCHandler({
+    router,
+    createContext,
+    windows: [mainWindow],
+  });
+
   Menu.setApplicationMenu(null);
 
   mainWindow.webContents.on('will-navigate', async (event, url) => {
@@ -119,7 +127,7 @@ export async function launch(config: Config) {
         sandbox: false,
       },
     });
-    createIPCHandler({ router, windows: [aboutWindow] });
+    ipcHandler.attachWindow(aboutWindow);
     aboutWindow.once('close', () => {
       if (!aboutWindow.isDestroyed()) {
         aboutWindow.destroy();
@@ -158,10 +166,6 @@ export async function launch(config: Config) {
       },
       mainWindow,
     );
-  });
-
-  ipcMain.handle(IPC_CHANNELS.CHANGE_MAIN_ZOOM_FACTOR, (event, zoomFactor) => {
-    mainWindow.webContents.setZoomFactor(zoomFactor);
   });
 
   ipcMain.handle(IPC_CHANNELS.DOWNLOAD, async (event, url, options) => {
