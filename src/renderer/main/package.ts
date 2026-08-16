@@ -31,7 +31,7 @@ import replaceText from '../../lib/replaceText';
 import createList, { UpdatableList } from '../../lib/updatableList';
 import { compareVersion } from '../../shared/compareVersion';
 import { getHash } from '../../shared/getHash';
-import { checkIntegrity, verifyFile } from '../../shared/integrity';
+import { verifyFile } from '../../shared/integrity';
 import { safeRemove } from '../../shared/safeRemove';
 import unzip from '../../shared/unzip';
 import { PackageItem } from '../../types/packageItem';
@@ -110,8 +110,6 @@ async function setPackagesList(instPath: string) {
     'リンク',
     '依存関係',
   ];
-  let packages = await getPackages(instPath);
-
   // sort-buttons
   if (!packagesSort.hasChildNodes()) {
     const sortButtons = Array.from(columns.entries())
@@ -130,40 +128,14 @@ async function setPackagesList(instPath: string) {
   }
 
   // prepare a package list
+  // 取得 → インストール状態付与 → 整合性による apm.json 補正 → 依存解決は
+  // main プロセス側(services/packages.ts)へ移設済み
+  const packagesExtra = await packageUtil.getPackagesWithStatus(instPath, true);
+  const manuallyInstalledFiles = packagesExtra.manuallyInstalledFiles;
+  const packages = packagesExtra.packages;
 
-  let manuallyInstalledFiles;
-  const packagesExtra = await packageUtil.getPackagesExtra(packages, instPath);
-  manuallyInstalledFiles = packagesExtra.manuallyInstalledFiles;
-  packages = packagesExtra.packages;
-
+  // 検索コールバックが apm.json のコアバージョンを参照するために使う
   const apmJson = await ApmJson.load(instPath);
-
-  // guess which packages are installed from integrity
-  let modified = false;
-  apmJson.begin();
-  for (const p of packages.filter(
-    (p) =>
-      p.info.releases &&
-      p.installationStatus === packageUtil.states.manuallyInstalled,
-  )) {
-    for (const release of p.info.releases) {
-      if (await checkIntegrity(instPath, release.integrity.file)) {
-        await apmJson.addPackage(p.id, release.version);
-        modified = true;
-      }
-    }
-  }
-  await apmJson.commit();
-  if (modified) {
-    const packagesExtraMod = await packageUtil.getPackagesExtra(
-      packages,
-      instPath,
-    );
-    manuallyInstalledFiles = packagesExtraMod.manuallyInstalledFiles;
-    packages = packagesExtraMod.packages;
-  }
-
-  packages = await packageUtil.getPackagesStatus(instPath, packages);
 
   // show the package list
   const makeLiFromArray = (columnList: string[]) => {
@@ -1074,10 +1046,8 @@ async function installScript(instPath: string) {
 
   if ('redirect' in matchInfo) {
     // Determine which of the redirections can be installed and install them.
-    let packages = await getPackages(instPath);
-    packages = (await packageUtil.getPackagesExtra(packages, instPath))
+    const packages = (await packageUtil.getPackagesWithStatus(instPath))
       .packages;
-    packages = await packageUtil.getPackagesStatus(instPath, packages);
     const packageId = matchInfo.redirect
       .split('|')
       .find((candidate: string) =>
@@ -1518,9 +1488,7 @@ async function sharePackages(instPath: string) {
     const currentVersion = (await apmJson.get('core.' + program)) as string;
     ver[program] = currentVersion;
   }
-  ver.packages = (
-    await packageUtil.getPackagesExtra(await getPackages(instPath), instPath)
-  ).packages
+  ver.packages = (await packageUtil.getPackagesExtra(instPath)).packages
     .filter(
       (p) =>
         p.installationStatus === packageUtil.states.installed ||
