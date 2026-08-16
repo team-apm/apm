@@ -18,11 +18,11 @@ import Store from 'electron-store';
 import { createIPCHandler } from 'electron-trpc/main';
 import windowStateKeeper from 'electron-window-state';
 import fs, { mkdir, readJsonSync } from 'fs-extra';
-import { execSync } from 'node:child_process';
 import path from 'node:path';
 import 'source-map-support/register';
 import { updateElectronApp } from 'update-electron-app';
 import { IPC_CHANNELS } from '../common/ipc';
+import { isParent } from '../lib/apmPath';
 import Config from '../lib/Config';
 import { getHash } from '../lib/getHash';
 import * as shortcut from '../lib/shortcut';
@@ -188,8 +188,30 @@ ipcMain.handle(IPC_CHANNELS.GET_APP_VERSION, () => {
   return app.getVersion();
 });
 
+const APP_PATH_NAMES = new Set([
+  'home',
+  'appData',
+  'userData',
+  'sessionData',
+  'temp',
+  'exe',
+  'module',
+  'desktop',
+  'documents',
+  'downloads',
+  'music',
+  'pictures',
+  'videos',
+  'recent',
+  'logs',
+  'crashDumps',
+]);
+
 ipcMain.handle(IPC_CHANNELS.APP_GET_PATH, (event, name) => {
-  return app.getPath(name);
+  if (!APP_PATH_NAMES.has(name)) {
+    throw new Error(`An invalid path name was requested: ${name}`);
+  }
+  return app.getPath(name as Parameters<typeof app.getPath>[0]);
 });
 
 ipcMain.handle(IPC_CHANNELS.APP_QUIT, () => {
@@ -204,17 +226,29 @@ ipcMain.handle(IPC_CHANNELS.CHECK_UPDATE, async () => {
   await checkUpdate(false);
 });
 
-ipcMain.handle(IPC_CHANNELS.OPEN_PATH, (event, relativePath) => {
-  const folderPath = path.join(app.getPath('userData'), 'Data/', relativePath);
+ipcMain.handle(IPC_CHANNELS.OPEN_PATH, async (event, relativePath) => {
+  const dataDir = path.join(app.getPath('userData'), 'Data/');
+  const folderPath = path.join(dataDir, relativePath);
+  // relativePath はリモート由来のパッケージ ID を含むため、データフォルダ外は拒否する
+  if (!isParent(dataDir, folderPath)) {
+    log.error(
+      `Refused to open a path outside the data folder: ${relativePath}`,
+    );
+    return false;
+  }
   const folderExists = fs.existsSync(folderPath);
-  if (folderExists) execSync(`start "" "${folderPath}"`);
+  if (folderExists) await shell.openPath(folderPath);
   return folderExists;
 });
 
 ipcMain.handle(
   IPC_CHANNELS.EXISTS_TEMP_FILE,
   (event, relativePath, keyText) => {
-    let filePath = path.join(app.getPath('userData'), 'Data/', relativePath);
+    const dataDir = path.join(app.getPath('userData'), 'Data/');
+    let filePath = path.join(dataDir, relativePath);
+    if (!isParent(dataDir, filePath)) {
+      throw new Error(`An invalid path was requested: ${relativePath}`);
+    }
     if (keyText) {
       filePath = path.join(
         path.dirname(filePath),
@@ -483,11 +517,11 @@ async function launch() {
   ipcMain.handle(
     IPC_CHANNELS.DOWNLOAD,
     async (event, url, { loadCache = false, subDir = '', keyText } = {}) => {
+      const dataDir = path.join(app.getPath('userData'), 'Data/');
       const opt = {
         overwrite: true,
         directory: path.join(
-          app.getPath('userData'),
-          'Data/',
+          dataDir,
           subDir,
           ['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(url))
             ? 'archive'
@@ -496,6 +530,11 @@ async function launch() {
         filename: (keyText ? getHash(keyText) + '_' : '') + path.basename(url),
       };
       const retFilePath = path.join(opt.directory, opt.filename);
+      // subDir 経由でデータフォルダ外に書き込ませない
+      if (!isParent(dataDir, retFilePath)) {
+        log.error(`Refused to download outside the data folder: ${subDir}`);
+        return undefined;
+      }
       if (loadCache && fs.existsSync(retFilePath)) return retFilePath;
 
       try {
