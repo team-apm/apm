@@ -1,4 +1,4 @@
-import fs from 'fs-extra';
+import { mkdtemp, pathExists, remove, writeFile } from 'fs-extra';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -8,32 +8,32 @@ describe('safeRemove', () => {
   const tempDirs: string[] = [];
 
   afterEach(async () => {
-    await Promise.all(tempDirs.splice(0).map((dir) => fs.remove(dir)));
+    await Promise.all(tempDirs.splice(0).map((dir) => remove(dir)));
   });
 
   it('removes a file inside the parent folder', async () => {
-    const parent = await fs.mkdtemp(path.join(os.tmpdir(), 'apm-safe-remove-'));
+    const parent = await mkdtemp(path.join(os.tmpdir(), 'apm-safe-remove-'));
     tempDirs.push(parent);
     const file = path.join(parent, 'target.txt');
-    await fs.writeFile(file, 'delete me');
+    await writeFile(file, 'delete me');
 
     await safeRemove(file, parent);
 
-    expect(await fs.pathExists(file)).toBe(false);
+    expect(await pathExists(file)).toBe(false);
   });
 
   it('throws when the target is outside the parent folder', async () => {
-    const parent = await fs.mkdtemp(path.join(os.tmpdir(), 'apm-safe-remove-'));
-    const outside = await fs.mkdtemp(
+    const parent = await mkdtemp(path.join(os.tmpdir(), 'apm-safe-remove-'));
+    const outside = await mkdtemp(
       path.join(os.tmpdir(), 'apm-safe-remove-out-'),
     );
     tempDirs.push(parent, outside);
     const file = path.join(outside, 'target.txt');
-    await fs.writeFile(file, 'keep me');
+    await writeFile(file, 'keep me');
 
     await expect(safeRemove(file, parent)).rejects.toThrow(
       'An invalid delete operation was attempted.',
     );
-    expect(await fs.pathExists(file)).toBe(true);
+    expect(await pathExists(file)).toBe(true);
   });
 });

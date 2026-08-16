@@ -1,6 +1,6 @@
-import List from 'list.js';
+import List, { ListItem } from 'list.js';
 
-interface ListItemMaybeFound extends List.ListItem {
+interface ListItemMaybeFound extends ListItem {
   found?: boolean;
 }
 export interface UpdatableList extends List {
@@ -8,7 +8,7 @@ export interface UpdatableList extends List {
     value: string;
     options: { order: string };
   };
-  filterFunction: (item: List.ListItem) => boolean;
+  filterFunction: (item: ListItem) => boolean;
   searchFunction: (
     items: ListItemMaybeFound[],
     searchString: string,

@@ -1,4 +1,4 @@
-import fs from 'fs-extra';
+import { mkdtemp, remove, writeFile } from 'fs-extra';
 import os from 'node:os';
 import path from 'node:path';
 import { fromData } from 'ssri';
@@ -14,15 +14,15 @@ const tempDirs: string[] = [];
  * @returns {Promise<object>} The temp dir, the file path and its hash.
  */
 async function makeFile(name: string, content: string) {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'apm-integrity-'));
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'apm-integrity-'));
   tempDirs.push(dir);
   const filePath = path.join(dir, name);
-  await fs.writeFile(filePath, content);
+  await writeFile(filePath, content);
   return { dir, filePath, hash: fromData(content).toString() };
 }
 
 afterEach(async () => {
-  await Promise.all(tempDirs.splice(0).map((dir) => fs.remove(dir)));
+  await Promise.all(tempDirs.splice(0).map((dir) => remove(dir)));
 });
 
 describe('verifyFile', () => {
