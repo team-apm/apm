@@ -1,8 +1,7 @@
-import type { Configuration } from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-
-import { rules } from './webpack.rules';
+import type { Configuration } from 'webpack';
 import { plugins } from './webpack.plugins';
+import { rules } from './webpack.rules';
 
 rules.push({
   test: /\.html$/i,

@@ -1,6 +1,6 @@
 import {
-  BrowserWindow,
   app,
+  BrowserWindow,
   dialog,
   ipcMain,
   Menu,

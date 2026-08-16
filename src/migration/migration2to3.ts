@@ -6,6 +6,7 @@ import { getConfig } from '../lib/Config';
 import { download, openDialog } from '../lib/ipcWrapper';
 import migration1to2 from './migration1to2';
 import parseXML from './parseXML';
+
 const config = getConfig();
 
 /**

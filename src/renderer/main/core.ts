@@ -4,10 +4,8 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
-import { compareVersion } from '../../shared/compareVersion';
 import { getConfig } from '../../lib/Config';
 import { convertId } from '../../lib/convertId';
-import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import {
   app,
   download,
@@ -22,9 +20,12 @@ import replaceText from '../../lib/replaceText';
 import { addAviUtlShortcut, removeAviUtlShortcut } from '../../lib/shortcut';
 import unzip from '../../lib/unzip';
 import migration2to3 from '../../migration/migration2to3';
+import { compareVersion } from '../../shared/compareVersion';
+import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import { install, programs, verifyFilesByCount } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
+
 const config = getConfig();
 
 // Functions to be exported

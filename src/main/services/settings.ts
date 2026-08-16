@@ -1,8 +1,8 @@
 import * as os from 'node:os';
 import type Config from '../../lib/Config';
 import {
-  validateDataUrls,
   type DataUrlValidationResult,
+  validateDataUrls,
 } from '../../shared/dataUrl';
 
 /**

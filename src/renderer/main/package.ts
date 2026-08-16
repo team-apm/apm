@@ -15,10 +15,7 @@ import { execSync } from 'node:child_process';
 import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
-import { compareVersion } from '../../shared/compareVersion';
 import { getConfig } from '../../lib/Config';
-import { getHash } from '../../shared/getHash';
-import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import {
   app,
   clipboardWriteText,
@@ -34,9 +31,13 @@ import replaceText from '../../lib/replaceText';
 import { safeRemove } from '../../lib/safeRemove';
 import unzip from '../../lib/unzip';
 import createList, { UpdatableList } from '../../lib/updatableList';
+import { compareVersion } from '../../shared/compareVersion';
+import { getHash } from '../../shared/getHash';
+import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import { PackageItem } from '../../types/packageItem';
 import { install, programs, programsDisp, verifyFilesByCount } from './common';
 import packageUtil from './packageUtil';
+
 const config = getConfig();
 
 // To avoid a bug in the library
