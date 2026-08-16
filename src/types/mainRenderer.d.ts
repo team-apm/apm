@@ -1,6 +1,6 @@
 import { Packages } from 'apm-schema';
 
-export declare global {
+declare global {
   interface Window {
     editor: {
       setOnload: (
