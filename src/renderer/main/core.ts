@@ -64,8 +64,13 @@ async function displayInstalledVersion(instPath: string) {
         const installedVersion = (await apmJson.get(
           'core.' + program,
         )) as string;
-        const description =
-          compareVersion(installedVersion, progInfo.latestVersion) === -1
+        const versionComparison = compareVersion(
+          installedVersion,
+          progInfo.latestVersion,
+        );
+        const description = Number.isNaN(versionComparison)
+          ? ''
+          : versionComparison === -1
             ? ` （最新版: ${progInfo.latestVersion}）`
             : installedVersion.includes('rc')
               ? '（テスト版）'

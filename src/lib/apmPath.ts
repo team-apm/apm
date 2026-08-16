@@ -8,7 +8,7 @@ import path from 'node:path';
  */
 export function isParent(parent: string, child: string) {
   const relative = path.relative(parent, child);
-  return relative && relative !== '' && !relative.startsWith('..');
+  return Boolean(relative && !relative.startsWith('..'));
 }
 
 /**

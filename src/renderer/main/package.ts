@@ -383,7 +383,15 @@ async function setPackagesList(instPath: string) {
         );
       for (const program of programs) {
         const currentVersion = (await apmJson.get('core.' + program)) as string;
-        if (compareVersion(currentVersion, searchVersions[program]) !== 0)
+        const comparison = compareVersion(
+          currentVersion,
+          searchVersions[program],
+        );
+        if (Number.isNaN(comparison))
+          alertStrings.push(
+            `${programsDisp[program]} ${searchVersions[program]} 用のデータです。使用中の ${programsDisp[program]} ${currentVersion} と互換性があるか確認できませんでした。`,
+          );
+        else if (comparison !== 0)
           alertStrings.push(
             `${programsDisp[program]} ${searchVersions[program]} 用のデータです。使用中の ${programsDisp[program]} ${currentVersion} には非対応の場合があります。`,
           );
