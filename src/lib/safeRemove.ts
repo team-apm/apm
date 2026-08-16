@@ -1,6 +1,6 @@
 import log from 'electron-log';
 import { remove } from 'fs-extra';
-import { isParent } from './apmPath';
+import { isParent } from '../shared/apmPath';
 
 /**
  * Deletes the file specified in {path}

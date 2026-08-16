@@ -22,9 +22,9 @@ import path from 'node:path';
 import 'source-map-support/register';
 import { updateElectronApp } from 'update-electron-app';
 import { IPC_CHANNELS } from '../common/ipc';
-import { isParent } from '../lib/apmPath';
+import { isParent } from '../shared/apmPath';
 import Config from '../lib/Config';
-import { getHash } from '../lib/getHash';
+import { getHash } from '../shared/getHash';
 import * as shortcut from '../lib/shortcut';
 import { router } from './api';
 
