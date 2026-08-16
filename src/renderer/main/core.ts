@@ -20,7 +20,10 @@ import replaceText from '../../lib/replaceText';
 import { addAviUtlShortcut, removeAviUtlShortcut } from '../../lib/shortcut';
 import unzip from '../../lib/unzip';
 import migration2to3 from '../../migration/migration2to3';
-import { compareVersion } from '../../shared/compareVersion';
+import {
+  installedVersionText,
+  releaseLabel,
+} from '../../shared/coreVersionText';
 import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import { install, programs, verifyFilesByCount } from './common';
 import packageMain from './package';
@@ -61,44 +64,19 @@ async function displayInstalledVersion(instPath: string) {
         }
       }
 
-      if (await apmJson.has('core.' + program)) {
-        const installedVersion = (await apmJson.get(
-          'core.' + program,
-        )) as string;
-        const versionComparison = compareVersion(
+      const installedVersion = (await apmJson.has('core.' + program))
+        ? ((await apmJson.get('core.' + program)) as string)
+        : null;
+      const filesVerified = verifyFilesByCount(instPath, progInfo.files);
+      replaceText(
+        `${program}-installed-version`,
+        installedVersionText(
           installedVersion,
           progInfo.latestVersion,
-        );
-        const description = Number.isNaN(versionComparison)
-          ? ''
-          : versionComparison === -1
-            ? ` （最新版: ${progInfo.latestVersion}）`
-            : installedVersion.includes('rc')
-              ? '（テスト版）'
-              : ' （最新版）';
-        if (verifyFilesByCount(instPath, progInfo.files)) {
-          replaceText(
-            `${program}-installed-version`,
-            'バージョン: ' + installedVersion + description,
-          );
-          isInstalled[program] = true;
-        } else {
-          replaceText(
-            `${program}-installed-version`,
-            'バージョン: ' +
-              installedVersion +
-              description +
-              '（未導入ファイルあり）',
-          );
-        }
-      } else {
-        if (verifyFilesByCount(instPath, progInfo.files)) {
-          replaceText(`${program}-installed-version`, '手動インストール済み');
-          isInstalled[program] = true;
-        } else {
-          replaceText(`${program}-installed-version`, '未インストール');
-        }
-      }
+          filesVerified,
+        ),
+      );
+      if (filesVerified) isInstalled[program] = true;
     }
   } else {
     for (const program of programs) {
@@ -187,12 +165,10 @@ async function setCoreVersions(instPath: string) {
       const anchor = document.createElement('a');
       anchor.classList.add('dropdown-item');
       anchor.href = '#';
-      anchor.innerText =
-        release.version +
-        (release.version.includes('rc') ? '（テスト版）' : '') +
-        (release.version === coreInfo[program].latestVersion
-          ? '（最新版）'
-          : '');
+      anchor.innerText = releaseLabel(
+        release.version,
+        coreInfo[program].latestVersion,
+      );
       li.appendChild(anchor);
 
       if (program === 'aviutl') {
