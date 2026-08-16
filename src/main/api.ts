@@ -1,7 +1,8 @@
 import { initTRPC } from '@trpc/server';
-import { app, BrowserWindow, type IpcMainInvokeEvent } from 'electron';
+import { app, BrowserWindow, dialog, type IpcMainInvokeEvent } from 'electron';
 import type { CreateContextOptions } from 'electron-trpc/main';
 import { getConfig } from '../lib/Config';
+import { isExeVersion } from './services/appUpdate';
 import { updateInfo } from './services/modList';
 import { ensureExtraDataUrl, setDataUrls } from './services/settings';
 
@@ -41,9 +42,44 @@ const dataUrlsInput = (
   return { mainUrl, extraDataUrls };
 };
 
+const AUTO_UPDATE_VALUES = ['download', 'notify', 'disable'] as const;
+const autoUpdateInput = (value: unknown): 'download' | 'notify' | 'disable' => {
+  if (
+    typeof value !== 'string' ||
+    !(AUTO_UPDATE_VALUES as readonly string[]).includes(value)
+  )
+    throw new TypeError('One of download, notify, or disable is expected.');
+  return value as 'download' | 'notify' | 'disable';
+};
+
+const DIALOG_TYPES = ['none', 'info', 'error', 'question', 'warning'] as const;
+const dialogInput = (
+  value: unknown,
+): { title: string; message: string; type: (typeof DIALOG_TYPES)[number] } => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { title, message, type } = value as Record<string, unknown>;
+  if (
+    typeof title !== 'string' ||
+    typeof message !== 'string' ||
+    typeof type !== 'string' ||
+    !(DIALOG_TYPES as readonly string[]).includes(type)
+  )
+    throw new TypeError('title, message, and a valid type are expected.');
+  return { title, message, type: type as (typeof DIALOG_TYPES)[number] };
+};
+
 export const router = t.router({
   getAppVersion: procedure.query(async () => {
     return app.getVersion();
+  }),
+  isExeVersion: procedure.query(() => isExeVersion()),
+  openDialog: procedure.input(dialogInput).mutation(async ({ input }) => {
+    await dialog.showMessageBox({
+      title: input.title,
+      message: input.message,
+      type: input.type,
+    });
   }),
   settings: t.router({
     ensureExtraDataUrl: procedure.mutation(() =>
@@ -54,6 +90,17 @@ export const router = t.router({
       .mutation(({ input }) =>
         setDataUrls(getConfig(), input.mainUrl, input.extraDataUrls),
       ),
+    getDataUrls: procedure.query(() => {
+      const config = getConfig();
+      return {
+        main: config.dataURL.getMain(),
+        extra: config.dataURL.getExtra(),
+      };
+    }),
+    getAutoUpdate: procedure.query(() => getConfig().getAutoUpdate()),
+    setAutoUpdate: procedure
+      .input(autoUpdateInput)
+      .mutation(({ input }) => getConfig().setAutoUpdate(input)),
     getZoomFactor: procedure.query(() => getConfig().getZoomFactor()),
     changeZoomFactor: procedure
       .input(stringInput)
