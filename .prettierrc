@@ -1,4 +1,11 @@
 {
   "singleQuote": true,
-  "plugins": ["prettier-plugin-packagejson"]
+  "plugins": [
+    "prettier-plugin-packagejson",
+    "@trivago/prettier-plugin-sort-imports"
+  ],
+  "importOrder": ["<THIRD_PARTY_MODULES>", "^[./]"],
+  "importOrderSortSpecifiers": true,
+  "importOrderCaseInsensitive": true,
+  "importOrderSideEffects": false
 }

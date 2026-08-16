@@ -85,6 +85,7 @@
     "@electron-forge/plugin-webpack": "6.4.1",
     "@electron-forge/publisher-github": "6.4.1",
     "@release-it/conventional-changelog": "^11.0.1",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "@types/bootstrap": "^5.2.11",
     "@types/electron-prompt": "^1.6.5",
     "@types/electron-window-state": "^5.0.2",
