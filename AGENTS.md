@@ -20,7 +20,7 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 - v3.x を小出しリリース(v4 番号は使わない)。リリースは release-it
 - ブランチ: `main` = 開発先頭、`v3` = 最新 v3 タグのマーカー(リリース時に `git branch -f v3 vX.Y.Z`)
 - Windows メイン。ビルドは 3 OS 継続
-- dataURL は自由入力を維持(allowlist しない)。防御は `src/lib/resolvePath.ts` の同一オリジン + 親ディレクトリ脱出禁止
+- dataURL は自由入力を維持(allowlist しない)。防御は `src/shared/resolvePath.ts` の同一オリジン + 親ディレクトリ脱出禁止
 - テスト: ユニットは Vitest。electron に依存しない純粋関数を優先してテストする
 - `src/shared/` = electron 完全非依存の純粋モジュール(main / renderer 両方から import 可)。electron に依存するものは `src/lib/`(renderer 系)や `src/main/` に置く
 

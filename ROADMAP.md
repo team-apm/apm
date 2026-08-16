@@ -10,7 +10,7 @@ apm の開発方針の単一ソース。変更は PR 経由で行う(履歴 = �
 - **v3.x を小出しリリース**(v4 番号は使わない)。リリースは release-it(手順は docs/RELEASING.md)
 - ブランチ運用は BRANCHING.md(`main` = 開発先頭、`v3` = 最新 v3 タグのマーカー)
 - **Windows メイン**。明らかなクラッシュは直す。ビルドは 3 OS 継続
-- **dataURL は自由入力を維持**(allowlist しない)。防御は `src/lib/resolvePath.ts`(同一オリジン + 親ディレクトリ脱出禁止)+ README/SECURITY での注意喚起
+- **dataURL は自由入力を維持**(allowlist しない)。防御は `src/shared/resolvePath.ts`(同一オリジン + 親ディレクトリ脱出禁止)+ README/SECURITY での注意喚起
 - テスト: ユニットは Vitest。electron 非依存の純粋関数を優先してテストする
 - i18n は後回し(まず日本語のまま React 化。英語 UI は #1879)
 - セキュリティ改善のうち sandbox に依存しないもの(`shell.openPath` 化、IPC 入力検証)は React 移行を待たず先行して入れる。`sandbox: true` 化は preload から Node ロジックが消えた後
@@ -29,8 +29,10 @@ apm の開発方針の単一ソース。変更は PR 経由で行う(履歴 = �
 
 ## 次の一手
 
-**v3.11.0 をリリース(data editor 入り)→ Phase 2 骨格整理。**
+**v3.11.0 をリリース(data editor + 骨格整理入り)→ Phase 3: タブ単位の React + tRPC 移行(Settings タブから)。**
 
-data editor(#1627 の手動ポート)がマージされたら release-it で v3.11.0 を出す。その後は骨格整理: `src/shared` の切り出し、main プロセスの services 化、ARCHITECTURE.md の作成。Config シングルトン化・ApmJson トランザクション化は該当箇所の特性化テストを先に書いてから行う。
+骨格整理(Phase 2)は完了した: `src/shared` 切り出し、main プロセスの index.ts / windows.ts / ipcHandlers.ts / services 分割、Config シングルトン化(getConfig)、ApmJson トランザクション化(begin/commit)、ARCHITECTURE.md(いずれも 2026-08 マージ済み)。
 
-Done の定義: v3.11.0 がリリースされ、骨格整理の PR がマージされ、この節が次の作業(タブ単位の React + tRPC 移行)に書き換わっていること。
+タブ移行は Settings → Other → AviUtl → Plugins → Nicommons の順。各タブとも「そのタブが触るロジックの特性化テスト → main プロセス(services + tRPC)へ移設 → React UI → 旧コード削除」の順で、About 窓のパターンに従う。
+
+Done の定義: v3.11.0 がリリースされ、Settings タブが React + tRPC で動き、preload から Settings のロジックが消えていること。
