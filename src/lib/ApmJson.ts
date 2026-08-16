@@ -12,6 +12,8 @@ import { type ApmJsonObject } from '../types/apmJson';
 class ApmJson {
   private path: string;
   private object: ApmJsonObject;
+  private inTransaction = false;
+  private dirty = false;
 
   /**
    * Gets the path to `apm.json`.
@@ -70,6 +72,27 @@ class ApmJson {
   }
 
   /**
+   * Starts a transaction. Subsequent set / delete calls are kept in memory
+   * (still visible via get / has) until commit() is called.
+   */
+  public begin() {
+    this.inTransaction = true;
+  }
+
+  /**
+   * Saves the changes accumulated since begin() to `apm.json` at once and
+   * ends the transaction. Does not write when nothing has changed.
+   * @returns {Promise<void>} A promise that resolves when the object is saved.
+   */
+  public async commit() {
+    this.inTransaction = false;
+    if (this.dirty) {
+      this.dirty = false;
+      await this.save();
+    }
+  }
+
+  /**
    * Checks whether `apm.json` has the property.
    * @param {string} path - Key to check existing
    * @returns {Promise<boolean>} Whether `apm.json` has the property.
@@ -98,7 +121,11 @@ class ApmJson {
    */
   public async set(path: string, value: unknown) {
     setProperty(this.object, path, value);
-    await this.save();
+    if (this.inTransaction) {
+      this.dirty = true;
+    } else {
+      await this.save();
+    }
   }
 
   /**
@@ -108,7 +135,11 @@ class ApmJson {
    */
   public async delete(path: string) {
     const existed = deleteProperty(this.object, path);
-    await this.save();
+    if (this.inTransaction) {
+      if (existed) this.dirty = true;
+    } else {
+      await this.save();
+    }
     return existed;
   }
 

@@ -39,6 +39,7 @@ export async function getIdDict(
  */
 export async function convertId(instPath: string, modTime: number) {
   const apmJson = await ApmJson.load(instPath);
+  apmJson.begin();
   const packages = (await apmJson.get('packages')) as {
     [key: string]: { id: string };
   };
@@ -55,4 +56,5 @@ export async function convertId(instPath: string, modTime: number) {
 
   await apmJson.set('packages', packages);
   await apmJson.set('convertMod', modTime);
+  await apmJson.commit();
 }
