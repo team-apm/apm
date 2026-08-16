@@ -10,6 +10,7 @@ import {
   migration1to2DataurlInputDialog,
   openDialog,
 } from '../lib/ipcWrapper';
+
 const config = getConfig();
 
 /**

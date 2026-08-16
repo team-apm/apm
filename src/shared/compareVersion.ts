@@ -1,4 +1,4 @@
-import { compareVersions, compare, CompareOperator } from 'compare-versions';
+import { compare, CompareOperator, compareVersions } from 'compare-versions';
 
 const toSemver = (v: string) =>
   v

@@ -10,11 +10,12 @@ import {
   openDialog,
 } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
-import { EditorContextBridge } from './monacoEditorPreload';
 import migration2to3 from '../../migration/migration2to3';
 import core from './core';
+import { EditorContextBridge } from './monacoEditorPreload';
 import packageMain from './package';
 import setting from './setting';
+
 const config = getConfig();
 
 log.errorHandler.startCatching({

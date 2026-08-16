@@ -1,7 +1,7 @@
 import React, { type JSX } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
-import { TRPCReact } from '../trpc';
 import apmLogo from '../../../icon/apm1024.png';
+import { TRPCReact } from '../trpc';
 
 /**
  * About component.

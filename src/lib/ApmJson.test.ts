@@ -1,7 +1,7 @@
 import { mkdtemp, pathExists, readJson, remove, writeJson } from 'fs-extra';
+import { promises as fsPromises } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { promises as fsPromises } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import ApmJson from './ApmJson';
 
