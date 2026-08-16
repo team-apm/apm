@@ -55,14 +55,16 @@ const config: ForgeConfig = {
     new WebpackPlugin({
       mainConfig: mainConfig,
       devServer: { liveReload: false },
+      // TODO(security): cdn.jsdelivr.net / 'unsafe-inline' / blob: は CDN 版 Monaco のための暫定緩和。
+      // セキュリティフェーズで Monaco をローカルバンドルに切り替えて回収する
       devContentSecurityPolicy:
-        "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp",
+        "default-src 'self'; script-src-elem 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp",
       renderer: {
         config: rendererConfig,
         entryPoints: [
           {
             html: './src/renderer/main/index.html',
-            js: './src/renderer/main/renderer.ts',
+            js: './src/renderer/main/renderer.tsx',
             name: 'main_window',
             preload: {
               js: './src/renderer/main/preload.ts',
