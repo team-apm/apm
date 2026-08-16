@@ -1,11 +1,10 @@
 import log from 'electron-log/renderer';
-import fs from 'fs-extra';
 import * as os from 'node:os';
-import path from 'node:path';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { getConfig } from '../../lib/Config';
 import { changeMainZoomFactor, openDialog } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
+import { validateDataUrls } from '../../shared/dataUrl';
 const config = getConfig();
 
 /**
@@ -30,52 +29,18 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
       ? buttonTransition.loading(btn, '設定')
       : { enableButton: undefined };
 
-  if (!dataUrl.value) {
-    dataUrl.value = 'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/v3/';
-  }
-  const value = dataUrl.value;
-
-  let error = false;
-  if (!value.startsWith('http') && !fs.existsSync(value)) {
-    await openDialog(
-      'エラー',
-      '有効なURLまたは場所を入力してください。',
-      'error',
-    );
-    error = true;
-  }
-  if (path.extname(value) === '.json') {
-    await openDialog('エラー', 'フォルダのURLを入力してください。', 'error');
-    error = true;
+  const { mainUrl, extraUrls, errors } = validateDataUrls(
+    dataUrl.value,
+    extraDataUrls,
+  );
+  dataUrl.value = mainUrl;
+  for (const message of errors) {
+    await openDialog('エラー', message, 'error');
   }
 
-  const tmpExtraUrls = extraDataUrls
-    .split(/\r?\n/)
-    .map((url) => url.trim())
-    .filter((url) => url !== '');
-
-  for (const tmpDataUrl of tmpExtraUrls) {
-    if (!tmpDataUrl.startsWith('http') && !fs.existsSync(tmpDataUrl)) {
-      await openDialog(
-        'エラー',
-        `有効なURLまたは場所を入力してください。(${tmpDataUrl})`,
-        'error',
-      );
-      error = true;
-    }
-    if (path.extname(tmpDataUrl) !== '.json') {
-      await openDialog(
-        'エラー',
-        `有効なJsonファイルのURLまたは場所を入力してください。(${tmpDataUrl})`,
-        'error',
-      );
-      error = true;
-    }
-  }
-
-  if (!error) {
-    config.dataURL.setMain(value);
-    config.dataURL.setExtra(tmpExtraUrls.join(os.EOL));
+  if (errors.length === 0) {
+    config.dataURL.setMain(mainUrl);
+    config.dataURL.setExtra(extraUrls.join(os.EOL));
     await modList.updateInfo();
 
     if (btn instanceof HTMLButtonElement) {
