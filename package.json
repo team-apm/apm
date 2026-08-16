@@ -24,7 +24,9 @@
     "release:major": "release-it major",
     "release:minor": "release-it minor",
     "release:patch": "release-it patch",
-    "start": "cross-env NODE_ENV=development electron-forge start"
+    "start": "cross-env NODE_ENV=development electron-forge start",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "lint-staged": {
     "*.js": [
@@ -120,7 +122,8 @@
     "style-loader": "^4.0.0",
     "ts-loader": "^9.6.2",
     "ts-node": "^10.9.2",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^3.2.4"
   },
   "packageManager": "yarn@1.22.22",
   "engines": {
