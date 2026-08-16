@@ -5,7 +5,7 @@ import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { compareVersion } from '../../shared/compareVersion';
-import Config from '../../lib/Config';
+import { getConfig } from '../../lib/Config';
 import { convertId } from '../../lib/convertId';
 import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import {
@@ -25,7 +25,7 @@ import migration2to3 from '../../migration/migration2to3';
 import { install, programs, verifyFilesByCount } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
-const config = new Config();
+const config = getConfig();
 
 // Functions to be exported
 
