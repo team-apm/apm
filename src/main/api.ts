@@ -4,6 +4,7 @@ import type { CreateContextOptions } from 'electron-trpc/main';
 import { getConfig } from '../lib/Config';
 import { openAboutWindow } from './aboutWindow';
 import { isExeVersion } from './services/appUpdate';
+import { getCoreInfo } from './services/core';
 import { updateInfo } from './services/modList';
 import { ensureExtraDataUrl, setDataUrls } from './services/settings';
 
@@ -122,6 +123,13 @@ export const router = t.router({
       const win = BrowserWindow.fromWebContents(ctx.event.sender);
       if (!win) throw new Error('The calling window was not found.');
       await updateInfo(win, getConfig());
+    }),
+  }),
+  core: t.router({
+    getCoreInfo: procedure.query(async ({ ctx }) => {
+      const win = BrowserWindow.fromWebContents(ctx.event.sender);
+      if (!win) throw new Error('The calling window was not found.');
+      return await getCoreInfo(win, getConfig());
     }),
   }),
 });

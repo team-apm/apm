@@ -9,15 +9,14 @@ import { convertId } from '../../lib/convertId';
 import {
   app,
   download,
-  existsTempFile,
   openDialog,
   openDirDialog,
   openYesNoDialog,
 } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
-import * as parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
 import { addAviUtlShortcut, removeAviUtlShortcut } from '../../lib/shortcut';
+import { trpc } from '../../lib/trpcClient';
 import unzip from '../../lib/unzip';
 import migration2to3 from '../../migration/migration2to3';
 import {
@@ -114,20 +113,12 @@ async function displayInstalledVersion(instPath: string) {
 
 /**
  * Returns an object parsed from core.json.
+ * 実装は main プロセス側(src/main/services/core.ts)へ移設済み。
  * @returns {Promise<Core>} - An object parsed from core.json.
  */
 async function getCoreInfo() {
-  const coreFile = await existsTempFile(
-    path.join('core', path.basename(await modList.getCoreDataUrl())),
-  );
-  if (!coreFile.exists) return null;
-
-  try {
-    return await parseJson.getCore(coreFile.path);
-  } catch (e) {
-    log.error(e);
-    return null;
-  }
+  // tRPC の Serialize 型はプロパティを optional 化するため元の型に戻す
+  return (await trpc.core.getCoreInfo.query()) as Core | null;
 }
 
 /**
