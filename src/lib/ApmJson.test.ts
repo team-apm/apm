@@ -185,6 +185,79 @@ describe('ApmJson', () => {
     });
   });
 
+  describe('begin / commit(トランザクション)', () => {
+    it('begin 中の set は書き込みを遅延し、commit で 1 回だけ書き込む', async () => {
+      const instPath = await makeInstPath();
+      const jsonPath = ApmJson.getPath(instPath);
+      const apmJson = await ApmJson.load(instPath);
+
+      apmJson.begin();
+      await apmJson.set('core.aviutl', '1.10');
+      await apmJson.set('core.exedit', '0.92');
+
+      // commit まではディスクに書き込まれない
+      expect(await pathExists(jsonPath)).toBe(false);
+      // read-your-writes: メモリ上では set した値が見える
+      expect(await apmJson.get('core.aviutl')).toBe('1.10');
+      expect(await apmJson.has('core.exedit')).toBe(true);
+
+      await apmJson.commit();
+      expect(await readJson(jsonPath)).toEqual({
+        dataVersion: '3',
+        core: { aviutl: '1.10', exedit: '0.92' },
+        packages: {},
+      });
+    });
+
+    it('begin 中の delete も遅延され、戻り値の意味は変わらない', async () => {
+      const instPath = await makeInstPath();
+      const jsonPath = ApmJson.getPath(instPath);
+      await writeJson(jsonPath, {
+        dataVersion: '3',
+        core: { aviutl: '1.10' },
+        packages: {},
+      });
+      const apmJson = await ApmJson.load(instPath);
+
+      apmJson.begin();
+      // 戻り値は「親パスまで辿れたかどうか」(即時書き込み時と同じ)
+      expect(await apmJson.delete('core.aviutl')).toBe(true);
+      expect(await apmJson.delete('nonexistent.parent.key')).toBe(false);
+      expect((await readJson(jsonPath)).core).toEqual({ aviutl: '1.10' });
+
+      await apmJson.commit();
+      expect((await readJson(jsonPath)).core).toEqual({});
+    });
+
+    it('変更がないまま commit してもファイルを書き込まない', async () => {
+      const instPath = await makeInstPath();
+      const apmJson = await ApmJson.load(instPath);
+
+      apmJson.begin();
+      // 存在しないキーの delete はオブジェクトを変更しないため dirty にならない
+      await apmJson.delete('nonexistent.parent.key');
+      await apmJson.commit();
+
+      expect(await pathExists(ApmJson.getPath(instPath))).toBe(false);
+    });
+
+    it('commit 後の set は従来どおり即時書き込みに戻る', async () => {
+      const instPath = await makeInstPath();
+      const jsonPath = ApmJson.getPath(instPath);
+      const apmJson = await ApmJson.load(instPath);
+
+      apmJson.begin();
+      await apmJson.set('core.aviutl', '1.10');
+      await apmJson.commit();
+
+      await apmJson.set('core.exedit', '0.92');
+      expect((await readJson(jsonPath)).core).toEqual({
+        aviutl: '1.10',
+        exedit: '0.92',
+      });
+    });
+  });
+
   describe('round-trip', () => {
     it('書き込んだ内容を別インスタンスで読み直しても同じ値になる', async () => {
       const instPath = await makeInstPath();
