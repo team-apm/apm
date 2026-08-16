@@ -7,6 +7,7 @@ import { isExeVersion } from './services/appUpdate';
 import {
   checkCoreLatestVersion,
   getCoreInfo,
+  getInstalledVersionTexts,
   installCoreProgram,
 } from './services/core';
 import { updateInfo } from './services/modList';
@@ -148,6 +149,13 @@ export const router = t.router({
       if (!win) throw new Error('The calling window was not found.');
       return await getCoreInfo(win, getConfig());
     }),
+    getInstalledVersionTexts: procedure
+      .input(stringInput)
+      .query(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        return await getInstalledVersionTexts(win, getConfig(), input);
+      }),
     checkLatestVersion: procedure.mutation(async ({ ctx }) => {
       const win = BrowserWindow.fromWebContents(ctx.event.sender);
       if (!win) throw new Error('The calling window was not found.');

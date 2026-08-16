@@ -1,4 +1,4 @@
-import { Core, Program } from 'apm-schema';
+import { Core } from 'apm-schema';
 import log from 'electron-log/renderer';
 import fs from 'fs-extra';
 import path from 'node:path';
@@ -9,15 +9,10 @@ import { convertId } from '../../lib/convertId';
 import { app, openDialog, openDirDialog } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
 import replaceText from '../../lib/replaceText';
-import { addAviUtlShortcut, removeAviUtlShortcut } from '../../lib/shortcut';
 import { trpc } from '../../lib/trpcClient';
 import migration2to3 from '../../migration/migration2to3';
-import {
-  installedVersionText,
-  releaseLabel,
-} from '../../shared/coreVersionText';
-import { checkIntegrity } from '../../shared/integrity';
-import { programs, verifyFilesByCount } from './common';
+import { releaseLabel } from '../../shared/coreVersionText';
+import { programs } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
 
@@ -41,39 +36,14 @@ async function initCore() {
  * @param {string} instPath - An installation path.
  */
 async function displayInstalledVersion(instPath: string) {
-  const coreInfo = await getCoreInfo();
-  const isInstalled = { aviutl: false, exedit: false };
-  if (instPath && coreInfo) {
-    for (const program of programs) {
-      const progInfo: Program = coreInfo[program];
-
-      // Set the version of the manually installed program
-      const apmJson = await ApmJson.load(instPath);
-      if (!(await apmJson.has('core.' + program))) {
-        for (const release of progInfo.releases) {
-          if (await checkIntegrity(instPath, release.integrity.file))
-            await apmJson.setCore(program, release.version);
-        }
-      }
-
-      const installedVersion = (await apmJson.has('core.' + program))
-        ? ((await apmJson.get('core.' + program)) as string)
-        : null;
-      const filesVerified = verifyFilesByCount(instPath, progInfo.files);
-      replaceText(
-        `${program}-installed-version`,
-        installedVersionText(
-          installedVersion,
-          progInfo.latestVersion,
-          filesVerified,
-        ),
-      );
-      if (filesVerified) isInstalled[program] = true;
-    }
-  } else {
-    for (const program of programs) {
-      replaceText(`${program}-installed-version`, '未取得');
-    }
+  // 表示テキストの算出・apm.json の補正・ショートカット更新は
+  // main プロセス側(services/core.ts)へ移設済み
+  const texts = (await trpc.core.getInstalledVersionTexts.query(instPath)) as {
+    aviutl: string;
+    exedit: string;
+  };
+  for (const program of programs) {
+    replaceText(`${program}-installed-version`, texts[program]);
   }
 
   if (config.modDate.hasCore()) {
@@ -86,21 +56,6 @@ async function displayInstalledVersion(instPath: string) {
     replaceText('core-mod-date', '未取得');
 
     replaceText('core-check-date', '未確認');
-  }
-
-  // Add a shortcut to the Start menu
-  if (process.platform === 'win32') {
-    const appDataPath = await app.getPath('appData');
-    const apmPath = await app.getPath('exe');
-    const aviutlPath = path.join(instPath, 'aviutl.exe');
-    if (
-      fs.existsSync(aviutlPath) &&
-      apmPath.includes(path.dirname(appDataPath)) // Verify that it is the installed version of apm
-    ) {
-      addAviUtlShortcut(appDataPath, aviutlPath);
-    } else {
-      removeAviUtlShortcut(appDataPath);
-    }
   }
 }
 

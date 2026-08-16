@@ -1,12 +1,14 @@
 import type { Core, Program } from 'apm-schema';
-import { type BrowserWindow, dialog } from 'electron';
+import { app, type BrowserWindow, dialog } from 'electron';
 import log from 'electron-log/main';
-import { readJson } from 'fs-extra';
+import { existsSync, readJson } from 'fs-extra';
 import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import type Config from '../../lib/Config';
-import { install } from '../../shared/install';
-import { verifyFile } from '../../shared/integrity';
+import { addAviUtlShortcut, removeAviUtlShortcut } from '../../lib/shortcut';
+import { installedVersionText } from '../../shared/coreVersionText';
+import { install, verifyFilesByCount } from '../../shared/install';
+import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import unzip from '../../shared/unzip';
 import { downloadFile } from './download';
 import { getCoreDataUrl, getInfo, updateInfo } from './modList';
@@ -55,6 +57,66 @@ export async function checkCoreLatestVersion(
   config.checkDate.setCore(Date.now());
   const modInfo = await getInfo(win, config);
   config.modDate.setCore(new Date(modInfo.core.modified).getTime());
+}
+
+/**
+ * Returns the installed-version texts of AviUtl and 拡張編集.
+ * 旧 src/renderer/main/core.ts の displayInstalledVersion の計算部分と同一の挙動。
+ * 表示テキストの算出に加えて、整合性検証による apm.json の補正書き込みと
+ * Start メニューショートカットの更新(win32 のみ)という副作用を持つ。
+ * @param {BrowserWindow} win - A browser window used for the download session.
+ * @param {Config} config - The config instance.
+ * @param {string} instPath - An installation path.
+ * @returns {Promise<{ aviutl: string; exedit: string }>} The texts to display.
+ */
+export async function getInstalledVersionTexts(
+  win: BrowserWindow,
+  config: Config,
+  instPath: string,
+): Promise<{ aviutl: string; exedit: string }> {
+  const coreInfo = await getCoreInfo(win, config);
+  const texts = { aviutl: '未取得', exedit: '未取得' };
+  if (instPath && coreInfo) {
+    for (const program of ['aviutl', 'exedit'] as const) {
+      const progInfo: Program = coreInfo[program];
+
+      // Set the version of the manually installed program
+      const apmJson = await ApmJson.load(instPath);
+      if (!(await apmJson.has('core.' + program))) {
+        for (const release of progInfo.releases) {
+          if (await checkIntegrity(instPath, release.integrity.file))
+            await apmJson.setCore(program, release.version);
+        }
+      }
+
+      const installedVersion = (await apmJson.has('core.' + program))
+        ? ((await apmJson.get('core.' + program)) as string)
+        : null;
+      const filesVerified = verifyFilesByCount(instPath, progInfo.files);
+      texts[program] = installedVersionText(
+        installedVersion,
+        progInfo.latestVersion,
+        filesVerified,
+      );
+    }
+  }
+
+  // Add a shortcut to the Start menu
+  if (process.platform === 'win32') {
+    const appDataPath = app.getPath('appData');
+    const apmPath = app.getPath('exe');
+    const aviutlPath = path.join(instPath, 'aviutl.exe');
+    if (
+      existsSync(aviutlPath) &&
+      apmPath.includes(path.dirname(appDataPath)) // Verify that it is the installed version of apm
+    ) {
+      addAviUtlShortcut(appDataPath, aviutlPath);
+    } else {
+      removeAviUtlShortcut(appDataPath);
+    }
+  }
+
+  return texts;
 }
 
 export type InstallCoreResult =
