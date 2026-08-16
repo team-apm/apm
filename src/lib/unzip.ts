@@ -44,11 +44,16 @@ async function unzip(zipPath: string, folderName?: string) {
     // AviUtl script is encoded in Shift_JIS, so we need to specify the code page as Shift_JIS(932) when unzipping.
     // But you must not specify when unzipping .7z.
   });
-  return new Promise((resolve) => {
+  return new Promise<string>((resolve, reject) => {
     zipStream.once('end', () => {
       resolve(targetPath);
     });
-  }) as Promise<string>;
+    zipStream.once('error', (err: Error) => {
+      reject(
+        new Error(`Failed to unzip ${zipPath}: ${err.message}`, { cause: err }),
+      );
+    });
+  });
 }
 
 export default unzip;
