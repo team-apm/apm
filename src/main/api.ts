@@ -11,6 +11,7 @@ import {
   installCoreProgram,
 } from './services/core';
 import { updateInfo } from './services/modList';
+import { downloadRepository, getPackages } from './services/packages';
 import { ensureExtraDataUrl, setDataUrls } from './services/settings';
 
 export type Context = {
@@ -142,6 +143,20 @@ export const router = t.router({
       if (!win) throw new Error('The calling window was not found.');
       await updateInfo(win, getConfig());
     }),
+  }),
+  packages: t.router({
+    getPackages: procedure.input(stringInput).query(async ({ input, ctx }) => {
+      const win = BrowserWindow.fromWebContents(ctx.event.sender);
+      if (!win) throw new Error('The calling window was not found.');
+      return await getPackages(win, getConfig(), input);
+    }),
+    downloadRepository: procedure
+      .input(stringInput)
+      .mutation(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        await downloadRepository(win, getConfig(), input);
+      }),
   }),
   core: t.router({
     getCoreInfo: procedure.query(async ({ ctx }) => {

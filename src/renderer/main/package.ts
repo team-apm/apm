@@ -73,7 +73,7 @@ function getDate() {
  * @returns {Promise.<object[]>} An object of packages
  */
 async function getPackages(instPath: string) {
-  return await packageUtil.getPackages(modList.getPackagesDataUrl(instPath));
+  return await packageUtil.getPackages(instPath);
 }
 
 /**
@@ -505,7 +505,7 @@ async function checkPackagesList(instPath: string) {
 
   try {
     await modList.updateInfo();
-    await packageUtil.downloadRepository(modList.getPackagesDataUrl(instPath));
+    await packageUtil.downloadRepository(instPath);
     config.checkDate.setPackages(Date.now());
     const modInfo = await modList.getInfo();
     config.modDate.setPackages(

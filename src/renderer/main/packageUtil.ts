@@ -2,11 +2,9 @@ import log from 'electron-log/renderer';
 import * as fs from 'fs-extra';
 import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
-import { download, existsTempFile, openDialog } from '../../lib/ipcWrapper';
-import * as parseJson from '../../lib/parseJson';
+import { trpc } from '../../lib/trpcClient';
 import {
   computePackagesStatus,
-  detectPackageTypes,
   getInstalledVersionOfPackage,
   getManuallyInstalledFiles,
   parsePackageType,
@@ -21,58 +19,22 @@ import { PackageItem } from '../../types/packageItem';
 
 /**
  * Returns an object parsed from packages.json
- * @param {string[]} packageDataUrls - URLs of the repository
+ * 実装は main プロセス側(src/main/services/packages.ts)へ移設済み。
+ * @param {string} instPath - An installation path
  * @returns {Promise<object[]>} - A list of object parsed from packages.json
  */
-async function getPackages(packageDataUrls: string[]) {
-  const jsonList = [];
-
-  for (const packageRepository of packageDataUrls) {
-    const packagesListFile = await existsTempFile(
-      `package/${path.basename(packageRepository)}`,
-      packageRepository,
-    );
-    if (packagesListFile.exists) {
-      try {
-        jsonList.push(await parseJson.getPackages(packagesListFile.path));
-      } catch {
-        log.error('Failed data processing.');
-        await openDialog(
-          'データ解析エラー',
-          '取得したデータの処理に失敗しました。' +
-            '\n' +
-            'URL: ' +
-            packageRepository,
-          'error',
-        );
-      }
-    }
-  }
-
-  const packages = [];
-  for (const packagesInfo of jsonList) {
-    for (const packageInfo of packagesInfo) {
-      packages.push({
-        id: packageInfo.id,
-        info: packageInfo,
-        type: detectPackageTypes(packageInfo.files),
-      } as PackageItem);
-    }
-  }
-  return packages;
+async function getPackages(instPath: string) {
+  // tRPC の Serialize 型はプロパティを optional 化するため元の型に戻す
+  return (await trpc.packages.getPackages.query(instPath)) as PackageItem[];
 }
 
 /**
- * @param {string[]} packageDataUrls - URLs of the repository
+ * Downloads the package data files.
+ * 実装は main プロセス側(src/main/services/packages.ts)へ移設済み。
+ * @param {string} instPath - An installation path
  */
-async function downloadRepository(packageDataUrls: string[]) {
-  // 'electron-dl' does not download all files when downloading them asynchronously.
-  for (const packageRepository of packageDataUrls) {
-    await download(packageRepository, {
-      subDir: 'package',
-      keyText: packageRepository,
-    });
-  }
+async function downloadRepository(instPath: string) {
+  await trpc.packages.downloadRepository.mutate(instPath);
 }
 
 /**
