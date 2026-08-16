@@ -2,7 +2,7 @@ import log from 'electron-log';
 import { existsSync, readdir, rename, unlink } from 'fs-extra';
 import path from 'node:path';
 import ApmJson from '../lib/ApmJson';
-import Config from '../lib/Config';
+import { getConfig } from '../lib/Config';
 import {
   app,
   download,
@@ -10,7 +10,7 @@ import {
   migration1to2DataurlInputDialog,
   openDialog,
 } from '../lib/ipcWrapper';
-const config = new Config();
+const config = getConfig();
 
 /**
  * Migration of common settings.

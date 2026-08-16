@@ -26,6 +26,19 @@ type StoreType = {
   };
 };
 
+let instance: Config | undefined;
+
+/**
+ * Returns the process-wide Config instance.
+ * 状態は electron-store がディスク(config.json)で共有するため、
+ * インスタンスを 1 つにするのは初期化経路の一本化と get 毎のオーバーヘッド削減が目的。
+ * @returns {Config} The Config instance.
+ */
+export function getConfig(): Config {
+  instance ??= new Config();
+  return instance;
+}
+
 export default class Config extends Store<StoreType> {
   public hasDataVersion() {
     return this.has('dataVersion');

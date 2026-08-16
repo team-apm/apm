@@ -1,11 +1,11 @@
 import fs from 'fs-extra';
 import * as os from 'node:os';
 import path from 'node:path';
-import Config from './Config';
+import { getConfig } from './Config';
 import { download, existsTempFile } from './ipcWrapper';
 import * as parseJson from './parseJson';
 import { resolvePath } from '../shared/resolvePath';
-const config = new Config();
+const config = getConfig();
 
 /**
  * Sets package data files URLs.

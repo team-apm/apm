@@ -1,7 +1,7 @@
 import ClipboardJS from 'clipboard/src/clipboard';
 import log from 'electron-log/renderer';
 import 'source-map-support/register';
-import Config from '../../lib/Config';
+import { getConfig } from '../../lib/Config';
 import {
   app,
   checkUpdate,
@@ -15,7 +15,7 @@ import migration2to3 from '../../migration/migration2to3';
 import core from './core';
 import packageMain from './package';
 import setting from './setting';
-const config = new Config();
+const config = getConfig();
 
 log.errorHandler.startCatching({
   onError: async () => {

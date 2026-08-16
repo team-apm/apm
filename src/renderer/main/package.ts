@@ -16,7 +16,7 @@ import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { compareVersion } from '../../shared/compareVersion';
-import Config from '../../lib/Config';
+import { getConfig } from '../../lib/Config';
 import { getHash } from '../../shared/getHash';
 import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import {
@@ -37,7 +37,7 @@ import createList, { UpdatableList } from '../../lib/updatableList';
 import { PackageItem } from '../../types/packageItem';
 import { install, programs, programsDisp, verifyFilesByCount } from './common';
 import packageUtil from './packageUtil';
-const config = new Config();
+const config = getConfig();
 
 // To avoid a bug in the library
 // https://github.com/sindresorhus/matcher/issues/32

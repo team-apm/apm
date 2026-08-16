@@ -3,7 +3,7 @@ import debug from 'electron-debug';
 import log from 'electron-log/main';
 import Store from 'electron-store';
 import 'source-map-support/register';
-import Config from '../lib/Config';
+import { getConfig } from '../lib/Config';
 import * as shortcut from '../lib/shortcut';
 import { registerIpcHandlers } from './ipcHandlers';
 import { ensureAutoUpdateDefault } from './services/appUpdate';
@@ -40,7 +40,7 @@ if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Dev');
 debug({ showDevTools: false }); // Press F12 to open DevTools
 
 Store.initRenderer();
-const config = new Config();
+const config = getConfig();
 
 ensureAutoUpdateDefault(config);
 

@@ -3,10 +3,10 @@ import fs from 'fs-extra';
 import * as os from 'node:os';
 import path from 'node:path';
 import * as buttonTransition from '../../lib/buttonTransition';
-import Config from '../../lib/Config';
+import { getConfig } from '../../lib/Config';
 import { changeMainZoomFactor, openDialog } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
-const config = new Config();
+const config = getConfig();
 
 /**
  * Initializes settings

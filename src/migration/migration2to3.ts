@@ -2,11 +2,11 @@ import log from 'electron-log';
 import fs, { writeJson } from 'fs-extra';
 import path from 'node:path';
 import ApmJson from '../lib/ApmJson';
-import Config from '../lib/Config';
+import { getConfig } from '../lib/Config';
 import { download, openDialog } from '../lib/ipcWrapper';
 import migration1to2 from './migration1to2';
 import parseXML from './parseXML';
-const config = new Config();
+const config = getConfig();
 
 /**
  * Migration of common settings.
