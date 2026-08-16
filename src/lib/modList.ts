@@ -4,7 +4,7 @@ import path from 'node:path';
 import Config from './Config';
 import { download, existsTempFile } from './ipcWrapper';
 import * as parseJson from './parseJson';
-import { resolvePath } from './resolvePath';
+import { resolvePath } from '../shared/resolvePath';
 const config = new Config();
 
 /**

@@ -4,10 +4,10 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
-import { compareVersion } from '../../lib/compareVersion';
+import { compareVersion } from '../../shared/compareVersion';
 import Config from '../../lib/Config';
 import { convertId } from '../../lib/convertId';
-import { checkIntegrity, verifyFile } from '../../lib/integrity';
+import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import {
   app,
   download,

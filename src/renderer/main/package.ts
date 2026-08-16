@@ -15,10 +15,10 @@ import { execSync } from 'node:child_process';
 import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
-import { compareVersion } from '../../lib/compareVersion';
+import { compareVersion } from '../../shared/compareVersion';
 import Config from '../../lib/Config';
-import { getHash } from '../../lib/getHash';
-import { checkIntegrity, verifyFile } from '../../lib/integrity';
+import { getHash } from '../../shared/getHash';
+import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import {
   app,
   clipboardWriteText,

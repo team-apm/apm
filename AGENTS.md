@@ -22,6 +22,7 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 - Windows メイン。ビルドは 3 OS 継続
 - dataURL は自由入力を維持(allowlist しない)。防御は `src/lib/resolvePath.ts` の同一オリジン + 親ディレクトリ脱出禁止
 - テスト: ユニットは Vitest。electron に依存しない純粋関数を優先してテストする
+- `src/shared/` = electron 完全非依存の純粋モジュール(main / renderer 両方から import 可)。electron に依存するものは `src/lib/`(renderer 系)や `src/main/` に置く
 
 ## 既知の固定と理由(上げる前に必ず読む)
 
