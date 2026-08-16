@@ -28,12 +28,12 @@ import {
 import * as modList from '../../lib/modList';
 import * as parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
-import { safeRemove } from '../../lib/safeRemove';
 import unzip from '../../lib/unzip';
 import createList, { UpdatableList } from '../../lib/updatableList';
 import { compareVersion } from '../../shared/compareVersion';
 import { getHash } from '../../shared/getHash';
 import { checkIntegrity, verifyFile } from '../../shared/integrity';
+import { safeRemove } from '../../shared/safeRemove';
 import { PackageItem } from '../../types/packageItem';
 import { install, programs, programsDisp, verifyFilesByCount } from './common';
 import packageUtil from './packageUtil';
