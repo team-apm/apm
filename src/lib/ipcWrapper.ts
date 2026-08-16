@@ -147,13 +147,6 @@ export async function getNicommonsData(id: string) {
 }
 
 /**
- * Opens the about window.
- */
-export async function openAboutWindow() {
-  await ipcRenderer.invoke(IPC_CHANNELS.OPEN_ABOUT_WINDOW);
-}
-
-/**
  * Opens the confirm dialog for migration v1 to v2.
  * @returns {Promise<number>} The result of the dialog.
  */

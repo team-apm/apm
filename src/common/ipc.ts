@@ -11,7 +11,6 @@ export const IPC_CHANNELS = {
   OPEN_YES_NO_DIALOG: 'open-yes-no-dialog',
   GET_NICOMMONS_DATA: 'get-nicommons-data',
   CLIPBOARD_WRITE_TEXT: 'clipboard-write-text',
-  OPEN_ABOUT_WINDOW: 'open-about-window',
   MIGRATION1TO2_CONFIRM_DIALOG: 'migration1to2-confirm-dialog',
   MIGRATION1TO2_DATAURL_INPUT_DIALOG: 'migration1to2-dataurl-input-dialog',
   DOWNLOAD: 'download',

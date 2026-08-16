@@ -3,12 +3,7 @@ import log from 'electron-log/renderer';
 import { exposeElectronTRPC } from 'electron-trpc/main';
 import 'source-map-support/register';
 import { getConfig } from '../../lib/Config';
-import {
-  app,
-  checkUpdate,
-  openAboutWindow,
-  openDialog,
-} from '../../lib/ipcWrapper';
+import { app, checkUpdate, openDialog } from '../../lib/ipcWrapper';
 import migration2to3 from '../../migration/migration2to3';
 import core from './core';
 import { EditorContextBridge } from './monacoEditorPreload';
@@ -152,16 +147,5 @@ window.addEventListener('load', () => {
   const checkApmUpdateBtn = document.getElementById('check-apm-update');
   checkApmUpdateBtn.addEventListener('click', async () => {
     await checkUpdate();
-  });
-
-  // About / Others
-  const openAboutWindonBtn = document.getElementById('open-about-window');
-  openAboutWindonBtn.addEventListener('click', async () => {
-    await openAboutWindow();
-  });
-
-  const exitAppBtn = document.getElementById('quit-app');
-  exitAppBtn.addEventListener('click', async () => {
-    await app.quit();
   });
 });

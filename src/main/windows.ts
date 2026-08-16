@@ -13,6 +13,7 @@ import windowStateKeeper from 'electron-window-state';
 import path from 'node:path';
 import { IPC_CHANNELS } from '../common/ipc';
 import type Config from '../lib/Config';
+import { setAboutWindowOpener } from './aboutWindow';
 import { createContext, router } from './api';
 import { runAutoUpdate } from './services/appUpdate';
 import { downloadFile } from './services/download';
@@ -112,7 +113,7 @@ export async function launch(config: Config) {
     mainWindowState.manage(mainWindow);
   });
 
-  ipcMain.handle(IPC_CHANNELS.OPEN_ABOUT_WINDOW, async () => {
+  setAboutWindowOpener(() => {
     const aboutPath = ABOUT_WINDOW_WEBPACK_ENTRY;
     const aboutWindow = new BrowserWindow({
       width: 480,
