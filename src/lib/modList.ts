@@ -1,41 +1,11 @@
 import fs from 'fs-extra';
 import * as os from 'node:os';
 import path from 'node:path';
-import { isParent } from './apmPath';
 import Config from './Config';
 import { download, existsTempFile } from './ipcWrapper';
 import * as parseJson from './parseJson';
+import { resolvePath } from './resolvePath';
 const config = new Config();
-
-/**
- * Resolve paths.
- * @param {string} base - base path
- * @param {string} relative - relative path
- * @returns {string} - absolute path
- */
-function resolvePath(base: string, relative: string) {
-  if (base.startsWith('http')) {
-    const retURL = new URL(relative, base);
-    const baseURL = new URL(base);
-    if (retURL.origin !== baseURL.origin) {
-      throw new Error('list.json can only specify files from the same origin.');
-    }
-    if (!isParent(baseURL.pathname, retURL.pathname)) {
-      throw new Error(
-        'list.json can only specify files in the same or child directories.',
-      );
-    }
-    return retURL.href;
-  } else {
-    const retStr = path.resolve(base, relative);
-    if (!isParent(base, retStr)) {
-      throw new Error(
-        'list.json can only specify files in the same or child directories.',
-      );
-    }
-    return retStr;
-  }
-}
 
 /**
  * Sets package data files URLs.
