@@ -22,7 +22,10 @@ rules.push({
 plugins.push(new MiniCssExtractPlugin());
 
 export const rendererConfig: Configuration = {
-  devtool: 'inline-source-map',
+  // 本番ビルドに inline source map を含めない(バンドル肥大 + ソース露出防止)。
+  // 別ファイルの .map は electron-log / source-map-support のスタックトレース解決に使われる
+  devtool:
+    process.env.NODE_ENV === 'development' ? 'inline-source-map' : 'source-map',
   module: {
     rules,
   },
