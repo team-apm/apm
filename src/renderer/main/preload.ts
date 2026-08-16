@@ -10,6 +10,7 @@ import {
   openDialog,
 } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
+import { EditorContextBridge } from './monacoEditorPreload';
 import migration2to3 from '../../migration/migration2to3';
 import core from './core';
 import packageMain from './package';
@@ -21,6 +22,7 @@ log.errorHandler.startCatching({
     await openDialog('エラー', '予期しないエラーが発生しました。', 'error');
   },
 });
+const editorContextBridge = new EditorContextBridge();
 
 window.addEventListener('DOMContentLoaded', async () => {
   // dark-theme
@@ -68,6 +70,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     'extra-data-url',
   ) as HTMLInputElement;
   extraDataURL.value = modList.getExtraDataUrl();
+  await editorContextBridge.setInstPath(installationPath);
   const zoomFactorSelect = document.getElementById(
     'zoom-factor-select',
   ) as HTMLSelectElement;

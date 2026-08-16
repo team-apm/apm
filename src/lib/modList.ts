@@ -84,10 +84,11 @@ export function getPackagesDataUrl(instPath: string) {
   return config.dataURL
     .getPackages()
     .concat(
-      instPath &&
-        instPath.length > 0 &&
-        fs.existsSync(getLocalPackagesDataUrl(instPath))
-        ? [getLocalPackagesDataUrl(instPath)]
+      instPath && instPath.length > 0
+        ? [
+            getLocalPackagesDataUrl(instPath),
+            getEditorPackagesDataUrl(instPath),
+          ].filter((p) => fs.existsSync(p))
         : [],
     );
 }
@@ -99,6 +100,15 @@ export function getPackagesDataUrl(instPath: string) {
  */
 export function getLocalPackagesDataUrl(instPath: string) {
   return path.join(instPath, 'packages.json');
+}
+
+/**
+ * Returns a data editor's package data file URL.
+ * @param {string} instPath - An installation path.
+ * @returns {string} - A package data file URL.
+ */
+export function getEditorPackagesDataUrl(instPath: string) {
+  return path.join(instPath, 'editorPackages.json');
 }
 
 /**
