@@ -20,6 +20,9 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: '@trpc/*'
         update-types: ['version-update:semver-major']
+      # tRPC v10 の peer 要求が react-query v4 のため(tRPC 11 化と同時に上げる)
+      - dependency-name: '@tanstack/react-query'
+        update-types: ['version-update:semver-major']
       - dependency-name: 'eslint'
         update-types: ['version-update:semver-major']
       - dependency-name: '@typescript-eslint/*'

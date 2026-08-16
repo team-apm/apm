@@ -1645,17 +1645,18 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@tanstack/query-core@5.101.1":
-  version "5.101.1"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.101.1.tgz#a6cfa8b94b23f65bd95a2d61bf737c2e4c9b0518"
-  integrity sha512-Y6Y92dkXtNqx67m2pMSxUsA3zOCwv862JexZRP8/EPwvKXMPu9m8rv43spiXWzOUIggQ3SQApttALStzhA8B4g==
+"@tanstack/query-core@4.44.0":
+  version "4.44.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.44.0.tgz#c507e55f2e2c9a4a49fd2a9fcb1eda449e6c77ef"
+  integrity sha512-swSgb7OiPRR3UuIL7NuDrZNSMGmQD+wdtHxPD7j60SvBEnxbXurl5XOirtGEX2gm2hbK6mC8kMV1I+uO3l0UOw==
 
-"@tanstack/react-query@^5.101.1":
-  version "5.101.1"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.101.1.tgz#357f2037ed4a5c0c85ee695f6d7c60ab549c8e24"
-  integrity sha512-ZnONUuQKJe1bJMStXUL1s5uKN9FcfC28j5cK+iDZcdSHtUv1wtin1cGc/Oewhf2Oc4eKY7lggtpvT/AbMmhHew==
+"@tanstack/react-query@^4.36.1":
+  version "4.44.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.44.0.tgz#8e6b93cbf08dc19e1ab8b1b97a9451ba82069d19"
+  integrity sha512-RuIqHYrS98LrK/8kJJOJMMSQ/BCpojwsXDh7p0fBmp38ZOz6dlk+uyFRRusH+V+t3POoCsDOQ2zhomEYOeReXw==
   dependencies:
-    "@tanstack/query-core" "5.101.1"
+    "@tanstack/query-core" "4.44.0"
+    use-sync-external-store "^1.6.0"
 
 "@tootallnate/once@2":
   version "2.0.0"
@@ -10175,6 +10176,11 @@ url-join@5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/url-join/-/url-join-5.0.0.tgz#c2f1e5cbd95fa91082a93b58a1f42fecb4bdbcf1"
   integrity sha512-n2huDr9h9yzd6exQVnH/jU5mr+Pfx08LRXXZhkLLetAMESRj+anQsTAh940iMrIetKAmry9coFuZQ2jY8/p3WA==
+
+use-sync-external-store@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.6.0.tgz#b174bfa65cb2b526732d9f2ac0a408027876f32d"
+  integrity sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==
 
 username@^5.1.0:
   version "5.1.0"
