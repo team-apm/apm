@@ -8,5 +8,9 @@ declare global {
       ) => void;
       save: (packages: Packages['packages']) => Promise<void>;
     };
+    coreBridge: {
+      getInstallationPath: () => string;
+      onProgramInstalled: () => Promise<void>;
+    };
   }
 }

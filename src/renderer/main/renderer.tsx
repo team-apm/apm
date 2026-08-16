@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import '../../../node_modules/bootstrap-icons/font/bootstrap-icons.css';
 import '../main.css';
 import './index.css';
+import ProgramRow from './aviutl/ProgramRow';
 import { MonacoEditorRenderer } from './monacoEditorRenderer';
 import OthersTab from './others/OthersTab';
 import DataUrlSettings from './settings/DataUrlSettings';
@@ -34,6 +35,26 @@ window.addEventListener('DOMContentLoaded', () => {
   createRoot(document.getElementById('others-root')).render(
     <TrpcProvider>
       <OthersTab />
+    </TrpcProvider>,
+  );
+  createRoot(document.getElementById('aviutl-program-root')).render(
+    <TrpcProvider>
+      <ProgramRow
+        program="aviutl"
+        label="AviUtl"
+        iconClass="bi-film"
+        buttonRoundedClass="rounded-start-0 rounded-bottom-0"
+      />
+    </TrpcProvider>,
+  );
+  createRoot(document.getElementById('exedit-program-root')).render(
+    <TrpcProvider>
+      <ProgramRow
+        program="exedit"
+        label="拡張編集"
+        iconClass="bi-calendar3-range"
+        buttonRoundedClass="rounded-0"
+      />
     </TrpcProvider>,
   );
 });

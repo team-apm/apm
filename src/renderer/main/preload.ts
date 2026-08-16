@@ -1,4 +1,5 @@
 import ClipboardJS from 'clipboard/src/clipboard';
+import { contextBridge } from 'electron';
 import log from 'electron-log/renderer';
 import { exposeElectronTRPC } from 'electron-trpc/main';
 import 'source-map-support/register';
@@ -18,6 +19,24 @@ log.errorHandler.startCatching({
   },
 });
 const editorContextBridge = new EditorContextBridge();
+
+// メインワールドの React(AviUtl タブ ProgramRow)とレガシーの橋渡し
+contextBridge.exposeInMainWorld('coreBridge', {
+  getInstallationPath: () => {
+    const input = document.getElementById(
+      'installation-path',
+    ) as HTMLInputElement | null;
+    return input?.value ?? '';
+  },
+  onProgramInstalled: async () => {
+    const input = document.getElementById(
+      'installation-path',
+    ) as HTMLInputElement | null;
+    const instPath = input?.value ?? '';
+    await packageMain.setPackagesList(instPath);
+    await packageMain.displayNicommonsIdList(instPath);
+  },
+});
 
 // メインワールドの React(Settings ほか)から tRPC を使うための bridge
 process.once('loaded', () => {
@@ -64,6 +83,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     'installation-path',
   ) as HTMLInputElement;
   installationPath.value = instPath;
+  // インストール先確定後に React(ProgramRow)へ再描画を通知する
+  window.dispatchEvent(new Event('apm-core-changed'));
   await editorContextBridge.setInstPath(installationPath);
 
   const appName = document.getElementsByClassName('app-name');
@@ -81,7 +102,7 @@ window.addEventListener('load', () => {
   // core
   const checkCoreVersionBtn = document.getElementById('check-core-version');
   checkCoreVersionBtn.addEventListener('click', async () => {
-    await core.checkLatestVersion(installationPath.value);
+    await core.checkLatestVersion();
   });
 
   const selectInstallationPathBtn = document.getElementById(

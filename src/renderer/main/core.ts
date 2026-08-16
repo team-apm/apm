@@ -11,7 +11,6 @@ import * as modList from '../../lib/modList';
 import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
 import migration2to3 from '../../migration/migration2to3';
-import { releaseLabel } from '../../shared/coreVersionText';
 import { programs } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
@@ -33,19 +32,10 @@ async function initCore() {
 
 /**
  * Displays installed version.
- * @param {string} instPath - An installation path.
  */
-async function displayInstalledVersion(instPath: string) {
-  // 表示テキストの算出・apm.json の補正・ショートカット更新は
-  // main プロセス側(services/core.ts)へ移設済み
-  const texts = (await trpc.core.getInstalledVersionTexts.query(instPath)) as {
-    aviutl: string;
-    exedit: string;
-  };
-  for (const program of programs) {
-    replaceText(`${program}-installed-version`, texts[program]);
-  }
-
+async function displayInstalledVersion() {
+  // AviUtl・拡張編集行の表示は React(ProgramRow)が tRPC 経由で行う。
+  // ここでは日付表示の更新と React への再描画通知のみ行う。
   if (config.modDate.hasCore()) {
     const modDate = new Date(config.modDate.getCore());
     replaceText('core-mod-date', modDate.toLocaleString());
@@ -57,6 +47,8 @@ async function displayInstalledVersion(instPath: string) {
 
     replaceText('core-check-date', '未確認');
   }
+
+  window.dispatchEvent(new Event('apm-core-changed'));
 }
 
 /**
@@ -70,76 +62,9 @@ async function getCoreInfo() {
 }
 
 /**
- * Sets versions of each program in selects.
- * @param {string} instPath - An installation path.
- */
-async function setCoreVersions(instPath: string) {
-  const aviutlVersionSelect = document.getElementById('aviutl-version-select');
-  const exeditVersionSelect = document.getElementById('exedit-version-select');
-  while (aviutlVersionSelect.childElementCount > 0) {
-    aviutlVersionSelect.removeChild(aviutlVersionSelect.lastChild);
-  }
-  while (exeditVersionSelect.childElementCount > 0) {
-    exeditVersionSelect.removeChild(exeditVersionSelect.lastChild);
-  }
-
-  const coreInfo = await getCoreInfo();
-  if (!coreInfo) {
-    for (const program of programs) {
-      replaceText(`${program}-latest-version`, '未取得');
-    }
-    return;
-  }
-
-  const installAviutlBtn = document.getElementById(
-    'install-aviutl',
-  ) as HTMLButtonElement;
-  const installExeditBtn = document.getElementById(
-    'install-exedit',
-  ) as HTMLButtonElement;
-
-  for (const program of programs) {
-    for (const release of coreInfo[program].releases) {
-      const li = document.createElement('li');
-      const anchor = document.createElement('a');
-      anchor.classList.add('dropdown-item');
-      anchor.href = '#';
-      anchor.innerText = releaseLabel(
-        release.version,
-        coreInfo[program].latestVersion,
-      );
-      li.appendChild(anchor);
-
-      if (program === 'aviutl') {
-        anchor.addEventListener('click', async () => {
-          await installProgram(
-            installAviutlBtn,
-            program,
-            release.version,
-            instPath,
-          );
-        });
-        aviutlVersionSelect.appendChild(li);
-      } else if (program === 'exedit') {
-        anchor.addEventListener('click', async () => {
-          await installProgram(
-            installExeditBtn,
-            program,
-            release.version,
-            instPath,
-          );
-        });
-        exeditVersionSelect.appendChild(li);
-      }
-    }
-  }
-}
-
-/**
  * Checks the latest versionof programs.
- * @param {string} instPath - An installation path.
  */
-async function checkLatestVersion(instPath: string) {
+async function checkLatestVersion() {
   const btn = document.getElementById(
     'check-core-version',
   ) as HTMLButtonElement;
@@ -148,8 +73,7 @@ async function checkLatestVersion(instPath: string) {
   try {
     // ダウンロードと日付更新は main プロセス側(services/core.ts)へ移設済み
     await trpc.core.checkLatestVersion.mutate();
-    await displayInstalledVersion(instPath);
-    await setCoreVersions(instPath);
+    await displayInstalledVersion();
     buttonTransition.message(btn, '更新完了', 'success');
   } catch (e) {
     log.error(e);
@@ -184,6 +108,8 @@ async function selectInstallationPath(input: HTMLInputElement) {
     const instPath = selectedPath[0];
     await changeInstallationPath(instPath);
     input.value = instPath;
+    // インストール先の確定を React(ProgramRow)へ通知する
+    window.dispatchEvent(new Event('apm-core-changed'));
   }
 }
 
@@ -226,7 +152,7 @@ async function changeInstallationPath(instPath: string) {
     await packageMain.getScriptsList(true);
   }
   if (oldCoreMod.getTime() < new Date(currentMod.core.modified).getTime()) {
-    await checkLatestVersion(instPath);
+    await checkLatestVersion();
   }
   if (
     oldPackagesMod.getTime() <
@@ -236,8 +162,7 @@ async function changeInstallationPath(instPath: string) {
   }
 
   // redraw
-  await displayInstalledVersion(instPath);
-  await setCoreVersions(instPath);
+  await displayInstalledVersion();
   await packageMain.setPackagesList(instPath);
   await packageMain.displayNicommonsIdList(instPath);
 }
@@ -322,7 +247,7 @@ async function installProgram(
 
   try {
     if (result === 'success') {
-      await displayInstalledVersion(instPath);
+      await displayInstalledVersion();
       await packageMain.setPackagesList(instPath);
       await packageMain.displayNicommonsIdList(instPath);
 
@@ -408,7 +333,6 @@ const core = {
   initCore,
   displayInstalledVersion,
   getCoreInfo,
-  setCoreVersions,
   checkLatestVersion,
   selectInstallationPath,
   changeInstallationPath,
