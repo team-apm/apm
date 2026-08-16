@@ -57,14 +57,6 @@ export const app = {
 };
 
 /**
- * Whether the app is exe version.
- * @returns {Promise<boolean>} Whether the app is exe version.
- */
-export async function isExeVersion() {
-  return (await ipcRenderer.invoke(IPC_CHANNELS.IS_EXE_VERSION)) as boolean;
-}
-
-/**
  * Check the update of the app.
  */
 export async function checkUpdate() {

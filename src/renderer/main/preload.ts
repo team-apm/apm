@@ -1,15 +1,14 @@
 import ClipboardJS from 'clipboard/src/clipboard';
 import log from 'electron-log/renderer';
+import { exposeElectronTRPC } from 'electron-trpc/main';
 import 'source-map-support/register';
 import { getConfig } from '../../lib/Config';
 import {
   app,
   checkUpdate,
-  isExeVersion,
   openAboutWindow,
   openDialog,
 } from '../../lib/ipcWrapper';
-import * as modList from '../../lib/modList';
 import migration2to3 from '../../migration/migration2to3';
 import core from './core';
 import { EditorContextBridge } from './monacoEditorPreload';
@@ -24,6 +23,11 @@ log.errorHandler.startCatching({
   },
 });
 const editorContextBridge = new EditorContextBridge();
+
+// メインワールドの React(Settings ほか)から tRPC を使うための bridge
+process.once('loaded', () => {
+  exposeElectronTRPC();
+});
 
 window.addEventListener('DOMContentLoaded', async () => {
   // dark-theme
@@ -65,30 +69,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     'installation-path',
   ) as HTMLInputElement;
   installationPath.value = instPath;
-  const dataURL = document.getElementById('data-url') as HTMLInputElement;
-  dataURL.value = modList.getDataUrl();
-  const extraDataURL = document.getElementById(
-    'extra-data-url',
-  ) as HTMLInputElement;
-  extraDataURL.value = modList.getExtraDataUrl();
   await editorContextBridge.setInstPath(installationPath);
-  const zoomFactorSelect = document.getElementById(
-    'zoom-factor-select',
-  ) as HTMLSelectElement;
-  await setting.setZoomFactor(zoomFactorSelect);
-
-  const doAutoUpdate = config.getAutoUpdate();
-  const autoUpdateRadios = document.getElementsByName('auto-update');
-  autoUpdateRadios.forEach((element: HTMLInputElement) => {
-    if (element instanceof HTMLInputElement)
-      if (element.value === doAutoUpdate) {
-        element.checked = true;
-      }
-  });
-  if (!(await isExeVersion())) {
-    const e = document.getElementById('auto-update-download');
-    if (e instanceof HTMLInputElement) e.disabled = true;
-  }
 
   const appName = document.getElementsByClassName('app-name');
   for (let i = 0; i < appName.length; i++) {
@@ -167,33 +148,10 @@ window.addEventListener('load', () => {
   // nicommons ID
   new ClipboardJS('#copy-nicommons-id-textarea');
 
-  // settings
-  const setDataUrlBtn = document.getElementById('set-data-url');
-  const dataURL = document.getElementById('data-url') as HTMLInputElement;
-  const extraDataURL = document.getElementById(
-    'extra-data-url',
-  ) as HTMLInputElement;
-  setDataUrlBtn.addEventListener('click', async () => {
-    await setting.setDataUrl(dataURL, extraDataURL.value);
-  });
-
-  const zoomFactorSelect = document.getElementById(
-    'zoom-factor-select',
-  ) as HTMLInputElement;
-  zoomFactorSelect.addEventListener('input', async () => {
-    await setting.changeZoomFactor(zoomFactorSelect.value);
-  });
-
+  // settings(UI は React 化済み。手動更新まわりのみ残る)
   const checkApmUpdateBtn = document.getElementById('check-apm-update');
   checkApmUpdateBtn.addEventListener('click', async () => {
     await checkUpdate();
-  });
-
-  const autoUpdateRadios = document.getElementsByName('auto-update');
-  autoUpdateRadios.forEach((element: HTMLInputElement) => {
-    element.addEventListener('change', () => {
-      config.setAutoUpdate(element.value as 'download' | 'notify' | 'disable');
-    });
   });
 
   // About / Others
