@@ -151,50 +151,15 @@
 								</button>
 							</div>
 							<ul class="list-group mb-3" id="batch-install-packages">
-								<li class="list-group-item py-0 pe-0 d-flex">
-									<div class="d-flex align-items-center flex-grow-1">
-										<i class="bi bi-film me-3"></i> AviUtl
-									</div>
-									<div>
-										<span id="aviutl-installed-version"></span>
-										<button
-											type="button"
-											class="btn btn-primary dropdown-toggle rounded-start-0 rounded-bottom-0"
-											id="install-aviutl"
-											data-bs-toggle="dropdown"
-											aria-expanded="false"
-										></button>
-										<div class="dropdown bg-body">
-											<ul
-												class="dropdown-menu dropdown-menu-end"
-												id="aviutl-version-select"
-												aria-labelledby="install-aviutl"
-											></ul>
-										</div>
-									</div>
-								</li>
-								<li class="list-group-item py-0 pe-0 d-flex">
-									<div class="d-flex align-items-center flex-grow-1">
-										<i class="bi bi-calendar3-range me-3"></i> 拡張編集
-									</div>
-									<div>
-										<span id="exedit-installed-version"></span>
-										<button
-											type="button"
-											class="btn btn-primary dropdown-toggle rounded-0"
-											id="install-exedit"
-											data-bs-toggle="dropdown"
-											aria-expanded="false"
-										></button>
-										<div class="dropdown bg-body">
-											<ul
-												class="dropdown-menu dropdown-menu-end"
-												id="exedit-version-select"
-												aria-labelledby="install-exedit"
-											></ul>
-										</div>
-									</div>
-								</li>
+								<!-- 中身は React(ProgramRow)が描画する -->
+								<li
+									class="list-group-item py-0 pe-0 d-flex"
+									id="aviutl-program-root"
+								></li>
+								<li
+									class="list-group-item py-0 pe-0 d-flex"
+									id="exedit-program-root"
+								></li>
 							</ul>
 							<div class="d-none">
 								<li
