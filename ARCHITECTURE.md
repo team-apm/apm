@@ -13,7 +13,7 @@ Electron の 3 窓 + main プロセス。
 | splash | `src/renderer/splash/`              | なし                                   | —                                            |
 
 - main 窓の preload がインストール・更新チェックなどの中核ロジックを DOM 操作込みで持っている。これは歴史的経緯であり、**タブの React 化 = そのタブのロジックを main プロセス + tRPC へ移設する作業**(AGENTS.md 落とし穴参照)
-- main プロセスは `src/main/main.ts`(窓生成、IPC ハンドラ、自動更新)と `src/main/api.ts`(tRPC router、現状 About 用)
+- main プロセスの構成は下の「ディレクトリと責務」を参照(エントリは `src/main/index.ts`)
 - IPC は 2 系統が併存する: レガシー `ipcMain.handle`(`src/common/ipc.ts` のチャンネル定義 + `src/lib/ipcWrapper.ts`)と tRPC(electron-trpc)。移行が進むとレガシー側が縮む
 
 ## ディレクトリと責務
@@ -25,19 +25,21 @@ src/
   lib/        renderer から使うモジュール(electron 依存を含む)
               Config(electron-store), ApmJson, ipcWrapper, modList, parseJson, unzip 等
   common/     IPC チャンネル定義など main / renderer の橋渡し
-  main/       main プロセス。main.ts(エントリ)+ api.ts(tRPC router)
+  main/       main プロセス(下記)
   migration/  データ形式のマイグレーション(v2 → v3)
   renderer/   窓ごとの UI(上の表を参照)
   types/      型定義
 ```
 
-Phase 2(骨格整理)で予定している変化:
+main プロセスの内訳:
 
 ```
 src/main/
-  index.ts    エントリ(窓生成・ライフサイクルのみに縮小)
-  api.ts      tRPC router(タブ移行のたびに拡張)
-  services/   ビジネスロジックの移設先(download, config, install 等)
+  index.ts        エントリ(ログ・config 初期化、app イベント、ハンドラ登録)
+  windows.ts      窓生成(splash / main / about / browser)+ 窓依存の IPC ハンドラ
+  ipcHandlers.ts  窓に依存しない IPC ハンドラの登録
+  api.ts          tRPC router(タブ移行のたびに拡張)
+  services/       ビジネスロジック(appUpdate, download, nicommons。タブ移行の移設先)
 ```
 
 ## データフロー(パッケージ管理の中核)
