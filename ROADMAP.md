@@ -29,8 +29,8 @@ apm の開発方針の単一ソース。変更は PR 経由で行う(履歴 = �
 
 ## 次の一手
 
-**data editor(#1627)の手動ポート** → v3.11.0。
+**v3.11.0 をリリース(data editor 入り)→ Phase 2 骨格整理。**
 
-#1627 は main から大きく遅れており merge 不可のため、`gh pr diff 1627` を参考に手動で写す。Settings タブに Monaco JSON エディタを追加し `{instPath}/editorPackages.json` をパッケージ一覧にマージする機能。暫定許容(CDN Monaco・CSP 緩和)には `TODO(security)` を残し、セキュリティフェーズで必ず回収する。
+data editor(#1627 の手動ポート)がマージされたら release-it で v3.11.0 を出す。その後は骨格整理: `src/shared` の切り出し、main プロセスの services 化、ARCHITECTURE.md の作成。Config シングルトン化・ApmJson トランザクション化は該当箇所の特性化テストを先に書いてから行う。
 
-Done の定義: 手動ポート PR がマージされ、#1627 が close され、この節が次の作業に書き換わっていること。
+Done の定義: v3.11.0 がリリースされ、骨格整理の PR がマージされ、この節が次の作業(タブ単位の React + tRPC 移行)に書き換わっていること。

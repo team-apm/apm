@@ -25,11 +25,11 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 ## 既知の固定と理由(上げる前に必ず読む)
 
-| 固定                                                            | 理由                                                                                    |
-| --------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `@electron-forge/*` 6.4.1 固定(`.ncurc.json` で reject)         | 6.4.2+ で preload の webpack ビルドが壊れる                                             |
-| CI (`build.yml` / `release.yml` / `nodejs.yml`) は Node 22 固定 | Node 24 では electron-forge 6.4.1 の make/publish が「Copying files」後に無言で失敗する |
-| Electron ほかメジャー更新は dependabot で ignore                | メジャー更新は計画的に 1 PR = 1 major で実施するため(ROADMAP 参照)                      |
+| 固定                                                            | 理由                                                                                                                                                                              |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@electron-forge/*` 6.4.1 固定(`.ncurc.json` で reject)         | 6.4.2+ で preload の webpack ビルドが壊れる                                                                                                                                       |
+| CI (`build.yml` / `release.yml` / `nodejs.yml`) は Node 22 固定 | Node 24 では electron-forge 6.4.1 の package/make/publish が「Copying files」後に無言で失敗する(exit 0 で `.app`/`out` が生成されない。ローカルでも同様なので Node 22 で実行する) |
+| Electron ほかメジャー更新は dependabot で ignore                | メジャー更新は計画的に 1 PR = 1 major で実施するため(ROADMAP 参照)                                                                                                                |
 
 ## 作業スタイル
 
@@ -42,3 +42,4 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 - `src/lib/compareVersion.ts` の `compareVersion` は比較不能時に `Number.NaN` を返す。NaN は全比較演算子で false になるため、呼び出し側は必ず `Number.isNaN()` で先に分岐する(`!== 0` 形式の分岐は意味が反転する)
 - `src/renderer/main/preload.ts` はビジネスロジックそのもの(`sandbox: false` 前提)。タブの React 化 = そのタブのロジックを main プロセス + tRPC へ移設する作業
+- `monaco-editor` は**型のみ**インポートする(`import type`)。実行時の Monaco は `@monaco-editor/loader` が CDN から読み込む。値インポートすると webpack が Monaco 全体をバンドルし、ビルドにヒープ拡大(`--max-old-space-size`)が必要になる。enum 値は onMount で渡される `monaco` インスタンスから取る
