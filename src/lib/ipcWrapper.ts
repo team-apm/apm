@@ -182,14 +182,6 @@ export async function migration1to2DataurlInputDialog() {
 }
 
 /**
- * Changes the zoom factor of the main window.
- * @param {number} zoomFactor - A zoom factor to be changed to. Zoom factor is zoom percent divided by 100, so 300% = 3.0.
- */
-export async function changeMainZoomFactor(zoomFactor: number) {
-  await ipcRenderer.invoke(IPC_CHANNELS.CHANGE_MAIN_ZOOM_FACTOR, zoomFactor);
-}
-
-/**
  * Downloads a file.
  * @param {string} url - The URL of a file to download.
  * @param {object} [options] - Options

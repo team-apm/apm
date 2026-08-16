@@ -15,7 +15,6 @@ export const IPC_CHANNELS = {
   OPEN_ABOUT_WINDOW: 'open-about-window',
   MIGRATION1TO2_CONFIRM_DIALOG: 'migration1to2-confirm-dialog',
   MIGRATION1TO2_DATAURL_INPUT_DIALOG: 'migration1to2-dataurl-input-dialog',
-  CHANGE_MAIN_ZOOM_FACTOR: 'change-main-zoom-factor',
   DOWNLOAD: 'download',
   OPEN_BROWSER: 'open-browser',
 };

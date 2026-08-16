@@ -1,19 +1,15 @@
 import log from 'electron-log/renderer';
-import * as os from 'node:os';
 import * as buttonTransition from '../../lib/buttonTransition';
-import { getConfig } from '../../lib/Config';
-import { changeMainZoomFactor, openDialog } from '../../lib/ipcWrapper';
+import { openDialog } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
-import { validateDataUrls } from '../../shared/dataUrl';
-const config = getConfig();
+import { trpc } from '../../lib/trpcClient';
 
 /**
  * Initializes settings
  */
 async function initSettings() {
-  if (!config.dataURL.hasExtra()) config.dataURL.setExtra('');
-  if (!config.dataURL.hasMain())
-    await setDataUrl({ value: '' }, config.dataURL.getExtra());
+  const { hasMain, extra } = await trpc.settings.ensureExtraDataUrl.mutate();
+  if (!hasMain) await setDataUrl({ value: '' }, extra);
 }
 
 /**
@@ -29,18 +25,16 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
       ? buttonTransition.loading(btn, '設定')
       : { enableButton: undefined };
 
-  const { mainUrl, extraUrls, errors } = validateDataUrls(
-    dataUrl.value,
+  const { mainUrl, errors } = await trpc.settings.setDataUrls.mutate({
+    mainUrl: dataUrl.value,
     extraDataUrls,
-  );
+  });
   dataUrl.value = mainUrl;
   for (const message of errors) {
     await openDialog('エラー', message, 'error');
   }
 
   if (errors.length === 0) {
-    config.dataURL.setMain(mainUrl);
-    config.dataURL.setExtra(extraUrls.join(os.EOL));
     await modList.updateInfo();
 
     if (btn instanceof HTMLButtonElement) {
@@ -64,8 +58,8 @@ async function setDataUrl(dataUrl: { value: string }, extraDataUrls: string) {
  * Sets a zoom factor.
  * @param {HTMLSelectElement} zoomFactorSelect - A zoom factor select to change value.
  */
-function setZoomFactor(zoomFactorSelect: HTMLSelectElement) {
-  const zoomFactor = config.getZoomFactor();
+async function setZoomFactor(zoomFactorSelect: HTMLSelectElement) {
+  const zoomFactor = await trpc.settings.getZoomFactor.query();
   for (const optionElement of Array.from(zoomFactorSelect.options)) {
     if (optionElement.getAttribute('value') === zoomFactor) {
       optionElement.selected = true;
@@ -79,8 +73,7 @@ function setZoomFactor(zoomFactorSelect: HTMLSelectElement) {
  * @param {string} zoomFactor - A zoom factor to change.
  */
 async function changeZoomFactor(zoomFactor: string) {
-  config.setZoomFactor(zoomFactor);
-  await changeMainZoomFactor(parseInt(zoomFactor) / 100);
+  await trpc.settings.changeZoomFactor.mutate(zoomFactor);
 }
 
 const setting = {
