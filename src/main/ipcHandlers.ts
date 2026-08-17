@@ -12,7 +12,6 @@ import path from 'node:path';
 import { IPC_CHANNELS } from '../common/ipc';
 import { isParent } from '../shared/apmPath';
 import { checkUpdate } from './services/appUpdate';
-import { getNicommonsData } from './services/nicommons';
 import { existsTempFile } from './services/tempFile';
 
 const APP_PATH_NAMES = new Set([
@@ -125,10 +124,6 @@ export function registerIpcHandlers() {
       }
     },
   );
-
-  ipcMain.handle(IPC_CHANNELS.GET_NICOMMONS_DATA, (event, id) => {
-    return getNicommonsData(id);
-  });
 
   ipcMain.handle(IPC_CHANNELS.CLIPBOARD_WRITE_TEXT, async (event, text) => {
     clipboard.writeText(text);

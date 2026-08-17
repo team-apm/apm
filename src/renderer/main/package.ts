@@ -8,7 +8,6 @@ import {
   app,
   clipboardWriteText,
   download,
-  getNicommonsData,
   openBrowser,
   openPath,
   openYesNoDialog,
@@ -175,7 +174,6 @@ async function checkPackagesList(instPath: string) {
       Math.max(...modInfo.packages.map((p) => new Date(p.modified).getTime())),
     );
     await setPackagesList(instPath);
-    await displayNicommonsIdList(instPath);
 
     if (btn) buttonTransition.message(btn, '更新完了', 'success');
   } catch (e) {
@@ -422,7 +420,6 @@ async function installPackage(
 
   if (installResult) {
     await setPackagesList(instPath);
-    await displayNicommonsIdList(instPath);
 
     if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
   } else {
@@ -509,7 +506,6 @@ async function uninstallPackage(instPath: string) {
   if (result === 'success') {
     if (!uninstalledPackage.id.startsWith('script_')) {
       await setPackagesList(instPath);
-      await displayNicommonsIdList(instPath);
     } else {
       await parseJson.removePackage(
         modList.getLocalPackagesDataUrl(instPath),
@@ -711,139 +707,6 @@ async function installScript(instPath: string) {
  * Returns a nicommonsID list separated by space.
  * @param {string} instPath - An installation path.
  */
-async function displayNicommonsIdList(instPath: string) {
-  const packages = await getPackages(instPath);
-  type PackageItemWithNicommonsId = {
-    info: {
-      name: string;
-      developer: string;
-      originalDeveloper?: string;
-      nicommons: string;
-    };
-    type: string[];
-  };
-
-  const asyncFilter = async <T>(
-    array: T[],
-    predicate: (value: T, index: number, array: T[]) => Promise<unknown>,
-  ) => {
-    const bits = await Promise.all(array.map(predicate));
-    return array.filter((_, i) => bits[i]);
-  };
-
-  const apmJson = await ApmJson.load(instPath);
-
-  const packagesWithNicommonsId: [
-    PackageItemWithNicommonsId,
-    PackageItemWithNicommonsId,
-    ...PackageItem[],
-  ] = [
-    {
-      info: { name: 'AviUtl', developer: 'KENくん', nicommons: 'im1696493' },
-      type: [] as never[],
-    },
-    {
-      info: {
-        name: 'AviUtl Package Manager',
-        developer: 'Team apm',
-        nicommons: 'nc251912',
-      },
-      type: [] as never[],
-    },
-    ...(await asyncFilter(
-      packages,
-      async (value) =>
-        (await apmJson.has('packages.' + value.id)) && value.info.nicommons,
-    )),
-  ];
-
-  // show the package list
-  const columns = ['thumbnail', 'name', 'developer', 'type', 'nicommons'];
-  const makeLiFromArray = (columnList: string[]) => {
-    const li = document
-      .getElementById('nicommons-id-template')
-      .cloneNode(true) as HTMLLIElement;
-    li.removeAttribute('id');
-    const result: { li: HTMLLIElement; [key: string]: HTMLElement } = {
-      li: li,
-    };
-    columnList.forEach(
-      (tdName) =>
-        (result[tdName] = li.getElementsByClassName(tdName)[0] as HTMLElement),
-    );
-    return result;
-  };
-
-  const updateTextarea = () => {
-    const checkedId: string[] = [];
-    Array.from(
-      document.getElementsByName(
-        'nicommons-id',
-      ) as NodeListOf<HTMLInputElement>,
-    ).forEach((checkbox) => {
-      if (checkbox.checked) checkedId.push(checkbox.value);
-    });
-
-    const nicommonsIdTextarea = document.getElementById(
-      'nicommons-id-textarea',
-    ) as HTMLTextAreaElement;
-    nicommonsIdTextarea.value = checkedId.join(' ');
-  };
-
-  const nicommonsIdList = document.getElementById('nicommons-id-list');
-  nicommonsIdList.innerHTML = null;
-
-  for (const packageItem of packagesWithNicommonsId) {
-    const { li, thumbnail, name, developer, type, nicommons } = makeLiFromArray(
-      columns,
-    ) as {
-      li: HTMLLIElement;
-      thumbnail: HTMLDivElement;
-      name: HTMLHeadingElement;
-      developer: HTMLDivElement;
-      type: HTMLDivElement;
-      nicommons: HTMLDivElement;
-    };
-
-    const checkbox = li.getElementsByTagName('input')[0];
-    checkbox.value = packageItem.info.nicommons;
-    checkbox.checked = true;
-    checkbox.addEventListener('change', updateTextarea);
-
-    name.innerText = packageItem.info.name;
-    developer.innerText = packageItem.info.originalDeveloper
-      ? `${packageItem.info.developer}（オリジナル：${packageItem.info.originalDeveloper}）`
-      : packageItem.info.developer;
-    packageUtil.parsePackageType(packageItem.type).forEach((e) => {
-      const typeItem = document
-        .getElementById('tag-template')
-        .cloneNode(true) as HTMLSpanElement;
-      typeItem.removeAttribute('id');
-      typeItem.innerText = e;
-      type.appendChild(typeItem);
-    });
-    nicommons.innerText = packageItem.info.nicommons;
-
-    const nicommonsData = (await getNicommonsData(
-      packageItem.info.nicommons,
-    )) as { [key: string]: { [key: string]: string } };
-    if (nicommonsData && 'node' in nicommonsData) {
-      const img = document.createElement('img');
-      img.src = nicommonsData.node.thumbnailURL.replace('size=l', 'size=s');
-      img.classList.add('img-fluid');
-      thumbnail.appendChild(img);
-    }
-
-    nicommonsIdList.appendChild(li);
-  }
-
-  updateTextarea();
-}
-
-/**
- * Returns a nicommonsID list separated by space.
- * @param {string} instPath - An installation path.
- */
 async function sharePackages(instPath: string) {
   const btn = document.getElementById('share-packages') as HTMLButtonElement;
   const { enableButton } = btn
@@ -904,7 +767,6 @@ const packageMain = {
   installScript,
   setSelectedEntry,
   installPackageById,
-  displayNicommonsIdList,
   sharePackages,
 };
 export default packageMain;

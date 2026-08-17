@@ -350,6 +350,23 @@ export async function getScriptsList(
 }
 
 /**
+ * Returns the subset of the given package ids recorded in apm.json.
+ * 旧 displayNicommonsIdList の apmJson.has('packages.' + id) 判定と同一の挙動
+ * (dot-prop のパス解釈に依存するため判定ごと main 側で行う)。
+ * @param {string} instPath - An installation path.
+ * @param {string[]} ids - Package ids to check.
+ * @returns {Promise<string[]>} The ids recorded in apm.json.
+ */
+export async function getApmJsonInstalledIds(instPath: string, ids: string[]) {
+  const apmJson = await ApmJson.load(instPath);
+  const result: string[] = [];
+  for (const id of ids) {
+    if (await apmJson.has('packages.' + id)) result.push(id);
+  }
+  return result;
+}
+
+/**
  * Get the date today
  * 旧 src/renderer/main/package.ts の getDate と同一の挙動。
  * @returns {string} Today's date

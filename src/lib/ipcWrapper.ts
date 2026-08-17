@@ -135,18 +135,6 @@ export async function openYesNoDialog(title: string, message: string) {
 }
 
 /**
- * Gets nicommons' data.
- * @param {string} id - A nicommons ID.
- * @returns {Promise<unknown>} The nicommons data.
- */
-export async function getNicommonsData(id: string) {
-  return (await ipcRenderer.invoke(
-    IPC_CHANNELS.GET_NICOMMONS_DATA,
-    id,
-  )) as unknown;
-}
-
-/**
  * Opens the confirm dialog for migration v1 to v2.
  * @returns {Promise<number>} The result of the dialog.
  */
