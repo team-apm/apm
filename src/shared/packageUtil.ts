@@ -4,6 +4,7 @@ import { ApmJsonObject } from '../types/apmJson';
 import { PackageItem } from '../types/packageItem';
 import { compareVersionOp } from './compareVersion';
 import { verifyFilesByCount } from './install';
+import { parsePackageType, states } from './packageDisplay';
 
 // 旧 src/renderer/main/packageUtil.ts から electron 非依存の計算部分を移設
 
@@ -22,79 +23,9 @@ const typeForExtention = {
 type aviutlExtention = keyof typeof typeForExtention;
 
 /** Installation state of packages */
-export const states = {
-  installed: 'インストール済み',
-  installedButBroken: 'インストール済み（未導入ファイルあり）',
-  manuallyInstalled: '手動インストール済み',
-  otherInstalled: '他バージョンがインストール済み',
-  notInstalled: '未インストール',
-};
-
-/**
- * Convert type from internal expression to display
- * @param {string[]} packageType - A list of package types
- * @returns {string[]} Parsed package types
- */
-export function parsePackageType(packageType: string[]) {
-  const result = [];
-  for (const type of packageType) {
-    switch (type) {
-      // plugin
-      case 'plugin':
-        result.push('入力', '出力', 'フィルター', '色変換', '言語');
-        break;
-      case 'input':
-        result.push('入力');
-        break;
-      case 'output':
-        result.push('出力');
-        break;
-      case 'filter':
-        result.push('フィルター');
-        break;
-      case 'color':
-        result.push('色変換');
-        break;
-      case 'language':
-        result.push('言語');
-        break;
-      // script
-      case 'script':
-        result.push(
-          'アニメーション効果',
-          'カスタムオブジェクト',
-          'シーンチェンジ',
-          'カメラ制御',
-          'トラックバー',
-          'スクリプト配布サイト',
-        );
-        break;
-      case 'animation':
-        result.push('アニメーション効果');
-        break;
-      case 'object':
-        result.push('カスタムオブジェクト');
-        break;
-      case 'scene':
-        result.push('シーンチェンジ');
-        break;
-      case 'camera':
-        result.push('カメラ制御');
-        break;
-      case 'track':
-        result.push('トラックバー');
-        break;
-      // script distribution sites
-      case 'script-dist':
-        result.push('スクリプト配布サイト');
-        break;
-      default:
-        result.push('不明');
-        break;
-    }
-  }
-  return result;
-}
+// states / parsePackageType は fs 非依存の表示用モジュール
+// (src/shared/packageDisplay.ts)へ移設した。既存の import 経路を維持する
+export { parsePackageType, states };
 
 /**
  * Detects package types from the extensions of the files.
