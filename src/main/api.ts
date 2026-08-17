@@ -11,7 +11,12 @@ import {
   installCoreProgram,
 } from './services/core';
 import { updateInfo } from './services/modList';
-import { downloadRepository, getPackages } from './services/packages';
+import {
+  downloadRepository,
+  getPackages,
+  getPackagesExtra,
+  getPackagesWithStatus,
+} from './services/packages';
 import { ensureExtraDataUrl, setDataUrls } from './services/settings';
 
 export type Context = {
@@ -58,6 +63,19 @@ const autoUpdateInput = (value: unknown): 'download' | 'notify' | 'disable' => {
   )
     throw new TypeError('One of download, notify, or disable is expected.');
   return value as 'download' | 'notify' | 'disable';
+};
+
+const packagesWithStatusInput = (
+  value: unknown,
+): { instPath: string; fixIntegrity: boolean } => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { instPath, fixIntegrity } = value as Record<string, unknown>;
+  if (typeof instPath !== 'string' || typeof fixIntegrity !== 'boolean')
+    throw new TypeError(
+      'instPath is expected to be a string and fixIntegrity a boolean.',
+    );
+  return { instPath, fixIntegrity };
 };
 
 const installProgramInput = (
@@ -156,6 +174,25 @@ export const router = t.router({
         const win = BrowserWindow.fromWebContents(ctx.event.sender);
         if (!win) throw new Error('The calling window was not found.');
         await downloadRepository(win, getConfig(), input);
+      }),
+    getPackagesExtra: procedure
+      .input(stringInput)
+      .query(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        return await getPackagesExtra(win, getConfig(), input);
+      }),
+    getPackagesWithStatus: procedure
+      .input(packagesWithStatusInput)
+      .query(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        return await getPackagesWithStatus(
+          win,
+          getConfig(),
+          input.instPath,
+          input.fixIntegrity,
+        );
       }),
   }),
   core: t.router({

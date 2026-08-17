@@ -300,12 +300,7 @@ async function batchInstall(instPath: string) {
       const progInfo = coreInfo[program];
       await installProgram(null, program, progInfo.latestVersion, instPath);
     }
-    const allPackages = (
-      await packageUtil.getPackagesExtra(
-        await packageMain.getPackages(instPath),
-        instPath,
-      )
-    ).packages;
+    const allPackages = (await packageUtil.getPackagesExtra(instPath)).packages;
     const packages = allPackages.filter(
       (p) =>
         p.info.directURL &&
