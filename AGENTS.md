@@ -56,4 +56,5 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 - `src/lib/compareVersion.ts` の `compareVersion` は比較不能時に `Number.NaN` を返す。NaN は全比較演算子で false になるため、呼び出し側は必ず `Number.isNaN()` で先に分岐する(`!== 0` 形式の分岐は意味が反転する)
 - `src/renderer/main/preload.ts` はビジネスロジックそのもの(`sandbox: false` 前提)。タブの React 化 = そのタブのロジックを main プロセス + tRPC へ移設する作業
+- electron-trpc は falsy なトップレベル入力(`false` / `0` / `''`)を `undefined` に変換する(main ハンドラが `input: g ? deserialize(g) : void 0` と真偽値評価しているため)。tRPC procedure の入力にプリミティブの boolean / number を直接渡さず、必ずオブジェクトで包む(`{ update: boolean }` 等)
 - `monaco-editor` は**型のみ**インポートする(`import type`)。実行時の Monaco は `@monaco-editor/loader` が CDN から読み込む。値インポートすると webpack が Monaco 全体をバンドルし、ビルドにヒープ拡大(`--max-old-space-size`)が必要になる。enum 値は onMount で渡される `monaco` インスタンスから取る
