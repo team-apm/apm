@@ -1,6 +1,5 @@
 import { Scripts } from 'apm-schema';
 import log from 'electron-log/renderer';
-import { readJson } from 'fs-extra';
 import { ListItem } from 'list.js';
 import * as matcher from 'matcher';
 import ApmJson from '../../lib/ApmJson';
@@ -482,38 +481,15 @@ async function checkPackagesList(instPath: string) {
 
 /**
  * Checks the scripts list.
+ * 取得・キャッシュ・更新日時の記録は main プロセス側(services/packages.ts)へ移設済み。
  * @param {boolean} update - Download the json file.
  * @returns {Promise<Scripts>} - An object parsed from scripts.json.
  */
 async function getScriptsList(update = false) {
-  const dictUrl = await modList.getScriptsDataUrl();
-  const result: { webpage: Scripts['webpage']; scripts: Scripts['scripts'] } = {
-    webpage: [],
-    scripts: [],
+  return (await trpc.packages.getScriptsList.query({ update })) as {
+    webpage: Scripts['webpage'];
+    scripts: Scripts['scripts'];
   };
-
-  for (const url of dictUrl) {
-    const scriptsJson = await download(url, {
-      loadCache: !update,
-      subDir: 'package',
-      keyText: url,
-    });
-    if (!scriptsJson) continue;
-    const json: Scripts = await readJson(scriptsJson);
-    result.webpage = result.webpage.concat(json.webpage);
-    result.scripts = result.scripts.concat(json.scripts);
-  }
-
-  if (update) {
-    const currentMod = await modList.getInfo();
-    config.modDate.setScripts(
-      Math.max(
-        ...currentMod.scripts.map((p) => new Date(p.modified).getTime()),
-      ),
-    );
-  }
-
-  return result;
 }
 
 /**

@@ -77,3 +77,17 @@ export async function getConvertDataUrl(win: BrowserWindow, config: Config) {
   const info = await getInfo(win, config);
   return resolvePath(config.dataURL.getMain(), info.convert.path);
 }
+
+/**
+ * Returns scripts data file URLs.
+ * 旧 src/lib/modList.ts の getScriptsDataUrl と同一の挙動。
+ * @param {BrowserWindow} win - A browser window used for the download session.
+ * @param {Config} config - The config instance.
+ * @returns {Promise<string[]>} Scripts data file URLs.
+ */
+export async function getScriptsDataUrl(win: BrowserWindow, config: Config) {
+  const info = await getInfo(win, config);
+  return info.scripts.map((script) =>
+    resolvePath(config.dataURL.getMain(), script.path),
+  );
+}
