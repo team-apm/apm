@@ -1,6 +1,5 @@
 import { Scripts } from 'apm-schema';
 import log from 'electron-log/renderer';
-import { ListItem } from 'list.js';
 import * as matcher from 'matcher';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
@@ -18,11 +17,10 @@ import * as modList from '../../lib/modList';
 import * as parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
-import createList, { UpdatableList } from '../../lib/updatableList';
-import { compareVersion } from '../../shared/compareVersion';
 import { verifyFile } from '../../shared/integrity';
+import { shareStringVersion } from '../../shared/shareString';
 import { PackageItem } from '../../types/packageItem';
-import { programs, programsDisp } from './common';
+import { programs } from './common';
 import packageUtil from './packageUtil';
 
 const config = getConfig();
@@ -37,8 +35,6 @@ const isMatch = (
 let selectedEntry: PackageItem | Scripts['webpage'][number];
 let selectedEntryType: string;
 const entryType = { package: 'package', scriptSite: 'script' };
-let listJS: UpdatableList;
-const shareStringVersion = '1.0';
 
 // Functions to be exported
 
@@ -52,352 +48,26 @@ async function getPackages(instPath: string) {
 }
 
 /**
- * Sets rows of each package in the table.
+ * Requests the React list (PackagesTab) to refresh, and updates the legacy
+ * parts that are not migrated yet (batch-install text and mod dates).
+ * 一覧の描画・ソート・検索・フィルタは React 側(packages/PackagesTab.tsx)へ
+ * 移設済み。
  * @param {string} instPath - An installation path.
  */
 async function setPackagesList(instPath: string) {
-  const packagesSort = document.getElementById('packages-sort');
-  const packagesList = document.getElementById('packages-list');
-  const packagesList2 = document.getElementById('packages-list2');
-  packagesList2.innerHTML = null;
+  // 隔離ワールドの DOM イベントはメインワールドに届くため、これで React 側が
+  // tRPC クエリを再取得する
+  window.dispatchEvent(new Event('apm-packages-changed'));
+  await updateBatchInstallList(instPath);
+  updateModDates();
+}
 
-  const columns = [
-    'packageID',
-    'name',
-    'overview',
-    'developer',
-    'type',
-    'latestVersion',
-    'installationStatus',
-    'description',
-    'pageURL',
-    'dependencyInformation',
-  ];
-  const columnsDisp = [
-    'ID',
-    '名前',
-    '概要',
-    '開発者',
-    'タイプ',
-    '最新バージョン',
-    '現在バージョン',
-    '解説',
-    'リンク',
-    '依存関係',
-  ];
-  // sort-buttons
-  if (!packagesSort.hasChildNodes()) {
-    const sortButtons = Array.from(columns.entries())
-      .filter(([, s]) => ['name', 'developer'].includes(s))
-      .map(([i, columnName]) => {
-        const sortBtn = document
-          .getElementById('sort-template')
-          .cloneNode(true) as HTMLButtonElement;
-        sortBtn.removeAttribute('id');
-        sortBtn.dataset.sort = columnName;
-        sortBtn.innerText = columnsDisp[i];
-        return sortBtn;
-      });
-    sortButtons[0].classList.add('asc');
-    sortButtons.forEach((sortBtn) => packagesSort.appendChild(sortBtn));
-  }
-
-  // prepare a package list
-  // 取得 → インストール状態付与 → 整合性による apm.json 補正 → 依存解決は
-  // main プロセス側(services/packages.ts)へ移設済み
-  const packagesExtra = await packageUtil.getPackagesWithStatus(instPath, true);
-  const manuallyInstalledFiles = packagesExtra.manuallyInstalledFiles;
-  const packages = packagesExtra.packages;
-
-  // 検索コールバックが apm.json のコアバージョンを参照するために使う
-  const apmJson = await ApmJson.load(instPath);
-
-  // show the package list
-  const makeLiFromArray = (columnList: string[]) => {
-    const li = document
-      .getElementById('list-template')
-      .cloneNode(true) as HTMLLIElement;
-    li.removeAttribute('id');
-    const result: { li: HTMLLIElement; [key: string]: HTMLElement } = {
-      li: li,
-    };
-    columnList.forEach(
-      (tdName) =>
-        (result[tdName] = li.getElementsByClassName(tdName)[0] as HTMLElement),
-    );
-    return result;
-  };
-
-  packagesList.innerHTML = null;
-
-  for (const packageItem of packages.filter(
-    (p) =>
-      !(
-        p.info.isHidden &&
-        p.installationStatus === packageUtil.states.notInstalled
-      ),
-  )) {
-    const {
-      li,
-      packageID,
-      name,
-      developer,
-      type,
-      overview,
-      description,
-      pageURL,
-      latestVersion,
-      dependencyInformation,
-      statusInformation,
-      installationStatus,
-    } = makeLiFromArray([...columns, 'statusInformation']) as {
-      li: HTMLLIElement;
-      packageID: HTMLDivElement;
-      name: HTMLHeadingElement;
-      developer: HTMLDivElement;
-      type: HTMLDivElement;
-      overview: HTMLDivElement;
-      description: HTMLDivElement;
-      pageURL: HTMLAnchorElement;
-      latestVersion: HTMLDivElement;
-      dependencyInformation: HTMLDivElement;
-      statusInformation: HTMLDivElement;
-      installationStatus: HTMLDivElement;
-    };
-    li.addEventListener('click', () => {
-      selectedEntry = packageItem;
-      selectedEntryType = entryType.package;
-      li.getElementsByTagName('input')[0].checked = true;
-      for (const tmpli of Array.from(packagesList.getElementsByTagName('li'))) {
-        tmpli.classList.remove('list-group-item-light');
-      }
-      li.classList.add('list-group-item-light');
-      document.getElementById('install-package').innerText =
-        installationStatus.innerText.startsWith('インストール済み')
-          ? '　　更新　　'
-          : 'インストール';
-    });
-    packageID.innerText = packageItem.id;
-    name.innerText = packageItem.info.name;
-    overview.innerText = packageItem.info.overview;
-    developer.innerText = packageItem.info.originalDeveloper
-      ? `${packageItem.info.developer}（オリジナル：${packageItem.info.originalDeveloper}）`
-      : packageItem.info.developer;
-    packageUtil.parsePackageType(packageItem.type).forEach((e) => {
-      const typeItem = document
-        .getElementById('tag-template')
-        .cloneNode(true) as HTMLSpanElement;
-      typeItem.removeAttribute('id');
-      typeItem.innerText = e;
-      type.appendChild(typeItem);
-    });
-    latestVersion.innerText = packageItem.info.latestVersion;
-    installationStatus.innerText =
-      packageItem.installationStatus +
-      (packageItem.installationStatus === packageUtil.states.installed
-        ? ': ' + packageItem.version
-        : '');
-    description.innerText = packageItem.info.description;
-    pageURL.innerText = packageItem.info.pageURL;
-    pageURL.href = packageItem.info.pageURL;
-    dependencyInformation.innerText =
-      packageItem.info.dependencies
-        ?.map((ids) =>
-          Array.from(
-            new Set(
-              ids
-                .split('|')
-                .map((id) => packages.find((p) => p.id === id)?.info?.name),
-            ),
-          ).join(' or '),
-        )
-        .flatMap((text) => (text ? ['🔗 ' + text] : []))
-        .join(' ') ?? '';
-    statusInformation.innerText = null;
-    packageItem.detached.forEach((p) => {
-      const aTag = document.createElement('a');
-      aTag.href = '#';
-      aTag.classList.add('text-danger');
-      aTag.innerText = `要導入: ${p.info.name}\r\n`;
-      statusInformation.appendChild(aTag);
-      aTag.addEventListener('click', async () => {
-        await installPackage(instPath, p);
-        return false;
-      });
-    });
-    const verText = document.createElement('div');
-    verText.classList.add('text-warning');
-    verText.innerText = packageItem.doNotInstall ? 'インストール不可\r\n' : '';
-    statusInformation.appendChild(verText);
-    if (
-      packageItem.installationStatus === packageUtil.states.installed &&
-      compareVersion(packageItem.info.latestVersion, packageItem.version) > 0
-    ) {
-      const updateText = document.createElement('div');
-      updateText.classList.add('text-success');
-      updateText.innerText = '更新が利用可能です\r\n';
-      statusInformation.appendChild(updateText);
-    }
-
-    packagesList.appendChild(li);
-  }
-
-  for (const webpage of (await getScriptsList()).webpage) {
-    const {
-      li,
-      name,
-      developer,
-      type,
-      overview,
-      description,
-      pageURL,
-      latestVersion,
-      dependencyInformation,
-      statusInformation,
-      installationStatus,
-    } = makeLiFromArray([...columns, 'statusInformation']) as {
-      li: HTMLLIElement;
-      name: HTMLHeadingElement;
-      developer: HTMLDivElement;
-      type: HTMLDivElement;
-      overview: HTMLDivElement;
-      description: HTMLDivElement;
-      pageURL: HTMLAnchorElement;
-      latestVersion: HTMLDivElement;
-      dependencyInformation: HTMLDivElement;
-      statusInformation: HTMLDivElement;
-      installationStatus: HTMLDivElement;
-    };
-    li.addEventListener('click', () => {
-      selectedEntry = webpage;
-      selectedEntryType = entryType.scriptSite;
-      li.getElementsByTagName('input')[0].checked = true;
-      for (const tmpli of Array.from(packagesList.getElementsByTagName('li'))) {
-        tmpli.classList.remove('list-group-item-light');
-      }
-      li.classList.add('list-group-item-light');
-      replaceText('install-package', 'インストール');
-    });
-    name.innerText = webpage.developer;
-    overview.innerText = '配布サイトからスクリプトをインストール';
-    developer.innerText = webpage.developer;
-    const typeItem = document
-      .getElementById('tag-template')
-      .cloneNode(true) as HTMLSpanElement;
-    typeItem.removeAttribute('id');
-    typeItem.classList.replace(
-      'list-group-item-light',
-      'list-group-item-success',
-    );
-    typeItem.innerText = 'スクリプト配布サイト';
-    type.appendChild(typeItem);
-    latestVersion.innerText = '';
-    installationStatus.innerText = '';
-    description.innerText = webpage?.description ?? '';
-    pageURL.innerText = webpage.url;
-    pageURL.href = webpage.url;
-    dependencyInformation.innerText = '';
-    statusInformation.innerText = '';
-
-    packagesList.appendChild(li);
-  }
-
-  // sorting and filtering
-  const searchRegex =
-    /^.*🍎[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+):([A-Za-z0-9.]+),🎞[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+),🎬[\u{fe0e}\u{fe0f}]?([A-Za-z0-9.]+)((,[A-Za-z0-9]+\/[A-Za-z0-9]+)*)$/u;
-  // Variation Selectors for text (U+FE0E) or color (U+FE0F) are added to 🍎, 🎞 and 🎬.
-  const searchFunction: UpdatableList['searchFunction'] = (
-    items: { values: () => { packageID?: string }; found?: boolean }[],
-    searchString,
-  ) => {
-    items.forEach((item) => (item.found = false));
-    const searchStringArray = searchString.toLowerCase().match(searchRegex);
-    const searchVersions = {
-      share: searchStringArray[1],
-      apm: searchStringArray[2],
-      aviutl: searchStringArray[3],
-      exedit: searchStringArray[4],
-      packages: searchStringArray[5].split(',').slice(1),
-    };
-    searchVersions.packages.forEach((id) => {
-      const foundItem = items.find(
-        (item) => item.values().packageID.toLowerCase() === id,
-      );
-      if (foundItem) foundItem.found = true;
-    });
-    return (async () => {
-      const alertStrings = [];
-      if (compareVersion(shareStringVersion, searchVersions.share) < 0)
-        alertStrings.push(
-          '新しいバージョンのapmに対応したデータです。正しく読み込むためにapmの更新が必要な場合があります。',
-        );
-      for (const program of programs) {
-        const currentVersion = (await apmJson.get('core.' + program)) as string;
-        const comparison = compareVersion(
-          currentVersion,
-          searchVersions[program],
-        );
-        if (Number.isNaN(comparison))
-          alertStrings.push(
-            `${programsDisp[program]} ${searchVersions[program]} 用のデータです。使用中の ${programsDisp[program]} ${currentVersion} と互換性があるか確認できませんでした。`,
-          );
-        else if (comparison !== 0)
-          alertStrings.push(
-            `${programsDisp[program]} ${searchVersions[program]} 用のデータです。使用中の ${programsDisp[program]} ${currentVersion} には非対応の場合があります。`,
-          );
-      }
-      return alertStrings.join('\n');
-    })();
-  };
-
-  if (typeof listJS === 'undefined') {
-    listJS = createList(
-      'packages',
-      {
-        regex: searchRegex,
-        searchFunction: searchFunction,
-      },
-      {
-        valueNames: columns,
-        fuzzySearch: { distance: 10000 }, // Ensure that searches are performed even on long strings.
-      },
-    );
-  } else {
-    listJS.reIndex();
-    listJS.update(searchFunction);
-  }
-
-  // list manually added packages
-  for (const ef of manuallyInstalledFiles) {
-    const {
-      li,
-      name,
-      developer,
-      type,
-      overview,
-      latestVersion,
-      installationStatus,
-    } = makeLiFromArray(columns) as {
-      li: HTMLLIElement;
-      name: HTMLHeadingElement;
-      developer: HTMLDivElement;
-      type: HTMLDivElement;
-      overview: HTMLDivElement;
-      latestVersion: HTMLDivElement;
-      installationStatus: HTMLDivElement;
-    };
-    li.classList.add('list-group-item-secondary');
-    li.getElementsByTagName('input')[0].remove(); // remove the radio button
-    name.innerText = ef;
-    overview.innerText = '手動で追加されたファイル';
-    developer.innerText = '';
-    type.innerText = '';
-    latestVersion.innerText = '';
-    installationStatus.innerText = '';
-    packagesList2.appendChild(li);
-  }
-
-  // update the batch installation text
+/**
+ * Updates the batch installation text in the AviUtl tab.
+ * @param {string} instPath - An installation path.
+ */
+async function updateBatchInstallList(instPath: string) {
+  const packages = (await packageUtil.getPackagesWithStatus(instPath)).packages;
   const batchInstallElm = document.getElementById('batch-install-packages');
   [...batchInstallElm.getElementsByClassName('batch-install-package')].map(
     (e) => e.remove(),
@@ -417,8 +87,12 @@ async function setPackagesList(instPath: string) {
       return liTag;
     })
     .forEach((e) => batchInstallElm.appendChild(e));
+}
 
-  // settings page
+/**
+ * Updates the mod dates in the settings page.
+ */
+function updateModDates() {
   if (config.modDate.hasPackages()) {
     const modDate = new Date(config.modDate.getPackages());
     replaceText('packages-mod-date', modDate.toLocaleString());
@@ -430,6 +104,48 @@ async function setPackagesList(instPath: string) {
 
     replaceText('packages-check-date', '未確認');
   }
+}
+
+/**
+ * Sets the selected entry. Called from the React list via packagesBridge.
+ * 旧 setPackagesList 内の li クリックハンドラに相当する。
+ * @param {string} type - The entry type ('package' or 'script').
+ * @param {object} entry - The selected package or script-site webpage.
+ */
+function setSelectedEntry(
+  type: string,
+  entry: PackageItem | Scripts['webpage'][number],
+) {
+  selectedEntry = entry;
+  selectedEntryType = type;
+  if (type === entryType.package) {
+    replaceText(
+      'install-package',
+      (entry as PackageItem).installationStatus?.startsWith(
+        packageUtil.states.installed,
+      )
+        ? '　　更新　　'
+        : 'インストール',
+    );
+  } else {
+    replaceText('install-package', 'インストール');
+  }
+}
+
+/**
+ * Installs the package of the given id. Called from the React list
+ * (要導入 link) via packagesBridge.
+ * @param {string} instPath - An installation path.
+ * @param {string} packageId - The id of the package to install.
+ */
+async function installPackageById(instPath: string, packageId: string) {
+  const packages = (await packageUtil.getPackagesWithStatus(instPath)).packages;
+  const packageToInstall = packages.find((p) => p.id === packageId);
+  if (!packageToInstall) {
+    log.error(`The package to install is not found. ID:${packageId}`);
+    return;
+  }
+  await installPackage(instPath, packageToInstall);
 }
 
 /**
@@ -991,94 +707,6 @@ async function installScript(instPath: string) {
   }, 3000);
 }
 
-const filterButtons: Set<HTMLButtonElement> = new Set();
-/**
- * Filter the list.
- * @param {string} column - A column name to filter
- * @param {HTMLCollection} btns - A list of buttons
- * @param {HTMLButtonElement} btn - A button selected
- */
-function listFilter(
-  column: string,
-  btns: HTMLCollectionOf<HTMLButtonElement>,
-  btn: HTMLButtonElement,
-) {
-  const isClear =
-    btn.classList.contains('selected') || btn.dataset.installFilter === 'clear';
-
-  for (const element of Array.from(btns)) {
-    filterButtons.add(element);
-  }
-  for (const element of Array.from(filterButtons)) {
-    element.classList.remove('selected');
-  }
-
-  if (isClear) {
-    listJS.filter();
-    listJS.update();
-  } else {
-    let filterFunc;
-    if (column === 'type') {
-      const query = packageUtil.parsePackageType([btn.dataset.typeFilter]);
-      filterFunc = (item: ListItem) => {
-        if (
-          query.some((q) =>
-            (item.values() as { type: string }).type.includes(q),
-          )
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      };
-    } else if (column === 'installationStatus') {
-      const query = btn.dataset.installFilter;
-      const getValue = (item: ListItem) => {
-        return (item.values() as { installationStatus: string })
-          .installationStatus;
-      };
-      if (query === 'true') {
-        filterFunc = (item: ListItem) => {
-          const value = getValue(item);
-          if (
-            value.startsWith(packageUtil.states.installed) ||
-            value === packageUtil.states.installedButBroken
-          ) {
-            return true;
-          } else {
-            return false;
-          }
-        };
-      } else if (query === 'manual') {
-        filterFunc = (item: ListItem) => {
-          const value = getValue(item);
-          if (value === packageUtil.states.manuallyInstalled) {
-            return true;
-          } else {
-            return false;
-          }
-        };
-      } else if (query === 'false') {
-        filterFunc = (item: ListItem) => {
-          const value = getValue(item);
-          if (
-            value === packageUtil.states.notInstalled ||
-            value === packageUtil.states.otherInstalled
-          ) {
-            return true;
-          } else {
-            return false;
-          }
-        };
-      }
-    }
-
-    listJS.filter(filterFunc);
-    listJS.update();
-    btn.classList.add('selected');
-  }
-}
-
 /**
  * Returns a nicommonsID list separated by space.
  * @param {string} instPath - An installation path.
@@ -1274,7 +902,8 @@ const packageMain = {
   uninstallPackage,
   openPackageFolder,
   installScript,
-  listFilter,
+  setSelectedEntry,
+  installPackageById,
   displayNicommonsIdList,
   sharePackages,
 };

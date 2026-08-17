@@ -12,5 +12,9 @@ declare global {
       getInstallationPath: () => string;
       onProgramInstalled: () => Promise<void>;
     };
+    packagesBridge: {
+      setSelectedEntry: (type: string, entry: unknown) => void;
+      installPackageById: (packageId: string) => Promise<void>;
+    };
   }
 }

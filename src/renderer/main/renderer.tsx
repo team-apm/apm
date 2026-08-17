@@ -8,6 +8,7 @@ import './index.css';
 import ProgramRow from './aviutl/ProgramRow';
 import { MonacoEditorRenderer } from './monacoEditorRenderer';
 import OthersTab from './others/OthersTab';
+import PackagesTab from './packages/PackagesTab';
 import DataUrlSettings from './settings/DataUrlSettings';
 import PreferencesSettings from './settings/PreferencesSettings';
 import { TrpcProvider } from './TrpcProvider';
@@ -35,6 +36,11 @@ window.addEventListener('DOMContentLoaded', () => {
   createRoot(document.getElementById('others-root')).render(
     <TrpcProvider>
       <OthersTab />
+    </TrpcProvider>,
+  );
+  createRoot(document.getElementById('packages-react-root')).render(
+    <TrpcProvider>
+      <PackagesTab />
     </TrpcProvider>,
   );
   createRoot(document.getElementById('aviutl-program-root')).render(
