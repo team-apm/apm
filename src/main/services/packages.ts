@@ -1,4 +1,4 @@
-import type { Packages } from 'apm-schema';
+import type { Packages, Scripts } from 'apm-schema';
 import { type BrowserWindow, dialog } from 'electron';
 import log from 'electron-log/main';
 import {
@@ -31,7 +31,7 @@ import unzip from '../../shared/unzip';
 import { ApmJsonObject } from '../../types/apmJson';
 import { PackageItem } from '../../types/packageItem';
 import { downloadFile } from './download';
-import { getConvertDataUrl } from './modList';
+import { getConvertDataUrl, getInfo, getScriptsDataUrl } from './modList';
 import { existsTempFile } from './tempFile';
 
 /**
@@ -304,6 +304,49 @@ export async function downloadRepository(
       keyText: packageRepository,
     });
   }
+}
+
+/**
+ * Returns an object parsed from scripts.json.
+ * 旧 src/renderer/main/package.ts の getScriptsList と同一の挙動。
+ * @param {BrowserWindow} win - A browser window used for the download session.
+ * @param {Config} config - The config instance.
+ * @param {boolean} update - Download the json file.
+ * @returns {Promise<{webpage: Scripts['webpage']; scripts: Scripts['scripts']}>} An object parsed from scripts.json.
+ */
+export async function getScriptsList(
+  win: BrowserWindow,
+  config: Config,
+  update: boolean,
+) {
+  const dictUrl = await getScriptsDataUrl(win, config);
+  const result: { webpage: Scripts['webpage']; scripts: Scripts['scripts'] } = {
+    webpage: [],
+    scripts: [],
+  };
+
+  for (const url of dictUrl) {
+    const scriptsJson = await downloadFile(win, url, {
+      loadCache: !update,
+      subDir: 'package',
+      keyText: url,
+    });
+    if (!scriptsJson) continue;
+    const json: Scripts = await readJson(scriptsJson);
+    result.webpage = result.webpage.concat(json.webpage);
+    result.scripts = result.scripts.concat(json.scripts);
+  }
+
+  if (update) {
+    const currentMod = await getInfo(win, config);
+    config.modDate.setScripts(
+      Math.max(
+        ...currentMod.scripts.map((p) => new Date(p.modified).getTime()),
+      ),
+    );
+  }
+
+  return result;
 }
 
 /**

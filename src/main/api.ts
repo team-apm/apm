@@ -16,6 +16,7 @@ import {
   getPackages,
   getPackagesExtra,
   getPackagesWithStatus,
+  getScriptsList,
   installPackageArchive,
   installScriptArchive,
   uninstallPackageFiles,
@@ -43,6 +44,17 @@ const procedure = t.procedure;
 const stringInput = (value: unknown): string => {
   if (typeof value !== 'string') throw new TypeError('A string is expected.');
   return value;
+};
+
+// electron-trpc は falsy なトップレベル入力(false / 0 / '')を undefined に
+// 変換してしまうため、boolean はオブジェクトで包んで受け取る
+const scriptsListInput = (value: unknown): { update: boolean } => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { update } = value as Record<string, unknown>;
+  if (typeof update !== 'boolean')
+    throw new TypeError('update is expected to be a boolean.');
+  return { update };
 };
 
 const dataUrlsInput = (
@@ -281,6 +293,13 @@ export const router = t.router({
         const win = BrowserWindow.fromWebContents(ctx.event.sender);
         if (!win) throw new Error('The calling window was not found.');
         return await getPackagesExtra(win, getConfig(), input);
+      }),
+    getScriptsList: procedure
+      .input(scriptsListInput)
+      .query(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        return await getScriptsList(win, getConfig(), input.update);
       }),
     getPackagesWithStatus: procedure
       .input(packagesWithStatusInput)

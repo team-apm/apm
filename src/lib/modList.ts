@@ -78,12 +78,4 @@ export async function getConvertDataUrl() {
   return resolvePath(getDataUrl(), (await getInfo()).convert.path);
 }
 
-/**
- * Returns a scripts data file URL.
- * @returns {string[]} - A scripts data file URL.
- */
-export async function getScriptsDataUrl() {
-  return (await getInfo()).scripts.map((script) =>
-    resolvePath(getDataUrl(), script.path),
-  );
-}
+// getScriptsDataUrl は main プロセス側(src/main/services/modList.ts)へ移設済み
