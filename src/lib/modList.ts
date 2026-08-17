@@ -1,4 +1,3 @@
-import fs from 'fs-extra';
 import path from 'node:path';
 import { resolvePath } from '../shared/resolvePath';
 import { getConfig } from './Config';
@@ -51,23 +50,7 @@ export async function getCoreDataUrl() {
   return resolvePath(getDataUrl(), (await getInfo()).core.path);
 }
 
-/**
- * Returns package data files URLs.
- * @param {string} instPath - An installation path.
- * @returns {Array.<string>} -Package data files URLs.
- */
-export function getPackagesDataUrl(instPath: string) {
-  return config.dataURL
-    .getPackages()
-    .concat(
-      instPath && instPath.length > 0
-        ? [
-            getLocalPackagesDataUrl(instPath),
-            getEditorPackagesDataUrl(instPath),
-          ].filter((p) => fs.existsSync(p))
-        : [],
-    );
-}
+// getPackagesDataUrl は main プロセス側(src/main/services/packages.ts)へ移設済み
 
 /**
  * Returns a local package data file URL.

@@ -65,3 +65,15 @@ export async function getCoreDataUrl(win: BrowserWindow, config: Config) {
   const info = await getInfo(win, config);
   return resolvePath(config.dataURL.getMain(), info.core.path);
 }
+
+/**
+ * Returns a convert data file URL.
+ * 旧 src/lib/modList.ts の getConvertDataUrl と同一の挙動。
+ * @param {BrowserWindow} win - A browser window used for the download session.
+ * @param {Config} config - The config instance.
+ * @returns {Promise<string>} A convert data file URL.
+ */
+export async function getConvertDataUrl(win: BrowserWindow, config: Config) {
+  const info = await getInfo(win, config);
+  return resolvePath(config.dataURL.getMain(), info.convert.path);
+}
