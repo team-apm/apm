@@ -1,17 +1,8 @@
 import { Scripts } from 'apm-schema';
 import log from 'electron-log/renderer';
-import {
-  copy,
-  existsSync,
-  mkdir,
-  readdir,
-  readJson,
-  rename,
-  rm,
-} from 'fs-extra';
+import { readJson } from 'fs-extra';
 import { ListItem } from 'list.js';
 import * as matcher from 'matcher';
-import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { getConfig } from '../../lib/Config';
@@ -30,9 +21,7 @@ import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
 import createList, { UpdatableList } from '../../lib/updatableList';
 import { compareVersion } from '../../shared/compareVersion';
-import { getHash } from '../../shared/getHash';
 import { verifyFile } from '../../shared/integrity';
-import unzip from '../../shared/unzip';
 import { PackageItem } from '../../types/packageItem';
 import { programs, programsDisp } from './common';
 import packageUtil from './packageUtil';
@@ -51,18 +40,6 @@ let selectedEntryType: string;
 const entryType = { package: 'package', scriptSite: 'script' };
 let listJS: UpdatableList;
 const shareStringVersion = '1.0';
-
-/**
- * Get the date today
- * @returns {string} Today's date
- */
-function getDate() {
-  const d = new Date();
-  return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(
-    2,
-    '0',
-  )}/${String(d.getDate()).padStart(2, '0')}`;
-}
 
 // Functions to be exported
 
@@ -997,168 +974,39 @@ async function installScript(instPath: string) {
     return;
   }
 
-  const pluginExtRegex = /\.(auf|aui|auo|auc|aul)$/;
-  const scriptExtRegex = /\.(anm|obj|cam|tra|scn)$/;
-
-  // https://zenn.dev/repomn/scraps/d80ccd5c9183f0
-  const asyncFlatMap = async <Item, Res>(
-    arr: Item[],
-    callback: (value: Item, index: number, array: Item[]) => Promise<Res>,
-  ) => {
-    const a = await Promise.all(arr.map(callback));
-    return a.flat();
-  };
-
-  const searchScriptRoot = async (dirName: string): Promise<string[]> => {
-    const dirents = await readdir(dirName, {
-      withFileTypes: true,
-    });
-    return dirents.find((i) => i.isFile() && scriptExtRegex.test(i.name))
-      ? [dirName]
-      : await asyncFlatMap(
-          dirents.filter((i) => i.isDirectory()),
-          (i) => searchScriptRoot(path.join(dirName, i.name)),
-        );
-  };
-
-  const extExists = async (
-    dirName: string,
-    regex: RegExp,
-  ): Promise<boolean> => {
-    const dirents = await readdir(dirName, {
-      withFileTypes: true,
-    });
-    return dirents.filter((i) => i.isFile() && regex.test(i.name)).length > 0
-      ? true
-      : (
-          await asyncFlatMap(
-            dirents.filter((i) => i.isDirectory()),
-            (i) => extExists(path.join(dirName, i.name), regex),
-          )
-        ).some((e) => e);
-  };
-
+  // 展開 → スクリプト検証 → 配置 → パッケージ情報の生成と保存は
+  // main プロセス側(services/packages.ts)へ移設済み
+  let result: Awaited<
+    ReturnType<typeof trpc.packages.installScriptArchive.mutate>
+  >;
   try {
-    const getUnzippedPath = async () => {
-      if (['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(archivePath))) {
-        return await unzip(archivePath);
-      } else {
-        // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
-        const newFolder = path.join(
-          path.dirname(archivePath),
-          'tmp_' + path.basename(archivePath),
-        );
-        await mkdir(newFolder, { recursive: true });
-        await rename(
-          archivePath,
-          path.join(newFolder, path.basename(archivePath)),
-        );
-        return newFolder;
-      }
-    };
-    const unzippedPath = await getUnzippedPath();
-
-    if (!(await extExists(unzippedPath, scriptExtRegex))) {
-      log.error('No script files are included.');
-      buttonTransition.message(btn, 'スクリプトが含まれていません。', 'danger');
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      return;
-    }
-    if (await extExists(unzippedPath, pluginExtRegex)) {
-      log.error('Plugin files are included.');
-      buttonTransition.message(
-        btn,
-        'プラグインが含まれているためインストールできません。',
-        'danger',
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-      return;
-    }
-
-    // Copying files
-    const denyList = [
-      '*readme*',
-      '*copyright*',
-      '*.txt',
-      '*.zip',
-      '*.aup',
-      '*.md',
-      'doc',
-      'old',
-      'old_*',
-    ];
-    const scriptRoot = (await searchScriptRoot(unzippedPath))[0];
-    const entriesToCopy = (
-      await readdir(scriptRoot, {
-        withFileTypes: true,
-      })
-    )
-      .filter((p) => !isMatch([p.name], denyList))
-      .map((p) => {
-        return {
-          src: path.join(scriptRoot, p.name),
-          dest: path.join(instPath, 'script', matchInfo.folder, p.name),
-          filename: path
-            .join('script', matchInfo.folder, p.name)
-            .replaceAll('\\', '/'),
-          isDirectory: p.isDirectory(),
-        };
-      });
-    await mkdir(path.join(instPath, 'script', matchInfo.folder), {
-      recursive: true,
+    result = await trpc.packages.installScriptArchive.mutate({
+      instPath,
+      archivePath,
+      url,
+      matchInfo: {
+        folder: matchInfo.folder,
+        developer: matchInfo.developer,
+        dependencies: matchInfo.dependencies,
+      },
     });
-    await Promise.all(
-      entriesToCopy.map((filePath) => copy(filePath.src, filePath.dest)),
-    );
-
-    // Constructing package information
-    const files = entriesToCopy.map((i) => {
-      return { filename: i.filename, isDirectory: i.isDirectory };
-    });
-
-    const filteredFiles = files.filter((f) => scriptExtRegex.test(f.filename));
-    const name = path.basename(
-      filteredFiles[0].filename,
-      path.extname(filteredFiles[0].filename),
-    );
-    const id = 'script_' + getHash(name);
-
-    // Rename the extracted folder
-    const newPath = path.join(path.dirname(unzippedPath), id);
-    if (existsSync(newPath)) await rm(newPath, { recursive: true });
-    await rename(unzippedPath, newPath);
-
-    // Save package information
-    const packageItem = {
-      id: id,
-      name: name,
-      overview: 'スクリプト',
-      description:
-        'スクリプト一覧: ' +
-        filteredFiles.map((f) => path.basename(f.filename)).join(', '),
-      developer: matchInfo?.developer ?? '-',
-      dependencies: matchInfo?.dependencies,
-      pageURL: url,
-      downloadURLs: [url] as [string, ...string[]],
-      latestVersion: getDate(),
-      files: files,
-    };
-
-    await parseJson.addPackage(
-      modList.getLocalPackagesDataUrl(instPath),
-      packageItem,
-    );
-    const apmJson = await ApmJson.load(instPath);
-    await apmJson.addPackage(packageItem.id, packageItem.latestVersion);
-    await checkPackagesList(instPath);
-
-    buttonTransition.message(btn, 'インストール完了', 'success');
   } catch (e) {
     log.error(e);
+    result = 'installFailed';
+  }
+
+  if (result === 'noScript') {
+    buttonTransition.message(btn, 'スクリプトが含まれていません。', 'danger');
+  } else if (result === 'containsPlugin') {
+    buttonTransition.message(
+      btn,
+      'プラグインが含まれているためインストールできません。',
+      'danger',
+    );
+  } else if (result === 'success') {
+    await checkPackagesList(instPath);
+    buttonTransition.message(btn, 'インストール完了', 'success');
+  } else {
     buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
   }
 
