@@ -12,8 +12,10 @@ import {
   installCoreProgram,
 } from './services/core';
 import { updateInfo } from './services/modList';
+import { getNicommonsData } from './services/nicommons';
 import {
   downloadRepository,
+  getApmJsonInstalledIds,
   getPackages,
   getPackagesExtra,
   getPackagesWithStatus,
@@ -178,6 +180,19 @@ const installScriptInput = (
   };
 };
 
+const installedIdsInput = (
+  value: unknown,
+): { instPath: string; ids: string[] } => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { instPath, ids } = value as Record<string, unknown>;
+  if (typeof instPath !== 'string')
+    throw new TypeError('instPath is expected to be a string.');
+  if (!(Array.isArray(ids) && ids.every((id) => typeof id === 'string')))
+    throw new TypeError('ids is expected to be an array of strings.');
+  return { instPath, ids: ids as string[] };
+};
+
 const packagesWithStatusInput = (
   value: unknown,
 ): { instPath: string; fixIntegrity: boolean } => {
@@ -295,6 +310,12 @@ export const router = t.router({
         if (!win) throw new Error('The calling window was not found.');
         return await getPackagesExtra(win, getConfig(), input);
       }),
+    getApmJsonInstalledIds: procedure
+      .input(installedIdsInput)
+      .query(
+        async ({ input }) =>
+          await getApmJsonInstalledIds(input.instPath, input.ids),
+      ),
     getScriptsList: procedure
       .input(scriptsListInput)
       .query(async ({ input, ctx }) => {
@@ -345,6 +366,11 @@ export const router = t.router({
           input.matchInfo,
         );
       }),
+  }),
+  nicommons: t.router({
+    getData: procedure
+      .input(stringInput)
+      .query(async ({ input }) => await getNicommonsData(input)),
   }),
   core: t.router({
     getCoreInfo: procedure.query(async ({ ctx }) => {
