@@ -1,10 +1,18 @@
 import type { Packages } from 'apm-schema';
 import { type BrowserWindow, dialog } from 'electron';
 import log from 'electron-log/main';
-import { existsSync, readdir as fsReaddir, readJson } from 'fs-extra';
+import {
+  existsSync,
+  readdir as fsReaddir,
+  mkdir,
+  readJson,
+  rename,
+} from 'fs-extra';
+import { execSync } from 'node:child_process';
 import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import type Config from '../../lib/Config';
+import { install, verifyFilesByCount } from '../../shared/install';
 import { checkIntegrity } from '../../shared/integrity';
 import {
   computePackagesStatus,
@@ -13,6 +21,8 @@ import {
   getManuallyInstalledFiles,
   states,
 } from '../../shared/packageUtil';
+import { safeRemove } from '../../shared/safeRemove';
+import unzip from '../../shared/unzip';
 import { ApmJsonObject } from '../../types/apmJson';
 import { PackageItem } from '../../types/packageItem';
 import { downloadFile } from './download';
@@ -289,4 +299,154 @@ export async function downloadRepository(
       keyText: packageRepository,
     });
   }
+}
+
+/**
+ * Get the date today
+ * 旧 src/renderer/main/package.ts の getDate と同一の挙動。
+ * @returns {string} Today's date
+ */
+function getDate() {
+  const d = new Date();
+  return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(
+    2,
+    '0',
+  )}/${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/**
+ * Unzips (or moves) the downloaded archive, installs the files and records
+ * the package in apm.json.
+ * 旧 src/renderer/main/package.ts の installPackage 後半
+ * (展開 → インストーラ実行または配置 → 検証 → apm.json 記録)と同一の挙動。
+ * @param {string} instPath - An installation path.
+ * @param {string} archivePath - Path to the downloaded archive.
+ * @param {object} packageItem - A package to install.
+ * @returns {Promise<boolean>} Whether the installation succeeded.
+ */
+export async function installPackageArchive(
+  instPath: string,
+  archivePath: string,
+  packageItem: Pick<PackageItem, 'id' | 'info'>,
+): Promise<boolean> {
+  let installResult = false;
+
+  try {
+    const getUnzippedPath = async () => {
+      if (['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(archivePath))) {
+        return await unzip(archivePath, packageItem.id);
+      } else {
+        // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
+        const newFolder = path.join(path.dirname(archivePath), packageItem.id);
+        await mkdir(newFolder, { recursive: true });
+        await rename(
+          archivePath,
+          path.join(newFolder, path.basename(archivePath)),
+        );
+        return newFolder;
+      }
+    };
+
+    const unzippedPath = await getUnzippedPath();
+
+    if (packageItem.info.installer) {
+      const searchFiles = async (dirName: string) => {
+        let result: string[][] = [];
+        const dirents = await fsReaddir(dirName, {
+          withFileTypes: true,
+        });
+        for (const dirent of dirents) {
+          if (dirent.isDirectory()) {
+            const childResult = await searchFiles(
+              path.join(dirName, dirent.name),
+            );
+            result = result.concat(childResult);
+          } else {
+            if (dirent.name === packageItem.info.installer) {
+              result.push([path.join(dirName, dirent.name)]);
+              break;
+            }
+          }
+        }
+        return result;
+      };
+
+      const exePath = await searchFiles(unzippedPath);
+      const command =
+        '"' +
+        exePath[0][0] +
+        '" ' +
+        packageItem.info.installArg
+          .replace('"$instpath"', '$instpath')
+          .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
+      execSync(command);
+
+      installResult = verifyFilesByCount(instPath, packageItem.info.files);
+    } else {
+      installResult = await install(
+        unzippedPath,
+        instPath,
+        packageItem.info.files,
+      );
+    }
+  } catch (e) {
+    log.error(e);
+    installResult = false;
+  }
+
+  if (installResult) {
+    // isContinuous のパッケージはインストール日をバージョンとして記録する
+    const latestVersion = packageItem.info.isContinuous
+      ? getDate()
+      : packageItem.info.latestVersion;
+    const apmJson = await ApmJson.load(instPath);
+    await apmJson.addPackage(packageItem.id, latestVersion);
+  }
+
+  return installResult;
+}
+
+export type UninstallPackageResult = 'success' | 'removeFailed' | 'filesRemain';
+
+/**
+ * Removes the files of the package and removes it from apm.json.
+ * 旧 src/renderer/main/package.ts の uninstallPackage の計算部分と同一の挙動
+ * (削除失敗時のメッセージ表示・スクリプト用の後処理は renderer 側の責務)。
+ * @param {string} instPath - An installation path.
+ * @param {object} packageItem - A package to uninstall.
+ * @returns {Promise<UninstallPackageResult>} The result of the uninstallation.
+ */
+export async function uninstallPackageFiles(
+  instPath: string,
+  packageItem: Pick<PackageItem, 'id' | 'info'>,
+): Promise<UninstallPackageResult> {
+  const filesToRemove = [];
+  for (const file of packageItem.info.files) {
+    if (!file.isInstallOnly)
+      filesToRemove.push(path.join(instPath, file.filename));
+  }
+
+  try {
+    await Promise.all(
+      filesToRemove.map((filePath) => safeRemove(filePath, instPath)),
+    );
+  } catch (e) {
+    log.error(e);
+    return 'removeFailed';
+  }
+
+  let filesCount = 0;
+  let notExistCount = 0;
+  for (const file of packageItem.info.files) {
+    if (!file.isInstallOnly) {
+      filesCount++;
+      if (!existsSync(path.join(instPath, file.filename))) {
+        notExistCount++;
+      }
+    }
+  }
+
+  const apmJson = await ApmJson.load(instPath);
+  await apmJson.removePackage(packageItem.id);
+  return filesCount === notExistCount ? 'success' : 'filesRemain';
 }
