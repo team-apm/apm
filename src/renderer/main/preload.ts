@@ -34,7 +34,6 @@ contextBridge.exposeInMainWorld('coreBridge', {
     ) as HTMLInputElement | null;
     const instPath = input?.value ?? '';
     await packageMain.setPackagesList(instPath);
-    await packageMain.displayNicommonsIdList(instPath);
   },
 });
 

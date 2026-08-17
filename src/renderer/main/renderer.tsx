@@ -7,6 +7,7 @@ import '../main.css';
 import './index.css';
 import ProgramRow from './aviutl/ProgramRow';
 import { MonacoEditorRenderer } from './monacoEditorRenderer';
+import NicommonsTab from './nicommons/NicommonsTab';
 import OthersTab from './others/OthersTab';
 import PackagesTab from './packages/PackagesTab';
 import DataUrlSettings from './settings/DataUrlSettings';
@@ -36,6 +37,11 @@ window.addEventListener('DOMContentLoaded', () => {
   createRoot(document.getElementById('others-root')).render(
     <TrpcProvider>
       <OthersTab />
+    </TrpcProvider>,
+  );
+  createRoot(document.getElementById('nicommons-id-list')).render(
+    <TrpcProvider>
+      <NicommonsTab />
     </TrpcProvider>,
   );
   createRoot(document.getElementById('packages-react-root')).render(

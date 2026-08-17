@@ -164,7 +164,6 @@ async function changeInstallationPath(instPath: string) {
   // redraw
   await displayInstalledVersion();
   await packageMain.setPackagesList(instPath);
-  await packageMain.displayNicommonsIdList(instPath);
 }
 
 /**
@@ -249,7 +248,6 @@ async function installProgram(
     if (result === 'success') {
       await displayInstalledVersion();
       await packageMain.setPackagesList(instPath);
-      await packageMain.displayNicommonsIdList(instPath);
 
       if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
     } else {
