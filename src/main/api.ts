@@ -17,6 +17,7 @@ import {
   getPackagesExtra,
   getPackagesWithStatus,
   installPackageArchive,
+  installScriptArchive,
   uninstallPackageFiles,
 } from './services/packages';
 import { ensureExtraDataUrl, setDataUrls } from './services/settings';
@@ -108,6 +109,60 @@ const uninstallPackageInput = (
   if (typeof instPath !== 'string')
     throw new TypeError('instPath is expected to be a string.');
   return { instPath, packageItem: packageItemInput(packageItem) };
+};
+
+const installScriptInput = (
+  value: unknown,
+): {
+  instPath: string;
+  archivePath: string;
+  url: string;
+  matchInfo: { folder: string; developer?: string; dependencies?: string[] };
+} => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { instPath, archivePath, url, matchInfo } = value as Record<
+    string,
+    unknown
+  >;
+  if (
+    typeof instPath !== 'string' ||
+    typeof archivePath !== 'string' ||
+    typeof url !== 'string'
+  )
+    throw new TypeError(
+      'instPath, archivePath, and url are expected to be strings.',
+    );
+  if (typeof matchInfo !== 'object' || matchInfo === null)
+    throw new TypeError('matchInfo is expected to be an object.');
+  const { folder, developer, dependencies } = matchInfo as Record<
+    string,
+    unknown
+  >;
+  if (typeof folder !== 'string')
+    throw new TypeError('matchInfo.folder is expected to be a string.');
+  if (developer !== undefined && typeof developer !== 'string')
+    throw new TypeError('matchInfo.developer is expected to be a string.');
+  if (
+    dependencies !== undefined &&
+    !(
+      Array.isArray(dependencies) &&
+      dependencies.every((d) => typeof d === 'string')
+    )
+  )
+    throw new TypeError(
+      'matchInfo.dependencies is expected to be an array of strings.',
+    );
+  return {
+    instPath,
+    archivePath,
+    url,
+    matchInfo: {
+      folder,
+      developer: developer as string | undefined,
+      dependencies: dependencies as string[] | undefined,
+    },
+  };
 };
 
 const packagesWithStatusInput = (
@@ -254,6 +309,20 @@ export const router = t.router({
         return await uninstallPackageFiles(
           input.instPath,
           input.packageItem as Parameters<typeof uninstallPackageFiles>[1],
+        );
+      }),
+    installScriptArchive: procedure
+      .input(installScriptInput)
+      .mutation(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        return await installScriptArchive(
+          win,
+          getConfig(),
+          input.instPath,
+          input.archivePath,
+          input.url,
+          input.matchInfo,
         );
       }),
   }),

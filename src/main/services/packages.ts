@@ -2,16 +2,21 @@ import type { Packages } from 'apm-schema';
 import { type BrowserWindow, dialog } from 'electron';
 import log from 'electron-log/main';
 import {
+  copy,
   existsSync,
   readdir as fsReaddir,
   mkdir,
   readJson,
   rename,
+  rm,
+  writeJson,
 } from 'fs-extra';
+import * as matcher from 'matcher';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import type Config from '../../lib/Config';
+import { getHash } from '../../shared/getHash';
 import { install, verifyFilesByCount } from '../../shared/install';
 import { checkIntegrity } from '../../shared/integrity';
 import {
@@ -449,4 +454,210 @@ export async function uninstallPackageFiles(
   const apmJson = await ApmJson.load(instPath);
   await apmJson.removePackage(packageItem.id);
   return filesCount === notExistCount ? 'success' : 'filesRemain';
+}
+
+// To avoid a bug in the library
+// https://github.com/sindresorhus/matcher/issues/32
+const isMatch = (
+  input: string | readonly string[],
+  pattern: readonly string[],
+) => pattern.some((p) => matcher.isMatch(input, p));
+
+export type InstallScriptResult =
+  | 'success'
+  | 'noScript'
+  | 'containsPlugin'
+  | 'installFailed';
+
+/**
+ * Unzips the downloaded script archive, verifies and copies the script files,
+ * and records the generated package in the local packages.json and apm.json.
+ * 旧 src/renderer/main/package.ts の installScript 後半
+ * (展開 → スクリプト有無の検証 → 配置 → パッケージ情報の生成と保存)と
+ * 同一の挙動。ローカル packages.json への追記は旧 parseJson.addPackage 相当
+ * (データ v1 互換の ID 変換込み)。
+ * @param {BrowserWindow} win - A browser window used for the download session.
+ * @param {Config} config - The config instance.
+ * @param {string} instPath - An installation path.
+ * @param {string} archivePath - Path to the downloaded archive.
+ * @param {string} url - The URL of the script distribution page.
+ * @param {object} matchInfo - The matched script information.
+ * @param {string} matchInfo.folder - A folder name to copy the scripts into.
+ * @param {string} [matchInfo.developer] - The developer of the script.
+ * @param {string[]} [matchInfo.dependencies] - Dependencies of the script.
+ * @returns {Promise<InstallScriptResult>} The result of the installation.
+ */
+export async function installScriptArchive(
+  win: BrowserWindow,
+  config: Config,
+  instPath: string,
+  archivePath: string,
+  url: string,
+  matchInfo: { folder: string; developer?: string; dependencies?: string[] },
+): Promise<InstallScriptResult> {
+  const pluginExtRegex = /\.(auf|aui|auo|auc|aul)$/;
+  const scriptExtRegex = /\.(anm|obj|cam|tra|scn)$/;
+
+  // https://zenn.dev/repomn/scraps/d80ccd5c9183f0
+  const asyncFlatMap = async <Item, Res>(
+    arr: Item[],
+    callback: (value: Item, index: number, array: Item[]) => Promise<Res>,
+  ) => {
+    const a = await Promise.all(arr.map(callback));
+    return a.flat();
+  };
+
+  const searchScriptRoot = async (dirName: string): Promise<string[]> => {
+    const dirents = await fsReaddir(dirName, {
+      withFileTypes: true,
+    });
+    return dirents.find((i) => i.isFile() && scriptExtRegex.test(i.name))
+      ? [dirName]
+      : await asyncFlatMap(
+          dirents.filter((i) => i.isDirectory()),
+          (i) => searchScriptRoot(path.join(dirName, i.name)),
+        );
+  };
+
+  const extExists = async (
+    dirName: string,
+    regex: RegExp,
+  ): Promise<boolean> => {
+    const dirents = await fsReaddir(dirName, {
+      withFileTypes: true,
+    });
+    return dirents.filter((i) => i.isFile() && regex.test(i.name)).length > 0
+      ? true
+      : (
+          await asyncFlatMap(
+            dirents.filter((i) => i.isDirectory()),
+            (i) => extExists(path.join(dirName, i.name), regex),
+          )
+        ).some((e) => e);
+  };
+
+  try {
+    const getUnzippedPath = async () => {
+      if (['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(archivePath))) {
+        return await unzip(archivePath);
+      } else {
+        // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
+        const newFolder = path.join(
+          path.dirname(archivePath),
+          'tmp_' + path.basename(archivePath),
+        );
+        await mkdir(newFolder, { recursive: true });
+        await rename(
+          archivePath,
+          path.join(newFolder, path.basename(archivePath)),
+        );
+        return newFolder;
+      }
+    };
+    const unzippedPath = await getUnzippedPath();
+
+    if (!(await extExists(unzippedPath, scriptExtRegex))) {
+      log.error('No script files are included.');
+      return 'noScript';
+    }
+    if (await extExists(unzippedPath, pluginExtRegex)) {
+      log.error('Plugin files are included.');
+      return 'containsPlugin';
+    }
+
+    // Copying files
+    const denyList = [
+      '*readme*',
+      '*copyright*',
+      '*.txt',
+      '*.zip',
+      '*.aup',
+      '*.md',
+      'doc',
+      'old',
+      'old_*',
+    ];
+    const scriptRoot = (await searchScriptRoot(unzippedPath))[0];
+    const entriesToCopy = (
+      await fsReaddir(scriptRoot, {
+        withFileTypes: true,
+      })
+    )
+      .filter((p) => !isMatch([p.name], denyList))
+      .map((p) => {
+        return {
+          src: path.join(scriptRoot, p.name),
+          dest: path.join(instPath, 'script', matchInfo.folder, p.name),
+          filename: path
+            .join('script', matchInfo.folder, p.name)
+            .replaceAll('\\', '/'),
+          isDirectory: p.isDirectory(),
+        };
+      });
+    await mkdir(path.join(instPath, 'script', matchInfo.folder), {
+      recursive: true,
+    });
+    await Promise.all(
+      entriesToCopy.map((filePath) => copy(filePath.src, filePath.dest)),
+    );
+
+    // Constructing package information
+    const files = entriesToCopy.map((i) => {
+      return { filename: i.filename, isDirectory: i.isDirectory };
+    });
+
+    const filteredFiles = files.filter((f) => scriptExtRegex.test(f.filename));
+    const name = path.basename(
+      filteredFiles[0].filename,
+      path.extname(filteredFiles[0].filename),
+    );
+    const id = 'script_' + getHash(name);
+
+    // Rename the extracted folder
+    const newPath = path.join(path.dirname(unzippedPath), id);
+    if (existsSync(newPath)) await rm(newPath, { recursive: true });
+    await rename(unzippedPath, newPath);
+
+    // Save package information
+    const packageItem = {
+      id: id,
+      name: name,
+      overview: 'スクリプト',
+      description:
+        'スクリプト一覧: ' +
+        filteredFiles.map((f) => path.basename(f.filename)).join(', '),
+      developer: matchInfo?.developer ?? '-',
+      dependencies: matchInfo?.dependencies,
+      pageURL: url,
+      downloadURLs: [url] as [string, ...string[]],
+      latestVersion: getDate(),
+      files: files,
+    };
+
+    // 旧 parseJson.addPackage と同一の挙動(既存一覧の ID 変換込み)
+    const localPackagesPath = path.join(instPath, 'packages.json');
+    const localPackages: Packages['packages'] = existsSync(localPackagesPath)
+      ? ((await readJson(localPackagesPath)) as Packages).packages
+      : [];
+    const convDict = await getIdDict(win, config);
+    for (const localPackage of localPackages) {
+      // For compatibility with data v1
+      if (Object.prototype.hasOwnProperty.call(convDict, localPackage.id)) {
+        localPackage.id = convDict[localPackage.id];
+      }
+    }
+    const newLocalPackages = localPackages.filter((p) => p.id !== id);
+    newLocalPackages.push(packageItem as Packages['packages'][number]);
+    await writeJson(localPackagesPath, {
+      version: 3,
+      packages: newLocalPackages,
+    });
+
+    const apmJson = await ApmJson.load(instPath);
+    await apmJson.addPackage(packageItem.id, packageItem.latestVersion);
+    return 'success';
+  } catch (e) {
+    log.error(e);
+    return 'installFailed';
+  }
 }
