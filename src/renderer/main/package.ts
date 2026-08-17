@@ -11,7 +11,6 @@ import {
 } from 'fs-extra';
 import { ListItem } from 'list.js';
 import * as matcher from 'matcher';
-import { execSync } from 'node:child_process';
 import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
@@ -28,14 +27,14 @@ import {
 import * as modList from '../../lib/modList';
 import * as parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
+import { trpc } from '../../lib/trpcClient';
 import createList, { UpdatableList } from '../../lib/updatableList';
 import { compareVersion } from '../../shared/compareVersion';
 import { getHash } from '../../shared/getHash';
 import { verifyFile } from '../../shared/integrity';
-import { safeRemove } from '../../shared/safeRemove';
 import unzip from '../../shared/unzip';
 import { PackageItem } from '../../types/packageItem';
-import { install, programs, programsDisp, verifyFilesByCount } from './common';
+import { programs, programsDisp } from './common';
 import packageUtil from './packageUtil';
 
 const config = getConfig();
@@ -738,85 +737,21 @@ async function installPackage(
     archivePath = downloadResult.savePath;
   }
 
+  // 展開 → 配置(またはインストーラ実行)→ 検証 → apm.json 記録は
+  // main プロセス側(services/packages.ts)へ移設済み
   let installResult = false;
-
   try {
-    const getUnzippedPath = async () => {
-      if (['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(archivePath))) {
-        return await unzip(archivePath, installedPackage.id);
-      } else {
-        // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
-        const newFolder = path.join(
-          path.dirname(archivePath),
-          installedPackage.id,
-        );
-        await mkdir(newFolder, { recursive: true });
-        await rename(
-          archivePath,
-          path.join(newFolder, path.basename(archivePath)),
-        );
-        return newFolder;
-      }
-    };
-
-    const unzippedPath = await getUnzippedPath();
-
-    if (installedPackage.info.installer) {
-      const searchFiles = async (dirName: string) => {
-        let result: string[][] = [];
-        const dirents = await readdir(dirName, {
-          withFileTypes: true,
-        });
-        for (const dirent of dirents) {
-          if (dirent.isDirectory()) {
-            const childResult = await searchFiles(
-              path.join(dirName, dirent.name),
-            );
-            result = result.concat(childResult);
-          } else {
-            if (dirent.name === installedPackage.info.installer) {
-              result.push([path.join(dirName, dirent.name)]);
-              break;
-            }
-          }
-        }
-        return result;
-      };
-
-      const exePath = await searchFiles(unzippedPath);
-      const command =
-        '"' +
-        exePath[0][0] +
-        '" ' +
-        installedPackage.info.installArg
-          .replace('"$instpath"', '$instpath')
-          .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
-      execSync(command);
-
-      installResult = verifyFilesByCount(instPath, installedPackage.info.files);
-    } else {
-      installResult = await install(
-        unzippedPath,
-        instPath,
-        installedPackage.info.files,
-      );
-    }
+    installResult = await trpc.packages.installPackageArchive.mutate({
+      instPath,
+      archivePath,
+      packageItem: { id: installedPackage.id, info: installedPackage.info },
+    });
   } catch (e) {
     log.error(e);
     installResult = false;
   }
 
   if (installResult) {
-    if (installedPackage.info.isContinuous)
-      installedPackage.info = {
-        ...installedPackage.info,
-        latestVersion: getDate(),
-      };
-    const apmJson = await ApmJson.load(instPath);
-    await apmJson.addPackage(
-      installedPackage.id,
-      installedPackage.info.latestVersion,
-    );
     await setPackagesList(instPath);
     await displayNicommonsIdList(instPath);
 
@@ -881,18 +816,20 @@ async function uninstallPackage(instPath: string) {
 
   const uninstalledPackage = { ...selectedEntry } as PackageItem;
 
-  const filesToRemove = [];
-  for (const file of uninstalledPackage.info.files) {
-    if (!file.isInstallOnly)
-      filesToRemove.push(path.join(instPath, file.filename));
-  }
-
+  // ファイル削除と apm.json からの削除は main プロセス側
+  // (services/packages.ts)へ移設済み
+  let result: Awaited<ReturnType<typeof trpc.packages.uninstallPackage.mutate>>;
   try {
-    await Promise.all(
-      filesToRemove.map((filePath) => safeRemove(filePath, instPath)),
-    );
+    result = await trpc.packages.uninstallPackage.mutate({
+      instPath,
+      packageItem: { id: uninstalledPackage.id, info: uninstalledPackage.info },
+    });
   } catch (e) {
     log.error(e);
+    result = 'removeFailed';
+  }
+
+  if (result === 'removeFailed') {
     buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
     setTimeout(() => {
       enableButton();
@@ -900,20 +837,7 @@ async function uninstallPackage(instPath: string) {
     return;
   }
 
-  let filesCount = 0;
-  let notExistCount = 0;
-  for (const file of uninstalledPackage.info.files) {
-    if (!file.isInstallOnly) {
-      filesCount++;
-      if (!existsSync(path.join(instPath, file.filename))) {
-        notExistCount++;
-      }
-    }
-  }
-
-  const apmJson = await ApmJson.load(instPath);
-  await apmJson.removePackage(uninstalledPackage.id);
-  if (filesCount === notExistCount) {
+  if (result === 'success') {
     if (!uninstalledPackage.id.startsWith('script_')) {
       await setPackagesList(instPath);
       await displayNicommonsIdList(instPath);

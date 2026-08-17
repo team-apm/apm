@@ -16,6 +16,8 @@ import {
   getPackages,
   getPackagesExtra,
   getPackagesWithStatus,
+  installPackageArchive,
+  uninstallPackageFiles,
 } from './services/packages';
 import { ensureExtraDataUrl, setDataUrls } from './services/settings';
 
@@ -63,6 +65,49 @@ const autoUpdateInput = (value: unknown): 'download' | 'notify' | 'disable' => {
   )
     throw new TypeError('One of download, notify, or disable is expected.');
   return value as 'download' | 'notify' | 'disable';
+};
+
+const packageItemInput = (
+  value: unknown,
+): { id: string; info: Record<string, unknown> } => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { id, info } = value as Record<string, unknown>;
+  if (typeof id !== 'string' || typeof info !== 'object' || info === null)
+    throw new TypeError('id is expected to be a string and info an object.');
+  return { id, info: info as Record<string, unknown> };
+};
+
+const installArchiveInput = (
+  value: unknown,
+): {
+  instPath: string;
+  archivePath: string;
+  packageItem: { id: string; info: Record<string, unknown> };
+} => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { instPath, archivePath, packageItem } = value as Record<
+    string,
+    unknown
+  >;
+  if (typeof instPath !== 'string' || typeof archivePath !== 'string')
+    throw new TypeError('instPath and archivePath are expected to be strings.');
+  return { instPath, archivePath, packageItem: packageItemInput(packageItem) };
+};
+
+const uninstallPackageInput = (
+  value: unknown,
+): {
+  instPath: string;
+  packageItem: { id: string; info: Record<string, unknown> };
+} => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { instPath, packageItem } = value as Record<string, unknown>;
+  if (typeof instPath !== 'string')
+    throw new TypeError('instPath is expected to be a string.');
+  return { instPath, packageItem: packageItemInput(packageItem) };
 };
 
 const packagesWithStatusInput = (
@@ -192,6 +237,23 @@ export const router = t.router({
           getConfig(),
           input.instPath,
           input.fixIntegrity,
+        );
+      }),
+    installPackageArchive: procedure
+      .input(installArchiveInput)
+      .mutation(async ({ input }) => {
+        return await installPackageArchive(
+          input.instPath,
+          input.archivePath,
+          input.packageItem as Parameters<typeof installPackageArchive>[2],
+        );
+      }),
+    uninstallPackage: procedure
+      .input(uninstallPackageInput)
+      .mutation(async ({ input }) => {
+        return await uninstallPackageFiles(
+          input.instPath,
+          input.packageItem as Parameters<typeof uninstallPackageFiles>[1],
         );
       }),
   }),
