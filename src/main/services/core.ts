@@ -60,6 +60,22 @@ export async function checkCoreLatestVersion(
 }
 
 /**
+ * Returns the core versions recorded in apm.json.
+ * 共有文字列の互換性チェック(React 側)が参照する。未記録なら undefined。
+ * @param {string} instPath - An installation path.
+ * @returns {Promise<{ aviutl?: string; exedit?: string }>} The recorded versions.
+ */
+export async function getApmJsonCoreVersions(
+  instPath: string,
+): Promise<{ aviutl?: string; exedit?: string }> {
+  const apmJson = await ApmJson.load(instPath);
+  return {
+    aviutl: (await apmJson.get('core.aviutl')) as string | undefined,
+    exedit: (await apmJson.get('core.exedit')) as string | undefined,
+  };
+}
+
+/**
  * Returns the installed-version texts of AviUtl and 拡張編集.
  * 旧 src/renderer/main/core.ts の displayInstalledVersion の計算部分と同一の挙動。
  * 表示テキストの算出に加えて、整合性検証による apm.json の補正書き込みと
