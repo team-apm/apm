@@ -38,6 +38,22 @@ contextBridge.exposeInMainWorld('coreBridge', {
   },
 });
 
+// メインワールドの React(Plugins タブ PackagesTab)とレガシーの橋渡し
+contextBridge.exposeInMainWorld('packagesBridge', {
+  setSelectedEntry: (type: string, entry: unknown) => {
+    packageMain.setSelectedEntry(
+      type,
+      entry as Parameters<typeof packageMain.setSelectedEntry>[1],
+    );
+  },
+  installPackageById: async (packageId: string) => {
+    const input = document.getElementById(
+      'installation-path',
+    ) as HTMLInputElement | null;
+    await packageMain.installPackageById(input?.value ?? '', packageId);
+  },
+});
+
 // メインワールドの React(Settings ほか)から tRPC を使うための bridge
 process.once('loaded', () => {
   exposeElectronTRPC();
@@ -138,23 +154,7 @@ window.addEventListener('load', () => {
     await packageMain.openPackageFolder();
   });
 
-  const filterSidebar = document.getElementById('filter');
-  const typeFilterBtns = filterSidebar.getElementsByClassName(
-    'type-filter',
-  ) as HTMLCollectionOf<HTMLButtonElement>;
-  Array.from(typeFilterBtns).forEach((element: HTMLButtonElement) => {
-    element.addEventListener('click', () => {
-      packageMain.listFilter('type', typeFilterBtns, element);
-    });
-  });
-  const installFilterBtns = filterSidebar.getElementsByClassName(
-    'install-filter',
-  ) as HTMLCollectionOf<HTMLButtonElement>;
-  Array.from(installFilterBtns).forEach((element: HTMLButtonElement) => {
-    element.addEventListener('click', () => {
-      packageMain.listFilter('installationStatus', installFilterBtns, element);
-    });
-  });
+  // フィルタボタンのクリックは React 側(packages/PackagesTab.tsx)が購読する
 
   const sharePackagesBtn = document.getElementById('share-packages');
   sharePackagesBtn.addEventListener('click', async () => {

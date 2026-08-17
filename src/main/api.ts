@@ -6,6 +6,7 @@ import { openAboutWindow } from './aboutWindow';
 import { isExeVersion } from './services/appUpdate';
 import {
   checkCoreLatestVersion,
+  getApmJsonCoreVersions,
   getCoreInfo,
   getInstalledVersionTexts,
   installCoreProgram,
@@ -351,6 +352,9 @@ export const router = t.router({
       if (!win) throw new Error('The calling window was not found.');
       return await getCoreInfo(win, getConfig());
     }),
+    getApmJsonCoreVersions: procedure
+      .input(stringInput)
+      .query(async ({ input }) => await getApmJsonCoreVersions(input)),
     getInstalledVersionTexts: procedure
       .input(stringInput)
       .query(async ({ input, ctx }) => {
