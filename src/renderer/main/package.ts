@@ -1,32 +1,19 @@
 import { Scripts } from 'apm-schema';
 import log from 'electron-log/renderer';
-import * as matcher from 'matcher';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { getConfig } from '../../lib/Config';
-import {
-  app,
-  clipboardWriteText,
-  openBrowser,
-  openPath,
-} from '../../lib/ipcWrapper';
+import { app, clipboardWriteText, openPath } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
-import * as parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
+import type { InstallScriptFlowResult } from '../../main/services/packages';
 import { shareStringVersion } from '../../shared/shareString';
 import { PackageItem } from '../../types/packageItem';
 import { programs } from './common';
 import packageUtil from './packageUtil';
 
 const config = getConfig();
-
-// To avoid a bug in the library
-// https://github.com/sindresorhus/matcher/issues/32
-const isMatch = (
-  input: string | readonly string[],
-  pattern: readonly string[],
-) => pattern.some((p) => matcher.isMatch(input, p));
 
 let selectedEntry: PackageItem | Scripts['webpage'][number];
 let selectedEntryType: string;
@@ -459,13 +446,11 @@ async function uninstallPackage(instPath: string) {
   }
 
   if (result === 'success') {
+    // スクリプト由来のパッケージのローカル packages.json からの削除は
+    // main プロセス側(services/packages.ts)へ移設済み
     if (!uninstalledPackage.id.startsWith('script_')) {
       await setPackagesList(instPath);
     } else {
-      await parseJson.removePackage(
-        modList.getLocalPackagesDataUrl(instPath),
-        uninstalledPackage,
-      );
       await checkPackagesList(instPath);
     }
 
@@ -559,51 +544,28 @@ async function installScript(instPath: string) {
     return;
   }
 
-  const downloadResult = await openBrowser(url, 'package');
-  if (!downloadResult) {
-    log.info('The installation was canceled.');
-    buttonTransition.message(
-      btn,
-      'インストールがキャンセルされました。',
-      'info',
-    );
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-    return;
+  // ブラウザ DL → matchInfo 解決 → redirect 分岐 → 展開・配置・保存は
+  // main プロセス側(services/packages.ts の installScriptFlow)へ移設済み
+  let result: InstallScriptFlowResult;
+  try {
+    result = (await trpc.packages.installScript.mutate({
+      instPath,
+      url,
+    })) as InstallScriptFlowResult;
+  } catch (e) {
+    log.error(e);
+    result = { route: 'script', status: 'installFailed' };
   }
 
-  const archivePath = downloadResult.savePath;
-  const history = downloadResult.history;
-  const matchInfo = [...(await getScriptsList()).scripts]
-    .reverse()
-    .find((item) => isMatch(history, item.match));
-
-  if (!matchInfo) {
-    log.error('The script is not supported.');
-    buttonTransition.message(btn, '未対応のスクリプトです。', 'danger');
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-    return;
-  }
-
-  if ('redirect' in matchInfo) {
-    // Determine which of the redirections can be installed and install them.
-    const packages = (await packageUtil.getPackagesWithStatus(instPath))
-      .packages;
-    const packageId = matchInfo.redirect
-      .split('|')
-      .find((candidate: string) =>
-        packages.find((p) => p.id === candidate && p.doNotInstall !== true),
+  if (result.route === 'flow') {
+    if (result.status === 'canceled') {
+      buttonTransition.message(
+        btn,
+        'インストールがキャンセルされました。',
+        'info',
       );
-    if (packageId) {
-      await installPackage(
-        instPath,
-        packages.find((p) => p.id === packageId),
-        undefined,
-        archivePath,
-      );
+    } else if (result.status === 'notSupported') {
+      buttonTransition.message(btn, '未対応のスクリプトです。', 'danger');
     } else {
       buttonTransition.message(
         btn,
@@ -611,42 +573,22 @@ async function installScript(instPath: string) {
         'danger',
       );
     }
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-    return;
-  }
-
-  // 展開 → スクリプト検証 → 配置 → パッケージ情報の生成と保存は
-  // main プロセス側(services/packages.ts)へ移設済み
-  let result: Awaited<
-    ReturnType<typeof trpc.packages.installScriptArchive.mutate>
-  >;
-  try {
-    result = await trpc.packages.installScriptArchive.mutate({
-      instPath,
-      archivePath,
-      url,
-      matchInfo: {
-        folder: matchInfo.folder,
-        developer: matchInfo.developer,
-        dependencies: matchInfo.dependencies,
-      },
-    });
-  } catch (e) {
-    log.error(e);
-    result = 'installFailed';
-  }
-
-  if (result === 'noScript') {
+  } else if (result.route === 'redirect') {
+    if (result.status === 'success') {
+      await setPackagesList(instPath);
+      buttonTransition.message(btn, 'インストール完了', 'success');
+    } else {
+      buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
+    }
+  } else if (result.status === 'noScript') {
     buttonTransition.message(btn, 'スクリプトが含まれていません。', 'danger');
-  } else if (result === 'containsPlugin') {
+  } else if (result.status === 'containsPlugin') {
     buttonTransition.message(
       btn,
       'プラグインが含まれているためインストールできません。',
       'danger',
     );
-  } else if (result === 'success') {
+  } else if (result.status === 'success') {
     await checkPackagesList(instPath);
     buttonTransition.message(btn, 'インストール完了', 'success');
   } else {

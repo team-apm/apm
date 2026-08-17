@@ -581,14 +581,19 @@ export async function installPackageFlow(
 export type UninstallPackageResult = 'success' | 'removeFailed' | 'filesRemain';
 
 /**
- * Removes the files of the package and removes it from apm.json.
+ * Removes the files of the package, removes it from apm.json, and (for
+ * script-derived packages) removes it from the local packages.json.
  * 旧 src/renderer/main/package.ts の uninstallPackage の計算部分と同一の挙動
- * (削除失敗時のメッセージ表示・スクリプト用の後処理は renderer 側の責務)。
+ * (削除失敗時のメッセージ表示は renderer 側の責務)。
+ * @param {BrowserWindow} win - A browser window used for the download session.
+ * @param {Config} config - The config instance.
  * @param {string} instPath - An installation path.
  * @param {object} packageItem - A package to uninstall.
  * @returns {Promise<UninstallPackageResult>} The result of the uninstallation.
  */
 export async function uninstallPackageFiles(
+  win: BrowserWindow,
+  config: Config,
   instPath: string,
   packageItem: Pick<PackageItem, 'id' | 'info'>,
 ): Promise<UninstallPackageResult> {
@@ -620,7 +625,53 @@ export async function uninstallPackageFiles(
 
   const apmJson = await ApmJson.load(instPath);
   await apmJson.removePackage(packageItem.id);
-  return filesCount === notExistCount ? 'success' : 'filesRemain';
+
+  const result: UninstallPackageResult =
+    filesCount === notExistCount ? 'success' : 'filesRemain';
+  // スクリプト由来のパッケージはローカル packages.json からも削除する
+  // (旧 renderer 側 parseJson.removePackage の呼び出しと同一の挙動)
+  if (result === 'success' && packageItem.id.startsWith('script_')) {
+    await removeScriptPackage(win, config, instPath, packageItem.id);
+  }
+  return result;
+}
+
+/**
+ * Removes the package entry from the local packages.json.
+ * 旧 src/lib/parseJson.ts の removePackage と同一の挙動(データ v1 互換の
+ * ID 変換込み。残りが無くなったらファイルごと削除)。
+ * @param {BrowserWindow} win - A browser window used for the download session.
+ * @param {Config} config - The config instance.
+ * @param {string} instPath - An installation path.
+ * @param {string} packageId - The id of the package to remove.
+ */
+async function removeScriptPackage(
+  win: BrowserWindow,
+  config: Config,
+  instPath: string,
+  packageId: string,
+) {
+  const localPackagesPath = path.join(instPath, 'packages.json');
+  if (!existsSync(localPackagesPath))
+    throw new Error('The version file does not exist.');
+  const localPackages = ((await readJson(localPackagesPath)) as Packages)
+    .packages;
+  const convDict = await getIdDict(win, config);
+  for (const localPackage of localPackages) {
+    // For compatibility with data v1
+    if (Object.prototype.hasOwnProperty.call(convDict, localPackage.id)) {
+      localPackage.id = convDict[localPackage.id];
+    }
+  }
+  const newLocalPackages = localPackages.filter((p) => p.id !== packageId);
+  if (newLocalPackages.length > 0) {
+    await writeJson(localPackagesPath, {
+      version: 3,
+      packages: newLocalPackages,
+    });
+  } else {
+    await rm(localPackagesPath);
+  }
 }
 
 // To avoid a bug in the library
@@ -827,4 +878,87 @@ export async function installScriptArchive(
     log.error(e);
     return 'installFailed';
   }
+}
+
+export type InstallScriptFlowResult =
+  | { route: 'flow'; status: 'canceled' | 'notSupported' | 'redirectNotFound' }
+  | { route: 'script'; status: InstallScriptResult }
+  | { route: 'redirect'; status: InstallPackageResult };
+
+/**
+ * Opens the script distribution site in the browser, resolves the matched
+ * script (or its redirect package) from the download history, and installs it.
+ * 旧 src/renderer/main/package.ts の installScript 前半(ブラウザ DL →
+ * matchInfo 解決 → redirect 分岐)と同一の挙動。UI は renderer 側に残る。
+ * @param {BrowserWindow} win - A browser window used for downloads and dialogs.
+ * @param {Config} config - The config instance.
+ * @param {string} instPath - An installation path.
+ * @param {string} url - The URL of the script distribution site.
+ * @returns {Promise<InstallScriptFlowResult>} The result status with its route.
+ */
+export async function installScriptFlow(
+  win: BrowserWindow,
+  config: Config,
+  instPath: string,
+  url: string,
+): Promise<InstallScriptFlowResult> {
+  const downloadResult = await openBrowser(win, url, 'package');
+  if (!downloadResult) {
+    log.info('The installation was canceled.');
+    return { route: 'flow', status: 'canceled' };
+  }
+
+  const archivePath = downloadResult.savePath;
+  const history = downloadResult.history;
+  const matchInfo = [...(await getScriptsList(win, config, false)).scripts]
+    .reverse()
+    .find((item) => isMatch(history, item.match));
+
+  if (!matchInfo) {
+    log.error('The script is not supported.');
+    return { route: 'flow', status: 'notSupported' };
+  }
+
+  if ('redirect' in matchInfo) {
+    // Determine which of the redirections can be installed and install them.
+    const packages = (await getPackagesWithStatus(win, config, instPath, false))
+      .packages;
+    const packageId = matchInfo.redirect
+      .split('|')
+      .find((candidate: string) =>
+        packages.find((p) => p.id === candidate && p.doNotInstall !== true),
+      );
+    if (!packageId) {
+      return { route: 'flow', status: 'redirectNotFound' };
+    }
+    const packageToInstall = packages.find((p) => p.id === packageId);
+    return {
+      route: 'redirect',
+      status: await installPackageFlow(
+        win,
+        config,
+        instPath,
+        packageToInstall,
+        {
+          archivePath,
+        },
+      ),
+    };
+  }
+
+  return {
+    route: 'script',
+    status: await installScriptArchive(
+      win,
+      config,
+      instPath,
+      archivePath,
+      url,
+      {
+        folder: matchInfo.folder,
+        developer: matchInfo.developer,
+        dependencies: matchInfo.dependencies,
+      },
+    ),
+  };
 }
