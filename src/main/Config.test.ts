@@ -55,7 +55,8 @@ describe('Config', () => {
       expect(config.getAutoUpdate()).toBe('notify');
 
       expect(config.hasZoomFactor()).toBe(false);
-      expect(config.getZoomFactor()).toBe('1');
+      // 拡大率は select の option 値(パーセント文字列)で保存される
+      expect(config.getZoomFactor()).toBe('100');
     });
   });
 
@@ -73,8 +74,8 @@ describe('Config', () => {
       config.setAutoUpdate('download');
       expect(config.getAutoUpdate()).toBe('download');
 
-      config.setZoomFactor('1.25');
-      expect(config.getZoomFactor()).toBe('1.25');
+      config.setZoomFactor('125');
+      expect(config.getZoomFactor()).toBe('125');
 
       config.dataURL.setMain('https://example.com/data/');
       config.dataURL.setExtra('https://example.com/extra/');

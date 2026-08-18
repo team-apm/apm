@@ -119,7 +119,9 @@ export default class Config extends Store<StoreType> {
   }
 
   public getZoomFactor() {
-    return this.get('zoomFactor', '1');
+    // 保存値は設定タブの select の option 値(パーセント文字列)。既定値を '1' に
+    // すると未設定時にどの option とも一致せず先頭の 50% が表示されてしまう
+    return this.get('zoomFactor', '100');
   }
 
   public setZoomFactor(value: string) {
