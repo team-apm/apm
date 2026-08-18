@@ -11,7 +11,9 @@ import { install, verifyFilesByCount } from '../../shared/install';
 import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import unzip from '../../shared/unzip';
 import { downloadFile } from './download';
+import { migrationByFolder } from './migration';
 import { getCoreDataUrl, getInfo, updateInfo } from './modList';
+import { convertPackageIds } from './packages';
 import { existsTempFile } from './tempFile';
 
 /**
@@ -219,4 +221,77 @@ export async function installCoreProgram(
     log.error(e);
     return 'installFailed';
   }
+}
+
+/**
+ * Returns whether ExEdit is misplaced in the `plugins` folder.
+ * @param {string} instPath - An installation path.
+ * @returns {boolean} True if `plugins/exedit.auf` exists.
+ */
+export function hasExeditInPluginsFolder(instPath: string): boolean {
+  return existsSync(path.join(instPath, 'plugins/exedit.auf'));
+}
+
+export type ChangeInstallationPathResult = {
+  needScriptsUpdate: boolean;
+  needCoreUpdate: boolean;
+  needPackagesUpdate: boolean;
+};
+
+/**
+ * Applies an installation path change: updates the mod info, runs the folder
+ * migration and the id conversion, and reports which data needs re-fetching.
+ * 旧 src/renderer/main/core.ts の changeInstallationPath の判定・更新部分と
+ * 同一の挙動。UI の再取得・再描画は renderer 側が戻り値を見て行う。
+ * @param {BrowserWindow} win - The main window.
+ * @param {Config} config - The config instance.
+ * @param {string} instPath - An installation path.
+ * @returns {Promise<ChangeInstallationPathResult>} Which data needs re-fetching.
+ */
+export async function changeInstallationPath(
+  win: BrowserWindow,
+  config: Config,
+  instPath: string,
+): Promise<ChangeInstallationPathResult> {
+  config.setInstallationPath(instPath);
+
+  // update 1
+  await updateInfo(win, config);
+  const currentMod = await getInfo(win, config);
+
+  if (existsSync(instPath)) {
+    // migration
+    await migrationByFolder(win, config, instPath);
+
+    if (existsSync(ApmJson.getPath(instPath)) && currentMod.convert) {
+      const apmJson = await ApmJson.load(instPath);
+      const oldConvertMod = new Date(
+        (await apmJson.get('convertMod', 0)) as number,
+      );
+      const currentConvertMod = new Date(currentMod.convert.modified).getTime();
+
+      if (oldConvertMod.getTime() < currentConvertMod)
+        await convertPackageIds(win, config, instPath, currentConvertMod);
+    }
+  }
+
+  // update 2
+  const oldScriptsMod = new Date(config.modDate.getScripts());
+  const oldCoreMod = new Date(config.modDate.getCore());
+  const oldPackagesMod = new Date(config.modDate.getPackages());
+
+  return {
+    needScriptsUpdate:
+      oldScriptsMod.getTime() <
+      Math.max(
+        ...currentMod.scripts.map((p) => new Date(p.modified).getTime()),
+      ),
+    needCoreUpdate:
+      oldCoreMod.getTime() < new Date(currentMod.core.modified).getTime(),
+    needPackagesUpdate:
+      oldPackagesMod.getTime() <
+      Math.max(
+        ...currentMod.packages.map((p) => new Date(p.modified).getTime()),
+      ),
+  };
 }
