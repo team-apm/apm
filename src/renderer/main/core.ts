@@ -1,12 +1,9 @@
 import { Core } from 'apm-schema';
 import log from 'electron-log/renderer';
-import fs from 'fs-extra';
 import path from 'node:path';
-import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { getConfig } from '../../lib/Config';
 import { app, openDialog, openDirDialog } from '../../lib/ipcWrapper';
-import * as modList from '../../lib/modList';
 import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
 import { programs } from './common';
@@ -94,7 +91,7 @@ async function selectInstallationPath(input: HTMLInputElement) {
     originalPath,
   );
   if (selectedPath.length !== 0 && selectedPath[0] !== originalPath) {
-    if (fs.existsSync(path.join(selectedPath[0], 'plugins/exedit.auf'))) {
+    if (await trpc.core.hasExeditInPluginsFolder.query(selectedPath[0])) {
       await openDialog(
         'エラー',
         '拡張編集が「plugins」フォルダに配置されています。apmは拡張編集を「aviutl.exe」と同じフォルダに配置する場合のみに対応しています。',
@@ -116,51 +113,18 @@ async function selectInstallationPath(input: HTMLInputElement) {
  * @param {string} instPath - An installation path.
  */
 async function changeInstallationPath(instPath: string) {
-  config.setInstallationPath(instPath);
+  // mod 情報の更新・migration・変換辞書の適用と再取得要否の判定は
+  // main プロセス側(services/core.ts の changeInstallationPath)へ移設済み。
+  // renderer は戻り値に従って再取得・再描画のみ行う
+  const need = await trpc.core.changeInstallationPath.mutate(instPath);
 
-  // update 1
-  await modList.updateInfo();
-  const currentMod = await modList.getInfo();
-
-  if (fs.existsSync(instPath)) {
-    // migration(実装は main プロセス側 services/migration.ts へ移設済み)
-    await trpc.migration.byFolder.mutate(instPath);
-
-    if (fs.existsSync(ApmJson.getPath(instPath)) && currentMod.convert) {
-      const apmJson = await ApmJson.load(instPath);
-      const oldConvertMod = new Date(
-        (await apmJson.get('convertMod', 0)) as number,
-      );
-      const currentConvertMod = new Date(currentMod.convert.modified).getTime();
-
-      if (oldConvertMod.getTime() < currentConvertMod)
-        // 変換辞書の取得と apm.json の書き換えは main プロセス側
-        // (services/packages.ts の convertPackageIds)へ移設済み
-        await trpc.packages.convertIds.mutate({
-          instPath,
-          modTime: currentConvertMod,
-        });
-    }
-  }
-
-  // update 2
-  const oldScriptsMod = new Date(config.modDate.getScripts());
-  const oldCoreMod = new Date(config.modDate.getCore());
-  const oldPackagesMod = new Date(config.modDate.getPackages());
-
-  if (
-    oldScriptsMod.getTime() <
-    Math.max(...currentMod.scripts.map((p) => new Date(p.modified).getTime()))
-  ) {
+  if (need.needScriptsUpdate) {
     await packageMain.getScriptsList(true);
   }
-  if (oldCoreMod.getTime() < new Date(currentMod.core.modified).getTime()) {
+  if (need.needCoreUpdate) {
     await checkLatestVersion();
   }
-  if (
-    oldPackagesMod.getTime() <
-    Math.max(...currentMod.packages.map((p) => new Date(p.modified).getTime()))
-  ) {
+  if (need.needPackagesUpdate) {
     await packageMain.checkPackagesList(instPath);
   }
 

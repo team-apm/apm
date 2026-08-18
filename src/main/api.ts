@@ -5,10 +5,12 @@ import { getConfig } from '../lib/Config';
 import { openAboutWindow } from './aboutWindow';
 import { isExeVersion } from './services/appUpdate';
 import {
+  changeInstallationPath,
   checkCoreLatestVersion,
   getApmJsonCoreVersions,
   getCoreInfo,
   getInstalledVersionTexts,
+  hasExeditInPluginsFolder,
   installCoreProgram,
 } from './services/core';
 import { migrationByFolder, migrationGlobal } from './services/migration';
@@ -400,6 +402,16 @@ export const router = t.router({
       if (!win) throw new Error('The calling window was not found.');
       return await getCoreInfo(win, getConfig());
     }),
+    hasExeditInPluginsFolder: procedure
+      .input(stringInput)
+      .query(({ input }) => hasExeditInPluginsFolder(input)),
+    changeInstallationPath: procedure
+      .input(stringInput)
+      .mutation(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        return await changeInstallationPath(win, getConfig(), input);
+      }),
     getApmJsonCoreVersions: procedure
       .input(stringInput)
       .query(async ({ input }) => await getApmJsonCoreVersions(input)),
