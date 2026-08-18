@@ -85,20 +85,10 @@ async function selectInstallationPath(input: HTMLInputElement) {
  * @param {string} instPath - An installation path.
  */
 async function changeInstallationPath(instPath: string) {
-  // mod 情報の更新・migration・変換辞書の適用と再取得要否の判定は
+  // mod 情報の更新・migration・変換辞書の適用と、必要なデータの再取得は
   // main プロセス側(services/core.ts の changeInstallationPath)へ移設済み。
-  // renderer は戻り値に従って再取得・再描画のみ行う
-  const need = await trpc.core.changeInstallationPath.mutate(instPath);
-
-  if (need.needScriptsUpdate) {
-    await packageMain.getScriptsList(true);
-  }
-  if (need.needCoreUpdate) {
-    await checkLatestVersion();
-  }
-  if (need.needPackagesUpdate) {
-    await packageMain.checkPackagesList(instPath);
-  }
+  // renderer は再描画のみ行う
+  await trpc.core.changeInstallationPath.mutate(instPath);
 
   // redraw
   await displayInstalledVersion();

@@ -13,7 +13,11 @@ import { addAviUtlShortcut, removeAviUtlShortcut } from '../shortcut';
 import { downloadFile } from './download';
 import { migrationByFolder } from './migration';
 import { getCoreDataUrl, getInfo, updateInfo } from './modList';
-import { convertPackageIds } from './packages';
+import {
+  convertPackageIds,
+  getScriptsList,
+  refreshPackagesList,
+} from './packages';
 import { existsTempFile } from './tempFile';
 
 /**
@@ -232,27 +236,21 @@ export function hasExeditInPluginsFolder(instPath: string): boolean {
   return existsSync(path.join(instPath, 'plugins/exedit.auf'));
 }
 
-export type ChangeInstallationPathResult = {
-  needScriptsUpdate: boolean;
-  needCoreUpdate: boolean;
-  needPackagesUpdate: boolean;
-};
-
 /**
  * Applies an installation path change: updates the mod info, runs the folder
- * migration and the id conversion, and reports which data needs re-fetching.
- * 旧 src/renderer/main/core.ts の changeInstallationPath の判定・更新部分と
- * 同一の挙動。UI の再取得・再描画は renderer 側が戻り値を見て行う。
+ * migration and the id conversion, and re-fetches the outdated data.
+ * 旧 src/renderer/main/core.ts の changeInstallationPath と同一の挙動
+ * (判定に加えて scripts・core・packages の再取得まで行う)。
+ * UI の再描画は renderer 側の責務。
  * @param {BrowserWindow} win - The main window.
  * @param {Config} config - The config instance.
  * @param {string} instPath - An installation path.
- * @returns {Promise<ChangeInstallationPathResult>} Which data needs re-fetching.
  */
 export async function changeInstallationPath(
   win: BrowserWindow,
   config: Config,
   instPath: string,
-): Promise<ChangeInstallationPathResult> {
+): Promise<void> {
   config.setInstallationPath(instPath);
 
   // update 1
@@ -280,20 +278,32 @@ export async function changeInstallationPath(
   const oldCoreMod = new Date(config.modDate.getCore());
   const oldPackagesMod = new Date(config.modDate.getPackages());
 
-  return {
-    needScriptsUpdate:
-      oldScriptsMod.getTime() <
-      Math.max(
-        ...currentMod.scripts.map((p) => new Date(p.modified).getTime()),
-      ),
-    needCoreUpdate:
-      oldCoreMod.getTime() < new Date(currentMod.core.modified).getTime(),
-    needPackagesUpdate:
-      oldPackagesMod.getTime() <
-      Math.max(
-        ...currentMod.packages.map((p) => new Date(p.modified).getTime()),
-      ),
-  };
+  if (
+    oldScriptsMod.getTime() <
+    Math.max(...currentMod.scripts.map((p) => new Date(p.modified).getTime()))
+  ) {
+    await getScriptsList(win, config, true);
+  }
+  if (oldCoreMod.getTime() < new Date(currentMod.core.modified).getTime()) {
+    // 旧 renderer の checkLatestVersion は失敗をボタン表示に丸めて
+    // 後続処理を続けていたため、ここでも throw せずログのみ残す
+    try {
+      await checkCoreLatestVersion(win, config);
+    } catch (e) {
+      log.error(e);
+    }
+  }
+  if (
+    oldPackagesMod.getTime() <
+    Math.max(...currentMod.packages.map((p) => new Date(p.modified).getTime()))
+  ) {
+    // 旧 renderer の checkPackagesList も同様に失敗を throw しない
+    try {
+      await refreshPackagesList(win, config, instPath);
+    } catch (e) {
+      log.error(e);
+    }
+  }
 }
 
 /**

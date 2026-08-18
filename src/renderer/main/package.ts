@@ -1,4 +1,3 @@
-import { Scripts } from 'apm-schema';
 import log from 'electron-log/renderer';
 import * as buttonTransition from '../../lib/buttonTransition';
 import replaceText from '../../lib/replaceText';
@@ -81,22 +80,8 @@ async function checkPackagesList(instPath: string) {
   }
 }
 
-/**
- * Checks the scripts list.
- * 取得・キャッシュ・更新日時の記録は main プロセス側(services/packages.ts)へ移設済み。
- * @param {boolean} update - Download the json file.
- * @returns {Promise<Scripts>} - An object parsed from scripts.json.
- */
-async function getScriptsList(update = false) {
-  return (await trpc.packages.getScriptsList.query({ update })) as {
-    webpage: Scripts['webpage'];
-    scripts: Scripts['scripts'];
-  };
-}
-
 const packageMain = {
   setPackagesList,
   checkPackagesList,
-  getScriptsList,
 };
 export default packageMain;
