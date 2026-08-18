@@ -18,7 +18,7 @@ import ApmJson from '../../lib/ApmJson';
 import type Config from '../../lib/Config';
 import { getHash } from '../../shared/getHash';
 import { install, verifyFilesByCount } from '../../shared/install';
-import { checkIntegrity } from '../../shared/integrity';
+import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import {
   computePackagesStatus,
   detectPackageTypes,
@@ -30,6 +30,7 @@ import { safeRemove } from '../../shared/safeRemove';
 import unzip from '../../shared/unzip';
 import { ApmJsonObject } from '../../types/apmJson';
 import { PackageItem } from '../../types/packageItem';
+import { openBrowser } from './browser';
 import { downloadFile } from './download';
 import { getConvertDataUrl, getInfo, getScriptsDataUrl } from './modList';
 import { existsTempFile } from './tempFile';
@@ -469,6 +470,112 @@ export async function installPackageArchive(
   }
 
   return installResult;
+}
+
+export type InstallPackageResult =
+  | 'success'
+  | 'canceled'
+  | 'downloadFailed'
+  | 'corrupt'
+  | 'redownloadFailed'
+  | 'installFailed';
+
+/**
+ * Resolves the archive (local file / direct link / interactive browser) and
+ * installs the package.
+ * 旧 src/renderer/main/package.ts の installPackage のアーカイブ解決部分と
+ * 同一の挙動。UI(ボタン遷移・メッセージ表示)は renderer 側に残る。
+ * @param {BrowserWindow} win - A browser window used for downloads and dialogs.
+ * @param {Config} config - The config instance.
+ * @param {string} instPath - An installation path.
+ * @param {Pick<PackageItem, 'id' | 'info'>} packageItem - The package to install.
+ * @param {object} [options] - Options.
+ * @param {boolean} [options.direct] - Install from the direct link to the zip.
+ * @param {string} [options.archivePath] - Path to the already-downloaded archive.
+ * @returns {Promise<InstallPackageResult>} The result status.
+ */
+export async function installPackageFlow(
+  win: BrowserWindow,
+  config: Config,
+  instPath: string,
+  packageItem: Pick<PackageItem, 'id' | 'info'>,
+  { direct = false, archivePath }: { direct?: boolean; archivePath?: string },
+): Promise<InstallPackageResult> {
+  let resolvedArchivePath = '';
+  if (archivePath) {
+    resolvedArchivePath = archivePath;
+  } else if (direct) {
+    resolvedArchivePath = await downloadFile(win, packageItem.info.directURL, {
+      loadCache: true,
+      subDir: 'package',
+    });
+
+    if (!resolvedArchivePath) {
+      log.error('Failed downloading a file.');
+      return 'downloadFailed';
+    }
+
+    const integrityForArchive = packageItem.info.releases?.find(
+      (r) => r.version === packageItem.info.latestVersion,
+    )?.integrity?.archive;
+
+    if (integrityForArchive) {
+      // Verify file integrity
+      while (!(await verifyFile(resolvedArchivePath, integrityForArchive))) {
+        const dialogResult =
+          (
+            await dialog.showMessageBox(win, {
+              title: 'エラー',
+              message:
+                'ダウンロードされたファイルは破損しています。再ダウンロードしますか？',
+              type: 'warning',
+              buttons: ['はい', 'いいえ'],
+              cancelId: 1,
+            })
+          ).response === 0;
+
+        if (!dialogResult) {
+          log.error(
+            `The downloaded archive file is corrupt. URL:${packageItem.info.directURL}`,
+          );
+          return 'corrupt';
+        }
+
+        // 再ダウンロード先が subDir 'core' なのは旧実装のままの挙動
+        resolvedArchivePath = await downloadFile(
+          win,
+          packageItem.info.directURL,
+          { subDir: 'core' },
+        );
+        if (!resolvedArchivePath) {
+          log.error(
+            `Failed downloading the archive file. URL:${packageItem.info.directURL}`,
+          );
+          return 'redownloadFailed';
+        }
+      }
+    }
+  } else {
+    const downloadResult = await openBrowser(
+      win,
+      packageItem.info.downloadURLs[0],
+      'package',
+    );
+
+    if (!downloadResult) {
+      log.info('The installation was canceled.');
+      return 'canceled';
+    }
+
+    resolvedArchivePath = downloadResult.savePath;
+  }
+
+  const installResult = await installPackageArchive(
+    instPath,
+    resolvedArchivePath,
+    packageItem,
+  );
+  return installResult ? 'success' : 'installFailed';
 }
 
 export type UninstallPackageResult = 'success' | 'removeFailed' | 'filesRemain';

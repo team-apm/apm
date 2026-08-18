@@ -20,7 +20,7 @@ import {
   getPackagesExtra,
   getPackagesWithStatus,
   getScriptsList,
-  installPackageArchive,
+  installPackageFlow,
   installScriptArchive,
   uninstallPackageFiles,
 } from './services/packages';
@@ -94,22 +94,32 @@ const packageItemInput = (
   return { id, info: info as Record<string, unknown> };
 };
 
-const installArchiveInput = (
+const installPackageInput = (
   value: unknown,
 ): {
   instPath: string;
-  archivePath: string;
   packageItem: { id: string; info: Record<string, unknown> };
+  direct: boolean;
+  archivePath?: string;
 } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, archivePath, packageItem } = value as Record<
+  const { instPath, packageItem, direct, archivePath } = value as Record<
     string,
     unknown
   >;
-  if (typeof instPath !== 'string' || typeof archivePath !== 'string')
-    throw new TypeError('instPath and archivePath are expected to be strings.');
-  return { instPath, archivePath, packageItem: packageItemInput(packageItem) };
+  if (typeof instPath !== 'string')
+    throw new TypeError('instPath is expected to be a string.');
+  if (typeof direct !== 'boolean')
+    throw new TypeError('direct is expected to be a boolean.');
+  if (archivePath !== undefined && typeof archivePath !== 'string')
+    throw new TypeError('archivePath is expected to be a string.');
+  return {
+    instPath,
+    packageItem: packageItemInput(packageItem),
+    direct,
+    archivePath: archivePath as string | undefined,
+  };
 };
 
 const uninstallPackageInput = (
@@ -335,13 +345,17 @@ export const router = t.router({
           input.fixIntegrity,
         );
       }),
-    installPackageArchive: procedure
-      .input(installArchiveInput)
-      .mutation(async ({ input }) => {
-        return await installPackageArchive(
+    installPackage: procedure
+      .input(installPackageInput)
+      .mutation(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        return await installPackageFlow(
+          win,
+          getConfig(),
           input.instPath,
-          input.archivePath,
-          input.packageItem as Parameters<typeof installPackageArchive>[2],
+          input.packageItem as Parameters<typeof installPackageFlow>[3],
+          { direct: input.direct, archivePath: input.archivePath },
         );
       }),
     uninstallPackage: procedure

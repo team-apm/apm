@@ -7,16 +7,13 @@ import { getConfig } from '../../lib/Config';
 import {
   app,
   clipboardWriteText,
-  download,
   openBrowser,
   openPath,
-  openYesNoDialog,
 } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
 import * as parseJson from '../../lib/parseJson';
 import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
-import { verifyFile } from '../../shared/integrity';
 import { shareStringVersion } from '../../shared/shareString';
 import { PackageItem } from '../../types/packageItem';
 import { programs } from './common';
@@ -302,123 +299,81 @@ async function installPackage(
     installedPackage = { ...selectedEntry } as PackageItem;
   }
 
-  let archivePath = '';
-  if (role === roles.Internal_Local_File) {
-    archivePath = strArchivePath;
-  } else if (role === roles.Internal_Direct_Link) {
-    archivePath = await download(installedPackage.info.directURL, {
-      loadCache: true,
-      subDir: 'package',
-    });
-
-    if (!archivePath) {
-      log.error('Failed downloading a file.');
-      if (btn) {
-        buttonTransition.message(
-          btn,
-          'ダウンロード中にエラーが発生しました。',
-          'danger',
-        );
-        setTimeout(() => {
-          enableButton();
-        }, 3000);
-      }
-      return;
-    }
-
-    const integrityForArchive = installedPackage.info.releases?.find(
-      (r) => r.version === installedPackage.info.latestVersion,
-    )?.integrity?.archive;
-
-    if (integrityForArchive) {
-      // Verify file integrity
-      while (!(await verifyFile(archivePath, integrityForArchive))) {
-        const dialogResult = await openYesNoDialog(
-          'エラー',
-          'ダウンロードされたファイルは破損しています。再ダウンロードしますか？',
-        );
-
-        if (!dialogResult) {
-          log.error(
-            `The downloaded archive file is corrupt. URL:${installedPackage.info.directURL}`,
-          );
-          if (btn) {
-            buttonTransition.message(
-              btn,
-              'ダウンロードされたファイルは破損しています。',
-              'danger',
-            );
-            setTimeout(() => {
-              enableButton();
-            }, 3000);
-          }
-          // Direct installation can throw an error because it is called only from within the try catch block.
-          throw new Error('The downloaded archive file is corrupt.');
-        }
-
-        archivePath = await download(installedPackage.info.directURL, {
-          subDir: 'core',
-        });
-        if (!archivePath) {
-          log.error(
-            `Failed downloading the archive file. URL:${installedPackage.info.directURL}`,
-          );
-          if (btn) {
-            buttonTransition.message(
-              btn,
-              'ファイルのダウンロードに失敗しました。',
-              'danger',
-            );
-            setTimeout(() => {
-              enableButton();
-            }, 3000);
-          }
-          // Direct installation can throw an error because it is called only from within the try catch block.
-          throw new Error('Failed downloading the archive file.');
-        }
-      }
-    }
-  } else {
-    // if (role === roles.Internal_Browser || role === roles.Event_Handler)
-
-    const downloadResult = await openBrowser(
-      installedPackage.info.downloadURLs[0],
-      'package',
-    );
-
-    if (!downloadResult) {
-      log.info('The installation was canceled.');
-      if (btn) {
-        buttonTransition.message(
-          btn,
-          'インストールがキャンセルされました。',
-          'info',
-        );
-        setTimeout(() => {
-          enableButton();
-        }, 3000);
-      }
-      return;
-    }
-
-    archivePath = downloadResult.savePath;
-  }
-
-  // 展開 → 配置(またはインストーラ実行)→ 検証 → apm.json 記録は
-  // main プロセス側(services/packages.ts)へ移設済み
-  let installResult = false;
+  // アーカイブの解決(直リンク DL・整合性ダイアログ・ブラウザ DL)と
+  // 展開・配置・apm.json 記録は main プロセス側(services/packages.ts)へ移設済み
+  let result: Awaited<ReturnType<typeof trpc.packages.installPackage.mutate>>;
   try {
-    installResult = await trpc.packages.installPackageArchive.mutate({
+    result = await trpc.packages.installPackage.mutate({
       instPath,
-      archivePath,
       packageItem: { id: installedPackage.id, info: installedPackage.info },
+      direct: role === roles.Internal_Direct_Link,
+      archivePath:
+        role === roles.Internal_Local_File ? strArchivePath : undefined,
     });
   } catch (e) {
     log.error(e);
-    installResult = false;
+    result = 'installFailed';
   }
 
-  if (installResult) {
+  if (result === 'canceled') {
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'インストールがキャンセルされました。',
+        'info',
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
+    return;
+  }
+
+  if (result === 'downloadFailed') {
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'ダウンロード中にエラーが発生しました。',
+        'danger',
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
+    return;
+  }
+
+  if (result === 'corrupt') {
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'ダウンロードされたファイルは破損しています。',
+        'danger',
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
+    // Direct installation can throw an error because it is called only from within the try catch block.
+    throw new Error('The downloaded archive file is corrupt.');
+  }
+
+  if (result === 'redownloadFailed') {
+    if (btn) {
+      buttonTransition.message(
+        btn,
+        'ファイルのダウンロードに失敗しました。',
+        'danger',
+      );
+      setTimeout(() => {
+        enableButton();
+      }, 3000);
+    }
+    // Direct installation can throw an error because it is called only from within the try catch block.
+    throw new Error('Failed downloading the archive file.');
+  }
+
+  if (result === 'success') {
     await setPackagesList(instPath);
 
     if (btn) buttonTransition.message(btn, 'インストール完了', 'success');

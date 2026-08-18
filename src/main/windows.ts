@@ -1,5 +1,4 @@
 import {
-  app,
   BrowserWindow,
   dialog,
   ipcMain,
@@ -16,6 +15,7 @@ import type Config from '../lib/Config';
 import { setAboutWindowOpener } from './aboutWindow';
 import { createContext, router } from './api';
 import { runAutoUpdate } from './services/appUpdate';
+import { openBrowser } from './services/browser';
 import { downloadFile } from './services/download';
 
 declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
@@ -174,56 +174,8 @@ export async function launch(config: Config) {
   });
 
   ipcMain.handle(IPC_CHANNELS.OPEN_BROWSER, async (event, url, type) => {
-    const browserWindow = new BrowserWindow({
-      width: 800,
-      height: 600,
-      minWidth: 240,
-      minHeight: 320,
-      webPreferences: { sandbox: true },
-      parent: mainWindow,
-      modal: true,
-      icon: icon,
-    });
-
-    mainWindow.once('closed', () => {
-      if (!browserWindow.isDestroyed()) {
-        browserWindow.destroy();
-      }
-    });
-
-    void browserWindow.loadURL(url);
-
-    return await new Promise((resolve) => {
-      const history: string[] = [];
-
-      browserWindow.webContents.on('did-navigate', (e, url) => {
-        history.push(url);
-      });
-
-      browserWindow.webContents.session.once('will-download', (event, item) => {
-        if (!browserWindow.isDestroyed()) browserWindow.hide();
-
-        const ext = path.extname(item.getFilename());
-        const dir = path.join(app.getPath('userData'), 'Data');
-        if (['.zip', '.lzh', '.7z', '.rar'].includes(ext)) {
-          item.setSavePath(
-            path.join(dir, type, 'archive/', item.getFilename()),
-          );
-        } else {
-          item.setSavePath(path.join(dir, type, item.getFilename()));
-        }
-
-        item.once('done', () => {
-          history.push(...item.getURLChain(), item.getFilename());
-          resolve({ savePath: item.getSavePath(), history: history });
-          if (!browserWindow.isDestroyed()) browserWindow.close();
-        });
-      });
-
-      browserWindow.once('closed', () => {
-        resolve(null);
-      });
-    });
+    // 実装は services/browser.ts へ抽出済み(main 内部からも呼べるようにするため)
+    return await openBrowser(mainWindow, url, type);
   });
 
   setTimeout(() => {
