@@ -1,6 +1,5 @@
 import * as fs from 'fs-extra';
 import path from 'node:path';
-import ApmJson from './ApmJson';
 import { download, existsTempFile } from './ipcWrapper';
 import * as modList from './modList';
 
@@ -32,29 +31,5 @@ export async function getIdDict(
   }
 }
 
-/**
- * Converts id.
- * @param {string} instPath - An installation path
- * @param {number} modTime - A mod time.
- */
-export async function convertId(instPath: string, modTime: number) {
-  const apmJson = await ApmJson.load(instPath);
-  apmJson.begin();
-  const packages = (await apmJson.get('packages')) as {
-    [key: string]: { id: string };
-  };
-
-  const convDict = await getIdDict(true);
-  for (const [oldId, packageItem] of Object.entries(packages)) {
-    if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
-      const newId = convDict[packageItem.id];
-      packages[newId] = packages[oldId];
-      delete packages[oldId];
-      packages[newId].id = newId;
-    }
-  }
-
-  await apmJson.set('packages', packages);
-  await apmJson.set('convertMod', modTime);
-  await apmJson.commit();
-}
+// convertId は main プロセス側(src/main/services/packages.ts の
+// convertPackageIds)へ移設済み。getIdDict は parseJson(データエディタ)が使用中

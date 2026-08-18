@@ -15,6 +15,7 @@ import { updateInfo } from './services/modList';
 import { getNicommonsData } from './services/nicommons';
 import {
   buildShareString,
+  convertPackageIds,
   downloadRepository,
   getApmJsonInstalledIds,
   getPackages,
@@ -146,6 +147,19 @@ const installScriptFlowInput = (
   if (typeof instPath !== 'string' || typeof url !== 'string')
     throw new TypeError('instPath and url are expected to be strings.');
   return { instPath, url };
+};
+
+const convertIdsInput = (
+  value: unknown,
+): { instPath: string; modTime: number } => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { instPath, modTime } = value as Record<string, unknown>;
+  if (typeof instPath !== 'string' || typeof modTime !== 'number')
+    throw new TypeError(
+      'instPath is expected to be a string and modTime a number.',
+    );
+  return { instPath, modTime };
 };
 
 const installedIdsInput = (
@@ -284,6 +298,18 @@ export const router = t.router({
         async ({ input }) =>
           await getApmJsonInstalledIds(input.instPath, input.ids),
       ),
+    convertIds: procedure
+      .input(convertIdsInput)
+      .mutation(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        await convertPackageIds(
+          win,
+          getConfig(),
+          input.instPath,
+          input.modTime,
+        );
+      }),
     getShareString: procedure
       .input(stringInput)
       .query(async ({ input, ctx }) => {
