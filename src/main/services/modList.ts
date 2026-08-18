@@ -15,6 +15,13 @@ import { existsTempFile } from './tempFile';
  * @param {Config} config - The config instance.
  */
 export async function updateInfo(win: BrowserWindow, config: Config) {
+  // 初回起動では dataURL.main の設定(initSettings)より先に renderer の
+  // クエリがここへ到達しうる。空のまま進めると 'list.json' がローカルパス
+  // 扱いになり紛らわしい ENOENT で落ちるため、明示的に失敗させて
+  // 呼び出し側(react-query)のリトライに任せる
+  if (config.dataURL.getMain() === '') {
+    throw new Error('The main data URL is not set yet.');
+  }
   await downloadFile(win, joinUrlOrPath(config.dataURL.getMain(), 'list.json'));
 
   const modFile = existsTempFile('list.json');
