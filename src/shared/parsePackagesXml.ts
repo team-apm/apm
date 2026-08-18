@@ -1,5 +1,4 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
-import fs from 'fs-extra';
 
 const parser = new XMLParser({
   attributeNamePrefix: '$',
@@ -162,9 +161,9 @@ function parseFiles(parsedData: RawPackage): XmlFile[] {
 }
 
 /**
- *
+ * A single package parsed from the v2 `packages.xml` format.
  */
-class PackageInfo {
+export class PackageInfo {
   id?: string;
   name?: string;
   overview?: string;
@@ -230,50 +229,24 @@ class PackageInfo {
   }
 }
 
-/**
- * An object which contains packages list.
- */
-class PackagesList {
-  [id: string]: PackageInfo;
-
-  /**
-   *
-   * @param {string} xmlPath - The path of the XML file.
-   * @returns {PackagesList} A list of packages.
-   */
-  constructor(xmlPath: string) {
-    const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-    const valid = XMLValidator.validate(xmlData);
-    if (valid === true) {
-      const packagesInfo = parser.parse(xmlData) as RawPackagesXml;
-      if (packagesInfo.packages) {
-        for (const packageItem of packagesInfo.packages[0].package) {
-          this[packageItem.id[0]] = new PackageInfo(packageItem);
-        }
-      } else {
-        throw new Error('The list is invalid.');
-      }
-    } else {
-      throw valid;
-    }
-  }
-}
+/** A list of packages keyed by package id. */
+export type PackagesList = { [id: string]: PackageInfo };
 
 /**
- * Returns a list of packages.
- * @param {string} packagesListPath - A path of xml file.
- * @returns {Promise<PackagesList>} A list of packages.
+ * Parses the v2 `packages.xml` data into a list of packages.
+ * @param {string} xmlData - The contents of the XML file.
+ * @returns {PackagesList} A list of packages keyed by package id.
  */
-async function getPackages(packagesListPath: string): Promise<PackagesList> {
-  if (fs.existsSync(packagesListPath)) {
-    const packages = new PackagesList(packagesListPath);
-    return packages;
-  } else {
-    throw new Error('The version file does not exist.');
-  }
-}
+export function parsePackagesXml(xmlData: string): PackagesList {
+  const valid = XMLValidator.validate(xmlData);
+  if (valid !== true) throw valid;
 
-const parseXML = {
-  getPackages,
-};
-export default parseXML;
+  const packagesInfo = parser.parse(xmlData) as RawPackagesXml;
+  if (!packagesInfo.packages) throw new Error('The list is invalid.');
+
+  const packages: PackagesList = {};
+  for (const packageItem of packagesInfo.packages[0].package) {
+    packages[packageItem.id[0]] = new PackageInfo(packageItem);
+  }
+  return packages;
+}
