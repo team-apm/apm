@@ -8,6 +8,7 @@ import './index.css';
 import BatchInstallButton from './aviutl/BatchInstallButton';
 import BatchInstallList from './aviutl/BatchInstallList';
 import ProgramRow from './aviutl/ProgramRow';
+import SelectInstallationPathButton from './aviutl/SelectInstallationPathButton';
 import { MonacoEditorRenderer } from './monacoEditorRenderer';
 import NicommonsTab from './nicommons/NicommonsTab';
 import OthersTab from './others/OthersTab';
@@ -87,6 +88,11 @@ window.addEventListener('DOMContentLoaded', () => {
   createRoot(document.getElementById('batch-install-button-root')).render(
     <TrpcProvider>
       <BatchInstallButton />
+    </TrpcProvider>,
+  );
+  createRoot(document.getElementById('select-installation-path-root')).render(
+    <TrpcProvider>
+      <SelectInstallationPathButton />
     </TrpcProvider>,
   );
 });
