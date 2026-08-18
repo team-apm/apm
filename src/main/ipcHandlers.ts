@@ -12,7 +12,6 @@ import path from 'node:path';
 import { IPC_CHANNELS } from '../common/ipc';
 import { isParent } from '../shared/apmPath';
 import { checkUpdate } from './services/appUpdate';
-import { existsTempFile } from './services/tempFile';
 
 const APP_PATH_NAMES = new Set([
   'home',
@@ -74,13 +73,6 @@ export function registerIpcHandlers() {
     if (folderExists) await shell.openPath(folderPath);
     return folderExists;
   });
-
-  ipcMain.handle(
-    IPC_CHANNELS.EXISTS_TEMP_FILE,
-    (event, relativePath, keyText) => {
-      return existsTempFile(relativePath, keyText);
-    },
-  );
 
   ipcMain.handle(
     IPC_CHANNELS.OPEN_DIR_DIALOG,

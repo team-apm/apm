@@ -1086,3 +1086,49 @@ export async function refreshPackagesList(
     Math.max(...modInfo.packages.map((p) => new Date(p.modified).getTime())),
   );
 }
+
+/**
+ * Returns the packages of the data editor (editorPackages.json).
+ * 旧 src/lib/parseJson.ts の getPackages に src/lib/modList.ts の
+ * getEditorPackagesDataUrl を合成したものと同一の挙動
+ * (ファイルが無いときに例外を投げる点も含めて維持)。
+ * @param {BrowserWindow} win - A browser window used for the download session.
+ * @param {Config} config - The config instance.
+ * @param {string} instPath - An installation path.
+ * @returns {Promise<Packages['packages']>} A list of packages.
+ */
+export async function getEditorPackages(
+  win: BrowserWindow,
+  config: Config,
+  instPath: string,
+): Promise<Packages['packages']> {
+  const packagesListPath = path.join(instPath, 'editorPackages.json');
+  if (!existsSync(packagesListPath))
+    throw new Error('The version file does not exist.');
+
+  const packages = ((await readJson(packagesListPath)) as Packages).packages;
+  const convDict = await getIdDict(win, config);
+  for (const packageItem of packages) {
+    // For compatibility with data v1
+    if (Object.prototype.hasOwnProperty.call(convDict, packageItem.id)) {
+      packageItem.id = convDict[packageItem.id];
+    }
+  }
+  return packages;
+}
+
+/**
+ * Writes the packages of the data editor (editorPackages.json).
+ * 旧 src/lib/parseJson.ts の setPackages と同一の挙動。
+ * @param {string} instPath - An installation path.
+ * @param {Packages['packages']} packages - A list of packages.
+ */
+export async function setEditorPackages(
+  instPath: string,
+  packages: Packages['packages'],
+) {
+  await writeJson(path.join(instPath, 'editorPackages.json'), {
+    version: 3,
+    packages: packages,
+  });
+}

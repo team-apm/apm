@@ -5,11 +5,9 @@ export const IPC_CHANNELS = {
   APP_QUIT: 'app-quit',
   CHECK_UPDATE: 'check-update',
   OPEN_PATH: 'open-path',
-  EXISTS_TEMP_FILE: 'exists-temp-file',
   OPEN_DIR_DIALOG: 'open-dir-dialog',
   OPEN_DIALOG: 'open-dialog',
   OPEN_YES_NO_DIALOG: 'open-yes-no-dialog',
   CLIPBOARD_WRITE_TEXT: 'clipboard-write-text',
-  DOWNLOAD: 'download',
   OPEN_BROWSER: 'open-browser',
 };

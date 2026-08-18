@@ -8,7 +8,6 @@ import { setAboutWindowOpener } from './aboutWindow';
 import { createContext, router } from './api';
 import { runAutoUpdate } from './services/appUpdate';
 import { openBrowser } from './services/browser';
-import { downloadFile } from './services/download';
 
 declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -130,10 +129,6 @@ export async function launch(config: Config) {
       aboutWindow.show();
     });
     void aboutWindow.loadURL(aboutPath);
-  });
-
-  ipcMain.handle(IPC_CHANNELS.DOWNLOAD, async (event, url, options) => {
-    return await downloadFile(mainWindow, url, options);
   });
 
   ipcMain.handle(IPC_CHANNELS.OPEN_BROWSER, async (event, url, type) => {
