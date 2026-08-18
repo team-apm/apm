@@ -2,7 +2,7 @@ import type { List } from 'apm-schema';
 import type { BrowserWindow } from 'electron';
 import { readJson } from 'fs-extra';
 import * as os from 'node:os';
-import path from 'node:path';
+import { joinUrlOrPath } from '../../shared/joinUrlOrPath';
 import { resolvePath } from '../../shared/resolvePath';
 import type Config from '../Config';
 import { downloadFile } from './download';
@@ -15,7 +15,7 @@ import { existsTempFile } from './tempFile';
  * @param {Config} config - The config instance.
  */
 export async function updateInfo(win: BrowserWindow, config: Config) {
-  await downloadFile(win, path.join(config.dataURL.getMain(), 'list.json'));
+  await downloadFile(win, joinUrlOrPath(config.dataURL.getMain(), 'list.json'));
 
   const modFile = existsTempFile('list.json');
   const info = (await readJson(modFile.path)) as List;
