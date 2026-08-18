@@ -3,6 +3,7 @@ import { ipcRenderer } from 'electron';
 import { ELECTRON_TRPC_CHANNEL } from 'electron-trpc/main';
 import { ipcLink } from 'electron-trpc/renderer';
 import type { AppRouter } from '../main/api';
+import { trpcIdNamespaceLink, trpcIdParities } from '../shared/trpcIdNamespace';
 
 type ElectronTRPC = {
   sendMessage: (message: unknown) => void;
@@ -21,4 +22,8 @@ type ElectronTRPC = {
 };
 
 /** レガシー(非 React)コードから main プロセスの tRPC procedure を呼ぶためのクライアント。 */
-export const trpc = createTRPCProxyClient<AppRouter>({ links: [ipcLink()] });
+export const trpc = createTRPCProxyClient<AppRouter>({
+  // メインワールドの React クライアントとのリクエスト ID 衝突を防ぐ
+  // (詳細は shared/trpcIdNamespace.ts のコメント参照)
+  links: [trpcIdNamespaceLink(trpcIdParities.legacy), ipcLink()],
+});
