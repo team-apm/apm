@@ -1132,3 +1132,20 @@ export async function setEditorPackages(
     packages: packages,
   });
 }
+
+/**
+ * Returns the mod/check dates of the packages data, or null if not fetched.
+ * 旧 src/renderer/main/package.ts の updateModDates が読んでいた
+ * config 値と同一(modDate が無ければ null)。
+ * @param {Config} config - The config instance.
+ * @returns {{ modDate: number; checkDate: number } | null} The dates.
+ */
+export function getPackagesDates(
+  config: Config,
+): { modDate: number; checkDate: number } | null {
+  if (!config.modDate.hasPackages()) return null;
+  return {
+    modDate: config.modDate.getPackages(),
+    checkDate: config.checkDate.getPackages(),
+  };
+}

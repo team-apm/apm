@@ -7,7 +7,9 @@ import { isExeVersion } from './services/appUpdate';
 import {
   changeInstallationPath,
   checkCoreLatestVersion,
+  ensureInstallationPath,
   getApmJsonCoreVersions,
+  getCoreDates,
   getCoreInfo,
   getInstalledVersionTexts,
   hasExeditInPluginsFolder,
@@ -22,6 +24,7 @@ import {
   getApmJsonInstalledIds,
   getEditorPackages,
   getPackages,
+  getPackagesDates,
   getPackagesExtra,
   getPackagesWithStatus,
   getScriptsList,
@@ -396,6 +399,7 @@ export const router = t.router({
           input.url,
         );
       }),
+    getDates: procedure.query(() => getPackagesDates(getConfig())),
     getEditorPackages: procedure
       .input(stringInput)
       .query(async ({ input, ctx }) => {
@@ -440,6 +444,10 @@ export const router = t.router({
     hasExeditInPluginsFolder: procedure
       .input(stringInput)
       .query(({ input }) => hasExeditInPluginsFolder(input)),
+    ensureInstallationPath: procedure.mutation(() =>
+      ensureInstallationPath(getConfig()),
+    ),
+    getDates: procedure.query(() => getCoreDates(getConfig())),
     changeInstallationPath: procedure
       .input(stringInput)
       .mutation(async ({ input, ctx }) => {

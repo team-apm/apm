@@ -295,3 +295,34 @@ export async function changeInstallationPath(
       ),
   };
 }
+
+/**
+ * Ensures that an installation path is set, and returns it.
+ * 旧 src/renderer/main/core.ts の initCore(未設定なら home/aviutl を
+ * 既定値として書き込む)+ config.getInstallationPath() と同一の挙動。
+ * @param {Config} config - The config instance.
+ * @returns {string} The installation path.
+ */
+export function ensureInstallationPath(config: Config): string {
+  if (!config.hasInstallationPath()) {
+    config.setInstallationPath(path.join(app.getPath('home'), 'aviutl'));
+  }
+  return config.getInstallationPath();
+}
+
+/**
+ * Returns the mod/check dates of the core programs, or null if not fetched.
+ * 旧 src/renderer/main/core.ts の displayInstalledVersion が読んでいた
+ * config 値と同一(modDate が無ければ null)。
+ * @param {Config} config - The config instance.
+ * @returns {{ modDate: number; checkDate: number } | null} The dates.
+ */
+export function getCoreDates(
+  config: Config,
+): { modDate: number; checkDate: number } | null {
+  if (!config.modDate.hasCore()) return null;
+  return {
+    modDate: config.modDate.getCore(),
+    checkDate: config.checkDate.getCore(),
+  };
+}
