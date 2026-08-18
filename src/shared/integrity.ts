@@ -36,6 +36,11 @@ export async function verifyFile(filePath: string, integrity: string) {
   let readStream;
   try {
     readStream = fs.createReadStream(filePath);
+    // checkStream(内部は pipe)は source の error イベントを引き取らない。
+    // 早期 reject 後に遅れて届く open/read エラー(競合で消えた一時ファイル等)が
+    // リスナー無しの error イベント = プロセスの uncaught exception になるため、
+    // 先に握りつぶすリスナーを付けておく。失敗は戻り値 false で表現される
+    readStream.on('error', () => {});
     await checkStream(readStream, integrity);
   } catch {
     return false;
