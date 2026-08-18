@@ -1,5 +1,5 @@
 import type { Packages, Scripts } from 'apm-schema';
-import { app, type BrowserWindow, dialog } from 'electron';
+import { app, type BrowserWindow, dialog, shell } from 'electron';
 import log from 'electron-log/main';
 import {
   copy,
@@ -14,6 +14,7 @@ import {
 import * as matcher from 'matcher';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
+import { isParent } from '../../shared/apmPath';
 import { getHash } from '../../shared/getHash';
 import { install, verifyFilesByCount } from '../../shared/install';
 import { checkIntegrity, verifyFile } from '../../shared/integrity';
@@ -1148,4 +1149,24 @@ export function getPackagesDates(
     modDate: config.modDate.getPackages(),
     checkDate: config.checkDate.getPackages(),
   };
+}
+
+/**
+ * Opens the download folder of the package, and returns whether it exists.
+ * 旧 OPEN_PATH ハンドラに renderer が `package/${id}` を渡していた処理と
+ * 同一の挙動(データフォルダ外の拒否も維持)。
+ * @param {string} packageId - The id of the package.
+ * @returns {Promise<boolean>} Whether the folder exists.
+ */
+export async function openPackageFolder(packageId: string): Promise<boolean> {
+  const dataDir = path.join(app.getPath('userData'), 'Data/');
+  const folderPath = path.join(dataDir, 'package', packageId);
+  // packageId はリモート由来のため、データフォルダ外は拒否する
+  if (!isParent(dataDir, folderPath)) {
+    log.error(`Refused to open a path outside the data folder: ${packageId}`);
+    return false;
+  }
+  const folderExists = existsSync(folderPath);
+  if (folderExists) await shell.openPath(folderPath);
+  return folderExists;
 }
