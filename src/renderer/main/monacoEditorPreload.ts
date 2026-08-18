@@ -1,7 +1,6 @@
 import { Packages } from 'apm-schema';
 import { contextBridge } from 'electron';
-import * as modList from '../../lib/modList';
-import * as parseJson from '../../lib/parseJson';
+import { trpc } from '../../lib/trpcClient';
 import packageMain from './package';
 
 /**
@@ -19,10 +18,12 @@ export class EditorContextBridge {
       setOnload: async (event: (packages: Packages['packages']) => void) => {
         this.onLoad = async () => {
           try {
+            // editorPackages.json の読み書きは main プロセス側
+            // (src/main/services/packages.ts)へ移設済み
             event(
-              await parseJson.getPackages(
-                modList.getEditorPackagesDataUrl(this.instPath.value),
-              ),
+              (await trpc.packages.getEditorPackages.query(
+                this.instPath.value,
+              )) as Packages['packages'],
             );
           } catch {
             // nop
@@ -34,10 +35,10 @@ export class EditorContextBridge {
         if (this.onLoad && this.instPath) await this.onLoad();
       },
       save: async (packages: Packages['packages']) => {
-        await parseJson.setPackages(
-          modList.getEditorPackagesDataUrl(this.instPath.value),
+        await trpc.packages.setEditorPackages.mutate({
+          instPath: this.instPath.value,
           packages,
-        );
+        });
         await packageMain.checkPackagesList(this.instPath.value);
       },
     });
