@@ -29,10 +29,10 @@ apm の開発方針の単一ソース。変更は PR 経由で行う(履歴 = �
 
 ## 次の一手
 
-**v3.11.0 をリリース(data editor + 骨格整理入り)→ Phase 3: タブ単位の React + tRPC 移行(Settings タブから)。**
+**v3.11.0 をリリース(React + tRPC 移行入り)→ Phase 4: セキュリティ(`sandbox: true` 化)。**
 
-骨格整理(Phase 2)は完了した: `src/shared` 切り出し、main プロセスの index.ts / windows.ts / ipcHandlers.ts / services 分割、Config シングルトン化(getConfig)、ApmJson トランザクション化(begin/commit)、ARCHITECTURE.md(いずれも 2026-08 マージ済み)。
+タブ移行(Phase 3)は完了した: main 窓の全タブ(Settings / その他 / AviUtl / Plugins / Nicommons)が React + tRPC で動き、ビジネスロジックは main プロセス(services)へ移設済み。旧 renderer ロジック(package.ts / core.ts / lib の buttonTransition・replaceText・parseJson・modList・convertId ほか)と旧 IPC チャンネルの大半は削除済み(いずれも 2026-08 マージ済み)。preload に残るのは初期化フロー(全ステップ tRPC 呼び出し)・contextBridge(editor / coreBridge)・tRPC クライアントのみで、Node API 依存のロジックは無い。
 
-タブ移行は Settings → Other → AviUtl → Plugins → Nicommons の順。各タブとも「そのタブが触るロジックの特性化テスト → main プロセス(services + tRPC)へ移設 → React UI → 旧コード削除」の順で、About 窓のパターンに従う。
+Phase 4 は「sandbox: true 化 → contextBridge の最小化 → CSP の回収(data editor の CDN Monaco 許容箇所 `TODO(Phase 4)` を含む)」の順で進める。
 
-Done の定義: v3.11.0 がリリースされ、Settings タブが React + tRPC で動き、preload から Settings のロジックが消えていること。
+Done の定義: v3.11.0 がリリースされ、main 窓が `sandbox: true` で全機能動作すること。
