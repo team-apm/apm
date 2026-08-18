@@ -1,12 +1,18 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ipcLink } from 'electron-trpc/renderer';
 import React, { type JSX, type ReactNode } from 'react';
+import {
+  trpcIdNamespaceLink,
+  trpcIdParities,
+} from '../../shared/trpcIdNamespace';
 import { TRPCReact } from '../trpc';
 
 // main 窓には React root が複数あるため、client は共有のモジュールレベルで 1 つ持つ
 const queryClient = new QueryClient();
 const trpcClient = TRPCReact.createClient({
-  links: [ipcLink()],
+  // 隔離ワールドのレガシークライアントとのリクエスト ID 衝突を防ぐ
+  // (詳細は shared/trpcIdNamespace.ts のコメント参照)
+  links: [trpcIdNamespaceLink(trpcIdParities.react), ipcLink()],
 });
 
 /**
