@@ -1,9 +1,11 @@
 import type { Scripts } from 'apm-schema';
-import React, { type JSX, useEffect, useRef, useState } from 'react';
+import React, { type JSX, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { states } from '../../../shared/packageDisplay';
 import type { PackageItem } from '../../../types/packageItem';
 import { TRPCReact } from '../../trpc';
+import { type ActionPhase, usePhase } from '../usePhase';
+import { runPackagesListCheck } from './packagesListCheck';
 
 type WebpageItem = Scripts['webpage'][number];
 
@@ -11,33 +13,6 @@ export type SelectedEntry =
   | { kind: 'package'; p: PackageItem }
   | { kind: 'scriptSite'; w: WebpageItem }
   | null;
-
-type ActionPhase =
-  | { kind: 'idle' }
-  | { kind: 'loading' }
-  | { kind: 'message'; message: string; color: 'success' | 'danger' | 'info' };
-
-/**
- * Manages the button state of one action button.
- * 旧 lib/buttonTransition(loading → message → 3 秒後に復帰)に相当する。
- * @returns {object} The phase and its transitions.
- */
-function usePhase() {
-  const [phase, setPhase] = useState<ActionPhase>({ kind: 'idle' });
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => clearTimeout(timer.current), []);
-
-  const start = () => setPhase({ kind: 'loading' });
-  const finish = (message: string, color: 'success' | 'danger' | 'info') => {
-    setPhase({ kind: 'message', message, color });
-    timer.current = setTimeout(() => setPhase({ kind: 'idle' }), 3000);
-  };
-  // 旧 openPackageFolder の成功時(メッセージなしで 3 秒後に復帰)
-  const finishSilently = () => {
-    timer.current = setTimeout(() => setPhase({ kind: 'idle' }), 3000);
-  };
-  return { phase, start, finish, finishSilently };
-}
 
 /**
  * Renders one action button.
@@ -122,11 +97,18 @@ function PackageActions({
     TRPCReact.packages.uninstallPackage.useMutation();
   const openFolderMutation = TRPCReact.packages.openPackageFolder.useMutation();
   const writeClipboardMutation = TRPCReact.writeClipboardText.useMutation();
+  const refreshListMutation = TRPCReact.packages.refreshList.useMutation();
 
-  // 一覧・日付表示の再取得。レガシー側 setPackagesList が
-  // apm-packages-changed を dispatch し、React 側も再取得される
-  const refreshLists = async () => {
-    await window.packagesBridge?.setPackagesList();
+  // 一覧(PackagesTab / BatchInstallList)と日付表示(ManualUpdateTable)の
+  // 再取得。旧 setPackagesList 相当
+  const refreshLists = () => {
+    window.dispatchEvent(new Event('apm-packages-changed'));
+  };
+
+  // 一覧データの再取得(旧 checkPackagesList 相当)。設定タブの更新ボタンと
+  // 実行状態を共有する
+  const checkPackagesList = async () => {
+    await runPackagesListCheck(() => refreshListMutation.mutateAsync(instPath));
   };
 
   const installScript = async (url: string) => {
@@ -158,7 +140,7 @@ function PackageActions({
       }
     } else if (result.route === 'redirect') {
       if (result.status === 'success') {
-        await refreshLists();
+        refreshLists();
         install.finish('インストール完了', 'success');
       } else {
         install.finish('エラーが発生しました。', 'danger');
@@ -171,7 +153,7 @@ function PackageActions({
         'danger',
       );
     } else if (result.status === 'success') {
-      await window.packagesBridge?.checkPackagesList();
+      await checkPackagesList();
       install.finish('インストール完了', 'success');
     } else {
       install.finish('エラーが発生しました。', 'danger');
@@ -235,7 +217,7 @@ function PackageActions({
     } else if (result === 'redownloadFailed') {
       install.finish('ファイルのダウンロードに失敗しました。', 'danger');
     } else if (result === 'success') {
-      await refreshLists();
+      refreshLists();
       install.finish('インストール完了', 'success');
     } else {
       install.finish('エラーが発生しました。', 'danger');
@@ -292,9 +274,9 @@ function PackageActions({
     if (result === 'success') {
       // スクリプト由来のパッケージは一覧データの再取得まで行う(旧挙動)
       if (!uninstalledPackage.id.startsWith('script_')) {
-        await refreshLists();
+        refreshLists();
       } else {
-        await window.packagesBridge?.checkPackagesList();
+        await checkPackagesList();
       }
       uninstall.finish('アンインストール完了', 'success');
     } else {

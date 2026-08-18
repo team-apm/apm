@@ -61,7 +61,8 @@ function BatchInstallButton(): JSX.Element {
         }
         if (result === 'success') {
           window.dispatchEvent(new Event('apm-core-changed'));
-          await window.packagesBridge?.setPackagesList();
+          // 一覧と日付表示の再取得(旧 setPackagesList 相当)
+          window.dispatchEvent(new Event('apm-packages-changed'));
         }
       }
 
@@ -89,7 +90,8 @@ function BatchInstallButton(): JSX.Element {
           throw new Error('Failed downloading the archive file.');
         }
         if (result === 'success') {
-          await window.packagesBridge?.setPackagesList();
+          // 一覧と日付表示の再取得(旧 setPackagesList 相当)
+          window.dispatchEvent(new Event('apm-packages-changed'));
         }
       }
 

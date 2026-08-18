@@ -106,8 +106,9 @@ function ProgramRow({
     }
 
     await utils.core.getInstalledVersionTexts.invalidate();
-    // レガシーのパッケージ一覧・ニコニ・コモンズ ID 一覧を再描画する
-    await window.coreBridge?.onProgramInstalled();
+    // パッケージ一覧・日付表示・ニコニ・コモンズ ID 一覧を再描画する
+    // (旧 setPackagesList 相当)
+    window.dispatchEvent(new Event('apm-packages-changed'));
     setPhase('success');
     setButtonMessage('インストール完了');
     setTimeout(() => setPhase('idle'), 3000);
