@@ -1,0 +1,64 @@
+import React, { type JSX, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import type { PackageItem } from '../../../types/packageItem';
+import { TRPCReact } from '../../trpc';
+
+/**
+ * The list of the recommended plugins (directURL packages) shown in the
+ * batch-install section of the AviUtl tab.
+ * 旧 package.ts の updateBatchInstallList と同一の表示。
+ * クエリは PackagesTab と同じキー(fixIntegrity: true)でキャッシュを共有する
+ * (apm.json の整合性補正は冪等のため表示結果は旧実装と変わらない)。
+ * レガシー側からの再描画通知(apm-packages-changed イベント)で自動更新する。
+ * @returns {JSX.Element} The rendered component.
+ */
+function BatchInstallList(): JSX.Element {
+  const [instPath, setInstPath] = useState(
+    () => window.coreBridge?.getInstallationPath() ?? '',
+  );
+
+  const utils = TRPCReact.useContext();
+  const packagesQuery = TRPCReact.packages.getPackagesWithStatus.useQuery(
+    { instPath, fixIntegrity: true },
+    { refetchOnWindowFocus: false },
+  );
+
+  // レガシー側(preload の package.ts)からの再描画通知を受けて最新化する
+  useEffect(() => {
+    const listener = () => {
+      setInstPath(window.coreBridge?.getInstallationPath() ?? '');
+      void utils.packages.getPackagesWithStatus.invalidate();
+    };
+    window.addEventListener('apm-packages-changed', listener);
+    return () => window.removeEventListener('apm-packages-changed', listener);
+  }, [utils]);
+
+  // tRPC の Serialize 型はプロパティを optional 化するため元の型に戻す
+  const packages = (packagesQuery.data?.packages ?? []) as PackageItem[];
+  const batchInstallPackages = packages.filter((p) => p.info.directURL);
+
+  const listElement = document.getElementById('batch-install-packages');
+  if (!listElement) return <></>;
+
+  return createPortal(
+    <>
+      {batchInstallPackages.map((p) => (
+        <li
+          key={p.id}
+          className="list-group-item py-0 d-flex py-2 batch-install-package"
+        >
+          <div className="d-flex align-items-center flex-grow-1">
+            <i className="bi bi-box-seam me-3"></i>
+            <div className="name">{p.info.name}</div>
+          </div>
+          <div>
+            <span className="installed-version">{p.installationStatus}</span>
+          </div>
+        </li>
+      ))}
+    </>,
+    listElement,
+  );
+}
+
+export default BatchInstallList;

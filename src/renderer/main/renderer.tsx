@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import '../../../node_modules/bootstrap-icons/font/bootstrap-icons.css';
 import '../main.css';
 import './index.css';
+import BatchInstallList from './aviutl/BatchInstallList';
 import ProgramRow from './aviutl/ProgramRow';
 import { MonacoEditorRenderer } from './monacoEditorRenderer';
 import NicommonsTab from './nicommons/NicommonsTab';
@@ -67,6 +68,12 @@ window.addEventListener('DOMContentLoaded', () => {
         iconClass="bi-calendar3-range"
         buttonRoundedClass="rounded-0"
       />
+    </TrpcProvider>,
+  );
+  // おすすめプラグイン一覧は portal で #batch-install-packages(ul)へ描画する
+  createRoot(document.getElementById('batch-install-react-root')).render(
+    <TrpcProvider>
+      <BatchInstallList />
     </TrpcProvider>,
   );
 });
