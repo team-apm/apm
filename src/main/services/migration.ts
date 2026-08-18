@@ -4,6 +4,7 @@ import prompt from 'electron-prompt';
 import fs, { readdir, rename, unlink, writeJson } from 'fs-extra';
 import path from 'node:path';
 import { convertPackagesV2toV3 } from '../../shared/convertPackagesV2toV3';
+import { joinUrlOrPath } from '../../shared/joinUrlOrPath';
 import { parsePackagesXml } from '../../shared/parsePackagesXml';
 import ApmJson from '../ApmJson';
 import type Config from '../Config';
@@ -96,7 +97,7 @@ async function migration1to2Global(
         const urls = config.dataURL
           .getPackages()
           .filter((url) => !url.includes(oldDataURL));
-        urls.push(path.join(newDataURL, 'packages.xml'));
+        urls.push(joinUrlOrPath(newDataURL, 'packages.xml'));
         config.dataURL.setMain(newDataURL);
         config.dataURL.setPackages(urls);
         config.set('migration1to2', {
@@ -211,8 +212,8 @@ async function migration1to2ByFolder(
     if (config.has('migration1to2')) {
       const dataURLs = config.get('migration1to2');
       text = text.replaceAll(
-        path.join(dataURLs.oldDataURL, 'packages_list.xml'),
-        path.join(dataURLs.newDataURL, 'packages.xml'),
+        joinUrlOrPath(dataURLs.oldDataURL, 'packages_list.xml'),
+        joinUrlOrPath(dataURLs.newDataURL, 'packages.xml'),
       );
     }
     packages[id].repository = text;
