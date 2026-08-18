@@ -18,15 +18,6 @@ async function getPackages(instPath: string) {
 }
 
 /**
- * Downloads the package data files.
- * 実装は main プロセス側(src/main/services/packages.ts)へ移設済み。
- * @param {string} instPath - An installation path
- */
-async function downloadRepository(instPath: string) {
-  await trpc.packages.downloadRepository.mutate(instPath);
-}
-
-/**
  * Updates the installedVersion of the packages and returns a list of
  * manually installed files.
  * 実装は main プロセス側(src/main/services/packages.ts)へ移設済み。
@@ -64,7 +55,6 @@ const packageUtil = {
   states,
   parsePackageType,
   getPackages,
-  downloadRepository,
   getPackagesExtra,
   getPackagesWithStatus,
 };

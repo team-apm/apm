@@ -19,7 +19,6 @@ import { getNicommonsData } from './services/nicommons';
 import {
   buildShareString,
   convertPackageIds,
-  downloadRepository,
   getApmJsonInstalledIds,
   getPackages,
   getPackagesExtra,
@@ -27,6 +26,7 @@ import {
   getScriptsList,
   installPackageFlow,
   installScriptFlow,
+  refreshPackagesList,
   uninstallPackageFiles,
 } from './services/packages';
 import { ensureExtraDataUrl, setDataUrls } from './services/settings';
@@ -281,12 +281,12 @@ export const router = t.router({
       if (!win) throw new Error('The calling window was not found.');
       return await getPackages(win, getConfig(), input);
     }),
-    downloadRepository: procedure
+    refreshList: procedure
       .input(stringInput)
       .mutation(async ({ input, ctx }) => {
         const win = BrowserWindow.fromWebContents(ctx.event.sender);
         if (!win) throw new Error('The calling window was not found.');
-        await downloadRepository(win, getConfig(), input);
+        await refreshPackagesList(win, getConfig(), input);
       }),
     getPackagesExtra: procedure
       .input(stringInput)

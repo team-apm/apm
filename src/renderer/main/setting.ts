@@ -1,6 +1,5 @@
 import log from 'electron-log/renderer';
 import { openDialog } from '../../lib/ipcWrapper';
-import * as modList from '../../lib/modList';
 import { trpc } from '../../lib/trpcClient';
 
 /**
@@ -18,7 +17,7 @@ async function initSettings() {
       await openDialog('エラー', message, 'error');
     }
     if (errors.length === 0) {
-      await modList.updateInfo();
+      await trpc.modList.updateInfo.mutate();
     } else {
       log.error('An error has occurred while setting data URL.');
     }
