@@ -60,16 +60,25 @@ export function getPackagesDataUrl(config: Config, instPath: string) {
 
 /**
  * Returns the id conversion dictionary.
- * 旧 src/lib/convertId.ts の getIdDict(update = false)と同一の挙動。
+ * 旧 src/lib/convertId.ts の getIdDict と同一の挙動。
  * @param {BrowserWindow} win - A browser window used for the download session.
  * @param {Config} config - The config instance.
+ * @param {boolean} [update] - Download the json file.
  * @returns {Promise<{ [key: string]: string }>} Dictionary of id relationships.
  */
 async function getIdDict(
   win: BrowserWindow,
   config: Config,
+  update = false,
 ): Promise<{ [key: string]: string }> {
   const dictUrl = await getConvertDataUrl(win, config);
+  if (update) {
+    const convertJson = await downloadFile(win, dictUrl, {
+      subDir: 'package',
+      keyText: dictUrl,
+    });
+    return convertJson ? await readJson(convertJson) : {};
+  }
   const convertJson = existsTempFile(
     path.join('package', path.basename(dictUrl)),
     dictUrl,
@@ -79,6 +88,42 @@ async function getIdDict(
   } else {
     return {};
   }
+}
+
+/**
+ * Converts the package ids in apm.json using the conversion dictionary.
+ * 旧 src/lib/convertId.ts の convertId と同一の挙動(新 ID の解決に
+ * packageItem.id を引く点も含めて維持)。
+ * @param {BrowserWindow} win - A browser window used for the download session.
+ * @param {Config} config - The config instance.
+ * @param {string} instPath - An installation path.
+ * @param {number} modTime - A mod time.
+ */
+export async function convertPackageIds(
+  win: BrowserWindow,
+  config: Config,
+  instPath: string,
+  modTime: number,
+) {
+  const apmJson = await ApmJson.load(instPath);
+  apmJson.begin();
+  const packages = (await apmJson.get('packages')) as {
+    [key: string]: { id: string };
+  };
+
+  const convDict = await getIdDict(win, config, true);
+  for (const [oldId, packageItem] of Object.entries(packages)) {
+    if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
+      const newId = convDict[packageItem.id];
+      packages[newId] = packages[oldId];
+      delete packages[oldId];
+      packages[newId].id = newId;
+    }
+  }
+
+  await apmJson.set('packages', packages);
+  await apmJson.set('convertMod', modTime);
+  await apmJson.commit();
 }
 
 /**

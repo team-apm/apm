@@ -5,7 +5,6 @@ import path from 'node:path';
 import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { getConfig } from '../../lib/Config';
-import { convertId } from '../../lib/convertId';
 import { app, openDialog, openDirDialog } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
 import replaceText from '../../lib/replaceText';
@@ -136,7 +135,12 @@ async function changeInstallationPath(instPath: string) {
       const currentConvertMod = new Date(currentMod.convert.modified).getTime();
 
       if (oldConvertMod.getTime() < currentConvertMod)
-        await convertId(instPath, currentConvertMod);
+        // 変換辞書の取得と apm.json の書き換えは main プロセス側
+        // (services/packages.ts の convertPackageIds)へ移設済み
+        await trpc.packages.convertIds.mutate({
+          instPath,
+          modTime: currentConvertMod,
+        });
     }
   }
 
