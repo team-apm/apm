@@ -11,7 +11,6 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import { IPC_CHANNELS } from '../common/ipc';
 import { isParent } from '../shared/apmPath';
-import { checkUpdate } from './services/appUpdate';
 
 const APP_PATH_NAMES = new Set([
   'home',
@@ -53,10 +52,6 @@ export function registerIpcHandlers() {
 
   ipcMain.handle(IPC_CHANNELS.APP_QUIT, () => {
     app.quit();
-  });
-
-  ipcMain.handle(IPC_CHANNELS.CHECK_UPDATE, async () => {
-    await checkUpdate(false);
   });
 
   ipcMain.handle(IPC_CHANNELS.OPEN_PATH, async (event, relativePath) => {

@@ -57,13 +57,6 @@ export const app = {
 };
 
 /**
- * Check the update of the app.
- */
-export async function checkUpdate() {
-  await ipcRenderer.invoke(IPC_CHANNELS.CHECK_UPDATE);
-}
-
-/**
  * Opens a file explorer and returns whether the directory exists.
  * @param {string} relativePath - A relative path from the data directory.
  * @returns {Promise<boolean>} Whether the directory exists.
