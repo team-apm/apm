@@ -10,6 +10,7 @@ import {
 } from '../../../shared/shareString';
 import type { PackageItem } from '../../../types/packageItem';
 import { TRPCReact } from '../../trpc';
+import PackageActions, { type SelectedEntry } from './PackageActions';
 
 // list.js(fuzzySearch)に合わせた検索オプション。
 // Ensure that searches are performed even on long strings.
@@ -133,8 +134,9 @@ const naturalCompare = (a: string, b: string) => {
  * the manually-installed-files list.
  * 旧 package.ts の setPackagesList(DOM 描画部分)+ listFilter +
  * updatableList(list.js)に相当する。データ取得は tRPC 経由で main プロセス。
- * レガシー側からの再描画通知は apm-packages-changed イベント、選択状態の
- * 受け渡しは window.packagesBridge(contextBridge)で行う。
+ * レガシー側からの再描画通知は apm-packages-changed イベントで受け取り、
+ * 選択状態はこのコンポーネントが保持してアクションボタン(PackageActions)
+ * と共有する。
  * @returns {JSX.Element} The rendered component.
  */
 function PackagesTab(): JSX.Element {
@@ -317,12 +319,15 @@ function PackagesTab(): JSX.Element {
 
   const selectRow = (row: Row) => {
     setSelectedKey(row.key);
-    if (row.kind === 'package') {
-      window.packagesBridge?.setSelectedEntry('package', row.p);
-    } else {
-      window.packagesBridge?.setSelectedEntry('script', row.w);
-    }
   };
+
+  const selectedEntry: SelectedEntry = useMemo(() => {
+    const row = rows.find((r) => r.key === selectedKey);
+    if (!row) return null;
+    return row.kind === 'package'
+      ? { kind: 'package', p: row.p }
+      : { kind: 'scriptSite', w: row.w };
+  }, [rows, selectedKey]);
 
   const sortButton = (column: SortState['column'], label: string) => (
     <div
@@ -350,6 +355,11 @@ function PackagesTab(): JSX.Element {
 
   return (
     <>
+      <PackageActions
+        instPath={instPath}
+        selectedEntry={selectedEntry}
+        packages={packages}
+      />
       {packagesSortRoot &&
         createPortal(
           <>
@@ -455,8 +465,11 @@ function PackagesTab(): JSX.Element {
                               className="text-danger d-block"
                               onClick={(e) => {
                                 e.preventDefault();
-                                void window.packagesBridge?.installPackageById(
-                                  d.id,
+                                // アクションボタン側(PackageActions)が購読
+                                window.dispatchEvent(
+                                  new CustomEvent('apm-install-package-by-id', {
+                                    detail: d.id,
+                                  }),
                                 );
                               }}
                             >

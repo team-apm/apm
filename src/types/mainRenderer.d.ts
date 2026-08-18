@@ -13,8 +13,8 @@ declare global {
       onProgramInstalled: () => Promise<void>;
     };
     packagesBridge: {
-      setSelectedEntry: (type: string, entry: unknown) => void;
-      installPackageById: (packageId: string) => Promise<void>;
+      setPackagesList: () => Promise<void>;
+      checkPackagesList: () => Promise<void>;
     };
   }
 }
