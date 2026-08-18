@@ -13,6 +13,7 @@ import NicommonsTab from './nicommons/NicommonsTab';
 import OthersTab from './others/OthersTab';
 import PackagesTab from './packages/PackagesTab';
 import DataUrlSettings from './settings/DataUrlSettings';
+import ManualUpdateTable from './settings/ManualUpdateTable';
 import PreferencesSettings from './settings/PreferencesSettings';
 import { TrpcProvider } from './TrpcProvider';
 
@@ -34,6 +35,12 @@ window.addEventListener('DOMContentLoaded', () => {
   createRoot(document.getElementById('settings-preferences-root')).render(
     <TrpcProvider>
       <PreferencesSettings />
+    </TrpcProvider>,
+  );
+  // 手動更新テーブルは portal で #manual-update-tbody(tbody)へ描画する
+  createRoot(document.getElementById('manual-update-react-root')).render(
+    <TrpcProvider>
+      <ManualUpdateTable />
     </TrpcProvider>,
   );
   createRoot(document.getElementById('others-root')).render(

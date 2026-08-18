@@ -1,56 +1,7 @@
-import log from 'electron-log/renderer';
-import * as buttonTransition from '../../lib/buttonTransition';
 import { openDialog, openDirDialog } from '../../lib/ipcWrapper';
-import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
-import packageMain from './package';
 
 // Functions to be exported
-
-/**
- * Displays installed version.
- */
-async function displayInstalledVersion() {
-  // AviUtl・拡張編集行の表示は React(ProgramRow)が tRPC 経由で行う。
-  // ここでは日付表示の更新と React への再描画通知のみ行う。
-  // 日付は main プロセス側(services/core.ts の getCoreDates)から取得する
-  const dates = await trpc.core.getDates.query();
-  if (dates) {
-    replaceText('core-mod-date', new Date(dates.modDate).toLocaleString());
-
-    replaceText('core-check-date', new Date(dates.checkDate).toLocaleString());
-  } else {
-    replaceText('core-mod-date', '未取得');
-
-    replaceText('core-check-date', '未確認');
-  }
-
-  window.dispatchEvent(new Event('apm-core-changed'));
-}
-
-/**
- * Checks the latest versionof programs.
- */
-async function checkLatestVersion() {
-  const btn = document.getElementById(
-    'check-core-version',
-  ) as HTMLButtonElement;
-  const { enableButton } = buttonTransition.loading(btn, '更新');
-
-  try {
-    // ダウンロードと日付更新は main プロセス側(services/core.ts)へ移設済み
-    await trpc.core.checkLatestVersion.mutate();
-    await displayInstalledVersion();
-    buttonTransition.message(btn, '更新完了', 'success');
-  } catch (e) {
-    log.error(e);
-    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-  }
-
-  setTimeout(() => {
-    enableButton();
-  }, 3000);
-}
 
 /**
  * Shows a dialog to select installation path and set it.
@@ -87,17 +38,15 @@ async function selectInstallationPath(input: HTMLInputElement) {
 async function changeInstallationPath(instPath: string) {
   // mod 情報の更新・migration・変換辞書の適用と、必要なデータの再取得は
   // main プロセス側(services/core.ts の changeInstallationPath)へ移設済み。
-  // renderer は再描画のみ行う
+  // renderer は再描画の通知のみ行う
   await trpc.core.changeInstallationPath.mutate(instPath);
 
-  // redraw
-  await displayInstalledVersion();
-  await packageMain.setPackagesList();
+  // redraw(AviUtl タブの ProgramRow・パッケージ一覧・日付表示が再取得する)
+  window.dispatchEvent(new Event('apm-core-changed'));
+  window.dispatchEvent(new Event('apm-packages-changed'));
 }
 
 const core = {
-  displayInstalledVersion,
-  checkLatestVersion,
   selectInstallationPath,
   changeInstallationPath,
 };

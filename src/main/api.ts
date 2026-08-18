@@ -9,7 +9,10 @@ import {
 import type { CreateContextOptions } from 'electron-trpc/main';
 import { openAboutWindow } from './aboutWindow';
 import { getConfig } from './Config';
-import { isExeVersion } from './services/appUpdate';
+import {
+  checkUpdate as checkAppUpdate,
+  isExeVersion,
+} from './services/appUpdate';
 import {
   changeInstallationPath,
   checkCoreLatestVersion,
@@ -283,6 +286,11 @@ export const router = t.router({
   }),
   writeClipboardText: procedure.input(clipboardInput).mutation(({ input }) => {
     clipboard.writeText(input.text);
+  }),
+  // 手動更新テーブル(React)の apm 更新ボタン。silent = false で
+  // 「最新版です」のダイアログまで main 側が表示する
+  checkUpdate: procedure.mutation(async () => {
+    await checkAppUpdate(false);
   }),
   settings: t.router({
     ensureExtraDataUrl: procedure.mutation(() =>

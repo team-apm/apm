@@ -3,7 +3,6 @@ export const IPC_CHANNELS = {
   GET_APP_VERSION: 'get-app-version',
   APP_GET_PATH: 'app-get-path',
   APP_QUIT: 'app-quit',
-  CHECK_UPDATE: 'check-update',
   OPEN_PATH: 'open-path',
   OPEN_DIR_DIALOG: 'open-dir-dialog',
   OPEN_DIALOG: 'open-dialog',

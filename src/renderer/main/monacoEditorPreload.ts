@@ -1,7 +1,6 @@
 import { Packages } from 'apm-schema';
 import { contextBridge } from 'electron';
 import { trpc } from '../../lib/trpcClient';
-import packageMain from './package';
 
 /**
  * ContextBridge for monaco editor
@@ -39,7 +38,10 @@ export class EditorContextBridge {
           instPath: this.instPath.value,
           packages,
         });
-        await packageMain.checkPackagesList(this.instPath.value);
+        // 一覧データの再取得(旧 checkPackagesList)はメインワールドの React
+        // (ManualUpdateTable)がこのイベントを購読して行う。隔離ワールドの
+        // DOM イベントはメインワールドに届く
+        window.dispatchEvent(new Event('apm-check-packages-list'));
       },
     });
   }

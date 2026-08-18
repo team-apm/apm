@@ -10,11 +10,6 @@ declare global {
     };
     coreBridge: {
       getInstallationPath: () => string;
-      onProgramInstalled: () => Promise<void>;
-    };
-    packagesBridge: {
-      setPackagesList: () => Promise<void>;
-      checkPackagesList: () => Promise<void>;
     };
   }
 }

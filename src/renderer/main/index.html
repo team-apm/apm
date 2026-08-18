@@ -522,6 +522,7 @@
 								<hr />
 								<div class="row mb-3">
 									<h4>手動更新</h4>
+									<div id="manual-update-react-root" class="d-none"></div>
 									<table class="table table-borderless table-striped">
 										<thead>
 											<tr>
@@ -531,56 +532,11 @@
 												<th scope="col" class="col-sm-3"></th>
 											</tr>
 										</thead>
-										<tbody class="align-middle">
-											<tr>
-												<th scope="row">AviUtl・拡張編集データ</th>
-												<td><span id="core-mod-date"></span></td>
-												<td><span id="core-check-date"></span></td>
-												<td>
-													<div class="bg-body">
-														<button
-															type="button"
-															class="btn btn-primary w-100"
-															id="check-core-version"
-														>
-															更新
-														</button>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<th scope="row">パッケージデータ</th>
-												<td><span id="packages-mod-date"></span></td>
-												<td><span id="packages-check-date"></span></td>
-												<td>
-													<div class="bg-body">
-														<button
-															type="button"
-															class="btn btn-primary w-100"
-															id="check-packages-list"
-														>
-															更新
-														</button>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<th scope="row">apm</th>
-												<td>-</td>
-												<td>-</td>
-												<td>
-													<div class="bg-body">
-														<button
-															type="button"
-															class="btn btn-primary w-100"
-															id="check-apm-update"
-														>
-															更新
-														</button>
-													</div>
-												</td>
-											</tr>
-										</tbody>
+										<!-- 行は React(settings/ManualUpdateTable.tsx)が描画する -->
+										<tbody
+											class="align-middle"
+											id="manual-update-tbody"
+										></tbody>
 									</table>
 								</div>
 							</div>
