@@ -1,12 +1,4 @@
-import {
-  BrowserWindow,
-  dialog,
-  ipcMain,
-  Menu,
-  nativeTheme,
-  shell,
-} from 'electron';
-import prompt from 'electron-prompt';
+import { BrowserWindow, ipcMain, Menu, nativeTheme, shell } from 'electron';
 import { createIPCHandler } from 'electron-trpc/main';
 import windowStateKeeper from 'electron-window-state';
 import path from 'node:path';
@@ -138,35 +130,6 @@ export async function launch(config: Config) {
       aboutWindow.show();
     });
     void aboutWindow.loadURL(aboutPath);
-  });
-
-  ipcMain.handle(IPC_CHANNELS.MIGRATION1TO2_CONFIRM_DIALOG, async () => {
-    return (
-      await dialog.showMessageBox(mainWindow, {
-        title: '確認',
-        message: `お使いのバージョンのapmは現在設定されているデータ取得先に対応しておりません。新しいデータ取得先への移行が必要です。`,
-        type: 'warning',
-        buttons: [
-          'キャンセル',
-          '新しいデータ取得先を入力する',
-          'デフォルトのデータ取得先を使う',
-        ],
-        cancelId: 0,
-      })
-    ).response;
-  });
-
-  ipcMain.handle(IPC_CHANNELS.MIGRATION1TO2_DATAURL_INPUT_DIALOG, async () => {
-    return await prompt(
-      {
-        title: '新しいデータ取得先の入力',
-        label: '新しいデータ取得先のURL（例: https://example.com/data/）',
-        width: 500,
-        height: 300,
-        type: 'input',
-      },
-      mainWindow,
-    );
   });
 
   ipcMain.handle(IPC_CHANNELS.DOWNLOAD, async (event, url, options) => {
