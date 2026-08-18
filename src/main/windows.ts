@@ -69,7 +69,7 @@ export async function launch(config: Config) {
     titleBarOverlay: getTitleBarColor(),
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      sandbox: false,
+      sandbox: true,
     },
   });
 
@@ -116,7 +116,7 @@ export async function launch(config: Config) {
       icon: icon,
       webPreferences: {
         preload: ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY,
-        sandbox: false,
+        sandbox: true,
       },
     });
     ipcHandler.attachWindow(aboutWindow);
