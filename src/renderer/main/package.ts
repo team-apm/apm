@@ -3,7 +3,6 @@ import log from 'electron-log/renderer';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { getConfig } from '../../lib/Config';
 import { clipboardWriteText, openPath } from '../../lib/ipcWrapper';
-import * as modList from '../../lib/modList';
 import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
 import type { InstallScriptFlowResult } from '../../main/services/packages';
@@ -147,13 +146,9 @@ async function checkPackagesList(instPath: string) {
   }
 
   try {
-    await modList.updateInfo();
-    await packageUtil.downloadRepository(instPath);
-    config.checkDate.setPackages(Date.now());
-    const modInfo = await modList.getInfo();
-    config.modDate.setPackages(
-      Math.max(...modInfo.packages.map((p) => new Date(p.modified).getTime())),
-    );
+    // 再取得と日付の記録は main プロセス側(services/packages.ts の
+    // refreshPackagesList)へ移設済み
+    await trpc.packages.refreshList.mutate(instPath);
     await setPackagesList(instPath);
 
     if (btn) buttonTransition.message(btn, '更新完了', 'success');

@@ -34,7 +34,12 @@ import { ApmJsonObject } from '../../types/apmJson';
 import { PackageItem } from '../../types/packageItem';
 import { openBrowser } from './browser';
 import { downloadFile } from './download';
-import { getConvertDataUrl, getInfo, getScriptsDataUrl } from './modList';
+import {
+  getConvertDataUrl,
+  getInfo,
+  getScriptsDataUrl,
+  updateInfo,
+} from './modList';
 import { existsTempFile } from './tempFile';
 
 /**
@@ -1057,4 +1062,27 @@ export async function installScriptFlow(
       },
     ),
   };
+}
+
+/**
+ * Refreshes the packages data: re-downloads list.json and the package
+ * repositories, and records the check/mod dates.
+ * 旧 src/renderer/main/package.ts の checkPackagesList のデータ取得部分と
+ * 同一の挙動。ボタン・オーバーレイなどの UI は renderer 側に残る。
+ * @param {BrowserWindow} win - The main window.
+ * @param {Config} config - The config instance.
+ * @param {string} instPath - An installation path.
+ */
+export async function refreshPackagesList(
+  win: BrowserWindow,
+  config: Config,
+  instPath: string,
+) {
+  await updateInfo(win, config);
+  await downloadRepository(win, config, instPath);
+  config.checkDate.setPackages(Date.now());
+  const modInfo = await getInfo(win, config);
+  config.modDate.setPackages(
+    Math.max(...modInfo.packages.map((p) => new Date(p.modified).getTime())),
+  );
 }
