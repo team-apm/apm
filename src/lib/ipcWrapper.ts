@@ -76,23 +76,6 @@ export async function openPath(relativePath: string) {
 }
 
 /**
- * Returns whether the temporary file exists and the path.
- * @param {string} relativePath - A relative path from the data directory.
- * @param {string} [keyText] - String used to generate the hash.
- * @returns {Promise<{ exists: boolean; path: string }>} An object containing the existence status and the path.
- */
-export async function existsTempFile(
-  relativePath: string,
-  keyText: string = undefined,
-) {
-  return (await ipcRenderer.invoke(
-    IPC_CHANNELS.EXISTS_TEMP_FILE,
-    relativePath,
-    keyText,
-  )) as { exists: boolean; path: string };
-}
-
-/**
  * Opens a directory dialog and returns the path selected by a user.
  * @param {string} title - A title of the dialog.
  * @param {string} defaultPath - A path of the initial directory.
@@ -132,26 +115,6 @@ export async function openYesNoDialog(title: string, message: string) {
     title,
     message,
   )) as boolean;
-}
-
-/**
- * Downloads a file.
- * @param {string} url - The URL of a file to download.
- * @param {object} [options] - Options
- * @param {boolean} [options.loadCache] - Whether to load a cache file.
- * @param {string} [options.subDir] - A directory name under a data directory.
- * @param {string} [options.keyText] - String used to generate the hash.
- * @returns {Promise<string>} File path (on success) or undefined (on failure).
- */
-export async function download(
-  url: string,
-  options?: { loadCache?: boolean; subDir?: string; keyText?: string },
-) {
-  return (await ipcRenderer.invoke(
-    IPC_CHANNELS.DOWNLOAD,
-    url,
-    options,
-  )) as string;
 }
 
 /**
