@@ -1,5 +1,5 @@
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import type { Configuration } from 'webpack';
+import { BannerPlugin, type Configuration } from 'webpack';
 import { plugins } from './webpack.plugins';
 import { rules } from './webpack.rules';
 
@@ -19,6 +19,17 @@ rules.push({
 });
 
 plugins.push(new MiniCssExtractPlugin());
+
+// sandbox: true の preload には __dirname が無く、forge の webpack plugin が
+// 全バンドル先頭に注入する asset relocator patch(`__dirname + "/native_modules/"`)
+// が ReferenceError で preload 全体を殺すため、空文字のシムを先頭に足す
+plugins.push(
+  new BannerPlugin({
+    banner: 'var __dirname = "";',
+    raw: true,
+    entryOnly: false,
+  }),
+);
 
 export const rendererConfig: Configuration = {
   // 本番ビルドに inline source map を含めない(バンドル肥大 + ソース露出防止)。
