@@ -30,19 +30,17 @@ contextBridge.exposeInMainWorld('coreBridge', {
   },
 });
 
-// メインワールドの React(Plugins タブ PackagesTab)とレガシーの橋渡し
+// メインワールドの React(PackageActions ほか)とレガシーの橋渡し。
+// 一覧・日付表示の更新はレガシー側の関数がイベント通知まで行う
 contextBridge.exposeInMainWorld('packagesBridge', {
-  setSelectedEntry: (type: string, entry: unknown) => {
-    packageMain.setSelectedEntry(
-      type,
-      entry as Parameters<typeof packageMain.setSelectedEntry>[1],
-    );
+  setPackagesList: async () => {
+    await packageMain.setPackagesList();
   },
-  installPackageById: async (packageId: string) => {
+  checkPackagesList: async () => {
     const input = document.getElementById(
       'installation-path',
     ) as HTMLInputElement | null;
-    await packageMain.installPackageById(input?.value ?? '', packageId);
+    await packageMain.checkPackagesList(input?.value ?? '');
   },
 });
 
@@ -120,10 +118,7 @@ window.addEventListener('load', () => {
     await core.selectInstallationPath(installationPath);
   });
 
-  const batchInstallBtn = document.getElementById('batch-install');
-  batchInstallBtn.addEventListener('click', async () => {
-    await core.batchInstall(installationPath.value);
-  });
+  // batch-install ボタンは React 側(aviutl/BatchInstallButton.tsx)が描画する
 
   // packages
   const checkPackagesListBtn = document.getElementById('check-packages-list');
@@ -131,27 +126,8 @@ window.addEventListener('load', () => {
     await packageMain.checkPackagesList(installationPath.value);
   });
 
-  const installPackageBtn = document.getElementById('install-package');
-  installPackageBtn.addEventListener('click', async () => {
-    await packageMain.installPackage(installationPath.value);
-  });
-
-  const uninstallPackageBtn = document.getElementById('uninstall-package');
-  uninstallPackageBtn.addEventListener('click', async () => {
-    await packageMain.uninstallPackage(installationPath.value);
-  });
-
-  const openPackageFolderBtn = document.getElementById('open-package-folder');
-  openPackageFolderBtn.addEventListener('click', async () => {
-    await packageMain.openPackageFolder();
-  });
-
+  // アクションボタンは React 側(packages/PackageActions.tsx)が描画し、
   // フィルタボタンのクリックは React 側(packages/PackagesTab.tsx)が購読する
-
-  const sharePackagesBtn = document.getElementById('share-packages');
-  sharePackagesBtn.addEventListener('click', async () => {
-    await packageMain.sharePackages(installationPath.value);
-  });
 
   // nicommons ID
   new ClipboardJS('#copy-nicommons-id-textarea');

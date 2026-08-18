@@ -1,5 +1,11 @@
 import { initTRPC } from '@trpc/server';
-import { app, BrowserWindow, dialog, type IpcMainInvokeEvent } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  clipboard,
+  dialog,
+  type IpcMainInvokeEvent,
+} from 'electron';
 import type { CreateContextOptions } from 'electron-trpc/main';
 import { openAboutWindow } from './aboutWindow';
 import { getConfig } from './Config';
@@ -30,6 +36,7 @@ import {
   getScriptsList,
   installPackageFlow,
   installScriptFlow,
+  openPackageFolder,
   refreshPackagesList,
   setEditorPackages,
   uninstallPackageFiles,
@@ -196,6 +203,17 @@ const packagesWithStatusInput = (
   return { instPath, fixIntegrity };
 };
 
+// electron-trpc は falsy なトップレベル入力('' 含む)を undefined に変換する
+// ため、文字列もオブジェクトで包んで受け取る
+const clipboardInput = (value: unknown): { text: string } => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { text } = value as Record<string, unknown>;
+  if (typeof text !== 'string')
+    throw new TypeError('text is expected to be a string.');
+  return { text };
+};
+
 const editorPackagesInput = (
   value: unknown,
 ): { instPath: string; packages: Record<string, unknown>[] } => {
@@ -262,6 +280,9 @@ export const router = t.router({
       message: input.message,
       type: input.type,
     });
+  }),
+  writeClipboardText: procedure.input(clipboardInput).mutation(({ input }) => {
+    clipboard.writeText(input.text);
   }),
   settings: t.router({
     ensureExtraDataUrl: procedure.mutation(() =>
@@ -400,6 +421,9 @@ export const router = t.router({
         );
       }),
     getDates: procedure.query(() => getPackagesDates(getConfig())),
+    openPackageFolder: procedure
+      .input(stringInput)
+      .mutation(async ({ input }) => await openPackageFolder(input)),
     getEditorPackages: procedure
       .input(stringInput)
       .query(async ({ input, ctx }) => {

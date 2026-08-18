@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import '../../../node_modules/bootstrap-icons/font/bootstrap-icons.css';
 import '../main.css';
 import './index.css';
+import BatchInstallButton from './aviutl/BatchInstallButton';
 import BatchInstallList from './aviutl/BatchInstallList';
 import ProgramRow from './aviutl/ProgramRow';
 import { MonacoEditorRenderer } from './monacoEditorRenderer';
@@ -74,6 +75,11 @@ window.addEventListener('DOMContentLoaded', () => {
   createRoot(document.getElementById('batch-install-react-root')).render(
     <TrpcProvider>
       <BatchInstallList />
+    </TrpcProvider>,
+  );
+  createRoot(document.getElementById('batch-install-button-root')).render(
+    <TrpcProvider>
+      <BatchInstallButton />
     </TrpcProvider>,
   );
 });

@@ -1,12 +1,9 @@
-import { Core } from 'apm-schema';
 import log from 'electron-log/renderer';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { openDialog, openDirDialog } from '../../lib/ipcWrapper';
 import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
-import { programs } from './common';
 import packageMain from './package';
-import packageUtil from './packageUtil';
 
 // Functions to be exported
 
@@ -29,16 +26,6 @@ async function displayInstalledVersion() {
   }
 
   window.dispatchEvent(new Event('apm-core-changed'));
-}
-
-/**
- * Returns an object parsed from core.json.
- * 実装は main プロセス側(src/main/services/core.ts)へ移設済み。
- * @returns {Promise<Core>} - An object parsed from core.json.
- */
-async function getCoreInfo() {
-  // tRPC の Serialize 型はプロパティを optional 化するため元の型に戻す
-  return (await trpc.core.getCoreInfo.query()) as Core | null;
 }
 
 /**
@@ -118,169 +105,10 @@ async function changeInstallationPath(instPath: string) {
   await packageMain.setPackagesList();
 }
 
-/**
- * Installs a program to installation path.
- * @param {HTMLButtonElement} btn - A HTMLElement of clicked button.
- * @param {string} program - A program name to install.
- * @param {string} version - A version to install.
- * @param {string} instPath - An installation path.
- */
-async function installProgram(
-  btn: HTMLButtonElement,
-  program: (typeof programs)[number],
-  version: string,
-  instPath: string,
-) {
-  const { enableButton } = btn
-    ? buttonTransition.loading(btn)
-    : { enableButton: null };
-
-  // ボタンへのエラー表示と復帰(旧コードの各分岐と同じ動き)
-  const showError = (message: string) => {
-    if (btn) {
-      buttonTransition.message(btn, message, 'danger');
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-    }
-  };
-
-  if (!instPath) {
-    log.error('An installation path is not selected.');
-    showError('インストール先フォルダを指定してください。');
-    return;
-  }
-
-  if (!version) {
-    log.error('A version is not selected.');
-    showError('バージョンを指定してください。');
-    return;
-  }
-
-  // ダウンロード・整合性検証・展開・配置は main プロセス側(services/core.ts)へ移設済み
-  let result: Awaited<ReturnType<typeof trpc.core.installProgram.mutate>>;
-  try {
-    result = await trpc.core.installProgram.mutate({
-      program,
-      version,
-      instPath,
-    });
-  } catch (e) {
-    log.error(e);
-    showError('エラーが発生しました。');
-    return;
-  }
-
-  if (result === 'noVersionData') {
-    showError('バージョンデータが存在しません。');
-    return;
-  }
-
-  if (result === 'downloadFailed') {
-    showError('ダウンロード中にエラーが発生しました。');
-    return;
-  }
-
-  if (result === 'corrupt') {
-    showError('ダウンロードされたファイルは破損しています。');
-    return;
-  }
-
-  if (result === 'redownloadFailed') {
-    if (btn) {
-      showError('ファイルのダウンロードに失敗しました。');
-      return;
-    } else {
-      // Throw an error if not executed from the UI.
-      throw new Error('Failed downloading the archive file.');
-    }
-  }
-
-  try {
-    if (result === 'success') {
-      await displayInstalledVersion();
-      await packageMain.setPackagesList();
-
-      if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
-    } else {
-      // installFailed: エラー内容は main プロセス側でログ済み
-      if (btn)
-        buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-    }
-  } catch (e) {
-    log.error(e);
-    if (btn) buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-  }
-
-  if (btn)
-    setTimeout(() => {
-      enableButton();
-    }, 3000);
-}
-
-/**
- * Perform a batch installation.
- * @param {string} instPath - An installation path.
- */
-async function batchInstall(instPath: string) {
-  const btn = document.getElementById('batch-install') as HTMLButtonElement;
-  const { enableButton } = buttonTransition.loading(
-    btn,
-    'AviUtl・拡張編集とおすすめプラグインのインストール',
-  );
-
-  if (!instPath) {
-    log.error('An installation path is not selected.');
-    if (btn) {
-      buttonTransition.message(
-        btn,
-        'インストール先フォルダを指定してください。',
-        'danger',
-      );
-      setTimeout(() => {
-        enableButton();
-      }, 3000);
-    }
-    return;
-  }
-
-  try {
-    const coreInfo = await getCoreInfo();
-    for (const program of programs) {
-      const progInfo = coreInfo[program];
-      await installProgram(null, program, progInfo.latestVersion, instPath);
-    }
-    const allPackages = (await packageUtil.getPackagesExtra(instPath)).packages;
-    const packages = allPackages.filter(
-      (p) =>
-        p.info.directURL &&
-        [
-          packageUtil.states.notInstalled,
-          packageUtil.states.installedButBroken,
-        ].some((status) => status === p.installationStatus),
-    );
-    for (const packageItem of packages) {
-      await packageMain.installPackage(instPath, packageItem, true);
-    }
-
-    buttonTransition.message(btn, 'インストール完了', 'success');
-  } catch (e) {
-    log.error(e);
-    buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
-  }
-
-  setTimeout(() => {
-    enableButton();
-  }, 3000);
-}
-
 const core = {
   displayInstalledVersion,
-  getCoreInfo,
   checkLatestVersion,
   selectInstallationPath,
   changeInstallationPath,
-  installProgram,
-  batchInstall,
 };
 export default core;
