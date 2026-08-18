@@ -1,6 +1,6 @@
 # AGENTS.md
 
-AviUtl Package Manager (apm) — AviUtl のプラグイン・スクリプトを管理する Electron 製デスクトップアプリ。TypeScript + webpack (electron-forge)。UI はレガシー DOM + preload 中心で、About 窓のみ React + tRPC(移行の手本)。
+AviUtl Package Manager (apm) — AviUtl のプラグイン・スクリプトを管理する Electron 製デスクトップアプリ。TypeScript + webpack (electron-forge)。UI は React + tRPC(main 窓の全タブ + About 窓)。ビジネスロジックは main プロセス(src/main/services)にあり、preload は初期化フロー・contextBridge・tRPC クライアントのみ。
 
 ## コマンド
 
@@ -56,7 +56,8 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 ## 落とし穴
 
 - `src/lib/compareVersion.ts` の `compareVersion` は比較不能時に `Number.NaN` を返す。NaN は全比較演算子で false になるため、呼び出し側は必ず `Number.isNaN()` で先に分岐する(`!== 0` 形式の分岐は意味が反転する)
-- `src/renderer/main/preload.ts` はビジネスロジックそのもの(`sandbox: false` 前提)。タブの React 化 = そのタブのロジックを main プロセス + tRPC へ移設する作業
+- `src/renderer/main/preload.ts` に残る初期化フロー(migration → initSettings → ensureInstallationPath → changeInstallationPath)は順序が仕様。全ステップ tRPC 呼び出しで Node API 依存は無い(Phase 4 の `sandbox: true` 化の前提)
+- renderer.tsx は React ルートを機能ごとに分けて createRoot しているため、React Context はルート間で共有できない。複数ルートから共有する実行状態は `packages/packagesListCheck.ts` のようにモジュールシングルトン + `useSyncExternalStore` で持つ。ルート間・レガシーとの通知は DOM イベント(`apm-packages-changed` / `apm-core-changed` / `apm-check-packages-list` / `apm-install-package-by-id`)
 - メインワールドの React から import する shared モジュールは electron だけでなく **fs にも依存不可**(renderer の webpack ビルドに Node ポリフィルが無いため、fs-extra が混入するとビルドが落ちる)。表示用の定数・純関数は `src/shared/packageDisplay.ts` のように fs 非依存モジュールへ分離する
 - electron-trpc は falsy なトップレベル入力(`false` / `0` / `''`)を `undefined` に変換する(main ハンドラが `input: g ? deserialize(g) : void 0` と真偽値評価しているため)。tRPC procedure の入力にプリミティブの boolean / number を直接渡さず、必ずオブジェクトで包む(`{ update: boolean }` 等)
 - `monaco-editor` は**型のみ**インポートする(`import type`)。実行時の Monaco は `@monaco-editor/loader` が CDN から読み込む。値インポートすると webpack が Monaco 全体をバンドルし、ビルドにヒープ拡大(`--max-old-space-size`)が必要になる。enum 値は onMount で渡される `monaco` インスタンスから取る
