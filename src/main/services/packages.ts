@@ -14,7 +14,6 @@ import {
 import * as matcher from 'matcher';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
-import ApmJson from '../../lib/ApmJson';
 import type Config from '../../lib/Config';
 import { getHash } from '../../shared/getHash';
 import { install, verifyFilesByCount } from '../../shared/install';
@@ -32,6 +31,7 @@ import { shareStringVersion } from '../../shared/shareString';
 import unzip from '../../shared/unzip';
 import { ApmJsonObject } from '../../types/apmJson';
 import { PackageItem } from '../../types/packageItem';
+import ApmJson from '../ApmJson';
 import { openBrowser } from './browser';
 import { downloadFile } from './download';
 import {
