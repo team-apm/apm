@@ -74,14 +74,6 @@ export async function openPath(relativePath: string) {
  * @param {string} defaultPath - A path of the initial directory.
  * @returns {Promise<string[]>} The path selected by the user.
  */
-export async function openDirDialog(title: string, defaultPath: string) {
-  return (await ipcRenderer.invoke(
-    IPC_CHANNELS.OPEN_DIR_DIALOG,
-    title,
-    defaultPath,
-  )) as string[];
-}
-
 /**
  * Opens a error dialog.
  * @param {string} title - A title of the dialog.
