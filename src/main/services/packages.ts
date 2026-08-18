@@ -1,5 +1,5 @@
 import type { Packages, Scripts } from 'apm-schema';
-import { type BrowserWindow, dialog } from 'electron';
+import { app, type BrowserWindow, dialog } from 'electron';
 import log from 'electron-log/main';
 import {
   copy,
@@ -26,7 +26,9 @@ import {
   getManuallyInstalledFiles,
   states,
 } from '../../shared/packageUtil';
+import { programs } from '../../shared/programs';
 import { safeRemove } from '../../shared/safeRemove';
+import { shareStringVersion } from '../../shared/shareString';
 import unzip from '../../shared/unzip';
 import { ApmJsonObject } from '../../types/apmJson';
 import { PackageItem } from '../../types/packageItem';
@@ -878,6 +880,55 @@ export async function installScriptArchive(
     log.error(e);
     return 'installFailed';
   }
+}
+
+/**
+ * Builds the share string of the installed packages for the clipboard.
+ * 旧 src/renderer/main/package.ts の sharePackages の文字列生成部分と同一の
+ * 挙動(クリップボードへの書き込みとボタン表示は renderer 側の責務)。
+ * @param {BrowserWindow} win - A browser window used for the download session.
+ * @param {Config} config - The config instance.
+ * @param {string} instPath - An installation path.
+ * @returns {Promise<string>} The share string.
+ */
+export async function buildShareString(
+  win: BrowserWindow,
+  config: Config,
+  instPath: string,
+) {
+  const ver = {
+    share: shareStringVersion, // version of this data
+    apm: app.getVersion(),
+    aviutl: '',
+    exedit: '',
+    packages: [''],
+  };
+
+  const apmJson = await ApmJson.load(instPath);
+
+  for (const program of programs) {
+    const currentVersion = (await apmJson.get('core.' + program)) as string;
+    ver[program] = currentVersion;
+  }
+  ver.packages = (await getPackagesExtra(win, config, instPath)).packages
+    .filter(
+      (p) =>
+        p.installationStatus === states.installed ||
+        p.installationStatus === states.manuallyInstalled,
+    )
+    .map((p) => p.id)
+    .filter((id) => id.includes('/'))
+    .sort((a, b) => {
+      const compare = (a: string, b: string) => (a > b ? 1 : a < b ? -1 : 0);
+      const a2 = a.split('/');
+      const b2 = b.split('/');
+      return a2[0] === b2[0] ? compare(a2[1], b2[1]) : compare(a2[0], b2[0]);
+    });
+
+  //  Variation Selectors: 🍎️(color), 🎞︎(text), 🎬︎(text)
+  return `ここにタイトルを入力🍎️${ver.share}:${ver.apm},🎞︎${ver.aviutl},🎬︎${
+    ver.exedit
+  },${ver.packages.join(',')}`;
 }
 
 export type InstallScriptFlowResult =

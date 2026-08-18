@@ -14,6 +14,7 @@ import {
 import { updateInfo } from './services/modList';
 import { getNicommonsData } from './services/nicommons';
 import {
+  buildShareString,
   downloadRepository,
   getApmJsonInstalledIds,
   getPackages,
@@ -283,6 +284,13 @@ export const router = t.router({
         async ({ input }) =>
           await getApmJsonInstalledIds(input.instPath, input.ids),
       ),
+    getShareString: procedure
+      .input(stringInput)
+      .query(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        return await buildShareString(win, getConfig(), input);
+      }),
     getScriptsList: procedure
       .input(scriptsListInput)
       .query(async ({ input, ctx }) => {
