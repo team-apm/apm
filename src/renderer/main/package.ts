@@ -1,15 +1,12 @@
 import { Scripts } from 'apm-schema';
 import log from 'electron-log/renderer';
 import * as buttonTransition from '../../lib/buttonTransition';
-import { getConfig } from '../../lib/Config';
 import { clipboardWriteText, openPath } from '../../lib/ipcWrapper';
 import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
 import type { InstallScriptFlowResult } from '../../main/services/packages';
 import { PackageItem } from '../../types/packageItem';
 import packageUtil from './packageUtil';
-
-const config = getConfig();
 
 let selectedEntry: PackageItem | Scripts['webpage'][number];
 let selectedEntryType: string;
@@ -38,7 +35,7 @@ async function setPackagesList(instPath: string) {
   // tRPC クエリを再取得する
   window.dispatchEvent(new Event('apm-packages-changed'));
   await updateBatchInstallList(instPath);
-  updateModDates();
+  await updateModDates();
 }
 
 /**
@@ -71,13 +68,16 @@ async function updateBatchInstallList(instPath: string) {
 /**
  * Updates the mod dates in the settings page.
  */
-function updateModDates() {
-  if (config.modDate.hasPackages()) {
-    const modDate = new Date(config.modDate.getPackages());
-    replaceText('packages-mod-date', modDate.toLocaleString());
+async function updateModDates() {
+  // 日付は main プロセス側(services/packages.ts の getPackagesDates)から取得する
+  const dates = await trpc.packages.getDates.query();
+  if (dates) {
+    replaceText('packages-mod-date', new Date(dates.modDate).toLocaleString());
 
-    const checkDate = new Date(config.checkDate.getPackages());
-    replaceText('packages-check-date', checkDate.toLocaleString());
+    replaceText(
+      'packages-check-date',
+      new Date(dates.checkDate).toLocaleString(),
+    );
   } else {
     replaceText('packages-mod-date', '未取得');
 

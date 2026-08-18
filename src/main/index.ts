@@ -3,7 +3,7 @@ import debug from 'electron-debug';
 import log from 'electron-log/main';
 import Store from 'electron-store';
 import 'source-map-support/register';
-import { getConfig } from '../lib/Config';
+import { getConfig } from './Config';
 import { registerIpcHandlers } from './ipcHandlers';
 import { ensureAutoUpdateDefault } from './services/appUpdate';
 import * as shortcut from './shortcut';

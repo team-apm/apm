@@ -1,9 +1,9 @@
 import * as os from 'node:os';
-import type Config from '../../lib/Config';
 import {
   type DataUrlValidationResult,
   validateDataUrls,
 } from '../../shared/dataUrl';
+import type Config from '../Config';
 
 /**
  * Ensures that the extra data URLs entry exists in the config.

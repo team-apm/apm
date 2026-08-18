@@ -2,8 +2,8 @@ import { mkdtemp, remove } from 'fs-extra';
 import * as os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import Config from '../../lib/Config';
 import { DEFAULT_DATA_URL } from '../../shared/dataUrl';
+import Config from '../Config';
 import { ensureExtraDataUrl, setDataUrls } from './settings';
 
 /**

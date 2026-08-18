@@ -1,29 +1,14 @@
 import { Core } from 'apm-schema';
 import log from 'electron-log/renderer';
-import path from 'node:path';
 import * as buttonTransition from '../../lib/buttonTransition';
-import { getConfig } from '../../lib/Config';
-import { app, openDialog, openDirDialog } from '../../lib/ipcWrapper';
+import { openDialog, openDirDialog } from '../../lib/ipcWrapper';
 import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
 import { programs } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
 
-const config = getConfig();
-
 // Functions to be exported
-
-/**
- * Initializes core
- *
- */
-async function initCore() {
-  if (!config.hasInstallationPath()) {
-    const instPath = path.join(await app.getPath('home'), 'aviutl');
-    config.setInstallationPath(instPath);
-  }
-}
 
 /**
  * Displays installed version.
@@ -31,12 +16,12 @@ async function initCore() {
 async function displayInstalledVersion() {
   // AviUtl・拡張編集行の表示は React(ProgramRow)が tRPC 経由で行う。
   // ここでは日付表示の更新と React への再描画通知のみ行う。
-  if (config.modDate.hasCore()) {
-    const modDate = new Date(config.modDate.getCore());
-    replaceText('core-mod-date', modDate.toLocaleString());
+  // 日付は main プロセス側(services/core.ts の getCoreDates)から取得する
+  const dates = await trpc.core.getDates.query();
+  if (dates) {
+    replaceText('core-mod-date', new Date(dates.modDate).toLocaleString());
 
-    const checkDate = new Date(config.checkDate.getCore());
-    replaceText('core-check-date', checkDate.toLocaleString());
+    replaceText('core-check-date', new Date(dates.checkDate).toLocaleString());
   } else {
     replaceText('core-mod-date', '未取得');
 
@@ -290,7 +275,6 @@ async function batchInstall(instPath: string) {
 }
 
 const core = {
-  initCore,
   displayInstalledVersion,
   getCoreInfo,
   checkLatestVersion,

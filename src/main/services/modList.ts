@@ -3,8 +3,8 @@ import type { BrowserWindow } from 'electron';
 import { readJson } from 'fs-extra';
 import * as os from 'node:os';
 import path from 'node:path';
-import type Config from '../../lib/Config';
 import { resolvePath } from '../../shared/resolvePath';
+import type Config from '../Config';
 import { downloadFile } from './download';
 import { existsTempFile } from './tempFile';
 

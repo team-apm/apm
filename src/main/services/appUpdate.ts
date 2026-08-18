@@ -3,7 +3,7 @@ import log from 'electron-log/main';
 import { readJsonSync } from 'fs-extra';
 import path from 'node:path';
 import { updateElectronApp } from 'update-electron-app';
-import type Config from '../../lib/Config';
+import type Config from '../Config';
 
 /**
  * Checks whether it is the installed version of apm.

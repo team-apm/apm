@@ -3,10 +3,10 @@ import log from 'electron-log/main';
 import prompt from 'electron-prompt';
 import fs, { readdir, rename, unlink, writeJson } from 'fs-extra';
 import path from 'node:path';
-import type Config from '../../lib/Config';
 import { convertPackagesV2toV3 } from '../../shared/convertPackagesV2toV3';
 import { parsePackagesXml } from '../../shared/parsePackagesXml';
 import ApmJson from '../ApmJson';
+import type Config from '../Config';
 import { downloadFile } from './download';
 
 // 旧 src/migration/(renderer 側)からの忠実な移植。ダイアログは
