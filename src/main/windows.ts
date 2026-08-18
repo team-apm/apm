@@ -3,9 +3,9 @@ import { createIPCHandler } from 'electron-trpc/main';
 import windowStateKeeper from 'electron-window-state';
 import path from 'node:path';
 import { IPC_CHANNELS } from '../common/ipc';
-import type Config from '../lib/Config';
 import { setAboutWindowOpener } from './aboutWindow';
 import { createContext, router } from './api';
+import type Config from './Config';
 import { runAutoUpdate } from './services/appUpdate';
 import { openBrowser } from './services/browser';
 

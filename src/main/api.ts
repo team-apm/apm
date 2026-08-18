@@ -1,8 +1,8 @@
 import { initTRPC } from '@trpc/server';
 import { app, BrowserWindow, dialog, type IpcMainInvokeEvent } from 'electron';
 import type { CreateContextOptions } from 'electron-trpc/main';
-import { getConfig } from '../lib/Config';
 import { openAboutWindow } from './aboutWindow';
+import { getConfig } from './Config';
 import { isExeVersion } from './services/appUpdate';
 import {
   changeInstallationPath,
