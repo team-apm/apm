@@ -1,16 +1,13 @@
 import { Scripts } from 'apm-schema';
 import log from 'electron-log/renderer';
-import ApmJson from '../../lib/ApmJson';
 import * as buttonTransition from '../../lib/buttonTransition';
 import { getConfig } from '../../lib/Config';
-import { app, clipboardWriteText, openPath } from '../../lib/ipcWrapper';
+import { clipboardWriteText, openPath } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
 import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
 import type { InstallScriptFlowResult } from '../../main/services/packages';
-import { shareStringVersion } from '../../shared/shareString';
 import { PackageItem } from '../../types/packageItem';
-import { programs } from './common';
 import packageUtil from './packageUtil';
 
 const config = getConfig();
@@ -610,40 +607,9 @@ async function sharePackages(instPath: string) {
     ? buttonTransition.loading(btn, '共有')
     : { enableButton: null };
 
-  const ver = {
-    share: shareStringVersion, // version of this data
-    apm: await app.getVersion(),
-    aviutl: '',
-    exedit: '',
-    packages: [''],
-  };
-
-  const apmJson = await ApmJson.load(instPath);
-
-  for (const program of programs) {
-    const currentVersion = (await apmJson.get('core.' + program)) as string;
-    ver[program] = currentVersion;
-  }
-  ver.packages = (await packageUtil.getPackagesExtra(instPath)).packages
-    .filter(
-      (p) =>
-        p.installationStatus === packageUtil.states.installed ||
-        p.installationStatus === packageUtil.states.manuallyInstalled,
-    )
-    .map((p) => p.id)
-    .filter((id) => id.includes('/'))
-    .sort((a, b) => {
-      const compare = (a: string, b: string) => (a > b ? 1 : a < b ? -1 : 0);
-      const a2 = a.split('/');
-      const b2 = b.split('/');
-      return a2[0] === b2[0] ? compare(a2[1], b2[1]) : compare(a2[0], b2[0]);
-    });
-  await clipboardWriteText(
-    //  Variation Selectors: 🍎️(color), 🎞︎(text), 🎬︎(text)
-    `ここにタイトルを入力🍎️${ver.share}:${ver.apm},🎞︎${ver.aviutl},🎬︎${
-      ver.exedit
-    },${ver.packages.join(',')}`,
-  );
+  // 共有文字列の生成(apm.json のコアバージョン + インストール済み
+  // パッケージ一覧の整形)は main プロセス側(services/packages.ts)へ移設済み
+  await clipboardWriteText(await trpc.packages.getShareString.query(instPath));
 
   buttonTransition.message(btn, 'コピーしました', 'info');
   if (btn) {
