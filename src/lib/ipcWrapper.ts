@@ -135,26 +135,6 @@ export async function openYesNoDialog(title: string, message: string) {
 }
 
 /**
- * Opens the confirm dialog for migration v1 to v2.
- * @returns {Promise<number>} The result of the dialog.
- */
-export async function migration1to2ConfirmDialog() {
-  return (await ipcRenderer.invoke(
-    IPC_CHANNELS.MIGRATION1TO2_CONFIRM_DIALOG,
-  )) as number;
-}
-
-/**
- * Opens the input dialog of a data url for migration v1 to v2.
- * @returns {Promise<string>} The data URL entered by the user.
- */
-export async function migration1to2DataurlInputDialog() {
-  return (await ipcRenderer.invoke(
-    IPC_CHANNELS.MIGRATION1TO2_DATAURL_INPUT_DIALOG,
-  )) as string;
-}
-
-/**
  * Downloads a file.
  * @param {string} url - The URL of a file to download.
  * @param {object} [options] - Options

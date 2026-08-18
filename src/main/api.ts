@@ -11,6 +11,7 @@ import {
   getInstalledVersionTexts,
   installCoreProgram,
 } from './services/core';
+import { migrationByFolder, migrationGlobal } from './services/migration';
 import { updateInfo } from './services/modList';
 import { getNicommonsData } from './services/nicommons';
 import {
@@ -378,6 +379,20 @@ export const router = t.router({
     getData: procedure
       .input(stringInput)
       .query(async ({ input }) => await getNicommonsData(input)),
+  }),
+  migration: t.router({
+    global: procedure.mutation(async ({ ctx }) => {
+      const win = BrowserWindow.fromWebContents(ctx.event.sender);
+      if (!win) throw new Error('The calling window was not found.');
+      // 戻り値 false は起動中止(キャンセル)。electron-trpc の falsy 変換は
+      // 入力側のみで出力側は安全なため boolean をそのまま返す
+      return await migrationGlobal(win, getConfig());
+    }),
+    byFolder: procedure.input(stringInput).mutation(async ({ input, ctx }) => {
+      const win = BrowserWindow.fromWebContents(ctx.event.sender);
+      if (!win) throw new Error('The calling window was not found.');
+      await migrationByFolder(win, getConfig(), input);
+    }),
   }),
   core: t.router({
     getCoreInfo: procedure.query(async ({ ctx }) => {

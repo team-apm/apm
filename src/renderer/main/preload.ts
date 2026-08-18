@@ -5,7 +5,7 @@ import { exposeElectronTRPC } from 'electron-trpc/main';
 import 'source-map-support/register';
 import { getConfig } from '../../lib/Config';
 import { app, checkUpdate, openDialog } from '../../lib/ipcWrapper';
-import migration2to3 from '../../migration/migration2to3';
+import { trpc } from '../../lib/trpcClient';
 import core from './core';
 import { EditorContextBridge } from './monacoEditorPreload';
 import packageMain from './package';
@@ -73,8 +73,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   updateTheme();
 
   // *global*
-  // migration
-  if (!(await migration2to3.global())) {
+  // migration(実装は main プロセス側 services/migration.ts へ移設済み)
+  if (!(await trpc.migration.global.mutate())) {
     await app.quit();
     return;
   }

@@ -9,7 +9,6 @@ import { app, openDialog, openDirDialog } from '../../lib/ipcWrapper';
 import * as modList from '../../lib/modList';
 import replaceText from '../../lib/replaceText';
 import { trpc } from '../../lib/trpcClient';
-import migration2to3 from '../../migration/migration2to3';
 import { programs } from './common';
 import packageMain from './package';
 import packageUtil from './packageUtil';
@@ -124,8 +123,8 @@ async function changeInstallationPath(instPath: string) {
   const currentMod = await modList.getInfo();
 
   if (fs.existsSync(instPath)) {
-    // migration
-    await migration2to3.byFolder(instPath);
+    // migration(実装は main プロセス側 services/migration.ts へ移設済み)
+    await trpc.migration.byFolder.mutate(instPath);
 
     if (fs.existsSync(ApmJson.getPath(instPath)) && currentMod.convert) {
       const apmJson = await ApmJson.load(instPath);
