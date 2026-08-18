@@ -20,6 +20,7 @@ import {
   buildShareString,
   convertPackageIds,
   getApmJsonInstalledIds,
+  getEditorPackages,
   getPackages,
   getPackagesExtra,
   getPackagesWithStatus,
@@ -27,6 +28,7 @@ import {
   installPackageFlow,
   installScriptFlow,
   refreshPackagesList,
+  setEditorPackages,
   uninstallPackageFiles,
 } from './services/packages';
 import { ensureExtraDataUrl, setDataUrls } from './services/settings';
@@ -189,6 +191,24 @@ const packagesWithStatusInput = (
       'instPath is expected to be a string and fixIntegrity a boolean.',
     );
   return { instPath, fixIntegrity };
+};
+
+const editorPackagesInput = (
+  value: unknown,
+): { instPath: string; packages: Record<string, unknown>[] } => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { instPath, packages } = value as Record<string, unknown>;
+  if (typeof instPath !== 'string')
+    throw new TypeError('instPath is expected to be a string.');
+  if (
+    !(
+      Array.isArray(packages) &&
+      packages.every((p) => typeof p === 'object' && p !== null)
+    )
+  )
+    throw new TypeError('packages is expected to be an array of objects.');
+  return { instPath, packages: packages as Record<string, unknown>[] };
 };
 
 const installProgramInput = (
@@ -374,6 +394,21 @@ export const router = t.router({
           getConfig(),
           input.instPath,
           input.url,
+        );
+      }),
+    getEditorPackages: procedure
+      .input(stringInput)
+      .query(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        return await getEditorPackages(win, getConfig(), input);
+      }),
+    setEditorPackages: procedure
+      .input(editorPackagesInput)
+      .mutation(async ({ input }) => {
+        await setEditorPackages(
+          input.instPath,
+          input.packages as Parameters<typeof setEditorPackages>[1],
         );
       }),
   }),
