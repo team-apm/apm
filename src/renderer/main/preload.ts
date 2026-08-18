@@ -26,11 +26,7 @@ contextBridge.exposeInMainWorld('coreBridge', {
     return input?.value ?? '';
   },
   onProgramInstalled: async () => {
-    const input = document.getElementById(
-      'installation-path',
-    ) as HTMLInputElement | null;
-    const instPath = input?.value ?? '';
-    await packageMain.setPackagesList(instPath);
+    await packageMain.setPackagesList();
   },
 });
 

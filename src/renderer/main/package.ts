@@ -24,45 +24,16 @@ async function getPackages(instPath: string) {
 }
 
 /**
- * Requests the React list (PackagesTab) to refresh, and updates the legacy
- * parts that are not migrated yet (batch-install text and mod dates).
- * 一覧の描画・ソート・検索・フィルタは React 側(packages/PackagesTab.tsx)へ
- * 移設済み。
- * @param {string} instPath - An installation path.
+ * Requests the React lists (PackagesTab / BatchInstallList) to refresh, and
+ * updates the legacy parts that are not migrated yet (mod dates).
+ * 一覧の描画・ソート・検索・フィルタは React 側(packages/PackagesTab.tsx)、
+ * おすすめプラグイン一覧は React 側(aviutl/BatchInstallList.tsx)へ移設済み。
  */
-async function setPackagesList(instPath: string) {
+async function setPackagesList() {
   // 隔離ワールドの DOM イベントはメインワールドに届くため、これで React 側が
   // tRPC クエリを再取得する
   window.dispatchEvent(new Event('apm-packages-changed'));
-  await updateBatchInstallList(instPath);
   await updateModDates();
-}
-
-/**
- * Updates the batch installation text in the AviUtl tab.
- * @param {string} instPath - An installation path.
- */
-async function updateBatchInstallList(instPath: string) {
-  const packages = (await packageUtil.getPackagesWithStatus(instPath)).packages;
-  const batchInstallElm = document.getElementById('batch-install-packages');
-  [...batchInstallElm.getElementsByClassName('batch-install-package')].map(
-    (e) => e.remove(),
-  );
-  packages
-    .filter((p) => p.info.directURL)
-    .map((p) => {
-      const liTag = document
-        .getElementById('batch-install-package-template')
-        .cloneNode(true) as HTMLSpanElement;
-      liTag.removeAttribute('id');
-      (liTag.getElementsByClassName('name')[0] as HTMLElement).innerText =
-        p.info.name;
-      (
-        liTag.getElementsByClassName('installed-version')[0] as HTMLElement
-      ).innerText = p.installationStatus;
-      return liTag;
-    })
-    .forEach((e) => batchInstallElm.appendChild(e));
 }
 
 /**
@@ -149,7 +120,7 @@ async function checkPackagesList(instPath: string) {
     // 再取得と日付の記録は main プロセス側(services/packages.ts の
     // refreshPackagesList)へ移設済み
     await trpc.packages.refreshList.mutate(instPath);
-    await setPackagesList(instPath);
+    await setPackagesList();
 
     if (btn) buttonTransition.message(btn, '更新完了', 'success');
   } catch (e) {
@@ -353,7 +324,7 @@ async function installPackage(
   }
 
   if (result === 'success') {
-    await setPackagesList(instPath);
+    await setPackagesList();
 
     if (btn) buttonTransition.message(btn, 'インストール完了', 'success');
   } else {
@@ -441,7 +412,7 @@ async function uninstallPackage(instPath: string) {
     // スクリプト由来のパッケージのローカル packages.json からの削除は
     // main プロセス側(services/packages.ts)へ移設済み
     if (!uninstalledPackage.id.startsWith('script_')) {
-      await setPackagesList(instPath);
+      await setPackagesList();
     } else {
       await checkPackagesList(instPath);
     }
@@ -567,7 +538,7 @@ async function installScript(instPath: string) {
     }
   } else if (result.route === 'redirect') {
     if (result.status === 'success') {
-      await setPackagesList(instPath);
+      await setPackagesList();
       buttonTransition.message(btn, 'インストール完了', 'success');
     } else {
       buttonTransition.message(btn, 'エラーが発生しました。', 'danger');
