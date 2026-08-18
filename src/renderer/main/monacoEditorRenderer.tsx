@@ -1,11 +1,16 @@
-import MonacoEditor, { BeforeMount, OnMount } from '@monaco-editor/react';
+import MonacoEditor, {
+  BeforeMount,
+  Monaco,
+  OnMount,
+} from '@monaco-editor/react';
 import { Packages } from 'apm-schema';
 import schema from 'apm-schema/v3/schema/packages.json';
 // Type-only import to avoid bundling the entire monaco-editor package.
 // The editor itself is loaded from the CDN by @monaco-editor/react.
 import type { editor } from 'monaco-editor';
-import React from 'react';
-import * as buttonTransition from '../../lib/buttonTransition';
+import React, { useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { usePhase } from './usePhase';
 
 const placeholderStr = `
 apm-data (https://github.com/team-apm/apm-data) に投稿されたパッケージデータをここにコピーアンドペーストすることで動作の確認ができます。
@@ -121,20 +126,53 @@ class PlaceholderContentWidget {
 }
 
 self.MonacoEnvironment = null;
-type MonacoEditorRendererProps = {
-  saveButton: HTMLButtonElement;
-};
 
 /**
  *  A small code editor for apm-data, with validation against apm-schema.
- * @param {MonacoEditorRendererProps} root0 - props
- * @param {HTMLButtonElement} root0.saveButton - The HTML element of the Save button.
+ * 保存ボタン(旧 lib/buttonTransition によるボタンフロー)も portal で描画する。
  * @returns {React.ReactElement} React component
  */
-export const MonacoEditorRenderer: React.FC<MonacoEditorRendererProps> = ({
-  saveButton,
-}) => {
+export const MonacoEditorRenderer: React.FC = () => {
   const modelUri = 'a://b/c.json';
+
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const monacoRef = useRef<Monaco | null>(null);
+  const save = usePhase();
+
+  const saveEditorData = async () => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+
+    save.start();
+
+    await editor.getAction('editor.action.formatDocument').run();
+    let error =
+      monaco.editor
+        .getModelMarkers({})
+        .filter(
+          (m) =>
+            m.severity === monaco.MarkerSeverity.Warning ||
+            m.severity === monaco.MarkerSeverity.Error,
+        ).length > 0;
+
+    let json;
+    try {
+      json = JSON.parse(editor.getValue());
+    } catch {
+      error = true;
+    }
+    if (error) {
+      save.finish('エラー', 'danger');
+    } else {
+      await window.editor.save(json as Packages['packages']);
+      save.finish('保存完了', 'success');
+    }
+  };
+  // Ctrl+S のコマンド登録は onMount で 1 回だけ行うため、最新の実装を
+  // ref 経由で参照する
+  const saveEditorDataRef = useRef(saveEditorData);
+  saveEditorDataRef.current = saveEditorData;
 
   const editorWillMount: BeforeMount = (monaco) => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -150,6 +188,8 @@ export const MonacoEditorRenderer: React.FC<MonacoEditorRendererProps> = ({
   };
 
   const editorDidMount: OnMount = (editor, monaco) => {
+    editorRef.current = editor;
+    monacoRef.current = monaco;
     editor.getModel().updateOptions({ tabSize: 2 });
     new PlaceholderContentWidget(
       placeholderStr,
@@ -162,53 +202,50 @@ export const MonacoEditorRenderer: React.FC<MonacoEditorRendererProps> = ({
       await editor.getAction('editor.action.formatDocument').run();
     });
 
-    const save = async () => {
-      const { enableButton } = saveButton
-        ? buttonTransition.loading(saveButton, '保存 (Ctrl + S)')
-        : { enableButton: undefined };
-
-      await editor.getAction('editor.action.formatDocument').run();
-      let error =
-        monaco.editor
-          .getModelMarkers({})
-          .filter(
-            (m) =>
-              m.severity === monaco.MarkerSeverity.Warning ||
-              m.severity === monaco.MarkerSeverity.Error,
-          ).length > 0;
-
-      let json;
-      try {
-        json = JSON.parse(editor.getValue());
-      } catch {
-        error = true;
-      }
-      if (error) {
-        buttonTransition.message(saveButton, 'エラー', 'danger');
-        setTimeout(() => {
-          enableButton();
-        }, 3000);
-      } else {
-        await window.editor.save(json as Packages['packages']);
-
-        buttonTransition.message(saveButton, '保存完了', 'success');
-        setTimeout(() => {
-          enableButton();
-        }, 3000);
-      }
-    };
-
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, save);
-    saveButton.addEventListener('click', save);
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+      void saveEditorDataRef.current();
+    });
   };
 
+  const saveButtonRoot = document.getElementById('save-editor-data-root');
+  const saveColor =
+    save.phase.kind === 'message' ? save.phase.color : 'primary';
+
   return (
-    <MonacoEditor
-      height="50vh"
-      defaultLanguage="json"
-      path={modelUri}
-      beforeMount={editorWillMount}
-      onMount={editorDidMount}
-    />
+    <>
+      <MonacoEditor
+        height="50vh"
+        defaultLanguage="json"
+        path={modelUri}
+        beforeMount={editorWillMount}
+        onMount={editorDidMount}
+      />
+      {saveButtonRoot &&
+        createPortal(
+          <button
+            type="button"
+            className={`btn btn-${saveColor} w-100`}
+            id="save-editor-data"
+            disabled={save.phase.kind === 'loading'}
+            onClick={() => void saveEditorData()}
+          >
+            {save.phase.kind === 'loading' ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span className="visually-hidden">Loading...</span>
+              </>
+            ) : save.phase.kind === 'message' ? (
+              save.phase.message
+            ) : (
+              '保存 (Ctrl + S)'
+            )}
+          </button>,
+          saveButtonRoot,
+        )}
+    </>
   );
 };
