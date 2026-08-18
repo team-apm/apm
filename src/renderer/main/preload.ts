@@ -3,15 +3,12 @@ import { contextBridge } from 'electron';
 import log from 'electron-log/renderer';
 import { exposeElectronTRPC } from 'electron-trpc/main';
 import 'source-map-support/register';
-import { getConfig } from '../../lib/Config';
 import { app, checkUpdate, openDialog } from '../../lib/ipcWrapper';
 import { trpc } from '../../lib/trpcClient';
 import core from './core';
 import { EditorContextBridge } from './monacoEditorPreload';
 import packageMain from './package';
 import setting from './setting';
-
-const config = getConfig();
 
 log.errorHandler.startCatching({
   onError: async () => {
@@ -80,12 +77,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   // init
-  const firstLaunch = !config.dataURL.hasMain();
-  await setting.initSettings();
-  await core.initCore();
+  const firstLaunch = await setting.initSettings();
 
   // *local*
-  const instPath = config.getInstallationPath();
+  // インストール先の既定値書き込みと取得は main プロセス側
+  // (services/core.ts の ensureInstallationPath)へ移設済み
+  const instPath = await trpc.core.ensureInstallationPath.mutate();
   await core.changeInstallationPath(instPath);
 
   // *UI*
