@@ -1,5 +1,46 @@
 # Changelog
 
+# [3.11.0](https://github.com/team-apm/apm/compare/v3.10.0...v3.11.0) (2026-08-18)
+
+### Bug Fixes
+
+- **apmPath:** make isParent return an actual boolean ([e4740d7](https://github.com/team-apm/apm/commit/e4740d7365670c92b3dda8558866329d658b6b50))
+- **compareVersion:** compare dates correctly and return NaN when incomparable ([71cb139](https://github.com/team-apm/apm/commit/71cb139a5f7f66fa70817ba0077ce0a18d02ef10))
+- dataURL への path.join をやめ起動時の list.json 取得の失敗を修正 ([ee609e8](https://github.com/team-apm/apm/commit/ee609e8023b3cc1262dea0018a827d939616f8fb))
+- **main:** dataURL 未設定時の list.json 取得を明示的に失敗させる ([d40b878](https://github.com/team-apm/apm/commit/d40b87816290dac989f183030f9b791e7c48a807))
+- **main:** downloadFile を直列化し electron-dl の並行実行の競合を回避する ([67ee8c8](https://github.com/team-apm/apm/commit/67ee8c8d57f8e6db85211f4138ec28fdf19d69cd))
+- **main:** tRPC ハンドラの生成を起動時 1 回にし窓は attachWindow で追加 ([ed8a9fa](https://github.com/team-apm/apm/commit/ed8a9faa2d3894e2e22253b1f1594667da9b4bf6))
+- **security:** validate IPC path inputs and replace execSync with shell.openPath ([599364e](https://github.com/team-apm/apm/commit/599364e9ea3c268d12d7dff10b721b1da36f96ad))
+- **settings:** 拡大率の既定値を select の option 値に合わせ '100' にする ([faf41d0](https://github.com/team-apm/apm/commit/faf41d07cd0785d434c7c214055c1fc9289cf00c))
+- **shared:** verifyFile の遅延ストリームエラーによるプロセスクラッシュを防止 ([ae57f71](https://github.com/team-apm/apm/commit/ae57f71f40e833dad6e30cf81a48ea2ef7fd0b27))
+- **trpc:** 2 クライアント間のリクエスト ID 衝突による応答の取り違えを修正 ([9d9a326](https://github.com/team-apm/apm/commit/9d9a326ccd82b67ea32e4981feacd21fcb7bf3ad))
+- **types:** 非標準の export declare global を declare global に修正 ([10d14a9](https://github.com/team-apm/apm/commit/10d14a9a05e6dda555cfc4f71c7d56886fe0df0a))
+- **unzip:** 7z エラー時に promise を reject してハングを防ぐ ([93a76ba](https://github.com/team-apm/apm/commit/93a76baefc1b1d4f323651c91de14392ce771660))
+
+### Features
+
+- **apm-json:** begin/commit によるトランザクションを追加 ([1e9f1c0](https://github.com/team-apm/apm/commit/1e9f1c071892b8b25ff01bb44c4e9757d7156469))
+- **app:** アプリ更新チェックを tRPC 化 ([8e71ec0](https://github.com/team-apm/apm/commit/8e71ec09a1454936aedd853863254620fea7fcbe))
+- **aviutl:** プログラム行(AviUtl・拡張編集)を React コンポーネント化 ([d92c107](https://github.com/team-apm/apm/commit/d92c10779d553a78cb510636821a3ba77ed31209))
+- **core:** apm.json のコアバージョン取得 query を追加 ([04bcb4c](https://github.com/team-apm/apm/commit/04bcb4cf8205b3083394aaf33af8b4699b9bd25a))
+- **core:** インストール先の既定値設定と日付情報の取得を main プロセスへ追加 ([3684f9c](https://github.com/team-apm/apm/commit/3684f9ce664b96a5a1d124e8fed88f76c70d2efc))
+- **core:** フォルダ選択ダイアログを tRPC 化 ([1b3e896](https://github.com/team-apm/apm/commit/1b3e896378f1b1e77a5789ca3f515a5e74d4dc8b))
+- **lib:** preload から tRPC を呼ぶ vanilla クライアントを追加 ([e6f47bd](https://github.com/team-apm/apm/commit/e6f47bdcb73e84079a7f2ccb2fa03116632e1551))
+- **main:** settings サービスと tRPC procedure を追加 ([547fe96](https://github.com/team-apm/apm/commit/547fe96312badc93e68b086a1853809e7ccaea0e))
+- **main:** 設定 UI 用の tRPC procedure を追加 ([609fc0e](https://github.com/team-apm/apm/commit/609fc0e1b9c96612265a4347d617b82b4996b0cb))
+- **modList:** editorPackages.json をローカルパッケージデータ源に追加 ([1e7307f](https://github.com/team-apm/apm/commit/1e7307ff71880c2085543ea3fb4a5b9fd175055e))
+- **nicommons:** tRPC query(getData / getApmJsonInstalledIds)を追加 ([742232e](https://github.com/team-apm/apm/commit/742232e1d16a79c1dcd555519c12d27516cf5886))
+- **nicommons:** ニコニ・コモンズ ID 一覧を React コンポーネント化 ([4540b01](https://github.com/team-apm/apm/commit/4540b019de325471e96b9fd3de168d5432fefce5))
+- **others:** その他タブを React 化 ([558d209](https://github.com/team-apm/apm/commit/558d209172f0baecc4fc06e3b9b61fbbf6327e26))
+- **packages:** プラグイン一覧を React コンポーネント化 ([2e2b6c0](https://github.com/team-apm/apm/commit/2e2b6c0b3ea1bbef53a89c81035b38b025aa8195))
+- **package:** データエディタ用 editorPackages の読み書きを main プロセスへ追加 ([cd72b3d](https://github.com/team-apm/apm/commit/cd72b3d042965b7581216dee617636e34b1033f8))
+- **package:** フォルダを開く・クリップボード書き込みを tRPC 化 ([0642f75](https://github.com/team-apm/apm/commit/0642f75c52362804d054d7bb311fe982ee772bb9))
+- **settings:** 設定タブの UI を React 化 ([860c37b](https://github.com/team-apm/apm/commit/860c37b07ee524418614f7bffba56c489498c921))
+- **shared:** dataURL 検証を純関数 validateDataUrls として追加 ([b68932b](https://github.com/team-apm/apm/commit/b68932bd3307e96d277182679e0e339eff49b28d))
+- **shared:** list.js の fuzzy 検索(bitap)を移植 ([8997ac9](https://github.com/team-apm/apm/commit/8997ac9cc7b8e899feafec0e196c08506e636a12))
+- **shared:** 共有文字列の解析・検証を shared へ抽出 ([180aa5e](https://github.com/team-apm/apm/commit/180aa5ede88eedbca148065175cf654099f6744d))
+- 設定タブに data editor を追加 ([17da3b9](https://github.com/team-apm/apm/commit/17da3b93476fb41051bad46db6be280327b8e42f)), closes [#1627](https://github.com/team-apm/apm/issues/1627)
+
 # [3.10.0](https://github.com/team-apm/apm/compare/v3.9.1...v3.10.0) (2026-06-26)
 
 ### Bug Fixes
