@@ -5,7 +5,6 @@ import { exposeElectronTRPC } from 'electron-trpc/main';
 import 'source-map-support/register';
 import { app, openDialog } from '../../lib/ipcWrapper';
 import { trpc } from '../../lib/trpcClient';
-import core from './core';
 import { EditorContextBridge } from './monacoEditorPreload';
 import setting from './setting';
 
@@ -59,7 +58,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   // インストール先の既定値書き込みと取得は main プロセス側
   // (services/core.ts の ensureInstallationPath)へ移設済み
   const instPath = await trpc.core.ensureInstallationPath.mutate();
-  await core.changeInstallationPath(instPath);
+  // mod 情報の更新・migration・変換辞書の適用と、必要なデータの再取得は
+  // main プロセス側(services/core.ts の changeInstallationPath)が行う。
+  // 再描画通知は React 側(ProgramRow・一覧・日付表示)が購読する
+  await trpc.core.changeInstallationPath.mutate(instPath);
+  window.dispatchEvent(new Event('apm-core-changed'));
+  window.dispatchEvent(new Event('apm-packages-changed'));
 
   // *UI*
   // init
@@ -83,20 +87,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 window.addEventListener('load', () => {
-  const installationPath = document.getElementById(
-    'installation-path',
-  ) as HTMLInputElement;
-
-  // core
-  const selectInstallationPathBtn = document.getElementById(
-    'select-installation-path',
-  );
-  selectInstallationPathBtn.addEventListener('click', async () => {
-    await core.selectInstallationPath(installationPath);
-  });
-
-  // 手動更新テーブル(check-core-version / check-packages-list /
-  // check-apm-update)は React 側(settings/ManualUpdateTable.tsx)が描画する
+  // インストール先の選択ボタンは React 側
+  // (aviutl/SelectInstallationPathButton.tsx)が描画する
 
   // nicommons ID
   new ClipboardJS('#copy-nicommons-id-textarea');

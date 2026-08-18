@@ -265,6 +265,17 @@ const dialogInput = (
   return { title, message, type: type as (typeof DIALOG_TYPES)[number] };
 };
 
+const dirDialogInput = (
+  value: unknown,
+): { title: string; defaultPath: string } => {
+  if (typeof value !== 'object' || value === null)
+    throw new TypeError('An object is expected.');
+  const { title, defaultPath } = value as Record<string, unknown>;
+  if (typeof title !== 'string' || typeof defaultPath !== 'string')
+    throw new TypeError('title and defaultPath are expected.');
+  return { title, defaultPath };
+};
+
 export const router = t.router({
   getAppVersion: procedure.query(async () => {
     return app.getVersion();
@@ -283,6 +294,16 @@ export const router = t.router({
       message: input.message,
       type: input.type,
     });
+  }),
+  // フォルダ選択ダイアログ(旧 OPEN_DIR_DIALOG チャンネルと同一の挙動)
+  openDirDialog: procedure.input(dirDialogInput).mutation(async ({ input }) => {
+    const win = BrowserWindow.getFocusedWindow();
+    const dir = await dialog.showOpenDialog(win, {
+      title: input.title,
+      defaultPath: input.defaultPath,
+      properties: ['openDirectory'],
+    });
+    return dir.filePaths;
   }),
   writeClipboardText: procedure.input(clipboardInput).mutation(({ input }) => {
     clipboard.writeText(input.text);

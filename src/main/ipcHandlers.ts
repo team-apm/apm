@@ -70,19 +70,6 @@ export function registerIpcHandlers() {
   });
 
   ipcMain.handle(
-    IPC_CHANNELS.OPEN_DIR_DIALOG,
-    async (event, title, defaultPath) => {
-      const win = BrowserWindow.getFocusedWindow();
-      const dir = await dialog.showOpenDialog(win, {
-        title: title,
-        defaultPath: defaultPath,
-        properties: ['openDirectory'],
-      });
-      return dir.filePaths;
-    },
-  );
-
-  ipcMain.handle(
     IPC_CHANNELS.OPEN_DIALOG,
     async (event, title, message, type) => {
       await dialog.showMessageBox({

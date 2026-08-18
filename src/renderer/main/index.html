@@ -142,13 +142,8 @@
 										readonly
 									/>
 								</div>
-								<button
-									type="button"
-									class="btn btn-primary rounded-0 rounded-end"
-									id="select-installation-path"
-								>
-									AviUtlインストールフォルダを選択
-								</button>
+								<!-- ボタンは React(aviutl/SelectInstallationPathButton.tsx)が描画する -->
+								<div class="d-flex" id="select-installation-path-root"></div>
 							</div>
 							<ul class="list-group mb-3" id="batch-install-packages">
 								<!-- 中身は React(ProgramRow / BatchInstallList)が描画する -->
