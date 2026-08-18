@@ -26,7 +26,8 @@ describe('resolvePath', () => {
   });
 
   describe('with a local base', () => {
-    const base = path.join('/data', 'apm');
+    // path.join だと Windows でドライブレターが付かず、実装側の path.resolve の結果と一致しない
+    const base = path.resolve('/data', 'apm');
 
     it('resolves a relative path inside the base directory', () => {
       expect(resolvePath(base, path.join('packages', 'list.json'))).toBe(
