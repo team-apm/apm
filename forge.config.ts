@@ -53,10 +53,11 @@ const config: ForgeConfig = {
     new WebpackPlugin({
       mainConfig: mainConfig,
       devServer: { liveReload: false },
-      // TODO(security): cdn.jsdelivr.net / 'unsafe-inline' / blob: は CDN 版 Monaco のための暫定緩和。
-      // セキュリティフェーズで Monaco をローカルバンドルに切り替えて回収する
+      // パッケージ版 main 窓(src/renderer/main/index.html)の CSP と同一に保つ。
+      // worker-src blob: と style-src 'unsafe-inline' は Monaco/Bootstrap のため撤去不可
+      // (理由は index.html のコメント参照)
       devContentSecurityPolicy:
-        "default-src 'self'; script-src-elem 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp",
+        "default-src 'self'; script-src-elem 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp",
       renderer: {
         config: rendererConfig,
         entryPoints: [
