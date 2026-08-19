@@ -29,10 +29,8 @@ apm の開発方針の単一ソース。変更は PR 経由で行う(履歴 = �
 
 ## 次の一手
 
-**v3.11.0 をリリース(React + tRPC 移行入り)→ Phase 4: セキュリティ(`sandbox: true` 化)。**
+**Phase 5: 品質・E2E(Playwright)。**
 
-タブ移行(Phase 3)は完了した: main 窓の全タブ(Settings / その他 / AviUtl / Plugins / Nicommons)が React + tRPC で動き、ビジネスロジックは main プロセス(services)へ移設済み。旧 renderer ロジック(package.ts / core.ts / lib の buttonTransition・replaceText・parseJson・modList・convertId ほか)と旧 IPC チャンネルの大半は削除済み(いずれも 2026-08 マージ済み)。preload に残るのは初期化フロー(全ステップ tRPC 呼び出し)・contextBridge(editor / coreBridge)・tRPC クライアントのみで、Node API 依存のロジックは無い。
+セキュリティ(Phase 4)は完了した: main 窓の `sandbox: true` 化(v3.12.0)、contextBridge の最小化(残る露出は electron-trpc の `electronTRPC` と electron-log の `__electronLog` の必須分のみ)、CSP の回収(Monaco を CDN 読み込みからローカル同梱の AMD ビルドへ切り替え、`cdn.jsdelivr.net` 許可を撤去)。CSP に残る緩和は Monaco が worker を blob 経由で起動するための `worker-src blob:` と、Monaco / Bootstrap の動的スタイルのための `style-src 'unsafe-inline'` のみ(いずれも実測で外せないことを確認済み)。
 
-Phase 4 は「sandbox: true 化 → contextBridge の最小化 → CSP の回収(data editor の CDN Monaco 許容箇所 `TODO(Phase 4)` を含む)」の順で進める。
-
-Done の定義: v3.11.0 がリリースされ、main 窓が `sandbox: true` で全機能動作すること。
+Done の定義: Playwright の E2E が CI で回り、主要フロー(起動 → 一覧表示 → インストール)が固定されること。
