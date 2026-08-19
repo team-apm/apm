@@ -250,9 +250,11 @@ function PackagesTab(): JSX.Element {
           !(p.info.isHidden && p.installationStatus === states.notInstalled),
       )
       .map((p): Row => ({ kind: 'package', key: `package:${p.id}`, p }));
-    const scriptSiteRows = webpages.map(
-      (w): Row => ({ kind: 'scriptSite', key: `scriptSite:${w.url}`, w }),
-    );
+    const scriptSiteRows = webpages.map((w): Row => ({
+      kind: 'scriptSite',
+      key: `scriptSite:${w.url}`,
+      w,
+    }));
     return [...packageRows, ...scriptSiteRows];
   }, [packages, webpages]);
 

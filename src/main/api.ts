@@ -225,12 +225,10 @@ const editorPackagesInput = (
   const { instPath, packages } = value as Record<string, unknown>;
   if (typeof instPath !== 'string')
     throw new TypeError('instPath is expected to be a string.');
-  if (
-    !(
-      Array.isArray(packages) &&
-      packages.every((p) => typeof p === 'object' && p !== null)
-    )
-  )
+  if (!(
+    Array.isArray(packages) &&
+    packages.every((p) => typeof p === 'object' && p !== null)
+  ))
     throw new TypeError('packages is expected to be an array of objects.');
   return { instPath, packages: packages as Record<string, unknown>[] };
 };
