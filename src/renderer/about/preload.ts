@@ -1,4 +1,7 @@
 import { contextBridge } from 'electron';
+// __electronLog を両ワールドに生やす(electron-log/renderer の ipc transport が
+// 依存)。main 側のセッション preload 注入は dev でパス解決が壊れるため使わない
+import 'electron-log/preload';
 import log from 'electron-log/renderer';
 import { exposeElectronTRPC } from 'electron-trpc/main';
 import { openDialog } from '../../lib/ipcWrapper';

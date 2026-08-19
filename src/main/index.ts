@@ -9,7 +9,12 @@ import { ensureAutoUpdateDefault } from './services/appUpdate';
 import * as shortcut from './shortcut';
 import { launch } from './windows';
 
-log.initialize();
+// preload: true(既定)のセッション preload 注入は使わない。注入パスの解決が
+// forge の asset relocator に書き換えられ、dev ビルドでは相対パスに壊れて
+// Electron 39 の registerPreloadScript が絶対パス検証の警告を出すため。
+// 代わりに electron-log 公式のバンドラ向けパターンで、各 preload バンドルが
+// 'electron-log/preload' を import して __electronLog を生やす
+log.initialize({ preload: false });
 
 log.errorHandler.startCatching({
   showDialog: false,
