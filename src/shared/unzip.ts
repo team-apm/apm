@@ -1,5 +1,6 @@
 import { path7za } from '7zip-bin';
 import { extractFull } from 'node-7z';
+import { chmodSync } from 'node:fs';
 import path from 'node:path';
 import win7zip from 'win-7zip';
 
@@ -10,6 +11,17 @@ let pathTo7zip = process.platform === 'win32' ? win7zip['7z'] : path7za;
 // https://github.com/puppeteer/puppeteer/issues/2134#issuecomment-408221446
 if (!isDevEnv) {
   pathTo7zip = pathTo7zip.replace('app.asar', 'app.asar.unpacked');
+}
+
+// パッケージ版では asset relocator が native_modules へコピーした 7za の
+// 実行ビットが落ちていて spawn が EACCES になる(macOS / Linux のみ。
+// dev の node_modules 直下は実行可能なので無症状)。spawn 前に付与する
+if (process.platform !== 'win32') {
+  try {
+    chmodSync(pathTo7zip, 0o755);
+  } catch {
+    // 失敗しても spawn 時に EACCES / ENOENT として顕在化するため何もしない
+  }
 }
 
 /**
