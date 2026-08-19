@@ -8,7 +8,7 @@ AviUtl Package Manager (apm) — AviUtl のプラグイン・スクリプトを�
 yarn lint       # prettier + eslint
 yarn lint:ts    # tsc --noEmit
 yarn test       # vitest run (src/**/*.test.ts)
-yarn test:e2e   # Playwright E2E (e2e/)。パッケージ版を起動するため先に yarn package が必要
+yarn test:e2e   # Playwright E2E (e2e/)。パッケージ版を起動するため先に yarn package が必要。--user-data-dir で一時 userData を渡して起動するため実プロファイルは汚さない
 yarn start      # 開発起動 (Node 22 推奨)
 ```
 
