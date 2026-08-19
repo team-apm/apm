@@ -1,54 +1,9 @@
-import { path7za } from '7zip-bin';
 import { expect, test } from '@playwright/test';
-import { execFileSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
-import { createServer } from 'node:http';
-import type { AddressInfo } from 'node:net';
+import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { createZip, serveFixtures, writeDataSet } from './fixtures';
 import { getMainWindow, launchIsolated } from './helpers';
-
-const MODIFIED = '2026-01-01T00:00:00+09:00';
-
-/**
- * Writes the apm data files (list/core/convert/packages) into the given
- * directory.
- * @param {string} dir - The destination directory.
- * @param {object[]} packages - The contents of packages.json's packages field.
- */
-function writeDataFiles(dir: string, packages: object[]) {
-  mkdirSync(dir, { recursive: true });
-  const write = (name: string, data: unknown) =>
-    writeFileSync(path.join(dir, name), JSON.stringify(data));
-  write('list.json', {
-    core: { path: 'core.json', modified: MODIFIED },
-    convert: { path: 'convert.json', modified: MODIFIED },
-    packages: [{ path: 'packages.json', modified: MODIFIED }],
-    scripts: [],
-  });
-  write('core.json', {
-    version: 3,
-    aviutl: {
-      latestVersion: '1.10',
-      files: [{ filename: 'aviutl.exe' }],
-      releases: [],
-    },
-    exedit: {
-      latestVersion: '0.92',
-      files: [{ filename: 'exedit.auf' }],
-      releases: [],
-    },
-  });
-  write('convert.json', {});
-  write('packages.json', { version: 3, packages });
-}
 
 /**
  * Writes the fixtures: the initial data set (without the dummy plugin) under
@@ -59,38 +14,30 @@ function writeDataFiles(dir: string, packages: object[]) {
  * @param {string} baseUrl - The base URL of the fixtures server.
  */
 function writeFixtures(fixturesDir: string, workDir: string, baseUrl: string) {
-  const filesDir = path.join(fixturesDir, 'files');
-  mkdirSync(filesDir, { recursive: true });
-
-  // ダミープラグインの zip(アプリ側の展開が 7z なので生成にも同梱の 7za を使う)
-  const pluginDir = path.join(workDir, 'plugin');
-  mkdirSync(pluginDir, { recursive: true });
-  writeFileSync(
-    path.join(pluginDir, 'dummy.auf'),
-    'dummy aviutl plugin for e2e',
+  createZip(
+    path.join(fixturesDir, 'files', 'dummy.zip'),
+    path.join(workDir, 'plugin'),
+    { 'dummy.auf': 'dummy aviutl plugin for e2e' },
   );
-  execFileSync(path7za, [
-    'a',
-    path.join(filesDir, 'dummy.zip'),
-    path.join(pluginDir, '*'),
-  ]);
 
   // 差し替え前のデータ取得先(ダミープラグインを含まない)
-  writeDataFiles(path.join(fixturesDir, 'initial'), []);
+  writeDataSet(path.join(fixturesDir, 'initial'));
   // 差し替え後のデータ取得先(ダミープラグインを含む)
-  writeDataFiles(fixturesDir, [
-    {
-      id: 'e2e/dummyPlugin',
-      name: 'E2E ダミープラグイン',
-      overview: 'E2E テスト用のダミープラグイン',
-      description: 'Playwright のインストールフロー検証用。',
-      developer: 'apm-e2e',
-      pageURL: `${baseUrl}/`,
-      downloadURLs: [`${baseUrl}/files/dummy.zip`],
-      latestVersion: '1.0.0',
-      files: [{ filename: 'dummy.auf' }],
-    },
-  ]);
+  writeDataSet(fixturesDir, {
+    packages: [
+      {
+        id: 'e2e/dummyPlugin',
+        name: 'E2E ダミープラグイン',
+        overview: 'E2E テスト用のダミープラグイン',
+        description: 'Playwright のインストールフロー検証用。',
+        developer: 'apm-e2e',
+        pageURL: `${baseUrl}/`,
+        downloadURLs: [`${baseUrl}/files/dummy.zip`],
+        latestVersion: '1.0.0',
+        files: [{ filename: 'dummy.auf' }],
+      },
+    ],
+  });
 }
 
 test('dataURL の差し替えとパッケージのインストール・アンインストールができる', async () => {
@@ -102,27 +49,7 @@ test('dataURL の差し替えとパッケージのインストール・アンイ
   mkdirSync(initialInstPath, { recursive: true });
   mkdirSync(instPath, { recursive: true });
 
-  const server = createServer((req, res) => {
-    const filePath = path.join(
-      fixturesDir,
-      (req.url ?? '/').replace(/^\//, ''),
-    );
-    if (!filePath.startsWith(fixturesDir) || !existsSync(filePath)) {
-      res.writeHead(404);
-      res.end();
-      return;
-    }
-    res.writeHead(200, {
-      'content-type': filePath.endsWith('.zip')
-        ? 'application/zip'
-        : 'application/json',
-    });
-    res.end(readFileSync(filePath));
-  });
-  await new Promise<void>((resolve) =>
-    server.listen(0, '127.0.0.1', () => resolve()),
-  );
-  const baseUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  const { baseUrl, close } = await serveFixtures(fixturesDir);
   writeFixtures(fixturesDir, workDir, baseUrl);
 
   // 設定済みプロファイルを事前シードして起動する。dataVersion が無いと
@@ -204,7 +131,7 @@ test('dataURL の差し替えとパッケージのインストール・アンイ
     await expect(row).not.toContainText('インストール済み');
   } finally {
     await app.close();
-    server.close();
+    close();
     rmSync(userDataDir, { recursive: true, force: true });
     rmSync(workDir, { recursive: true, force: true });
   }
