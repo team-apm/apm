@@ -3,10 +3,12 @@
 	<head>
 		<meta charset="UTF-8" />
 		<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-		<!-- TODO(security): cdn.jsdelivr.net / 'unsafe-inline' / blob: は CDN 版 Monaco のための暫定緩和。セキュリティフェーズで Monaco をローカルバンドルに切り替えて回収する -->
+		<!-- Monaco はローカル同梱(main_window/vs)から読むため CDN 許可は無い。
+		     worker-src blob: は Monaco の AMD loader が worker を blob 経由で起動するため、
+		     style-src 'unsafe-inline' は Monaco と Bootstrap の動的スタイルのために残している -->
 		<meta
 			http-equiv="Content-Security-Policy"
-			content="default-src 'self'; script-src-elem 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp"
+			content="default-src 'self'; script-src-elem 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp"
 		/>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>AviUtl Package Manager</title>
