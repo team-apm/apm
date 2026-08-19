@@ -37,5 +37,5 @@ apm の開発方針の単一ソース。変更は PR 経由で行う(履歴 = �
 
 1. **Electron 39 → 43**(1 major ずつ。43.4.1 + forge 6.4.1 でパッケージ生成・E2E 緑をスパイク確認済み)
 2. **ESLint 8 → 9**(flat config 化。ツールチェーンのみで出荷物に影響なし)
-3. **tRPC 10 → 11 + @tanstack/react-query 4 → 5**(ペア更新が必須。electron-trpc の tRPC 11 対応状況の確認から)
+3. **tRPC 10 → 11 + @tanstack/react-query 4 → 5**(ペア更新が必須。electron-trpc 0.7.1 は tRPC 11 非互換=同梱する v10 内部コードが v11 の procedure を呼べないことを検証で確認したため、tRPC 11 対応フォークの trpc-electron へ置換)
 4. **forge 6.4.1 → 7 は最後**(「既知の固定」の解除。preload の webpack ビルド破損が論点なので、E2E + 3 OS ビルドで検証してから)
