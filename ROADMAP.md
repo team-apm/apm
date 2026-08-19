@@ -29,8 +29,13 @@ apm の開発方針の単一ソース。変更は PR 経由で行う(履歴 = �
 
 ## 次の一手
 
-**Phase 5: 品質・E2E(Playwright)。**
+**Phase 6: 残りのメジャー依存更新。**
 
-セキュリティ(Phase 4)は完了した: main 窓の `sandbox: true` 化(v3.12.0)、contextBridge の最小化(残る露出は electron-trpc の `electronTRPC` と electron-log の `__electronLog` の必須分のみ)、CSP の回収(Monaco を CDN 読み込みからローカル同梱の AMD ビルドへ切り替え、`cdn.jsdelivr.net` 許可を撤去)。CSP に残る緩和は Monaco が worker を blob 経由で起動するための `worker-src blob:` と、Monaco / Bootstrap の動的スタイルのための `style-src 'unsafe-inline'` のみ(いずれも実測で外せないことを確認済み)。
+品質・E2E(Phase 5)は完了した: Playwright の E2E が CI(windows-latest)で回り、主要フロー(起動 → 一覧表示 → パッケージのインストール / アンインストール → コアのインストール)を固定した。E2E はパッケージ版を一時 userData(`--user-data-dir`)+ ローカルフィクスチャ配信で起動するため、実プロファイル・実ネットワークに依存しない。
 
-Done の定義: Playwright の E2E が CI で回り、主要フロー(起動 → 一覧表示 → インストール)が固定されること。
+メジャー更新は決定事項どおり 1 PR = 1 major で、E2E を安全網に進める:
+
+1. **Electron 39 → 43**(1 major ずつ。43.4.1 + forge 6.4.1 でパッケージ生成・E2E 緑をスパイク確認済み)
+2. **ESLint 8 → 9**(flat config 化。ツールチェーンのみで出荷物に影響なし)
+3. **tRPC 10 → 11 + @tanstack/react-query 4 → 5**(ペア更新が必須。electron-trpc の tRPC 11 対応状況の確認から)
+4. **forge 6.4.1 → 7 は最後**(「既知の固定」の解除。preload の webpack ビルド破損が論点なので、E2E + 3 OS ビルドで検証してから)
