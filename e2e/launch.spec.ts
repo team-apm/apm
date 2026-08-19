@@ -1,15 +1,10 @@
-import { _electron, expect, test } from '@playwright/test';
-import { existsSync } from 'node:fs';
-import { getMainWindow, packagedExecutablePath } from './helpers';
+import { expect, test } from '@playwright/test';
+import { rmSync } from 'node:fs';
+import { getMainWindow, launchIsolated } from './helpers';
 
 test('起動して main 窓が開き、パッケージ一覧が描画される', async () => {
-  const executablePath = packagedExecutablePath();
-  expect(
-    existsSync(executablePath),
-    `パッケージ版が見つからない(先に yarn package を実行する): ${executablePath}`,
-  ).toBe(true);
-
-  const app = await _electron.launch({ executablePath });
+  // クリーンな userData で起動し、実データでの初回起動フローを検証する
+  const { app, userDataDir } = await launchIsolated();
   try {
     const window = await getMainWindow(app);
 
@@ -34,5 +29,6 @@ test('起動して main 窓が開き、パッケージ一覧が描画される',
     ).toEqual([]);
   } finally {
     await app.close();
+    rmSync(userDataDir, { recursive: true, force: true });
   }
 });
