@@ -120,7 +120,11 @@ test('dataURL の差し替えとパッケージのインストールができる
   const app = await _electron.launch({ executablePath });
   try {
     const window = await getMainWindow(app);
-    await expect(window.locator('#installation-path')).toBeVisible();
+    // preload の初期化フロー完了を待つ(完了するとインストール先の既定値が
+    // 入る。クリーン環境の初回起動はダウンロードを含むため長めに待つ)
+    await expect(window.locator('#installation-path')).not.toHaveValue('', {
+      timeout: 120_000,
+    });
 
     // ローカル実行では実プロファイルを使うため、元の設定を控えて最後に戻す
     const originalInstPath = await window
@@ -143,13 +147,18 @@ test('dataURL の差し替えとパッケージのインストールができる
       await window
         .getByRole('button', { name: 'AviUtlインストールフォルダを選択' })
         .click();
-      await expect(window.locator('#installation-path')).toHaveValue(instPath);
+      // インストール先変更に伴う再取得(初回はダウンロード込み)を待つ
+      await expect(window.locator('#installation-path')).toHaveValue(instPath, {
+        timeout: 120_000,
+      });
 
       // データ取得先をフィクスチャサーバへ変更
       await window.getByRole('tab', { name: '設定' }).click();
       await window.locator('#data-url').fill(baseUrl);
       await window.locator('#set-data-url').click();
-      await expect(window.locator('#set-data-url')).toHaveText('設定完了');
+      await expect(window.locator('#set-data-url')).toHaveText('設定完了', {
+        timeout: 60_000,
+      });
 
       // パッケージ一覧を再取得するとダミープラグインが現れる
       await window.locator('#check-packages-list').click();
@@ -176,7 +185,9 @@ test('dataURL の差し替えとパッケージのインストールができる
       await window.getByRole('tab', { name: '設定' }).click();
       await window.locator('#data-url').fill(originalDataUrl);
       await window.locator('#set-data-url').click();
-      await expect(window.locator('#set-data-url')).toHaveText('設定完了');
+      await expect(window.locator('#set-data-url')).toHaveText('設定完了', {
+        timeout: 60_000,
+      });
       if (originalInstPath) {
         await mockOpenDialog(originalInstPath);
         await window.getByRole('tab', { name: 'AviUtl' }).click();
@@ -185,6 +196,7 @@ test('dataURL の差し替えとパッケージのインストールができる
           .click();
         await expect(window.locator('#installation-path')).toHaveValue(
           originalInstPath,
+          { timeout: 120_000 },
         );
       }
     }
