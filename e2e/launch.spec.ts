@@ -1,29 +1,6 @@
-import { _electron, expect, type Page, test } from '@playwright/test';
+import { _electron, expect, test } from '@playwright/test';
 import { existsSync } from 'node:fs';
-import path from 'node:path';
-
-/**
- * Returns the path of the packaged executable for the current platform.
- * @returns {string} Path of the executable
- */
-function packagedExecutablePath(): string {
-  const outDir = path.join(
-    __dirname,
-    '..',
-    'out',
-    `AviUtl Package Manager-${process.platform}-${process.arch}`,
-  );
-  if (process.platform === 'darwin')
-    return path.join(
-      outDir,
-      'AviUtl Package Manager.app',
-      'Contents',
-      'MacOS',
-      'apm',
-    );
-  if (process.platform === 'win32') return path.join(outDir, 'apm.exe');
-  return path.join(outDir, 'apm');
-}
+import { getMainWindow, packagedExecutablePath } from './helpers';
 
 test('起動して main 窓が開き、パッケージ一覧が描画される', async () => {
   const executablePath = packagedExecutablePath();
@@ -34,11 +11,7 @@ test('起動して main 窓が開き、パッケージ一覧が描画される',
 
   const app = await _electron.launch({ executablePath });
   try {
-    // splash 窓が先に開くため、URL で main 窓を特定して待つ
-    const isMainWindow = (page: Page) => page.url().includes('main_window');
-    const window =
-      app.windows().find(isMainWindow) ??
-      (await app.waitForEvent('window', { predicate: isMainWindow }));
+    const window = await getMainWindow(app);
 
     const pageErrors: Error[] = [];
     window.on('pageerror', (error) => pageErrors.push(error));
