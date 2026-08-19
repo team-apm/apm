@@ -141,3 +141,7 @@ out/
 .vscode/
 .czrc
 ThirdPartyNotices.txt
+
+# Playwright
+test-results/
+playwright-report/

@@ -26,6 +26,7 @@
     "release:patch": "release-it patch",
     "start": "cross-env NODE_ENV=development electron-forge start",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "test:watch": "vitest"
   },
   "lint-staged": {
@@ -83,6 +84,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "6.4.1",
     "@electron-forge/plugin-webpack": "6.4.1",
     "@electron-forge/publisher-github": "6.4.1",
+    "@playwright/test": "^1.62.1",
     "@release-it/conventional-changelog": "^11.0.1",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "@types/bootstrap": "^5.2.11",
