@@ -33,9 +33,15 @@ apm の開発方針の単一ソース。変更は PR 経由で行う(履歴 = �
 
 品質・E2E(Phase 5)は完了した: Playwright の E2E が CI(windows-latest)で回り、主要フロー(起動 → 一覧表示 → パッケージのインストール / アンインストール → コアのインストール)を固定した。E2E はパッケージ版を一時 userData(`--user-data-dir`)+ ローカルフィクスチャ配信で起動するため、実プロファイル・実ネットワークに依存しない。
 
-メジャー更新は決定事項どおり 1 PR = 1 major で、E2E を安全網に進める:
+メジャー更新は決定事項どおり 1 PR = 1 major で、E2E を安全網に進めた:
 
-1. **Electron 39 → 43**(1 major ずつ。43.4.1 + forge 6.4.1 でパッケージ生成・E2E 緑をスパイク確認済み)
-2. **ESLint 8 → 9**(flat config 化。ツールチェーンのみで出荷物に影響なし)
-3. **tRPC 10 → 11 + @tanstack/react-query 4 → 5**(ペア更新が必須。electron-trpc 0.7.1 は tRPC 11 非互換=同梱する v10 内部コードが v11 の procedure を呼べないことを検証で確認したため、tRPC 11 対応フォークの trpc-electron へ置換)
-4. **forge 6.4.1 → 7 は最後**(「既知の固定」の解除。preload の webpack ビルド破損が論点なので、E2E + 3 OS ビルドで検証してから)
+1. **Electron 39 → 43**(1 major ずつ、全て無修正で緑)— 完了
+2. **ESLint 8 → 9**(flat config 化 + typescript-eslint 8)— 完了
+3. **tRPC 10 → 11 + @tanstack/react-query 4 → 5**(ペア更新が必須。electron-trpc 0.7.1 は tRPC 11 非互換=同梱する v10 内部コードが v11 の procedure を呼べないことを検証で確認したため、tRPC 11 対応フォークの trpc-electron へ置換)— 完了
+4. **forge 6.4.1 → 7.11.2**(「既知の固定」の解除。6.4.2+ の preload ビルド破損は Phase 4 で preload を Node 非依存化した後は再現せず、package + E2E 緑。Node 24 の無言失敗は forge 7 でも再現するため Node 22 固定は継続)— 本 PR
+
+Phase 6 完了後:
+
+- **v3.13.0 リリース判断**(Electron 34 → 43 ほかメジャー更新一式 + 7za chmod 修正を含む。タイミングはメンテナ)
+- 以降のメジャー更新は通常運用(dependabot weekly + 計画的な 1 PR = 1 major)
+- Phase 7(英語 UI・CLI 等)は任意。着手要否はメンテナ判断
