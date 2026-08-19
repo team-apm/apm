@@ -2,7 +2,7 @@ import type { ActionPhase } from '../usePhase';
 
 // 旧 package.ts の checkPackagesList(パッケージ一覧の再取得ボタンフロー)の
 // React 側実装。設定タブの更新ボタン(ManualUpdateTable)・スクリプト
-// インストール後(PackageActions)・データエディタ保存後(monacoEditorPreload
+// インストール後(PackageActions)・データエディタ保存後(monacoEditorRenderer
 // からのイベント)の 3 経路から起動され、どこから呼んでもボタン表示と
 // オーバーレイが連動する。renderer.tsx は React ルートを機能ごとに分けて
 // createRoot しているため、実行状態は Context ではなくモジュールレベルの

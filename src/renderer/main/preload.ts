@@ -6,7 +6,6 @@ import log from 'electron-log/renderer';
 import { exposeElectronTRPC } from 'electron-trpc/main';
 import { app, openDialog } from '../../lib/ipcWrapper';
 import { trpc } from '../../lib/trpcClient';
-import { EditorContextBridge } from './monacoEditorPreload';
 import setting from './setting';
 
 log.errorHandler.startCatching({
@@ -14,7 +13,6 @@ log.errorHandler.startCatching({
     await openDialog('エラー', '予期しないエラーが発生しました。', 'error');
   },
 });
-const editorContextBridge = new EditorContextBridge();
 
 // メインワールドの React(Settings ほか)から tRPC を使うための bridge
 process.once('loaded', () => {
@@ -66,9 +64,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     'installation-path',
   ) as HTMLInputElement;
   installationPath.value = instPath;
-  // インストール先確定後に React(ProgramRow)へ再描画を通知する
+  // インストール先確定後に React(ProgramRow・データエディタ)へ再描画を通知する
   window.dispatchEvent(new Event('apm-core-changed'));
-  await editorContextBridge.setInstPath(installationPath);
 
   const appName = document.getElementsByClassName('app-name');
   for (let i = 0; i < appName.length; i++) {
