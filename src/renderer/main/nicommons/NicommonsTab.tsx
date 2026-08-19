@@ -33,9 +33,7 @@ function NicommonsRow({
     refetchOnWindowFocus: false,
   });
   const nicommonsData = dataQuery.data as
-    | { node?: { thumbnailURL?: string } }
-    | false
-    | undefined;
+    { node?: { thumbnailURL?: string } } | false | undefined;
   const thumbnailURL =
     nicommonsData && nicommonsData.node?.thumbnailURL
       ? nicommonsData.node.thumbnailURL.replace('size=l', 'size=s')

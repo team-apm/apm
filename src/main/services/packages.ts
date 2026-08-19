@@ -735,10 +735,7 @@ const isMatch = (
 ) => pattern.some((p) => matcher.isMatch(input, p));
 
 export type InstallScriptResult =
-  | 'success'
-  | 'noScript'
-  | 'containsPlugin'
-  | 'installFailed';
+  'success' | 'noScript' | 'containsPlugin' | 'installFailed';
 
 /**
  * Unzips the downloaded script archive, verifies and copies the script files,
