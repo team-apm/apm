@@ -20,7 +20,11 @@ import { TrpcProvider } from './TrpcProvider';
 
 window.addEventListener('DOMContentLoaded', () => {
   const root = createRoot(document.getElementById('container'));
-  root.render(<MonacoEditorRenderer />);
+  root.render(
+    <TrpcProvider>
+      <MonacoEditorRenderer />
+    </TrpcProvider>,
+  );
 
   createRoot(document.getElementById('settings-data-url-root')).render(
     <TrpcProvider>

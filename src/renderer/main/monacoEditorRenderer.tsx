@@ -10,6 +10,8 @@ import schema from 'apm-schema/v3/schema/packages.json';
 import type { editor } from 'monaco-editor';
 import React, { useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { TRPCReact } from '../trpc';
+import { getInstallationPath } from './instPath';
 import { usePhase } from './usePhase';
 
 const placeholderStr = `
@@ -138,6 +140,9 @@ export const MonacoEditorRenderer: React.FC = () => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const save = usePhase();
+  const utils = TRPCReact.useContext();
+  const setEditorPackagesMutation =
+    TRPCReact.packages.setEditorPackages.useMutation();
 
   const saveEditorData = async () => {
     const editor = editorRef.current;
@@ -165,7 +170,15 @@ export const MonacoEditorRenderer: React.FC = () => {
     if (error) {
       save.finish('エラー', 'danger');
     } else {
-      await window.editor.save(json as Packages['packages']);
+      // editorPackages.json の読み書きは main プロセス側
+      // (src/main/services/packages.ts)
+      await setEditorPackagesMutation.mutateAsync({
+        instPath: getInstallationPath(),
+        packages: json as Packages['packages'],
+      });
+      // 一覧データの再取得(旧 checkPackagesList)は ManualUpdateTable が
+      // このイベントを購読して行う
+      window.dispatchEvent(new Event('apm-check-packages-list'));
       save.finish('保存完了', 'success');
     }
   };
@@ -196,11 +209,32 @@ export const MonacoEditorRenderer: React.FC = () => {
       editor,
       monaco.editor.ContentWidgetPositionPreference.EXACT,
     );
-    window.editor.setOnload(async (packages: Packages['packages']) => {
-      if (packages.length === 0) return;
-      editor.setValue(JSON.stringify(packages));
-      await editor.getAction('editor.action.formatDocument').run();
-    });
+    // インストール先は preload の初期化フローが #installation-path に設定して
+    // apm-core-changed を発火するため、未確定なら確定を待って一度だけ読み込む
+    // (旧 EditorContextBridge の setOnload / setInstPath の両者待ち合わせ相当。
+    // 読み込み失敗を無視するのも旧実装と同じ)
+    let loaded = false;
+    const loadEditorPackages = async () => {
+      if (loaded) return;
+      const instPath = getInstallationPath();
+      if (!instPath) return;
+      loaded = true;
+      try {
+        const packages = (await utils.client.packages.getEditorPackages.query(
+          instPath,
+        )) as Packages['packages'];
+        if (packages.length === 0) return;
+        editor.setValue(JSON.stringify(packages));
+        await editor.getAction('editor.action.formatDocument').run();
+      } catch {
+        // nop
+      }
+    };
+    void loadEditorPackages();
+    window.addEventListener(
+      'apm-core-changed',
+      () => void loadEditorPackages(),
+    );
 
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
       void saveEditorDataRef.current();
