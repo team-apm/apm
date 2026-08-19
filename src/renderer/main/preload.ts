@@ -1,5 +1,4 @@
 import ClipboardJS from 'clipboard/src/clipboard';
-import { contextBridge } from 'electron';
 // __electronLog を両ワールドに生やす(electron-log/renderer の ipc transport が
 // 依存)。main 側のセッション preload 注入は dev でパス解決が壊れるため使わない
 import 'electron-log/preload';
@@ -16,16 +15,6 @@ log.errorHandler.startCatching({
   },
 });
 const editorContextBridge = new EditorContextBridge();
-
-// メインワールドの React(AviUtl タブ ProgramRow ほか)とレガシーの橋渡し
-contextBridge.exposeInMainWorld('coreBridge', {
-  getInstallationPath: () => {
-    const input = document.getElementById(
-      'installation-path',
-    ) as HTMLInputElement | null;
-    return input?.value ?? '';
-  },
-});
 
 // メインワールドの React(Settings ほか)から tRPC を使うための bridge
 process.once('loaded', () => {
