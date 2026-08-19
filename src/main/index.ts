@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, MessageBoxSyncOptions } from 'electron';
 import debug from 'electron-debug';
 import log from 'electron-log/main';
 import Store from 'electron-store';
+import path from 'node:path';
 import 'source-map-support/register';
 import { getConfig } from './Config';
 import { registerIpcHandlers } from './ipcHandlers';
@@ -41,7 +42,14 @@ if (require('electron-squirrel-startup')) app.quit();
 log.debug(process.versions);
 
 const isDevEnv = process.env.NODE_ENV === 'development';
-if (isDevEnv) app.setPath('userData', app.getPath('userData') + '_Dev');
+// Chromium は --user-data-dir を userData に反映しないため自前で解釈する
+// (VS Code 等と同じ方式)。E2E が実プロファイルから隔離して起動するために使う
+const userDataDir = app.commandLine.getSwitchValue('user-data-dir');
+if (userDataDir) {
+  app.setPath('userData', path.resolve(userDataDir));
+} else if (isDevEnv) {
+  app.setPath('userData', app.getPath('userData') + '_Dev');
+}
 debug({ showDevTools: false }); // Press F12 to open DevTools
 
 Store.initRenderer();
