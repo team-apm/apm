@@ -1,5 +1,15 @@
 # Changelog
 
+# [3.12.0](https://github.com/team-apm/apm/compare/v3.11.0...v3.12.0) (2026-08-19)
+
+### Bug Fixes
+
+- **main:** electron-log のセッション preload 注入をやめ preload バンドルの import に切り替える ([d214ef6](https://github.com/team-apm/apm/commit/d214ef6fa08ead005014c791890c0f4880636968))
+
+### Features
+
+- **security:** メイン窓と About 窓の sandbox を有効化 ([c1e0c16](https://github.com/team-apm/apm/commit/c1e0c167ed10b4a5146059f0e300723349258f9a))
+
 # [3.11.0](https://github.com/team-apm/apm/compare/v3.10.0...v3.11.0) (2026-08-18)
 
 ### Bug Fixes
