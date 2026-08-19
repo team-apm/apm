@@ -1,5 +1,17 @@
 # Changelog
 
+# [3.13.0](https://github.com/team-apm/apm/compare/v3.12.0...v3.13.0) (2026-08-19)
+
+### Bug Fixes
+
+- **renderer:** dev サーバで Monaco の読み込み先が 404 になるのを修正する ([33ac096](https://github.com/team-apm/apm/commit/33ac0965eee98a9fff378be557753747c71626c7))
+- **shared:** パッケージ版の 7za に実行権限が無く展開が失敗するのを修正する ([3d38b57](https://github.com/team-apm/apm/commit/3d38b5718a5f52a250730f90ce1b2cc87ce7ed19))
+
+### Features
+
+- **main:** --user-data-dir スイッチで userData を差し替えられるようにする ([e2b800a](https://github.com/team-apm/apm/commit/e2b800a9883d9bc905163e2382498e38bbb9de1a))
+- **security:** データエディタの Monaco をローカル同梱から読み込み CSP の CDN 許可を撤去する ([3617f29](https://github.com/team-apm/apm/commit/3617f29e69971af0ca512c7ffd7a7653eef704be))
+
 # [3.12.0](https://github.com/team-apm/apm/compare/v3.11.0...v3.12.0) (2026-08-19)
 
 ### Bug Fixes
