@@ -1,0 +1,24 @@
+name: E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e:
+    name: E2E (Playwright)
+    # メインターゲットの Windows で、出荷形態に近いパッケージ版を起動して検証する
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          # build.yml / release.yml と同じ Node 22 に固定
+          # (Node 24 では electron-forge 6.4.1 の make/publish が無言で失敗する)
+          node-version: '22'
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn package
+      - run: yarn test:e2e
