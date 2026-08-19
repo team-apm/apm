@@ -1,3 +1,4 @@
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { BannerPlugin, type Configuration } from 'webpack';
 import { plugins } from './webpack.plugins';
@@ -19,6 +20,34 @@ rules.push({
 });
 
 plugins.push(new MiniCssExtractPlugin());
+
+// データエディタの Monaco は webpack でバンドルせず(値インポートすると
+// ビルドにヒープ拡大が必要になる)、AMD ビルドを静的アセットとして同梱して
+// @monaco-editor/loader の読み込み先をここへ向ける。CDN(cdn.jsdelivr.net)
+// への CSP 緩和を撤去するための構成
+plugins.push(
+  new CopyWebpackPlugin({
+    patterns: [
+      {
+        from: 'node_modules/monaco-editor/min/vs',
+        to: 'main_window/vs',
+        // minify 済みビルドを terser に再圧縮させない
+        info: { minimized: true },
+        globOptions: {
+          // JSON エディタに不要な言語サービス・UI 翻訳は同梱しない(-8MB 超)。
+          // JSON のハイライトは basic-languages ではなく language/json が持つ
+          ignore: [
+            '**/language/css/**',
+            '**/language/html/**',
+            '**/language/typescript/**',
+            '**/basic-languages/**',
+            '**/nls.messages.*.js',
+          ],
+        },
+      },
+    ],
+  }),
+);
 
 // sandbox: true の preload には __dirname が無く、forge の webpack plugin が
 // 全バンドル先頭に注入する asset relocator patch(`__dirname + "/native_modules/"`)

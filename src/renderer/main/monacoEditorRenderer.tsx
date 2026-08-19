@@ -1,5 +1,6 @@
 import MonacoEditor, {
   BeforeMount,
+  loader,
   Monaco,
   OnMount,
 } from '@monaco-editor/react';
@@ -128,6 +129,17 @@ class PlaceholderContentWidget {
 }
 
 self.MonacoEnvironment = null;
+
+// Monaco は loader のデフォルト(cdn.jsdelivr.net)ではなく、webpack が
+// main_window/vs に同梱する monaco-editor の AMD ビルドから読み込む
+// (CSP から CDN 許可を外すため。webpack.renderer.config.ts の CopyWebpackPlugin)。
+// 基準 URL に location を使わないのは、dev サーバのエントリ URL が
+// `/main_window`(/index.html 無し)で、相対解決すると main_window セグメント
+// が落ちて 404 になるため。vs と同じ場所に置かれるこのバンドル自身を基準にする
+const bundleUrl = (document.currentScript as HTMLScriptElement | null)?.src;
+loader.config({
+  paths: { vs: new URL('vs', bundleUrl ?? window.location.href).toString() },
+});
 
 /**
  *  A small code editor for apm-data, with validation against apm-schema.
