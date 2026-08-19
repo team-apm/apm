@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           # build.yml / release.yml と同じ Node 22 に固定
           # (Node 24 では electron-forge 6.4.1 の make/publish が無言で失敗する)
