@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ipcLink } from 'electron-trpc/renderer';
 import React, { type JSX } from 'react';
+import { ipcLink } from 'trpc-electron/renderer';
 import { TRPCReact } from '../trpc';
 import About from './About';
 

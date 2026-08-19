@@ -16,7 +16,7 @@ import { getInstallationPath } from '../instPath';
 function BatchInstallList(): JSX.Element {
   const [instPath, setInstPath] = useState(() => getInstallationPath());
 
-  const utils = TRPCReact.useContext();
+  const utils = TRPCReact.useUtils();
   const packagesQuery = TRPCReact.packages.getPackagesWithStatus.useQuery(
     { instPath, fixIntegrity: true },
     { refetchOnWindowFocus: false },

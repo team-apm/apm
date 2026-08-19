@@ -25,7 +25,7 @@ function BatchInstallButton(): JSX.Element {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  const utils = TRPCReact.useContext();
+  const utils = TRPCReact.useUtils();
   const installProgramMutation = TRPCReact.core.installProgram.useMutation();
   const installPackageMutation =
     TRPCReact.packages.installPackage.useMutation();

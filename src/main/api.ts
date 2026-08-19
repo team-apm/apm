@@ -6,7 +6,7 @@ import {
   dialog,
   type IpcMainInvokeEvent,
 } from 'electron';
-import type { CreateContextOptions } from 'electron-trpc/main';
+import type { CreateContextOptions } from 'trpc-electron/main';
 import { openAboutWindow } from './aboutWindow';
 import { getConfig } from './Config';
 import {
@@ -69,7 +69,7 @@ const stringInput = (value: unknown): string => {
   return value;
 };
 
-// electron-trpc は falsy なトップレベル入力(false / 0 / '')を undefined に
+// trpc-electron は falsy なトップレベル入力(false / 0 / '')を undefined に
 // 変換してしまうため、boolean はオブジェクトで包んで受け取る
 const scriptsListInput = (value: unknown): { update: boolean } => {
   if (typeof value !== 'object' || value === null)
@@ -206,7 +206,7 @@ const packagesWithStatusInput = (
   return { instPath, fixIntegrity };
 };
 
-// electron-trpc は falsy なトップレベル入力('' 含む)を undefined に変換する
+// trpc-electron は falsy なトップレベル入力('' 含む)を undefined に変換する
 // ため、文字列もオブジェクトで包んで受け取る
 const clipboardInput = (value: unknown): { text: string } => {
   if (typeof value !== 'object' || value === null)
@@ -485,7 +485,7 @@ export const router = t.router({
     global: procedure.mutation(async ({ ctx }) => {
       const win = BrowserWindow.fromWebContents(ctx.event.sender);
       if (!win) throw new Error('The calling window was not found.');
-      // 戻り値 false は起動中止(キャンセル)。electron-trpc の falsy 変換は
+      // 戻り値 false は起動中止(キャンセル)。trpc-electron の falsy 変換は
       // 入力側のみで出力側は安全なため boolean をそのまま返す
       return await migrationGlobal(win, getConfig());
     }),

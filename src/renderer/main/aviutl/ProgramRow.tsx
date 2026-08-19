@@ -32,7 +32,7 @@ function ProgramRow({
   const [phase, setPhase] = useState<ButtonPhase>('idle');
   const [buttonMessage, setButtonMessage] = useState('');
 
-  const utils = TRPCReact.useContext();
+  const utils = TRPCReact.useUtils();
   const coreInfoQuery = TRPCReact.core.getCoreInfo.useQuery();
   const installedTextsQuery =
     TRPCReact.core.getInstalledVersionTexts.useQuery(instPath);

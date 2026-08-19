@@ -89,7 +89,7 @@ function PackageActions({
   const folder = usePhase();
   const share = usePhase();
 
-  const utils = TRPCReact.useContext();
+  const utils = TRPCReact.useUtils();
   const installPackageMutation =
     TRPCReact.packages.installPackage.useMutation();
   const installScriptMutation = TRPCReact.packages.installScript.useMutation();

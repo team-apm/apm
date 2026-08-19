@@ -78,7 +78,7 @@ function formatDates(dates: { modDate: number; checkDate: number } | null) {
  * @returns {JSX.Element} The rendered component.
  */
 function ManualUpdateTable(): JSX.Element {
-  const utils = TRPCReact.useContext();
+  const utils = TRPCReact.useUtils();
   const coreDatesQuery = TRPCReact.core.getDates.useQuery();
   const packagesDatesQuery = TRPCReact.packages.getDates.useQuery();
   const checkLatestVersionMutation =

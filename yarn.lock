@@ -1719,18 +1719,17 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@tanstack/query-core@4.44.0":
-  version "4.44.0"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.44.0.tgz#c507e55f2e2c9a4a49fd2a9fcb1eda449e6c77ef"
-  integrity sha512-swSgb7OiPRR3UuIL7NuDrZNSMGmQD+wdtHxPD7j60SvBEnxbXurl5XOirtGEX2gm2hbK6mC8kMV1I+uO3l0UOw==
+"@tanstack/query-core@5.101.4":
+  version "5.101.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.101.4.tgz#c01b4289b3094144d8ef96235aa506242cf83efa"
+  integrity sha512-gNwcvOJcRbLWPOLG/2OBm+zM+Yv+MKsXKEOWC57USuZDEsI71hEErQsiEGx5wX9rzWWkfwM0fVSPoiIFSsxfiw==
 
-"@tanstack/react-query@^4.36.1":
-  version "4.44.0"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.44.0.tgz#8e6b93cbf08dc19e1ab8b1b97a9451ba82069d19"
-  integrity sha512-RuIqHYrS98LrK/8kJJOJMMSQ/BCpojwsXDh7p0fBmp38ZOz6dlk+uyFRRusH+V+t3POoCsDOQ2zhomEYOeReXw==
+"@tanstack/react-query@^5.101.4":
+  version "5.101.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.101.4.tgz#044137754d79aaa30a82f6e6c42488be79c86ea7"
+  integrity sha512-yRg2pfOCxIs4ZJW3XYYHU/WgtD04FHSnfHlpRT7h7pR77hwkdRG4wxbKe4aq6P0RvXUTBSQpQeadS1SUYUe+KA==
   dependencies:
-    "@tanstack/query-core" "4.44.0"
-    use-sync-external-store "^1.6.0"
+    "@tanstack/query-core" "5.101.4"
 
 "@tootallnate/once@2":
   version "2.0.0"
@@ -1751,20 +1750,20 @@
     minimatch "^9.0.0"
     parse-imports-exports "^0.2.4"
 
-"@trpc/client@^10.45.4":
-  version "10.45.4"
-  resolved "https://registry.yarnpkg.com/@trpc/client/-/client-10.45.4.tgz#7f3e0b0deda3c7dd76bc34822a594d1931ecfd58"
-  integrity sha512-ItpH5FMIJFt862kbAgC8hf5NJnDLo0FwEvMEX6zSLCenzWD0UH6H/fvAX1suFo1e0wcAmMhiEU1Tl6xKk/Pd1g==
+"@trpc/client@^11.18.0":
+  version "11.18.0"
+  resolved "https://registry.yarnpkg.com/@trpc/client/-/client-11.18.0.tgz#8fc48fe709f5d41ca15343ac06e56b1fda3e484a"
+  integrity sha512-wOqeg3Fvl25V1ZisQhUD3K8G60ZJDlSGJNSyeXrLH24xAo5w6GSR2Kzb1cSNY9Y+IQ2YZvYGZstBU+V/ulo/ow==
 
-"@trpc/react-query@^10.45.4":
-  version "10.45.4"
-  resolved "https://registry.yarnpkg.com/@trpc/react-query/-/react-query-10.45.4.tgz#6677f0e6aa812f09438d200d805a1b0eb31b2abe"
-  integrity sha512-/JfbkFMztsYbpl94P9TWritMjbHqWxeHz4uwjHM3W2zUcIKT88FiFXVmD/jLitPLrKhi4yAONoaRks5SUm12fQ==
+"@trpc/react-query@^11.18.0":
+  version "11.18.0"
+  resolved "https://registry.yarnpkg.com/@trpc/react-query/-/react-query-11.18.0.tgz#b4ca5e62c16f8627bc049618fb085ff920a17d16"
+  integrity sha512-C1+Wwm2pCeUJucI+bnFpxGYjNuvV+ko1BC1T9tUxBVdrhHRCdn9ubxdevdLSAa49XRJRJiZnSuzl3Ys/yvs1vg==
 
-"@trpc/server@^10.45.4":
-  version "10.45.4"
-  resolved "https://registry.yarnpkg.com/@trpc/server/-/server-10.45.4.tgz#91ca6848cd3dcdd5163e4bc23cd4a4b55874c8a6"
-  integrity sha512-5MuyK5sDuFVGHOT9EMVHgRjP5I5j3RqGymcb5D47UOp8tzn6LH0g1lEgYrAsOZ12vmk1gpxMw/v/y4xHHK/Qdg==
+"@trpc/server@^11.18.0":
+  version "11.18.0"
+  resolved "https://registry.yarnpkg.com/@trpc/server/-/server-11.18.0.tgz#171e10de17455fa2692618c005f64d496826f9fc"
+  integrity sha512-JAvXOuNTxgXjIDfQaOvDq1j66LMNfDJUH1IU7Slfn8EvRv2EkH6ehu3A7zpYhjO0syHHiYg77v2lG2JFJgvw7Q==
 
 "@tsconfig/node10@^1.0.7":
   version "1.0.11"
@@ -4476,13 +4475,6 @@ electron-to-chromium@^1.5.73:
   version "1.5.100"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.100.tgz#c99b7cfe49ec72c5e22237f036bb8b1d8b7f0621"
   integrity sha512-u1z9VuzDXV86X2r3vAns0/5ojfXBue9o0+JDUDBKYqGLjxLkSqsSUoPU/6kW0gx76V44frHaf6Zo+QF74TQCMg==
-
-electron-trpc@^0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/electron-trpc/-/electron-trpc-0.7.1.tgz#b2c1e13982d7f7713731e9b1b420c930910e4cdb"
-  integrity sha512-aWjZ5pLeVhrX9A9d8O8YgR8N+q4IXXzc76CJT1PwtDijIw+y5I+c75IAAtZ4JayYLeR3ll95PNGl5RTBu2qePw==
-  dependencies:
-    debug "^4.3.4"
 
 electron-window-state@*, electron-window-state@^5.0.3:
   version "5.0.3"
@@ -9982,6 +9974,11 @@ trim-repeated@^1.0.0:
   dependencies:
     escape-string-regexp "^1.0.2"
 
+trpc-electron@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/trpc-electron/-/trpc-electron-0.1.2.tgz#e30756abb1a15cc77c57137bf58e0163fea65f75"
+  integrity sha512-sQpWBwQWzsgrERugjzUpPqY/+/n8NxkUq6YssQ5+5rALkvGCWq45T5Dreiwm2kh91dZMFlALTyMd8PhB0vgbIg==
+
 ts-api-utils@^2.5.0:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/ts-api-utils/-/ts-api-utils-2.5.0.tgz#4acd4a155e22734990a5ed1fe9e97f113bcb37c1"
@@ -10289,11 +10286,6 @@ url-join@5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/url-join/-/url-join-5.0.0.tgz#c2f1e5cbd95fa91082a93b58a1f42fecb4bdbcf1"
   integrity sha512-n2huDr9h9yzd6exQVnH/jU5mr+Pfx08LRXXZhkLLetAMESRj+anQsTAh940iMrIetKAmry9coFuZQ2jY8/p3WA==
-
-use-sync-external-store@^1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.6.0.tgz#b174bfa65cb2b526732d9f2ac0a408027876f32d"
-  integrity sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==
 
 username@^5.1.0:
   version "5.1.0"

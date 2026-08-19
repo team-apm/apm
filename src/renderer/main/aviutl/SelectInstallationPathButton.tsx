@@ -11,7 +11,7 @@ import { TRPCReact } from '../../trpc';
  * @returns {JSX.Element} The rendered component.
  */
 function SelectInstallationPathButton(): JSX.Element {
-  const utils = TRPCReact.useContext();
+  const utils = TRPCReact.useUtils();
   const openDirDialogMutation = TRPCReact.openDirDialog.useMutation();
   const openDialogMutation = TRPCReact.openDialog.useMutation();
   const changeInstallationPathMutation =
