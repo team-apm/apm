@@ -12,7 +12,7 @@ jobs:
     # メインターゲットの Windows で、出荷形態に近いパッケージ版を起動して検証する
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           # build.yml / release.yml と同じ Node 22 に固定
