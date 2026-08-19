@@ -7,7 +7,7 @@ import { TRPCReact } from '../../trpc';
  * 相当する。判定・更新は main プロセス側(services/core.ts)が行い、ここは
  * ダイアログの表示と再描画通知のみを行う。
  * インストール先の値はレガシー DOM の #installation-path(readonly input)が
- * 保持し、各コンポーネントは coreBridge.getInstallationPath() で読む。
+ * 保持し、各コンポーネントは instPath.ts の getInstallationPath() で読む。
  * @returns {JSX.Element} The rendered component.
  */
 function SelectInstallationPathButton(): JSX.Element {

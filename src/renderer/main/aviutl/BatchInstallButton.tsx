@@ -4,6 +4,7 @@ import { states } from '../../../shared/packageDisplay';
 import { programs } from '../../../shared/programs';
 import type { PackageItem } from '../../../types/packageItem';
 import { TRPCReact } from '../../trpc';
+import { getInstallationPath } from '../instPath';
 
 type ButtonPhase =
   | { kind: 'idle' }
@@ -38,7 +39,7 @@ function BatchInstallButton(): JSX.Element {
     if (phase.kind === 'loading') return;
     setPhase({ kind: 'loading' });
 
-    const instPath = window.coreBridge?.getInstallationPath() ?? '';
+    const instPath = getInstallationPath();
     if (!instPath) {
       finish('インストール先フォルダを指定してください。', 'danger');
       return;

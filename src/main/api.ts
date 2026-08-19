@@ -280,6 +280,13 @@ export const router = t.router({
   getAppVersion: procedure.query(async () => {
     return app.getVersion();
   }),
+  // About 窓の表示用。renderer の process.versions と同じ値が main でも取れる
+  // ため、contextBridge での露出(旧 window.process)は使わない
+  getProcessVersions: procedure.query(() => ({
+    node: process.versions.node,
+    chrome: process.versions.chrome,
+    electron: process.versions.electron,
+  })),
   isExeVersion: procedure.query(() => isExeVersion()),
   getAppName: procedure.query(() => app.getName()),
   quitApp: procedure.mutation(() => {

@@ -1,6 +1,7 @@
 import React, { type JSX, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { TRPCReact } from '../../trpc';
+import { getInstallationPath } from '../instPath';
 import {
   getPhase,
   runPackagesListCheck,
@@ -90,7 +91,7 @@ function ManualUpdateTable(): JSX.Element {
 
   const checkPackagesList = async () => {
     // 旧実装どおり呼び出し時点の入力値を使う
-    const instPath = window.coreBridge?.getInstallationPath() ?? '';
+    const instPath = getInstallationPath();
     await runPackagesListCheck(() => refreshListMutation.mutateAsync(instPath));
   };
 

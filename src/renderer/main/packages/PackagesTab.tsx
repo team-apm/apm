@@ -10,6 +10,7 @@ import {
 } from '../../../shared/shareString';
 import type { PackageItem } from '../../../types/packageItem';
 import { TRPCReact } from '../../trpc';
+import { getInstallationPath } from '../instPath';
 import PackageActions, { type SelectedEntry } from './PackageActions';
 
 // list.js(fuzzySearch)に合わせた検索オプション。
@@ -140,9 +141,7 @@ const naturalCompare = (a: string, b: string) => {
  * @returns {JSX.Element} The rendered component.
  */
 function PackagesTab(): JSX.Element {
-  const [instPath, setInstPath] = useState(
-    () => window.coreBridge?.getInstallationPath() ?? '',
-  );
+  const [instPath, setInstPath] = useState(() => getInstallationPath());
   const [searchString, setSearchString] = useState('');
   const [alertDismissed, setAlertDismissed] = useState(false);
   const [sort, setSort] = useState<SortState>({
@@ -169,7 +168,7 @@ function PackagesTab(): JSX.Element {
   // レガシー側からの通知: インストール先変更と一覧の再取得要求
   useEffect(() => {
     const onCoreChanged = () => {
-      setInstPath(window.coreBridge?.getInstallationPath() ?? '');
+      setInstPath(getInstallationPath());
     };
     const onPackagesChanged = () => {
       void utils.packages.getPackagesWithStatus.invalidate();

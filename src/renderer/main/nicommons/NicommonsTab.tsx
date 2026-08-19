@@ -2,6 +2,7 @@ import React, { type JSX, useEffect, useMemo, useState } from 'react';
 import { parsePackageType } from '../../../shared/packageDisplay';
 import type { PackageItem } from '../../../types/packageItem';
 import { TRPCReact } from '../../trpc';
+import { getInstallationPath } from '../instPath';
 
 type NicommonsItem = {
   name: string;
@@ -95,9 +96,7 @@ function NicommonsRow({
  * @returns {JSX.Element} The rendered component.
  */
 function NicommonsTab(): JSX.Element {
-  const [instPath, setInstPath] = useState(
-    () => window.coreBridge?.getInstallationPath() ?? '',
-  );
+  const [instPath, setInstPath] = useState(() => getInstallationPath());
   // 除外したもの(チェックを外したもの)だけを持つ。一覧の再取得時に全部
   // チェック済みへ戻る旧挙動と同じにするため、checked の集合は持たない
   const [uncheckedIds, setUncheckedIds] = useState<ReadonlySet<string>>(
@@ -124,7 +123,7 @@ function NicommonsTab(): JSX.Element {
 
   useEffect(() => {
     const onCoreChanged = () => {
-      setInstPath(window.coreBridge?.getInstallationPath() ?? '');
+      setInstPath(getInstallationPath());
     };
     const onPackagesChanged = () => {
       void utils.packages.getPackages.invalidate();

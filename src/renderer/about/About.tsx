@@ -9,6 +9,7 @@ import { TRPCReact } from '../trpc';
  */
 function About() {
   const { data: appVersion } = TRPCReact.getAppVersion.useQuery();
+  const { data: versions } = TRPCReact.getProcessVersions.useQuery();
 
   return (
     <Container fluid className="d-flex flex-column py-2 bg-dark text-white">
@@ -30,9 +31,9 @@ function About() {
           <h2>Versions</h2>
           <ul className="list-unstyled">
             <li>apm: {appVersion}</li>
-            <li>Node.js: {window.process.versions.node}</li>
-            <li>Chromium: {window.process.versions.chrome}</li>
-            <li>Electron: {window.process.versions.electron}</li>
+            <li>Node.js: {versions?.node}</li>
+            <li>Chromium: {versions?.chrome}</li>
+            <li>Electron: {versions?.electron}</li>
           </ul>
 
           <h2>Copyright</h2>

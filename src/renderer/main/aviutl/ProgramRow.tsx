@@ -2,6 +2,7 @@ import type { Core } from 'apm-schema';
 import React, { type JSX, useEffect, useState } from 'react';
 import { releaseLabel } from '../../../shared/coreVersionText';
 import { TRPCReact } from '../../trpc';
+import { getInstallationPath } from '../instPath';
 
 type ButtonPhase = 'idle' | 'loading' | 'success' | 'danger';
 
@@ -27,9 +28,7 @@ function ProgramRow({
   iconClass,
   buttonRoundedClass,
 }: ProgramRowProps) {
-  const [instPath, setInstPath] = useState(
-    () => window.coreBridge?.getInstallationPath() ?? '',
-  );
+  const [instPath, setInstPath] = useState(() => getInstallationPath());
   const [phase, setPhase] = useState<ButtonPhase>('idle');
   const [buttonMessage, setButtonMessage] = useState('');
 
@@ -42,7 +41,7 @@ function ProgramRow({
   // レガシー側(preload の core.ts)からの再描画通知を受けて最新化する
   useEffect(() => {
     const listener = () => {
-      setInstPath(window.coreBridge?.getInstallationPath() ?? '');
+      setInstPath(getInstallationPath());
       void utils.core.getCoreInfo.invalidate();
       void utils.core.getInstalledVersionTexts.invalidate();
     };
