@@ -21,7 +21,7 @@ export type DataUrlValidationResult = {
  * http(s) で始まらない場合はローカルパスとして存在確認する。
  * @param {string} mainUrl - The main data files URL. Empty means the default URL.
  * @param {string} extraDataUrls - Newline-separated extra data files URLs.
- * @param {Function} [fileExists] - Injectable existence check for local paths.
+ * @param {(p: string) => boolean} [fileExists] - Injectable existence check for local paths.
  * @returns {DataUrlValidationResult} The normalized URLs and error messages.
  */
 export function validateDataUrls(
