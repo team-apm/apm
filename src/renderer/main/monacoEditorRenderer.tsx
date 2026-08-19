@@ -152,7 +152,7 @@ export const MonacoEditorRenderer: React.FC = () => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const save = usePhase();
-  const utils = TRPCReact.useContext();
+  const utils = TRPCReact.useUtils();
   const setEditorPackagesMutation =
     TRPCReact.packages.setEditorPackages.useMutation();
 

@@ -151,7 +151,7 @@ function PackagesTab(): JSX.Element {
   const [filter, setFilter] = useState<Filter>({ kind: 'none' });
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
-  const utils = TRPCReact.useContext();
+  const utils = TRPCReact.useUtils();
   const packagesQuery = TRPCReact.packages.getPackagesWithStatus.useQuery(
     { instPath, fixIntegrity: true },
     { refetchOnWindowFocus: false },

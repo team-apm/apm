@@ -18,7 +18,7 @@ function DataUrlSettings() {
   const setDataUrls = TRPCReact.settings.setDataUrls.useMutation();
   const updateInfo = TRPCReact.modList.updateInfo.useMutation();
   const openDialog = TRPCReact.openDialog.useMutation();
-  const utils = TRPCReact.useContext();
+  const utils = TRPCReact.useUtils();
 
   const mainValue = mainUrl ?? data?.main ?? '';
   const extraValue = extraUrls ?? data?.extra ?? '';

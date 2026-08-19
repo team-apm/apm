@@ -3,7 +3,7 @@ import type { AnyRouter } from '@trpc/server';
 
 // main 窓では同一 webContents 上に tRPC クライアントが 2 つ動く
 // (隔離ワールドのレガシー用 lib/trpcClient と、メインワールドの React 用
-// TrpcProvider)。electron-trpc の main は応答を event.reply で送るため
+// TrpcProvider)。trpc-electron の main は応答を event.reply で送るため
 // 両ワールドの ipcRenderer に届き、renderer 側は数値のリクエスト ID だけで
 // 応答を照合する。各クライアントは 1 から採番するので、ID が衝突すると
 // 他方のリクエストへの応答で resolve されてしまう(main 側の購読キー

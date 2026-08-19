@@ -1,7 +1,7 @@
 import { BrowserWindow, ipcMain, Menu, nativeTheme, shell } from 'electron';
-import { createIPCHandler } from 'electron-trpc/main';
 import windowStateKeeper from 'electron-window-state';
 import path from 'node:path';
+import { createIPCHandler } from 'trpc-electron/main';
 import { IPC_CHANNELS } from '../common/ipc';
 import { setAboutWindowOpener } from './aboutWindow';
 import { createContext, router } from './api';

@@ -103,7 +103,7 @@ function NicommonsTab(): JSX.Element {
     new Set(),
   );
 
-  const utils = TRPCReact.useContext();
+  const utils = TRPCReact.useUtils();
   const packagesQuery = TRPCReact.packages.getPackages.useQuery(instPath, {
     refetchOnWindowFocus: false,
   });
