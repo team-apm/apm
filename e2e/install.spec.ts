@@ -93,7 +93,7 @@ function writeFixtures(fixturesDir: string, workDir: string, baseUrl: string) {
   ]);
 }
 
-test('dataURL の差し替えとパッケージのインストールができる', async () => {
+test('dataURL の差し替えとパッケージのインストール・アンインストールができる', async () => {
   // --- フィクスチャと配信サーバ ---
   const workDir = mkdtempSync(path.join(tmpdir(), 'apm-e2e-'));
   const fixturesDir = path.join(workDir, 'fixtures');
@@ -191,6 +191,17 @@ test('dataURL の差し替えとパッケージのインストールができる
     // 実ファイルが置かれ、一覧の表示もインストール済みになる
     expect(existsSync(path.join(instPath, 'dummy.auf'))).toBe(true);
     await expect(row).toContainText('インストール済み');
+
+    // アンインストールすると実ファイルが消え、一覧の表示も戻る
+    // (インストール後の一覧再取得で選択が外れている場合に備えて再選択する)
+    await row.click();
+    await window.locator('#uninstall-package').click();
+    await expect(window.locator('#uninstall-package')).toHaveText(
+      'アンインストール完了',
+      { timeout: 120_000 },
+    );
+    expect(existsSync(path.join(instPath, 'dummy.auf'))).toBe(false);
+    await expect(row).not.toContainText('インストール済み');
   } finally {
     await app.close();
     server.close();
