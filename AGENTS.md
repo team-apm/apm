@@ -13,6 +13,8 @@ AviUtl Package Manager (apm) — AviUtl のプラグイン・スクリプトを�
 | `src/shared/`        | electron 非依存の純粋モジュール。ユニットテストの主対象                                                                  |
 | `src/common/ipc.ts`  | レガシー IPC のチャンネル名定義                                                                                          |
 
+プロセス構成・main プロセスの内訳・データフローの詳細は ARCHITECTURE.md を参照。
+
 ## コマンド
 
 ```
