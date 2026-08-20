@@ -32,12 +32,12 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 開発方針の単一ソース(旧 ROADMAP.md を統合)。変更は PR 経由で行う(履歴 = 意思決定ログ)。
 
-- **apm は AviUtl1 専用。AviUtl2(ExEdit2)には対応しない**(#2163、2026-08 決定。理由は下の却下表)
+- **apm は AviUtl1 専用。AviUtl2(ExEdit2)には対応しない**(#2163、2026-08 決定。理由は下の却下表)。ただしこの判断は 2026-08 時点の競争環境に依存しているため、**前提が崩れたら再評価する**(再評価条件: aviutl2-catalog の開発停止・apm-data 相当の資産が流用可能になる形式変更・インストーラ版のパス構造変更のいずれか)
 - **v4 フルリライトはしない**。main 窓のタブ移行(Strangler Fig)は完了。新規画面・大改修する画面は React + tRPC で書く(About 窓が実装パターンの前例)
-- **実現すべき動作は現行コードが仕様書**。置き換えは「特性化テストで現行動作を固定 → 置き換え → テスト緑」の順
+- **実現すべき動作は現行コードが仕様書**。置き換えは「特性化テストで現行動作を固定 → 置き換え → テスト緑」の順。この原則の動機は、構造改善(移行)の最中に挙動変更の判断を持ち込まないこと。現行動作が明らかに不自然(バグ)でも**置き換え PR 内では保存**し、issue 化して別 PR で直す(挙動変更と構造変更を同じ PR に混ぜない)
 - v3.x を小出しリリース(v4 番号は使わない)。リリースは release-it(手順は docs/RELEASING.md、ブランチ運用は BRANCHING.md)
-- Windows メイン。明らかなクラッシュは直す。ビルドは 3 OS 継続
-- dataURL は自由入力を維持(allowlist しない)。防御は `src/shared/resolvePath.ts` の同一オリジン + 親ディレクトリ脱出禁止 + README/SECURITY での注意喚起
+- Windows メイン。明らかなクラッシュは直す。ビルドは 3 OS 継続 — mac/Linux 版に確たる実需要があるからではなく、開発環境が macOS であること(開発者自身の動作確認に必要)と、ファイル操作中心のアプリでクロスプラットフォーム維持コストが低いことが理由。維持コストが上がったら縮小を検討してよい
+- dataURL は自由入力を維持(allowlist しない)。防御は `src/shared/resolvePath.ts` の同一オリジン + 親ディレクトリ脱出禁止 + README/SECURITY での注意喚起。中間案(未知オリジン追加時のみ確認ダイアログ)は #2377 で検討中
 - i18n は後回し(まず日本語のまま。英語 UI は #1879)
 - メジャー依存更新は 1 PR = 1 major(dependabot は major を ignore — 下の「既知の固定」)
 - テスト: ユニットは Vitest。electron に依存しない純粋関数を優先してテストする
@@ -55,10 +55,10 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 ## 既知の固定と理由(上げる前に必ず読む)
 
-| 固定                                                                        | 理由                                                                                                                                                                                               |
-| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CI (`build.yml` / `release.yml` / `nodejs.yml` / `e2e.yml`) は Node 22 固定 | Node 24 では electron-forge の package/make/publish が「Copying files」後に無言で失敗する(exit 0 で `.app`/`out` が生成されない。forge 7.11.2 でも再現・ローカルでも同様なので Node 22 で実行する) |
-| Electron ほかメジャー更新は dependabot で ignore                            | メジャー更新は計画的に 1 PR = 1 major で実施するため(確定方針)。Electron のメジャー更新は上の forge 制約との両立確認を先に行う                                                                     |
+| 固定                                                                        | 理由                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CI (`build.yml` / `release.yml` / `nodejs.yml` / `e2e.yml`) は Node 22 固定 | Node 24 では electron-forge の package/make/publish が「Copying files」後に無言で失敗する(exit 0 で `.app`/`out` が生成されない。forge 7.11.2 でも再現・ローカルでも同様なので Node 22 で実行する)。これは恒久方針ではなく回避策 — **forge または Electron のメジャー更新時に Node 24 での package を再検証し、直っていたら固定を外す**。package.json の `engines: "24.x \|\| 22.x"` は意図的(開発起動 `yarn start` は Node 24 でも動く。22 必須なのは package/make/publish のみ) |
+| Electron ほかメジャー更新は dependabot で ignore                            | メジャー更新は計画的に 1 PR = 1 major で実施するため(確定方針)。Electron のメジャー更新は上の forge 制約との両立確認を先に行う                                                                                                                                                                                                                                                                                                                                                    |
 
 ## 作業スタイル
 
@@ -83,10 +83,9 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 ## 落とし穴
 
-- `src/shared/compareVersion.ts` の `compareVersion` は比較不能時に `Number.NaN` を返す。NaN は全比較演算子で false になるため、呼び出し側は必ず `Number.isNaN()` で先に分岐する(`!== 0` 形式の分岐は意味が反転する)
-- `src/renderer/main/preload.ts` に残る初期化フロー(migration → initSettings → ensureInstallationPath → changeInstallationPath)は順序が仕様。main 窓は `sandbox: true` で動いているため、preload に Node API 依存を持ち込まない(現状は全ステップ tRPC 呼び出し)
+機械化できる制約は ESLint で強制し、背景説明は該当コードのコメントに置く(ここには lint・型で守れない判断基準だけを残す)。lint 化済み: monaco-editor の型のみインポート、renderer / lib での fs 直接 import 禁止(いずれも `eslint.config.mjs` の `no-restricted-imports`)。コード側に説明があるもの: `compareVersion` の NaN 返却(JSDoc)、preload の初期化フローの順序(`src/renderer/main/preload.ts` のコメント)、tRPC の ID 空間分離の背景(`src/shared/trpcIdNamespace.ts` のコメント)。
+
 - renderer.tsx は React ルートを機能ごとに分けて createRoot しているため、React Context はルート間で共有できない。複数ルートから共有する実行状態は `packages/packagesListCheck.ts` のようにモジュールシングルトン + `useSyncExternalStore` で持つ。ルート間・レガシーとの通知は DOM イベント(`apm-packages-changed` / `apm-core-changed` / `apm-check-packages-list` / `apm-install-package-by-id`)
-- メインワールドの React から import する shared モジュールは electron だけでなく **fs にも依存不可**(renderer の webpack ビルドに Node ポリフィルが無いため、fs-extra が混入するとビルドが落ちる)。表示用の定数・純関数は `src/shared/packageDisplay.ts` のように fs 非依存モジュールへ分離する
+- メインワールドの React から import する shared モジュールは electron だけでなく **fs にも依存不可**(renderer の webpack ビルドに Node ポリフィルが無いため、fs-extra が混入するとビルドが落ちる)。直接 import は lint が検出するが、**shared モジュール経由の推移的な fs 依存は lint で検出できない**(webpack のビルド失敗が検出線)。表示用の定数・純関数は `src/shared/packageDisplay.ts` のように fs 非依存モジュールへ分離する
 - trpc-electron(electron-trpc の tRPC 11 対応フォーク。0.7.1 までの本家は tRPC 11 非互換)は falsy なトップレベル入力(`false` / `0` / `''`)を `undefined` に変換する(main ハンドラが `input: g ? deserialize(g) : void 0` と真偽値評価しているため)。tRPC procedure の入力にプリミティブの boolean / number を直接渡さず、必ずオブジェクトで包む(`{ update: boolean }` 等)
-- `monaco-editor` は**型のみ**インポートする(`import type`)。実行時の Monaco は CopyWebpackPlugin が `main_window/vs` に同梱する AMD ビルドを `@monaco-editor/loader` が読み込む(CSP に CDN 許可を持たないため CDN 読み込みは不可)。値インポートすると webpack が Monaco 全体をバンドルし、ビルドにヒープ拡大(`--max-old-space-size`)が必要になる。enum 値は onMount で渡される `monaco` インスタンスから取る
-- main 窓には tRPC クライアントが 2 つある(隔離ワールドのレガシー用 `lib/trpcClient.ts` / メインワールドの React 用 `TrpcProvider.tsx`)。trpc-electron は応答を `event.reply` で送るため**両ワールドの ipcRenderer に届き**、renderer 側は数値のリクエスト ID だけで照合する。各クライアントが独立に 1 から採番すると ID 衝突時に**他方のリクエストへの応答で resolve される**(型もチェックされない)。`shared/trpcIdNamespace.ts` のリンクで ID 空間を奇数/偶数に分離済み。同一窓に tRPC クライアントを追加する場合は必ずこのリンクを ipcLink の手前に挟む
+- 同一窓に tRPC クライアントを追加する場合は必ず `shared/trpcIdNamespace.ts` のリンクを ipcLink の手前に挟む(挟まないと他クライアントとリクエスト ID が衝突し、**他方のリクエストへの応答で resolve される**。仕組みは同ファイルのコメント参照)

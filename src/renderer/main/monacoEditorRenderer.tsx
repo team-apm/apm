@@ -6,8 +6,11 @@ import MonacoEditor, {
 } from '@monaco-editor/react';
 import { Packages } from 'apm-schema';
 import schema from 'apm-schema/v3/schema/packages.json';
-// Type-only import to avoid bundling the entire monaco-editor package.
-// The editor itself is loaded from the CDN by @monaco-editor/react.
+// Type-only import to avoid bundling the entire monaco-editor package
+// (enforced by @typescript-eslint/no-restricted-imports). The runtime editor
+// is NOT loaded from a CDN (the CSP does not allow it): @monaco-editor/loader
+// loads the AMD build that CopyWebpackPlugin bundles into main_window/vs.
+// Enum values must be taken from the `monaco` instance passed to onMount.
 import type { editor } from 'monaco-editor';
 import React, { useRef } from 'react';
 import { createPortal } from 'react-dom';

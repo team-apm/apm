@@ -33,6 +33,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     .addEventListener('change', updateTheme);
   updateTheme();
 
+  // 以下の初期化フローは順序が仕様
+  // (migration → initSettings → ensureInstallationPath → changeInstallationPath)。
+  // 並べ替え・並列化はしない。main 窓は sandbox: true のため、preload に
+  // Node API 依存を持ち込まない(全ステップ tRPC 呼び出しで実装する)
+
   // *global*
   // migration(実装は main プロセス側 services/migration.ts へ移設済み)
   if (!(await trpc.migration.global.mutate())) {
