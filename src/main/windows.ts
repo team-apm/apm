@@ -1,4 +1,11 @@
-import { BrowserWindow, ipcMain, Menu, nativeTheme, shell } from 'electron';
+import {
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  nativeTheme,
+  shell,
+  type WebContents,
+} from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import path from 'node:path';
 import { createIPCHandler } from 'trpc-electron/main';
@@ -16,6 +23,25 @@ declare const ABOUT_WINDOW_WEBPACK_ENTRY: string;
 declare const ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 const isDevEnv = process.env.NODE_ENV === 'development';
+
+/**
+ * Denies all in-window navigations and window creations, opening http(s)
+ * URLs in the external browser instead.
+ * @param {WebContents} contents - The webContents to harden.
+ */
+function hardenNavigation(contents: WebContents) {
+  // アプリの窓は SPA で正当なページ内遷移が無いため、既定 deny にする。
+  // スキーム判定を http(s):// 完全一致にするのは、/^http/ だと
+  // httpevil: のような偽スキームまで外部ブラウザへ渡してしまうため
+  contents.on('will-navigate', (event, url) => {
+    event.preventDefault();
+    if (/^https?:\/\//.test(url)) void shell.openExternal(url);
+  });
+  contents.setWindowOpenHandler(({ url }) => {
+    if (/^https?:\/\//.test(url)) void shell.openExternal(url);
+    return { action: 'deny' };
+  });
+}
 
 const icon =
   process.platform === 'linux'
@@ -37,6 +63,8 @@ export async function launch(config: Config) {
     show: false,
     icon: icon,
   });
+
+  hardenNavigation(splashWindow.webContents);
 
   splashWindow.once('ready-to-show', () => {
     splashWindow.show();
@@ -83,18 +111,7 @@ export async function launch(config: Config) {
 
   Menu.setApplicationMenu(null);
 
-  mainWindow.webContents.on('will-navigate', async (event, url) => {
-    if (url.match(/^http/)) {
-      event.preventDefault();
-      await shell.openExternal(url);
-    }
-  });
-  mainWindow.webContents.setWindowOpenHandler((details) => {
-    if (details.url.match(/^http/)) {
-      void shell.openExternal(details.url);
-    }
-    return { action: 'deny' };
-  });
+  hardenNavigation(mainWindow.webContents);
 
   nativeTheme.on('updated', () => {
     mainWindow.setTitleBarOverlay(getTitleBarColor());
@@ -119,6 +136,9 @@ export async function launch(config: Config) {
         sandbox: true,
       },
     });
+    // about 窓は従来ハンドラ未設定で、リンクを踏むと窓ごと外部サイトへ
+    // 遷移できてしまっていた
+    hardenNavigation(aboutWindow.webContents);
     ipcHandler.attachWindow(aboutWindow);
     aboutWindow.once('close', () => {
       if (!aboutWindow.isDestroyed()) {
