@@ -2,18 +2,20 @@
   "compilerOptions": {
     "target": "ES2022",
     "allowJs": true,
-    "module": "commonjs",
+    "module": "nodenext",
     "skipLibCheck": true,
     "esModuleInterop": true,
+    // TS 6.0 から strict が既定で有効。strict 化は挙動リスクを伴うため
+    // メジャー更新と混ぜず、従来の設定(noImplicitAny のみ)を明示して維持する
+    "strict": false,
     "noImplicitAny": true,
     "sourceMap": true,
-    "baseUrl": ".",
+    // TS 6.0 から rootDir の暗黙推論が廃止(TS5011)。include が webpack.*.ts 等
+    // リポジトリ直下も含むため "." を明示する
+    "rootDir": ".",
     "outDir": "dist",
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
-    "paths": {
-      "*": ["node_modules/*"]
-    },
     "jsx": "react-jsx"
   },
   "include": ["src/**/*", "e2e/**/*", "webpack.*.ts", "*.config.ts"]
