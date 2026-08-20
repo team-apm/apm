@@ -565,47 +565,6 @@ export async function installPackageFlow(
       log.error('Failed downloading a file.');
       return 'downloadFailed';
     }
-
-    const integrityForArchive = packageItem.info.releases?.find(
-      (r) => r.version === packageItem.info.latestVersion,
-    )?.integrity?.archive;
-
-    if (integrityForArchive) {
-      // Verify file integrity
-      while (!(await verifyFile(resolvedArchivePath, integrityForArchive))) {
-        const dialogResult =
-          (
-            await dialog.showMessageBox(win, {
-              title: 'エラー',
-              message:
-                'ダウンロードされたファイルは破損しています。再ダウンロードしますか？',
-              type: 'warning',
-              buttons: ['はい', 'いいえ'],
-              cancelId: 1,
-            })
-          ).response === 0;
-
-        if (!dialogResult) {
-          log.error(
-            `The downloaded archive file is corrupt. URL:${packageItem.info.directURL}`,
-          );
-          return 'corrupt';
-        }
-
-        // 再ダウンロード先が subDir 'core' なのは旧実装のままの挙動
-        resolvedArchivePath = await downloadFile(
-          win,
-          packageItem.info.directURL,
-          { subDir: 'core' },
-        );
-        if (!resolvedArchivePath) {
-          log.error(
-            `Failed downloading the archive file. URL:${packageItem.info.directURL}`,
-          );
-          return 'redownloadFailed';
-        }
-      }
-    }
   } else {
     const downloadResult = await openBrowser(
       win,
@@ -619,6 +578,63 @@ export async function installPackageFlow(
     }
 
     resolvedArchivePath = downloadResult.savePath;
+  }
+
+  // integrity があるなら取得経路(直リンク・手動 DL・archivePath 渡し)に
+  // よらず検証する。無いパッケージ(公式データの約 1/4)を弾かないのは、
+  // 検証必須化すると既存パッケージのインストールが広く壊れるため
+  const integrityForArchive = packageItem.info.releases?.find(
+    (r) => r.version === packageItem.info.latestVersion,
+  )?.integrity?.archive;
+
+  if (integrityForArchive) {
+    while (!(await verifyFile(resolvedArchivePath, integrityForArchive))) {
+      const dialogResult =
+        (
+          await dialog.showMessageBox(win, {
+            title: 'エラー',
+            message:
+              'ダウンロードされたファイルは破損しています。再ダウンロードしますか？',
+            type: 'warning',
+            buttons: ['はい', 'いいえ'],
+            cancelId: 1,
+          })
+        ).response === 0;
+
+      if (!dialogResult) {
+        log.error(
+          `The downloaded archive file is corrupt. URL:${packageItem.info.directURL}`,
+        );
+        return 'corrupt';
+      }
+
+      if (direct) {
+        // 再ダウンロード先が subDir 'core' なのは旧実装のままの挙動
+        resolvedArchivePath = await downloadFile(
+          win,
+          packageItem.info.directURL,
+          { subDir: 'core' },
+        );
+        if (!resolvedArchivePath) {
+          log.error(
+            `Failed downloading the archive file. URL:${packageItem.info.directURL}`,
+          );
+          return 'redownloadFailed';
+        }
+      } else {
+        // 手動 DL・archivePath 渡しの経路はブラウザ窓での再取得になる
+        const redownloadResult = await openBrowser(
+          win,
+          packageItem.info.downloadURLs[0],
+          'package',
+        );
+        if (!redownloadResult) {
+          log.info('The installation was canceled.');
+          return 'canceled';
+        }
+        resolvedArchivePath = redownloadResult.savePath;
+      }
+    }
   }
 
   const installResult = await installPackageArchive(
