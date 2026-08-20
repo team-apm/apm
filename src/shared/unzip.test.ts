@@ -1,10 +1,18 @@
 import { path7za } from '7zip-bin';
-import { chmod, mkdtemp, pathExists, remove, writeFile } from 'fs-extra';
+import {
+  chmod,
+  ensureDir,
+  mkdtemp,
+  pathExists,
+  remove,
+  symlink,
+  writeFile,
+} from 'fs-extra';
 import { add } from 'node-7z';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
-import unzip from './unzip';
+import unzip, { removeSymlinks } from './unzip';
 
 // The prebuilt 7za binary shipped by 7zip-bin is not always installed with
 // the executable bit set (observed on some package manager / CI setups).
@@ -70,4 +78,38 @@ describe('unzip', () => {
     expect(targetPath).toBe(path.join(dir, 'fixture'));
     expect(await pathExists(path.join(targetPath, 'hello.txt'))).toBe(true);
   }, 30000);
+});
+
+describe('removeSymlinks', () => {
+  const tempDirs: string[] = [];
+
+  afterEach(async () => {
+    await Promise.all(tempDirs.splice(0).map((dir) => remove(dir)));
+  });
+
+  // Windows の symlink 作成は特権が要るためテスト対象から外す
+  it.skipIf(process.platform === 'win32')(
+    '通常ファイルを残して symlink だけを再帰的に除去する',
+    async () => {
+      const dir = await mkdtemp(path.join(os.tmpdir(), 'apm-symlink-'));
+      tempDirs.push(dir);
+      const outside = path.join(dir, 'outside.txt');
+      await writeFile(outside, 'secret');
+      const extracted = path.join(dir, 'extracted');
+      await ensureDir(path.join(extracted, 'sub'));
+      await writeFile(path.join(extracted, 'normal.txt'), 'normal');
+      await symlink(outside, path.join(extracted, 'link.txt'));
+      await symlink(outside, path.join(extracted, 'sub', 'nested-link.txt'));
+
+      await removeSymlinks(extracted);
+
+      expect(await pathExists(path.join(extracted, 'normal.txt'))).toBe(true);
+      expect(await pathExists(path.join(extracted, 'link.txt'))).toBe(false);
+      expect(
+        await pathExists(path.join(extracted, 'sub', 'nested-link.txt')),
+      ).toBe(false);
+      // リンク先(展開ディレクトリ外)のファイルは消えない
+      expect(await pathExists(outside)).toBe(true);
+    },
+  );
 });
