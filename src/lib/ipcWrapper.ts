@@ -103,19 +103,6 @@ export async function openYesNoDialog(title: string, message: string) {
 }
 
 /**
- * Opens the browser window.
- * @param {string} url - A URL to be opened.
- * @param {'core'|'package'} type - A type of the file to be downloaded.
- * @returns {Promise<{ savePath: string; history: string[] } | null>} The save path and history, or null if failed.
- */
-export async function openBrowser(url: string, type: 'core' | 'package') {
-  return (await ipcRenderer.invoke(IPC_CHANNELS.OPEN_BROWSER, url, type)) as {
-    savePath: string;
-    history: string[];
-  } | null;
-}
-
-/**
  * Writes the text into the clipboard as plain text.
  * @param {string} text - plain text.
  */
