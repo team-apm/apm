@@ -12,11 +12,12 @@ import {
   writeJson,
 } from 'fs-extra';
 import * as matcher from 'matcher';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
-import { isParent } from '../../shared/apmPath';
+import { isParent, resolveInside } from '../../shared/apmPath';
 import { getHash } from '../../shared/getHash';
 import { install, verifyFilesByCount } from '../../shared/install';
+import { buildInstallerArgs } from '../../shared/installerArgs';
 import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import {
   computePackagesStatus,
@@ -491,14 +492,11 @@ export async function installPackageArchive(
       };
 
       const exePath = await searchFiles(unzippedPath);
-      const command =
-        '"' +
-        exePath[0][0] +
-        '" ' +
-        packageItem.info.installArg
-          .replace('"$instpath"', '$instpath')
-          .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
-      execSync(command);
+      // シェルを介さないため installArg のメタ文字がコマンドとして解釈されない
+      execFileSync(
+        exePath[0][0],
+        buildInstallerArgs(packageItem.info.installArg, instPath),
+      );
 
       installResult = verifyFilesByCount(instPath, packageItem.info.files);
     } else {
@@ -846,6 +844,9 @@ export async function installScriptArchive(
       'old_*',
     ];
     const scriptRoot = (await searchScriptRoot(unzippedPath))[0];
+    // folder は scripts.json(リモート)由来。インストール先の外に出る指定を
+    // 書き込み前に弾く
+    const scriptFolder = resolveInside(instPath, 'script', matchInfo.folder);
     const entriesToCopy = (
       await fsReaddir(scriptRoot, {
         withFileTypes: true,
@@ -855,14 +856,14 @@ export async function installScriptArchive(
       .map((p) => {
         return {
           src: path.join(scriptRoot, p.name),
-          dest: path.join(instPath, 'script', matchInfo.folder, p.name),
+          dest: resolveInside(scriptFolder, p.name),
           filename: path
             .join('script', matchInfo.folder, p.name)
             .replaceAll('\\', '/'),
           isDirectory: p.isDirectory(),
         };
       });
-    await mkdir(path.join(instPath, 'script', matchInfo.folder), {
+    await mkdir(scriptFolder, {
       recursive: true,
     });
     await Promise.all(
