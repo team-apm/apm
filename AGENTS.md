@@ -27,10 +27,10 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 ## 既知の固定と理由(上げる前に必ず読む)
 
-| 固定                                                            | 理由                                                                                                                                                                                               |
-| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CI (`build.yml` / `release.yml` / `nodejs.yml`) は Node 22 固定 | Node 24 では electron-forge の package/make/publish が「Copying files」後に無言で失敗する(exit 0 で `.app`/`out` が生成されない。forge 7.11.2 でも再現・ローカルでも同様なので Node 22 で実行する) |
-| Electron ほかメジャー更新は dependabot で ignore                | メジャー更新は計画的に 1 PR = 1 major で実施するため(ROADMAP 参照)                                                                                                                                 |
+| 固定                                                                        | 理由                                                                                                                                                                                               |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CI (`build.yml` / `release.yml` / `nodejs.yml` / `e2e.yml`) は Node 22 固定 | Node 24 では electron-forge の package/make/publish が「Copying files」後に無言で失敗する(exit 0 で `.app`/`out` が生成されない。forge 7.11.2 でも再現・ローカルでも同様なので Node 22 で実行する) |
+| Electron ほかメジャー更新は dependabot で ignore                            | メジャー更新は計画的に 1 PR = 1 major で実施するため(ROADMAP 参照)                                                                                                                                 |
 
 ## 作業スタイル
 
@@ -55,7 +55,7 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 ## 落とし穴
 
-- `src/lib/compareVersion.ts` の `compareVersion` は比較不能時に `Number.NaN` を返す。NaN は全比較演算子で false になるため、呼び出し側は必ず `Number.isNaN()` で先に分岐する(`!== 0` 形式の分岐は意味が反転する)
+- `src/shared/compareVersion.ts` の `compareVersion` は比較不能時に `Number.NaN` を返す。NaN は全比較演算子で false になるため、呼び出し側は必ず `Number.isNaN()` で先に分岐する(`!== 0` 形式の分岐は意味が反転する)
 - `src/renderer/main/preload.ts` に残る初期化フロー(migration → initSettings → ensureInstallationPath → changeInstallationPath)は順序が仕様。全ステップ tRPC 呼び出しで Node API 依存は無い(Phase 4 の `sandbox: true` 化の前提)
 - renderer.tsx は React ルートを機能ごとに分けて createRoot しているため、React Context はルート間で共有できない。複数ルートから共有する実行状態は `packages/packagesListCheck.ts` のようにモジュールシングルトン + `useSyncExternalStore` で持つ。ルート間・レガシーとの通知は DOM イベント(`apm-packages-changed` / `apm-core-changed` / `apm-check-packages-list` / `apm-install-package-by-id`)
 - メインワールドの React から import する shared モジュールは electron だけでなく **fs にも依存不可**(renderer の webpack ビルドに Node ポリフィルが無いため、fs-extra が混入するとビルドが落ちる)。表示用の定数・純関数は `src/shared/packageDisplay.ts` のように fs 非依存モジュールへ分離する
