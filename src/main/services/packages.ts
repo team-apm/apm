@@ -12,11 +12,12 @@ import {
   writeJson,
 } from 'fs-extra';
 import * as matcher from 'matcher';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { isParent } from '../../shared/apmPath';
 import { getHash } from '../../shared/getHash';
 import { install, verifyFilesByCount } from '../../shared/install';
+import { buildInstallerArgs } from '../../shared/installerArgs';
 import { checkIntegrity, verifyFile } from '../../shared/integrity';
 import {
   computePackagesStatus,
@@ -491,14 +492,11 @@ export async function installPackageArchive(
       };
 
       const exePath = await searchFiles(unzippedPath);
-      const command =
-        '"' +
-        exePath[0][0] +
-        '" ' +
-        packageItem.info.installArg
-          .replace('"$instpath"', '$instpath')
-          .replace('$instpath', '"' + instPath + '"'); // Prevent double quoting
-      execSync(command);
+      // シェルを介さないため installArg のメタ文字がコマンドとして解釈されない
+      execFileSync(
+        exePath[0][0],
+        buildInstallerArgs(packageItem.info.installArg, instPath),
+      );
 
       installResult = verifyFilesByCount(instPath, packageItem.info.files);
     } else {
