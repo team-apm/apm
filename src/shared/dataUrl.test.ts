@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_DATA_URL, validateDataUrls } from './dataUrl';
+import {
+  collectDataUrlCautions,
+  DEFAULT_DATA_URL,
+  validateDataUrls,
+} from './dataUrl';
 
 /**
  * validateDataUrls の特性化テスト。
@@ -77,5 +81,61 @@ describe('validateDataUrls', () => {
       '有効なURLまたは場所を入力してください。(bad-extra)',
       '有効なJsonファイルのURLまたは場所を入力してください。(bad-extra)',
     ]);
+  });
+});
+
+describe('collectDataUrlCautions', () => {
+  it('未承認オリジンを重複なく列挙する', () => {
+    const result = collectDataUrlCautions(
+      [
+        'https://a.example/data/',
+        'https://a.example/x.json',
+        'https://b.example/y.json',
+      ],
+      [],
+    );
+    expect(result.unknownOrigins).toEqual([
+      'https://a.example',
+      'https://b.example',
+    ]);
+    expect(result.insecureUrls).toEqual([]);
+  });
+
+  it('承認済みオリジンは平文 http でも対象外', () => {
+    const result = collectDataUrlCautions(
+      ['https://a.example/data/', 'http://b.example/x.json'],
+      ['https://a.example', 'http://b.example'],
+    );
+    expect(result.unknownOrigins).toEqual([]);
+    expect(result.insecureUrls).toEqual([]);
+  });
+
+  it('未承認の平文 http は insecureUrls にも載る', () => {
+    const result = collectDataUrlCautions(['http://b.example/x.json'], []);
+    expect(result.unknownOrigins).toEqual(['http://b.example']);
+    expect(result.insecureUrls).toEqual(['http://b.example/x.json']);
+  });
+
+  it('スキームはオリジンの一部として区別する', () => {
+    // https を承認していても平文 http は別オリジンとして確認対象
+    const result = collectDataUrlCautions(
+      ['http://a.example/x.json'],
+      ['https://a.example'],
+    );
+    expect(result.unknownOrigins).toEqual(['http://a.example']);
+  });
+
+  it('ローカルパスと loopback は対象外', () => {
+    const result = collectDataUrlCautions(
+      [
+        'C:\\packages\\local.json',
+        '/home/user/local.json',
+        'http://localhost:3000/data/',
+        'http://127.0.0.1/x.json',
+      ],
+      [],
+    );
+    expect(result.unknownOrigins).toEqual([]);
+    expect(result.insecureUrls).toEqual([]);
   });
 });

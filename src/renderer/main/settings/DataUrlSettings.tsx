@@ -30,6 +30,12 @@ function DataUrlSettings() {
         mainUrl: mainValue,
         extraDataUrls: extraValue,
       });
+      // 未承認オリジンの確認ダイアログでキャンセルされたときは保存されて
+      // いないので、成功でも失敗でもなく入力へ戻る
+      if (result.canceled) {
+        setPhase('idle');
+        return;
+      }
       setMainUrl(result.mainUrl);
       for (const message of result.errors) {
         await openDialog.mutateAsync({
