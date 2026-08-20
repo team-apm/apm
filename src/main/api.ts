@@ -7,6 +7,10 @@ import {
   type IpcMainInvokeEvent,
 } from 'electron';
 import type { CreateContextOptions } from 'trpc-electron/main';
+import {
+  isHttpUrl,
+  validatePackageInfo,
+} from '../shared/packageInfoValidation';
 import { openAboutWindow } from './aboutWindow';
 import { getConfig } from './Config';
 import {
@@ -111,7 +115,8 @@ const packageItemInput = (
   const { id, info } = value as Record<string, unknown>;
   if (typeof id !== 'string' || typeof info !== 'object' || info === null)
     throw new TypeError('id is expected to be a string and info an object.');
-  return { id, info: info as Record<string, unknown> };
+  // renderer は非信頼。パス・コマンド・URL に到達するフィールドはここで検証する
+  return { id, info: validatePackageInfo(info) };
 };
 
 const installPackageInput = (
@@ -164,6 +169,9 @@ const installScriptFlowInput = (
   const { instPath, url } = value as Record<string, unknown>;
   if (typeof instPath !== 'string' || typeof url !== 'string')
     throw new TypeError('instPath and url are expected to be strings.');
+  // ブラウザ窓で開く URL なので http(s) 以外(file: 等)を通さない
+  if (!isHttpUrl(url))
+    throw new TypeError('url is expected to be a http(s) URL.');
   return { instPath, url };
 };
 
