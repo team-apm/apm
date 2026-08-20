@@ -6,9 +6,7 @@ import type {
   WebpackPluginInstance,
 } from 'webpack';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const ForkTsCheckerWebpackPlugin: typeof IForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const relocateLoader: {
   initAssetCache: (compilation: Compilation, outputAssetBase: string) => void;
 } = require('@vercel/webpack-asset-relocator-loader');
