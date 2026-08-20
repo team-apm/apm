@@ -49,6 +49,12 @@ export async function downloadFile(
     log.error(`Refused to download outside the data folder: ${subDir}`);
     return undefined;
   }
+  // 現状ファイル名を decode する箇所は無いが、将来どこかで decode されると
+  // パス区切りに化ける値(%2f・%5c)は入口で拒否しておく
+  if (/%2f|%5c/i.test(opt.filename)) {
+    log.error(`Refused an encoded path separator in the file name: ${url}`);
+    return undefined;
+  }
   if (loadCache && fs.existsSync(retFilePath)) return retFilePath;
 
   try {
