@@ -1,6 +1,5 @@
 import {
   BrowserWindow,
-  ipcMain,
   Menu,
   nativeTheme,
   shell,
@@ -9,12 +8,10 @@ import {
 import windowStateKeeper from 'electron-window-state';
 import path from 'node:path';
 import { createIPCHandler } from 'trpc-electron/main';
-import { IPC_CHANNELS } from '../common/ipc';
 import { setAboutWindowOpener } from './aboutWindow';
 import { createContext, router } from './api';
 import type Config from './Config';
 import { runAutoUpdate } from './services/appUpdate';
-import { openBrowser } from './services/browser';
 
 declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -149,11 +146,6 @@ export async function launch(config: Config) {
       aboutWindow.show();
     });
     void aboutWindow.loadURL(aboutPath);
-  });
-
-  ipcMain.handle(IPC_CHANNELS.OPEN_BROWSER, async (event, url, type) => {
-    // 実装は services/browser.ts へ抽出済み(main 内部からも呼べるようにするため)
-    return await openBrowser(mainWindow, url, type);
   });
 
   setTimeout(() => {

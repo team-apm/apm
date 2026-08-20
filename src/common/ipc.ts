@@ -7,5 +7,4 @@ export const IPC_CHANNELS = {
   OPEN_DIALOG: 'open-dialog',
   OPEN_YES_NO_DIALOG: 'open-yes-no-dialog',
   CLIPBOARD_WRITE_TEXT: 'clipboard-write-text',
-  OPEN_BROWSER: 'open-browser',
 };
