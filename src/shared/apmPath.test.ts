@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { isParent, pathRelated } from './apmPath';
+import { isParent, pathRelated, resolveInside } from './apmPath';
 
 describe('isParent', () => {
   it('returns true for a direct child path', () => {
@@ -33,5 +33,47 @@ describe('pathRelated', () => {
     const pathA = path.join('/data', 'apm');
     const pathB = path.join('/other', 'apm');
     expect(pathRelated(pathA, pathB)).toBe(false);
+  });
+});
+
+describe('resolveInside', () => {
+  const instPath = path.resolve('/data', 'aviutl');
+
+  it('インストール先の中のパスをそのまま解決する', () => {
+    expect(resolveInside(instPath, 'plugins/foo.auf')).toBe(
+      path.join(instPath, 'plugins', 'foo.auf'),
+    );
+  });
+
+  it('複数のセグメントを結合できる', () => {
+    expect(resolveInside(instPath, 'script', 'developer', 'a.anm')).toBe(
+      path.join(instPath, 'script', 'developer', 'a.anm'),
+    );
+  });
+
+  it('親ディレクトリへ脱出するパスを拒否する', () => {
+    expect(() => resolveInside(instPath, '../evil.exe')).toThrow();
+    expect(() => resolveInside(instPath, 'plugins/../../evil.exe')).toThrow();
+    expect(() => resolveInside(instPath, 'script', '../../..', 'evil')).toThrow(
+      /invalid path/,
+    );
+  });
+
+  it('絶対パス指定を拒否する', () => {
+    expect(() =>
+      resolveInside(instPath, path.resolve('/etc/passwd')),
+    ).toThrow();
+  });
+
+  it('インストール先そのものを指すパスを拒否する', () => {
+    // copy 先が instPath 自体になる指定は書き込み対象として不正
+    expect(() => resolveInside(instPath, '.')).toThrow();
+    expect(() => resolveInside(instPath, '')).toThrow();
+  });
+
+  it('途中に .. があっても中に留まるなら許可する', () => {
+    expect(resolveInside(instPath, 'plugins/../script/a.anm')).toBe(
+      path.join(instPath, 'script', 'a.anm'),
+    );
   });
 });

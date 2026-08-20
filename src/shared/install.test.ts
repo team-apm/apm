@@ -161,4 +161,16 @@ describe('install', () => {
       ),
     ).rejects.toThrow('Could not verify that the files was installed.');
   });
+
+  it('インストール先の外へ出る filename を拒否して書き込まない', async () => {
+    const src = await makeTempDir('apm-install-src-');
+    const inst = await makeTempDir('apm-install-dst-');
+    const outside = path.join(inst, '..', 'escaped.auf');
+    await writeFile(path.join(src, 'escaped.auf'), 'evil');
+
+    await expect(
+      install(src, inst, [{ filename: '../escaped.auf' }]),
+    ).rejects.toThrow(/invalid path/);
+    expect(await pathExists(outside)).toBe(false);
+  });
 });

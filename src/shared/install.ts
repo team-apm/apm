@@ -1,5 +1,6 @@
 import { copy, existsSync } from 'fs-extra';
 import path from 'node:path';
+import { resolveInside } from './apmPath';
 import { safeRemove } from './safeRemove';
 
 export type Files = {
@@ -66,7 +67,9 @@ export async function install(
               path.basename(file.filename),
             )
           : path.join(unzippedPath, path.basename(file.filename)),
-        path.join(instPath, file.filename),
+        // filename はリモート由来。削除側(safeRemove)と同じくインストール先の
+        // 外を指していないか確かめてから書き込む
+        resolveInside(instPath, file.filename),
       ];
       if (file.isUninstallOnly) {
         if (existsSync(filePath[0]) && !existsSync(filePath[1]))
