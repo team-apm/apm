@@ -162,6 +162,23 @@ describe('install', () => {
     ).rejects.toThrow('Could not verify that the files was installed.');
   });
 
+  it('展開ディレクトリの外を指す archivePath をコピー元にできない', async () => {
+    const src = await makeTempDir('apm-install-src-');
+    const inst = await makeTempDir('apm-install-dst-');
+    // 展開ディレクトリの外にあるファイル(instPath 内へ持ち出される標的)
+    await writeFile(path.join(src, '..', 'apm-install-secret.txt'), 'secret');
+
+    await expect(
+      install(src, inst, [
+        { filename: 'plugins/apm-install-secret.txt', archivePath: '..' },
+      ]),
+    ).rejects.toThrow(/invalid path/);
+    expect(
+      await pathExists(path.join(inst, 'plugins/apm-install-secret.txt')),
+    ).toBe(false);
+    await remove(path.join(src, '..', 'apm-install-secret.txt'));
+  });
+
   it('インストール先の外へ出る filename を拒否して書き込まない', async () => {
     const src = await makeTempDir('apm-install-src-');
     const inst = await makeTempDir('apm-install-dst-');

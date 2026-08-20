@@ -37,7 +37,7 @@ export function resolveInside(parent: string, ...segments: string[]) {
   const resolved = path.resolve(resolvedParent, path.join(...segments));
   if (!isParent(resolvedParent, resolved)) {
     throw new Error(
-      `An invalid path outside the installation folder was specified. ${resolved}`,
+      `An invalid path outside the base folder was specified. ${resolved}`,
     );
   }
   return resolved;

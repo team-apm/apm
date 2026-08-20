@@ -60,8 +60,10 @@ export async function install(
     const filesToInstall = files.filter((file) => !file.isObsolete);
     for (const file of filesToInstall) {
       const filePath = [
+        // archivePath もリモート由来。展開ディレクトリの外(任意のローカル
+        // ファイル)をコピー元にされないよう、書き込み先と同じ関門を通す
         file.archivePath
-          ? path.join(
+          ? resolveInside(
               unzippedPath,
               file.archivePath,
               path.basename(file.filename),
