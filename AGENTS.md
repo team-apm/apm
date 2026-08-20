@@ -2,12 +2,24 @@
 
 AviUtl Package Manager (apm) — AviUtl のプラグイン・スクリプトを管理する Electron 製デスクトップアプリ。TypeScript + webpack (electron-forge)。UI は React + tRPC(main 窓の全タブ + About 窓)。ビジネスロジックは main プロセス(src/main/services)にあり、preload は初期化フロー・contextBridge・tRPC クライアントのみ。
 
+## 構成
+
+| パス                 | 役割                                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `src/main/`          | メインプロセス。`index.ts` = エントリ、`api.ts` = tRPC ルーター、`services/` = ビジネスロジック                          |
+| `src/renderer/`      | 窓ごと(`main` / `about` / `splash`)。forge.config.ts の entryPoints と 1:1 対応                                          |
+| `src/renderer/main/` | main 窓。タブごとのディレクトリ(`aviutl` / `packages` / `nicommons` / `settings` / `others`)+ 初期化フローを持つ preload |
+| `src/lib/`           | renderer から使う electron 依存モジュール(`trpcClient.ts` / `ipcWrapper.ts`)                                             |
+| `src/shared/`        | electron 非依存の純粋モジュール。ユニットテストの主対象                                                                  |
+| `src/common/ipc.ts`  | レガシー IPC のチャンネル名定義                                                                                          |
+
 ## コマンド
 
 ```
-yarn lint       # prettier + eslint
+yarn lint       # prettier + eslint(--check。自動修正は yarn fix)
 yarn lint:ts    # tsc --noEmit
 yarn test       # vitest run (src/**/*.test.ts)
+yarn package    # electron-forge package(ThirdPartyNotices 生成込み)
 yarn test:e2e   # Playwright E2E (e2e/)。パッケージ版を起動するため先に yarn package が必要。--user-data-dir で一時 userData を渡して起動するため実プロファイルは汚さない
 yarn start      # 開発起動 (Node 22 推奨)
 ```
