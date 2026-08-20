@@ -47,7 +47,7 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 ## 作業スタイル
 
 - コミットは細かめ(論理単位で分割)、Conventional Commits(`feat:` `fix:` `build:` `ci:` `docs:` 等、commitlint あり)
-- `main` へ直接 push しない。`phase-N/...` 命名のブランチを切って PR 経由
+- `main` へ直接 push しない。ブランチを切って PR 経由(ブランチ運用は BRANCHING.md)
 - 分からないこと・方針が割れることは質問してから進める
 - テストは意味のあるものだけ。過剰な抽象化・スコープ拡大は避ける
 - 書き分けの原則: **コードには How、テストコードには What、コミットログには Why、コードコメントには Why not**。コードコメントは「なぜこう書かないか(採らなかった選択肢・制約)」を残す場所で、コードを読めば分かることは書かない
@@ -68,7 +68,7 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 ## 落とし穴
 
 - `src/shared/compareVersion.ts` の `compareVersion` は比較不能時に `Number.NaN` を返す。NaN は全比較演算子で false になるため、呼び出し側は必ず `Number.isNaN()` で先に分岐する(`!== 0` 形式の分岐は意味が反転する)
-- `src/renderer/main/preload.ts` に残る初期化フロー(migration → initSettings → ensureInstallationPath → changeInstallationPath)は順序が仕様。全ステップ tRPC 呼び出しで Node API 依存は無い(Phase 4 の `sandbox: true` 化の前提)
+- `src/renderer/main/preload.ts` に残る初期化フロー(migration → initSettings → ensureInstallationPath → changeInstallationPath)は順序が仕様。main 窓は `sandbox: true` で動いているため、preload に Node API 依存を持ち込まない(現状は全ステップ tRPC 呼び出し)
 - renderer.tsx は React ルートを機能ごとに分けて createRoot しているため、React Context はルート間で共有できない。複数ルートから共有する実行状態は `packages/packagesListCheck.ts` のようにモジュールシングルトン + `useSyncExternalStore` で持つ。ルート間・レガシーとの通知は DOM イベント(`apm-packages-changed` / `apm-core-changed` / `apm-check-packages-list` / `apm-install-package-by-id`)
 - メインワールドの React から import する shared モジュールは electron だけでなく **fs にも依存不可**(renderer の webpack ビルドに Node ポリフィルが無いため、fs-extra が混入するとビルドが落ちる)。表示用の定数・純関数は `src/shared/packageDisplay.ts` のように fs 非依存モジュールへ分離する
 - trpc-electron(electron-trpc の tRPC 11 対応フォーク。0.7.1 までの本家は tRPC 11 非互換)は falsy なトップレベル入力(`false` / `0` / `''`)を `undefined` に変換する(main ハンドラが `input: g ? deserialize(g) : void 0` と真偽値評価しているため)。tRPC procedure の入力にプリミティブの boolean / number を直接渡さず、必ずオブジェクトで包む(`{ update: boolean }` 等)
