@@ -1,4 +1,5 @@
 import React, { type JSX, useEffect, useRef } from 'react';
+import { Nav, Tab } from 'react-bootstrap';
 import { TRPCReact } from '../trpc';
 import AviutlTab from './aviutl/AviutlTab';
 import NicommonsTab from './nicommons/NicommonsTab';
@@ -38,115 +39,53 @@ function TitleBarAppName(): JSX.Element {
   );
 }
 
-/**
- * One tab button of the shell (旧 index.html のタブナビと同一のマークアップ).
- * @param {object} props - Props.
- * @param {string} props.target - The section id the button toggles.
- * @param {boolean} props.active - Whether the tab is initially active.
- * @param {string} props.label - The label.
- * @returns {JSX.Element} The rendered component.
- */
-function TabButton({
-  target,
-  active,
-  label,
-}: {
-  target: string;
-  active: boolean;
-  label: string;
-}): JSX.Element {
-  return (
-    <button
-      className={'non-draggable nav-link' + (active ? ' active' : '')}
-      id={`${target}-tab`}
-      data-bs-toggle="tab"
-      data-bs-target={`#${target}`}
-      type="button"
-      role="tab"
-      aria-controls={target}
-      aria-selected={active}
-    >
-      {label}
-    </button>
-  );
-}
+const TABS: { id: string; label: string; pane: JSX.Element }[] = [
+  { id: 'aviutl', label: 'AviUtl', pane: <AviutlTab /> },
+  { id: 'packages', label: 'プラグイン&スクリプト', pane: <PackagesTab /> },
+  { id: 'nicommons', label: 'ニコニ・コモンズID', pane: <NicommonsTab /> },
+  { id: 'settings', label: '設定', pane: <SettingsTab /> },
+  { id: 'others', label: 'その他', pane: <OthersTab /> },
+];
 
 /**
  * The shell of the main window: the title bar, the tab nav, and the five
  * tab panes (旧 index.html の body 直下の構造)。
- * タブ切り替えは従来どおり Bootstrap の tab(data-bs-toggle。document 委譲の
- * ため React 描画後のボタンでも動く)がボタンと section の class を直接
- * 切り替える。App 自身は状態を持たないので React がこれらを巻き戻すことは
- * ないが、状態を足すときはタブの React 化(Bootstrap data API 依存の解消)と
- * 合わせて行うこと。
+ * タブ切り替えは react-bootstrap の Tab(旧 Bootstrap の data API は廃止。
+ * About 窓に続く react-bootstrap の採用)。pane は非アクティブでも
+ * マウントしたままにする(旧実装の display:none と同じ。クエリや
+ * イベント購読を生かすため)。
  * @returns {JSX.Element} The rendered component.
  */
 function App(): JSX.Element {
   return (
-    <>
+    <Tab.Container defaultActiveKey="aviutl">
       <Startup />
       <nav className="bg-body-tertiary draggable">
         <TitleBarAppName />
-        <div className="nav nav-tabs" id="nav-tab" role="tablist">
-          <TabButton target="aviutl" active label="AviUtl" />
-          <TabButton
-            target="packages"
-            active={false}
-            label="プラグイン&スクリプト"
-          />
-          <TabButton
-            target="nicommons"
-            active={false}
-            label="ニコニ・コモンズID"
-          />
-          <TabButton target="settings" active={false} label="設定" />
-          <TabButton target="others" active={false} label="その他" />
-        </div>
+        <Nav variant="tabs" id="nav-tab">
+          {TABS.map((tab) => (
+            <Nav.Link
+              key={tab.id}
+              as="button"
+              type="button"
+              eventKey={tab.id}
+              id={`${tab.id}-tab`}
+              className="non-draggable"
+            >
+              {tab.label}
+            </Nav.Link>
+          ))}
+        </Nav>
       </nav>
 
-      <main className="tab-content" id="nav-tabContent">
-        <section
-          className="tab-pane fade show active"
-          id="aviutl"
-          role="tabpanel"
-          aria-labelledby="aviutl"
-        >
-          <AviutlTab />
-        </section>
-        <section
-          className="tab-pane fade"
-          id="packages"
-          role="tabpanel"
-          aria-labelledby="packages"
-        >
-          <PackagesTab />
-        </section>
-        <section
-          className="tab-pane fade"
-          id="nicommons"
-          role="tabpanel"
-          aria-labelledby="nicommons"
-        >
-          <NicommonsTab />
-        </section>
-        <section
-          className="tab-pane fade"
-          id="settings"
-          role="tabpanel"
-          aria-labelledby="settings"
-        >
-          <SettingsTab />
-        </section>
-        <section
-          className="tab-pane fade"
-          id="others"
-          role="tabpanel"
-          aria-labelledby="others"
-        >
-          <OthersTab />
-        </section>
-      </main>
-    </>
+      <Tab.Content as="main" id="nav-tabContent">
+        {TABS.map((tab) => (
+          <Tab.Pane key={tab.id} as="section" eventKey={tab.id} id={tab.id}>
+            {tab.pane}
+          </Tab.Pane>
+        ))}
+      </Tab.Content>
+    </Tab.Container>
   );
 }
 
