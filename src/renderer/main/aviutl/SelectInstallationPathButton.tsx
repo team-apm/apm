@@ -1,13 +1,13 @@
 import React, { type JSX } from 'react';
 import { TRPCReact } from '../../trpc';
+import { getInstallationPath, setInstallationPath } from '../instPath';
 
 /**
  * The button to select the installation path of the AviUtl tab.
  * 旧 core.ts の selectInstallationPath・changeInstallationPath のフローに
  * 相当する。判定・更新は main プロセス側(services/core.ts)が行い、ここは
  * ダイアログの表示と再描画通知のみを行う。
- * インストール先の値はレガシー DOM の #installation-path(readonly input)が
- * 保持し、各コンポーネントは instPath.ts の getInstallationPath() で読む。
+ * インストール先の値は instPath ストアが保持する。
  * @returns {JSX.Element} The rendered component.
  */
 function SelectInstallationPathButton(): JSX.Element {
@@ -18,10 +18,7 @@ function SelectInstallationPathButton(): JSX.Element {
     TRPCReact.core.changeInstallationPath.useMutation();
 
   const selectInstallationPath = async () => {
-    const input = document.getElementById(
-      'installation-path',
-    ) as HTMLInputElement | null;
-    const originalPath = input?.value ?? '';
+    const originalPath = getInstallationPath();
 
     const selectedPath = await openDirDialogMutation.mutateAsync({
       title: 'インストール先フォルダを選択',
@@ -46,9 +43,9 @@ function SelectInstallationPathButton(): JSX.Element {
       window.dispatchEvent(new Event('apm-core-changed'));
       window.dispatchEvent(new Event('apm-packages-changed'));
 
-      if (input) input.value = instPath;
+      setInstallationPath(instPath);
       // インストール先の確定を React(ProgramRow)へ通知する
-      // (旧 selectInstallationPath と同一。input 反映後にもう一度通知する)
+      // (旧 selectInstallationPath と同一。ストア反映後にもう一度通知する)
       window.dispatchEvent(new Event('apm-core-changed'));
     }
   };

@@ -1,13 +1,36 @@
+// インストール先のモジュールストア。旧実装は #installation-path(readonly
+// input)の value を単一ソースにし DOM 経由で共有していたが、preload の
+// 初期化フロー移設に伴い DOM から独立させた。React からは
+// useSyncExternalStore(subscribeInstallationPath, getInstallationPath) で購読する。
+
+let instPath = '';
+const listeners = new Set<() => void>();
+
 /**
- * Reads the current installation path from the DOM input.
+ * Returns the current installation path.
  * @returns {string} The installation path (empty string if not set).
  */
 export function getInstallationPath(): string {
-  // DOM は隔離ワールドとメインワールドで共有されるため、contextBridge
-  // (旧 coreBridge)を介さずメインワールドから直接読める。値の書き込みは
-  // 引き続き preload の初期化フローと SelectInstallationPathButton が行う
-  const input = document.getElementById(
-    'installation-path',
-  ) as HTMLInputElement | null;
-  return input?.value ?? '';
+  return instPath;
+}
+
+/**
+ * Sets the installation path and notifies the subscribers.
+ * @param {string} next - The new installation path.
+ */
+export function setInstallationPath(next: string): void {
+  instPath = next;
+  listeners.forEach((listener) => listener());
+}
+
+/**
+ * Subscribes to the installation path changes (for useSyncExternalStore).
+ * @param {() => void} listener - Called on every change.
+ * @returns {() => void} The unsubscribe function.
+ */
+export function subscribeInstallationPath(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 }

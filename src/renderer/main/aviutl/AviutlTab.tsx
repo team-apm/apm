@@ -1,21 +1,22 @@
-import React, { type JSX } from 'react';
+import React, { type JSX, useSyncExternalStore } from 'react';
+import { getInstallationPath, subscribeInstallationPath } from '../instPath';
 import BatchInstallButton from './BatchInstallButton';
 import BatchInstallList from './BatchInstallList';
 import ProgramRow from './ProgramRow';
 import SelectInstallationPathButton from './SelectInstallationPathButton';
+import TutorialAlert from './TutorialAlert';
 
 /**
  * The whole pane of the AviUtl tab (旧 index.html の section#aviutl の中身).
- * このコンポーネントは状態を持たず初回の 1 回しかレンダーしない前提。
- * それを崩さないこと — 以下の 2 点がレガシー(preload の初期化フロー)からの
- * 直接 DOM 操作に依存しており、再レンダーしなければ React と衝突しない:
- * - #installation-path(readonly input)の値は preload と
- *   SelectInstallationPathButton が直接書き、各所が instPath.ts で読む
- * - #tutorial-alert は初回起動時に preload が d-none を外し、閉じるボタンは
- *   Bootstrap の data-bs-dismiss が DOM ごと除去する
+ * インストール先の表示は instPath ストアの購読で更新する(旧実装は
+ * preload が #installation-path の value を直接書いていた)。
  * @returns {JSX.Element} The rendered component.
  */
 function AviutlTab(): JSX.Element {
+  const instPath = useSyncExternalStore(
+    subscribeInstallationPath,
+    getInstallationPath,
+  );
   return (
     <div className="container-lg py-2 m-w-800">
       <nav className="navbar navbar-light">
@@ -32,27 +33,7 @@ function AviutlTab(): JSX.Element {
           </span>
         </div>
       </nav>
-      <div id="tutorial-alert" className="row my-2 d-none">
-        <div
-          className="my-0 alert alert-info alert-dismissible fade show"
-          role="alert"
-        >
-          apmへようこそ！
-          <a
-            href="https://team-apm.github.io/apm/#apm%E3%81%AE%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB"
-            className="alert-link"
-          >
-            チュートリアル
-          </a>
-          から使い方を確認できます。
-          <button
-            type="button"
-            className="btn-close"
-            data-bs-dismiss="alert"
-            aria-label="Close"
-          ></button>
-        </div>
-      </div>
+      <TutorialAlert />
       <div className="row my-2 card">
         <div className="card-body">
           <div className="mb-3 d-flex">
@@ -68,6 +49,7 @@ function AviutlTab(): JSX.Element {
                 placeholder="AviUtlフォルダ"
                 aria-label="Installation path"
                 readOnly
+                value={instPath}
               />
             </div>
             <div className="d-flex">

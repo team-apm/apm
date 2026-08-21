@@ -224,7 +224,7 @@ export const MonacoEditorRenderer: React.FC = () => {
       editor,
       monaco.editor.ContentWidgetPositionPreference.EXACT,
     );
-    // インストール先は preload の初期化フローが #installation-path に設定して
+    // インストール先は起動フロー(startup.ts)が instPath ストアに設定して
     // apm-core-changed を発火するため、未確定なら確定を待って一度だけ読み込む
     // (旧 EditorContextBridge の setOnload / setInstPath の両者待ち合わせ相当。
     // 読み込み失敗を無視するのも旧実装と同じ)
