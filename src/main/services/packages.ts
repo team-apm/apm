@@ -15,10 +15,15 @@ import * as matcher from 'matcher';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { isParent, resolveInside } from '../../shared/apmPath';
+import { asyncFlatMap } from '../../shared/asyncFlatMap';
 import { getHash } from '../../shared/getHash';
 import { install, verifyFilesByCount } from '../../shared/install';
 import { buildInstallerArgs } from '../../shared/installerArgs';
 import { checkIntegrity, verifyFile } from '../../shared/integrity';
+import {
+  convertV1ApmJsonPackages,
+  convertV1PackageIds,
+} from '../../shared/packageId';
 import {
   computePackagesStatus,
   detectPackageTypes,
@@ -119,14 +124,7 @@ export async function convertPackageIds(
   };
 
   const convDict = await getIdDict(win, config, true);
-  for (const [oldId, packageItem] of Object.entries(packages)) {
-    if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
-      const newId = convDict[packageItem.id];
-      packages[newId] = packages[oldId];
-      delete packages[oldId];
-      packages[newId].id = newId;
-    }
-  }
+  convertV1ApmJsonPackages(packages, convDict);
 
   await apmJson.set('packages', packages);
   await apmJson.set('convertMod', modTime);
@@ -159,13 +157,7 @@ export async function getPackages(
         const packagesInfo = (
           (await readJson(packagesListFile.path)) as Packages
         ).packages;
-        const convDict = await getIdDict(win, config);
-        for (const packageInfo of packagesInfo) {
-          // For compatibility with data v1
-          if (Object.prototype.hasOwnProperty.call(convDict, packageInfo.id)) {
-            packageInfo.id = convDict[packageInfo.id];
-          }
-        }
+        convertV1PackageIds(packagesInfo, await getIdDict(win, config));
         jsonList.push(packagesInfo);
       } catch {
         log.error('Failed data processing.');
@@ -211,14 +203,6 @@ async function getInstalledFiles(instPath: string) {
       log.error(e);
       throw e;
     }
-  };
-  // https://zenn.dev/repomn/scraps/d80ccd5c9183f0
-  const asyncFlatMap = async <Item, Res>(
-    arr: Item[],
-    callback: (value: Item, index: number, array: Item[]) => Promise<Res>,
-  ) => {
-    const a = await Promise.all(arr.map(callback));
-    return a.flat();
   };
   const readdir = async (dir: string) =>
     (await safeReaddir(dir))
@@ -723,13 +707,7 @@ async function removeScriptPackage(
     throw new Error('The version file does not exist.');
   const localPackages = ((await readJson(localPackagesPath)) as Packages)
     .packages;
-  const convDict = await getIdDict(win, config);
-  for (const localPackage of localPackages) {
-    // For compatibility with data v1
-    if (Object.prototype.hasOwnProperty.call(convDict, localPackage.id)) {
-      localPackage.id = convDict[localPackage.id];
-    }
-  }
+  convertV1PackageIds(localPackages, await getIdDict(win, config));
   const newLocalPackages = localPackages.filter((p) => p.id !== packageId);
   if (newLocalPackages.length > 0) {
     await writeJson(localPackagesPath, {
@@ -779,15 +757,6 @@ export async function installScriptArchive(
 ): Promise<InstallScriptResult> {
   const pluginExtRegex = /\.(auf|aui|auo|auc|aul)$/;
   const scriptExtRegex = /\.(anm|obj|cam|tra|scn)$/;
-
-  // https://zenn.dev/repomn/scraps/d80ccd5c9183f0
-  const asyncFlatMap = async <Item, Res>(
-    arr: Item[],
-    callback: (value: Item, index: number, array: Item[]) => Promise<Res>,
-  ) => {
-    const a = await Promise.all(arr.map(callback));
-    return a.flat();
-  };
 
   const searchScriptRoot = async (dirName: string): Promise<string[]> => {
     const dirents = await fsReaddir(dirName, {
@@ -924,13 +893,7 @@ export async function installScriptArchive(
     const localPackages: Packages['packages'] = existsSync(localPackagesPath)
       ? ((await readJson(localPackagesPath)) as Packages).packages
       : [];
-    const convDict = await getIdDict(win, config);
-    for (const localPackage of localPackages) {
-      // For compatibility with data v1
-      if (Object.prototype.hasOwnProperty.call(convDict, localPackage.id)) {
-        localPackage.id = convDict[localPackage.id];
-      }
-    }
+    convertV1PackageIds(localPackages, await getIdDict(win, config));
     const newLocalPackages = localPackages.filter((p) => p.id !== id);
     newLocalPackages.push(packageItem as Packages['packages'][number]);
     await writeJson(localPackagesPath, {
@@ -1122,13 +1085,7 @@ export async function getEditorPackages(
     throw new Error('The version file does not exist.');
 
   const packages = ((await readJson(packagesListPath)) as Packages).packages;
-  const convDict = await getIdDict(win, config);
-  for (const packageItem of packages) {
-    // For compatibility with data v1
-    if (Object.prototype.hasOwnProperty.call(convDict, packageItem.id)) {
-      packageItem.id = convDict[packageItem.id];
-    }
-  }
+  convertV1PackageIds(packages, await getIdDict(win, config));
   return packages;
 }
 
