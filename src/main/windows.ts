@@ -45,6 +45,13 @@ const icon =
     ? path.join(__dirname, '../icon/apm1024.png')
     : undefined;
 
+// macOS では全窓を閉じてもアプリが生き残り、Dock からの activate で
+// launch() が再実行される。trpc-electron の createIPCHandler は
+// ipcMain.on で登録し解除 API が無いため、再実行のたびに作ると
+// リスナーが純増して全リクエストが多重処理される(mutation の二重実行)。
+// ハンドラはプロセスで 1 個だけ作り、窓は attachWindow で追加する
+let ipcHandler: ReturnType<typeof createIPCHandler> | null = null;
+
 /**
  * Launch the app.
  * @param {Config} config - The config instance.
@@ -98,20 +105,28 @@ export async function launch(config: Config) {
     },
   });
 
-  // ipcMain へのリスナー登録は 1 回だけにし、窓の追加は attachWindow で行う
-  // (窓を開くたびに createIPCHandler を呼ぶとリスナーが重複する)
-  const ipcHandler = createIPCHandler({
-    router,
-    createContext,
-    windows: [mainWindow],
-  });
+  if (ipcHandler) {
+    ipcHandler.attachWindow(mainWindow);
+  } else {
+    ipcHandler = createIPCHandler({
+      router,
+      createContext,
+      windows: [mainWindow],
+    });
+  }
 
   Menu.setApplicationMenu(null);
 
   hardenNavigation(mainWindow.webContents);
 
-  nativeTheme.on('updated', () => {
+  const onThemeUpdated = () => {
     mainWindow.setTitleBarOverlay(getTitleBarColor());
+  };
+  nativeTheme.on('updated', onThemeUpdated);
+  // 解除しないと launch() の再実行ごとにリスナーが溜まり、破棄済みの
+  // mainWindow への setTitleBarOverlay で例外になる
+  mainWindow.on('closed', () => {
+    nativeTheme.removeListener('updated', onThemeUpdated);
   });
 
   mainWindow.once('show', () => {
@@ -136,7 +151,7 @@ export async function launch(config: Config) {
     // about 窓は従来ハンドラ未設定で、リンクを踏むと窓ごと外部サイトへ
     // 遷移できてしまっていた
     hardenNavigation(aboutWindow.webContents);
-    ipcHandler.attachWindow(aboutWindow);
+    ipcHandler?.attachWindow(aboutWindow);
     aboutWindow.once('close', () => {
       if (!aboutWindow.isDestroyed()) {
         aboutWindow.destroy();
