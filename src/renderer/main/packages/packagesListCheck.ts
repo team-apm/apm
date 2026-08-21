@@ -4,9 +4,9 @@ import type { ActionPhase } from '../usePhase';
 // React 側実装。設定タブの更新ボタン(ManualUpdateTable)・スクリプト
 // インストール後(PackageActions)・データエディタ保存後(monacoEditorRenderer
 // からのイベント)の 3 経路から起動され、どこから呼んでもボタン表示と
-// オーバーレイが連動する。renderer.tsx は React ルートを機能ごとに分けて
-// createRoot しているため、実行状態は Context ではなくモジュールレベルの
-// シングルトンで共有する。
+// オーバーレイが連動する。実行状態は起動元と表示側(別タブ)にまたがるため、
+// Context ではなくモジュールシングルトン + useSyncExternalStore で共有する
+// (instPath / startup の firstLaunch も同じパターン)。
 
 let phase: ActionPhase = { kind: 'idle' };
 let timer: ReturnType<typeof setTimeout> | null = null;

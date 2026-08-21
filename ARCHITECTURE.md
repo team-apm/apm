@@ -6,11 +6,11 @@ apm の構造の現在地。作業ルール・確定方針は [AGENTS.md](AGENTS
 
 Electron の 3 窓 + main プロセス。窓はすべて `sandbox: true`。
 
-| 窓     | renderer                                                   | preload                                                              |
-| ------ | ---------------------------------------------------------- | -------------------------------------------------------------------- |
-| main   | `src/renderer/main/`(React + tRPC。タブ単位のディレクトリ) | 初期化フロー + tRPC クライアント公開(順序が仕様。AGENTS.md 落とし穴) |
-| about  | `src/renderer/about/`(React + tRPC)                        | tRPC クライアントのみ                                                |
-| splash | `src/renderer/splash/`                                     | なし                                                                 |
+| 窓     | renderer                                                                                                               | preload                         |
+| ------ | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| main   | `src/renderer/main/`(単一 React ルートの `App` + tRPC。タブ単位のディレクトリ。起動フローは `startup.ts` — 順序が仕様) | ログ捕捉 + tRPC bridge 公開のみ |
+| about  | `src/renderer/about/`(React + tRPC)                                                                                    | ログ捕捉 + tRPC bridge 公開のみ |
+| splash | `src/renderer/splash/`                                                                                                 | なし                            |
 
 - ビジネスロジックは main プロセス(`src/main/services/`)。renderer からは tRPC(trpc-electron)で呼ぶ
 - このほか `services/browser.ts` がダウンロード用のモーダルブラウザ窓を動的に生成する(forge の entryPoint ではない)
@@ -22,7 +22,7 @@ Electron の 3 窓 + main プロセス。窓はすべて `sandbox: true`。
 src/
   shared/     electron 完全非依存の純粋モジュール(main / renderer 両方から import 可)。
               ユニットテストの主対象。fs 依存の可否は AGENTS.md 落とし穴を参照
-  lib/        renderer から使う electron 依存モジュール(trpcClient / ipcWrapper)
+  lib/        renderer から使う electron 依存モジュール(ipcWrapper)
   common/     レガシー IPC のチャンネル名定義(ipc.ts)
   main/       main プロセス(下記)
   renderer/   窓ごとの UI(上の表を参照)。main/ 配下はタブ単位
