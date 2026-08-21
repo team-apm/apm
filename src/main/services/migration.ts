@@ -139,7 +139,9 @@ async function migration1to2Global(
   // 2. Triggers initialization
   config.delete('modDate');
   // 3. Triggers initialization
-  if (useDefaultDataURL) config.dataURL.setMain(undefined);
+  // 旧実装の setMain(undefined) は conf が TypeError で拒否し、この移行が
+  // 必ずクラッシュしていた(#2397)
+  if (useDefaultDataURL) config.dataURL.deleteMain();
 
   // Finalize
   config.setDataVersion('2');
