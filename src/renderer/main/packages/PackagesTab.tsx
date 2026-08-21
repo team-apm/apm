@@ -1,6 +1,11 @@
 import type { Scripts } from 'apm-schema';
-import React, { type JSX, useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React, {
+  type JSX,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { compareVersion } from '../../../shared/compareVersion';
 import { matchesFuzzyFilter } from '../../../shared/fuzzySearch';
 import { parsePackageType, states } from '../../../shared/packageDisplay';
@@ -12,6 +17,7 @@ import type { PackageItem } from '../../../types/packageItem';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../instPath';
 import PackageActions, { type SelectedEntry } from './PackageActions';
+import { getPhase, subscribePhase } from './packagesListCheck';
 
 // list.js(fuzzySearch)に合わせた検索オプション。
 // Ensure that searches are performed even on long strings.
@@ -131,13 +137,14 @@ const naturalCompare = (a: string, b: string) => {
 };
 
 /**
- * The packages tab list: sort buttons, search alert, the package list and
- * the manually-installed-files list.
+ * The whole pane of the packages tab (旧 index.html の section#packages の
+ * 中身): search box, sort buttons, action buttons, filter sidebar, search
+ * alert, the package list and the manually-installed-files list.
  * 旧 package.ts の setPackagesList(DOM 描画部分)+ listFilter +
  * updatableList(list.js)に相当する。データ取得は tRPC 経由で main プロセス。
  * レガシー側からの再描画通知は apm-packages-changed イベントで受け取り、
  * 選択状態はこのコンポーネントが保持してアクションボタン(PackageActions)
- * と共有する。
+ * と共有する。一覧のオーバーレイは packagesListCheck の phase から導出する。
  * @returns {JSX.Element} The rendered component.
  */
 function PackagesTab(): JSX.Element {
@@ -183,57 +190,8 @@ function PackagesTab(): JSX.Element {
     };
   }, [utils]);
 
-  // 検索欄(レガシー DOM)の入力を購読する
-  useEffect(() => {
-    const searchBox = document.getElementsByClassName(
-      'fuzzy-search-wrapped',
-    )?.[0] as HTMLInputElement | undefined;
-    if (!searchBox) return;
-    const onInput = () => {
-      setSearchString(searchBox.value.trim());
-      setAlertDismissed(false);
-    };
-    searchBox.addEventListener('input', onInput);
-    return () => searchBox.removeEventListener('input', onInput);
-  }, []);
-
-  // フィルタボタン(レガシー DOM)のクリックを購読する。
-  // 選択中のボタンをもう一度押す、または「パッケージ」(clear)でフィルタ解除
-  useEffect(() => {
-    const buttons = Array.from(
-      document.querySelectorAll<HTMLButtonElement>(
-        '#filter .type-filter, #filter .install-filter',
-      ),
-    );
-    const onClick = (btn: HTMLButtonElement) => () => {
-      const isClear =
-        btn.classList.contains('selected') ||
-        btn.dataset.installFilter === 'clear';
-      buttons.forEach((b) => b.classList.remove('selected'));
-      if (isClear) {
-        setFilter({ kind: 'none' });
-        return;
-      }
-      btn.classList.add('selected');
-      if (btn.dataset.typeFilter) {
-        setFilter({ kind: 'type', typeFilter: btn.dataset.typeFilter });
-      } else if (btn.dataset.installFilter) {
-        setFilter({
-          kind: 'install',
-          installFilter: btn.dataset.installFilter,
-        });
-      }
-    };
-    const listeners = buttons.map((btn) => {
-      const listener = onClick(btn);
-      btn.addEventListener('click', listener);
-      return { btn, listener };
-    });
-    return () =>
-      listeners.forEach(({ btn, listener }) =>
-        btn.removeEventListener('click', listener),
-      );
-  }, []);
+  // 一覧再取得(runPackagesListCheck)の実行中はオーバーレイを表示する
+  const checkPhase = useSyncExternalStore(subscribePhase, getPhase);
 
   const packages = useMemo(
     () => (packagesQuery.data?.packages ?? []) as PackageItem[],
@@ -330,6 +288,42 @@ function PackagesTab(): JSX.Element {
       : { kind: 'scriptSite', w: row.w };
   }, [rows, selectedKey]);
 
+  const isTypeSelected = (typeFilter: string) =>
+    filter.kind === 'type' && filter.typeFilter === typeFilter;
+  const isInstallSelected = (installFilter: string) =>
+    filter.kind === 'install' && filter.installFilter === installFilter;
+  // 選択中のボタンをもう一度押すとフィルタ解除(旧 listFilter と同一)
+  const toggleTypeFilter = (typeFilter: string) =>
+    setFilter(
+      isTypeSelected(typeFilter)
+        ? { kind: 'none' }
+        : { kind: 'type', typeFilter },
+    );
+  const toggleInstallFilter = (installFilter: string) =>
+    setFilter(
+      isInstallSelected(installFilter)
+        ? { kind: 'none' }
+        : { kind: 'install', installFilter },
+    );
+
+  const filterButton = (
+    selected: boolean,
+    onClick: () => void,
+    label: string,
+    icon?: string,
+  ) => (
+    // check アイコンは CSS(.selected 以外は非表示)が表示を切り替える
+    <button
+      className={'dropdown-item px-0' + (selected ? ' selected' : '')}
+      type="button"
+      onClick={onClick}
+    >
+      <i className={'bi bi-check' + (icon ? ' me-1' : '')}></i>
+      {icon && <i className={`bi ${icon} me-1`}></i>}
+      {label}
+    </button>
+  );
+
   const sortButton = (column: SortState['column'], label: string) => (
     <div
       className={
@@ -349,186 +343,411 @@ function PackagesTab(): JSX.Element {
     </div>
   );
 
-  const packagesSortRoot = document.getElementById('packages-sort');
-  const searchAlertRoot = document.getElementById('custom-search-alert');
-  const packagesListRoot = document.getElementById('packages-list');
-  const packagesList2Root = document.getElementById('packages-list2');
-
   return (
-    <>
-      <PackageActions
-        instPath={instPath}
-        selectedEntry={selectedEntry}
-        packages={packages}
-      />
-      {packagesSortRoot &&
-        createPortal(
-          <>
-            {sortButton('name', '名前')}
-            {sortButton('developer', '開発者')}
-          </>,
-          packagesSortRoot,
-        )}
-      {searchAlertRoot &&
-        createPortal(
-          alertStrings.length > 0 && !alertDismissed ? (
-            <div
-              className="mt-2 mb-1 alert alert-info alert-dismissible fade show"
-              role="alert"
-            >
-              <div className="alert-text">
-                {alertStrings.map((s) => (
-                  <div key={s}>{s}</div>
-                ))}
+    <div className="container-lg">
+      <div className="row card border-top-0 border-bottom-0 rounded-0">
+        <div className="card-body py-2">
+          <div className="d-flex flex-column h-100">
+            <div className="flex-shrink-1">
+              <div className="d-flex mb-2">
+                <div className="border rounded flex-grow-1 w-auto d-flex">
+                  {/* 検索欄は非制御にして DOM の入力値をそのまま残し、
+                      state には trim した文字列だけを持つ(旧実装と同一) */}
+                  <input
+                    className="form-control border-0 flex-grow-1 w-auto"
+                    placeholder="🔍︎ 検索  |  共有貼り付け"
+                    aria-label="検索 / 共有"
+                    size={2}
+                    onChange={(e) => {
+                      setSearchString(e.target.value.trim());
+                      setAlertDismissed(false);
+                    }}
+                  />
+                  <div className="d-flex">
+                    {sortButton('name', '名前')}
+                    {sortButton('developer', '開発者')}
+                  </div>
+                </div>
+                <div className="d-flex">
+                  <PackageActions
+                    instPath={instPath}
+                    selectedEntry={selectedEntry}
+                    packages={packages}
+                  />
+                </div>
               </div>
-              <button
-                type="button"
-                className="btn-close"
-                aria-label="Close"
-                onClick={() => setAlertDismissed(true)}
-              />
             </div>
-          ) : null,
-          searchAlertRoot,
-        )}
-      {packagesListRoot &&
-        createPortal(
-          <>
-            {visibleRows.map(({ row, values }) => (
-              <li
-                key={row.key}
-                className={
-                  'list-group-item list-group-item-action text-muted' +
-                  (selectedKey === row.key ? ' list-group-item-light' : '')
-                }
-                onClick={() => selectRow(row)}
-              >
-                <input
-                  type="radio"
-                  name="accordion"
-                  checked={selectedKey === row.key}
-                  readOnly
-                />
-                <label className="d-block">
-                  <div className="row">
-                    <div className="col-sm-9 clearfix">
-                      <div className="d-none packageID">{values.packageID}</div>
-                      <div className="float-end ms-2 type">
-                        {parsePackageType(
-                          row.kind === 'package' ? (row.p.type ?? []) : [],
-                        ).map((e, i) => (
-                          <span
-                            key={i}
-                            className="badge list-group-item-light d-block fw-normal"
-                          >
-                            {e}
-                          </span>
-                        ))}
-                        {row.kind === 'scriptSite' && (
-                          <span className="badge list-group-item-success d-block fw-normal">
-                            スクリプト配布サイト
-                          </span>
-                        )}
-                      </div>
-                      <h5 className="float-none d-inline mb-1 me-2 text-break text-body name">
-                        {values.name}
-                      </h5>
-                      <span className="text-primary text-break developer">
-                        {values.developer}
-                      </span>
-                      <div className="text-break overview">
-                        {values.overview}
-                      </div>
-                      <div className="accordion-detail mt-2">
-                        <div className="text-break description">
-                          {values.description}
-                        </div>
-                        <div className="text-break dependencyInformation">
-                          {values.dependencyInformation}
-                        </div>
-                        <div className="text-break">
-                          <a className="pageURL" href={values.pageURL}>
-                            {values.pageURL}
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-sm-3">
-                      <div className="text-break latestVersion">
-                        {values.latestVersion}
-                      </div>
-                      <div className="text-break statusInformation fw-bold">
-                        {row.kind === 'package' &&
-                          (row.p.detached ?? []).map((d) => (
-                            <a
-                              key={d.id}
-                              href="#"
-                              className="text-danger d-block"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                // アクションボタン側(PackageActions)が購読
-                                window.dispatchEvent(
-                                  new CustomEvent('apm-install-package-by-id', {
-                                    detail: d.id,
-                                  }),
-                                );
-                              }}
-                            >
-                              要導入: {d.info.name}
-                            </a>
-                          ))}
-                        {row.kind === 'package' && row.p.doNotInstall && (
-                          <div className="text-warning">インストール不可</div>
-                        )}
-                        {row.kind === 'package' &&
-                          row.p.installationStatus === states.installed &&
-                          compareVersion(
-                            row.p.info.latestVersion,
-                            row.p.version,
-                          ) > 0 && (
-                            <div className="text-success">
-                              更新が利用可能です
-                            </div>
+            <div className="h-100 min-h-0">
+              <div className="row h-100">
+                <div className="col-sm-auto overflow-x-hidden overflow-y-auto h-100">
+                  <ul
+                    id="filter"
+                    className="list-unstyled dropdown-menu d-block position-static border-0"
+                  >
+                    <li>
+                      {/* 「パッケージ」はフィルタ解除ボタン。selected が
+                          付かないため check アイコンは常に非表示(旧実装と同一) */}
+                      {filterButton(
+                        false,
+                        () => setFilter({ kind: 'none' }),
+                        'パッケージ',
+                        'bi-box-seam',
+                      )}
+                      <ul className="list-unstyled ps-3">
+                        <li>
+                          {filterButton(
+                            isInstallSelected('true'),
+                            () => toggleInstallFilter('true'),
+                            'インストール済み',
                           )}
+                        </li>
+                        <li>
+                          {filterButton(
+                            isInstallSelected('manual'),
+                            () => toggleInstallFilter('manual'),
+                            '手動インストール済み',
+                          )}
+                        </li>
+                        <li>
+                          {filterButton(
+                            isInstallSelected('false'),
+                            () => toggleInstallFilter('false'),
+                            '未インストール',
+                          )}
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      <hr className="mx-2 dropdown-divider" />
+                      探す
+                    </li>
+                    <li>
+                      {filterButton(
+                        isTypeSelected('plugin'),
+                        () => toggleTypeFilter('plugin'),
+                        'プラグイン',
+                        'bi-film',
+                      )}
+                      <ul className="list-unstyled ps-3">
+                        <li>
+                          {filterButton(
+                            isTypeSelected('input'),
+                            () => toggleTypeFilter('input'),
+                            '入力',
+                          )}
+                        </li>
+                        <li>
+                          {filterButton(
+                            isTypeSelected('output'),
+                            () => toggleTypeFilter('output'),
+                            '出力',
+                          )}
+                        </li>
+                        <li>
+                          {filterButton(
+                            isTypeSelected('filter'),
+                            () => toggleTypeFilter('filter'),
+                            'フィルター',
+                          )}
+                        </li>
+                        <li>
+                          {filterButton(
+                            isTypeSelected('color'),
+                            () => toggleTypeFilter('color'),
+                            '色変換',
+                          )}
+                        </li>
+                        <li>
+                          {filterButton(
+                            isTypeSelected('language'),
+                            () => toggleTypeFilter('language'),
+                            '言語',
+                          )}
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      {filterButton(
+                        isTypeSelected('script'),
+                        () => toggleTypeFilter('script'),
+                        'スクリプト',
+                        'bi-calendar3-range',
+                      )}
+                      <ul className="list-unstyled ps-3">
+                        <li>
+                          {filterButton(
+                            isTypeSelected('animation'),
+                            () => toggleTypeFilter('animation'),
+                            'アニメーション効果',
+                          )}
+                        </li>
+                        <li>
+                          {filterButton(
+                            isTypeSelected('object'),
+                            () => toggleTypeFilter('object'),
+                            'カスタムオブジェクト',
+                          )}
+                        </li>
+                        <li>
+                          {filterButton(
+                            isTypeSelected('scene'),
+                            () => toggleTypeFilter('scene'),
+                            'シーンチェンジ',
+                          )}
+                        </li>
+                        <li>
+                          {filterButton(
+                            isTypeSelected('camera'),
+                            () => toggleTypeFilter('camera'),
+                            'カメラ制御',
+                          )}
+                        </li>
+                        <li>
+                          {filterButton(
+                            isTypeSelected('track'),
+                            () => toggleTypeFilter('track'),
+                            'トラックバー',
+                          )}
+                        </li>
+                        <li>
+                          {filterButton(
+                            isTypeSelected('script-dist'),
+                            () => toggleTypeFilter('script-dist'),
+                            '配布サイトから探す',
+                          )}
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      <a
+                        href="https://team-apm.github.io/apm/#%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%81%A8%E3%81%AF"
+                        className="dropdown-item pe-0"
+                      >
+                        <i className="bi bi-info-circle me-1"></i>これは何？
+                        <i className="bi bi-box-arrow-up-right ms-1"></i>
+                      </a>
+                    </li>
+                    <li>
+                      <hr className="mx-2 dropdown-divider" />
+                      作る
+                    </li>
+                    <li>
+                      <a
+                        href="https://docs.google.com/forms/d/e/1FAIpQLSf0N-X_u_abi8rrWHVDdiK3YeYuQ7J1f8bQAy6QTD-OR94DWQ/viewform?usp=sf_link"
+                        className="dropdown-item pe-0"
+                      >
+                        <i className="bi bi-megaphone me-1"></i>提案する
+                        <i className="bi bi-box-arrow-up-right ms-1"></i>
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://team-apm.github.io/apm-web/"
+                        className="dropdown-item pe-0"
+                      >
+                        <i className="bi bi-pencil me-1"></i>作ってみる
+                        <i className="bi bi-box-arrow-up-right ms-1"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <div className="col d-flex flex-column h-100">
+                  <div>
+                    {alertStrings.length > 0 && !alertDismissed && (
+                      <div
+                        className="mt-2 mb-1 alert alert-info alert-dismissible fade show"
+                        role="alert"
+                      >
+                        <div className="alert-text">
+                          {alertStrings.map((s) => (
+                            <div key={s}>{s}</div>
+                          ))}
+                        </div>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          aria-label="Close"
+                          onClick={() => setAlertDismissed(true)}
+                        />
                       </div>
-                      <div className="text-break installationStatus">
-                        {values.installationStatus}
+                    )}
+                  </div>
+                  <div className="row flex-grow-1 overflow-auto">
+                    <div className="col" id="packages-table">
+                      <ul
+                        className="list list-group list-group-flush"
+                        id="packages-list"
+                      >
+                        {visibleRows.map(({ row, values }) => (
+                          <li
+                            key={row.key}
+                            className={
+                              'list-group-item list-group-item-action text-muted' +
+                              (selectedKey === row.key
+                                ? ' list-group-item-light'
+                                : '')
+                            }
+                            onClick={() => selectRow(row)}
+                          >
+                            <input
+                              type="radio"
+                              name="accordion"
+                              checked={selectedKey === row.key}
+                              readOnly
+                            />
+                            <label className="d-block">
+                              <div className="row">
+                                <div className="col-sm-9 clearfix">
+                                  <div className="d-none packageID">
+                                    {values.packageID}
+                                  </div>
+                                  <div className="float-end ms-2 type">
+                                    {parsePackageType(
+                                      row.kind === 'package'
+                                        ? (row.p.type ?? [])
+                                        : [],
+                                    ).map((e, i) => (
+                                      <span
+                                        key={i}
+                                        className="badge list-group-item-light d-block fw-normal"
+                                      >
+                                        {e}
+                                      </span>
+                                    ))}
+                                    {row.kind === 'scriptSite' && (
+                                      <span className="badge list-group-item-success d-block fw-normal">
+                                        スクリプト配布サイト
+                                      </span>
+                                    )}
+                                  </div>
+                                  <h5 className="float-none d-inline mb-1 me-2 text-break text-body name">
+                                    {values.name}
+                                  </h5>
+                                  <span className="text-primary text-break developer">
+                                    {values.developer}
+                                  </span>
+                                  <div className="text-break overview">
+                                    {values.overview}
+                                  </div>
+                                  <div className="accordion-detail mt-2">
+                                    <div className="text-break description">
+                                      {values.description}
+                                    </div>
+                                    <div className="text-break dependencyInformation">
+                                      {values.dependencyInformation}
+                                    </div>
+                                    <div className="text-break">
+                                      <a
+                                        className="pageURL"
+                                        href={values.pageURL}
+                                      >
+                                        {values.pageURL}
+                                      </a>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="col-sm-3">
+                                  <div className="text-break latestVersion">
+                                    {values.latestVersion}
+                                  </div>
+                                  <div className="text-break statusInformation fw-bold">
+                                    {row.kind === 'package' &&
+                                      (row.p.detached ?? []).map((d) => (
+                                        <a
+                                          key={d.id}
+                                          href="#"
+                                          className="text-danger d-block"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            // アクションボタン側(PackageActions)が購読
+                                            window.dispatchEvent(
+                                              new CustomEvent(
+                                                'apm-install-package-by-id',
+                                                {
+                                                  detail: d.id,
+                                                },
+                                              ),
+                                            );
+                                          }}
+                                        >
+                                          要導入: {d.info.name}
+                                        </a>
+                                      ))}
+                                    {row.kind === 'package' &&
+                                      row.p.doNotInstall && (
+                                        <div className="text-warning">
+                                          インストール不可
+                                        </div>
+                                      )}
+                                    {row.kind === 'package' &&
+                                      row.p.installationStatus ===
+                                        states.installed &&
+                                      compareVersion(
+                                        row.p.info.latestVersion,
+                                        row.p.version,
+                                      ) > 0 && (
+                                        <div className="text-success">
+                                          更新が利用可能です
+                                        </div>
+                                      )}
+                                  </div>
+                                  <div className="text-break installationStatus">
+                                    {values.installationStatus}
+                                  </div>
+                                </div>
+                              </div>
+                            </label>
+                          </li>
+                        ))}
+                      </ul>
+                      <ul
+                        className="list-group list-group-flush"
+                        id="packages-list2"
+                      >
+                        {manuallyInstalledFiles.map((file) => (
+                          <li
+                            key={file}
+                            className="list-group-item list-group-item-action text-muted list-group-item-secondary"
+                          >
+                            <label className="d-block">
+                              <div className="row">
+                                <div className="col-sm-9 clearfix">
+                                  <h5 className="float-none d-inline mb-1 me-2 text-break text-body name">
+                                    {file}
+                                  </h5>
+                                  <div className="text-break overview">
+                                    手動で追加されたファイル
+                                  </div>
+                                </div>
+                                <div className="col-sm-3"></div>
+                              </div>
+                            </label>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div
+                      className={
+                        'd-flex justify-content-center align-items-center fade' +
+                        (checkPhase.kind === 'loading' ? ' show' : '')
+                      }
+                      id="packages-table-overlay"
+                      style={{
+                        zIndex: checkPhase.kind === 'loading' ? 1000 : -1,
+                      }}
+                    >
+                      <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Loading...</span>
                       </div>
                     </div>
                   </div>
-                </label>
-              </li>
-            ))}
-          </>,
-          packagesListRoot,
-        )}
-      {packagesList2Root &&
-        createPortal(
-          <>
-            {manuallyInstalledFiles.map((file) => (
-              <li
-                key={file}
-                className="list-group-item list-group-item-action text-muted list-group-item-secondary"
-              >
-                <label className="d-block">
-                  <div className="row">
-                    <div className="col-sm-9 clearfix">
-                      <h5 className="float-none d-inline mb-1 me-2 text-break text-body name">
-                        {file}
-                      </h5>
-                      <div className="text-break overview">
-                        手動で追加されたファイル
-                      </div>
-                    </div>
-                    <div className="col-sm-3"></div>
-                  </div>
-                </label>
-              </li>
-            ))}
-          </>,
-          packagesList2Root,
-        )}
-    </>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

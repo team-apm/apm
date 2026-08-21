@@ -49,7 +49,8 @@ window.addEventListener('DOMContentLoaded', () => {
       <NicommonsTab />
     </TrpcProvider>,
   );
-  createRoot(document.getElementById('packages-react-root')).render(
+  // プラグイン&スクリプトタブは pane 全体を 1 ルートで描画する
+  createRoot(document.getElementById('packages')).render(
     <TrpcProvider>
       <PackagesTab />
     </TrpcProvider>,
