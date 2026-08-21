@@ -5,10 +5,7 @@ import { createRoot } from 'react-dom/client';
 import '../../../node_modules/bootstrap-icons/font/bootstrap-icons.css';
 import '../main.css';
 import './index.css';
-import BatchInstallButton from './aviutl/BatchInstallButton';
-import BatchInstallList from './aviutl/BatchInstallList';
-import ProgramRow from './aviutl/ProgramRow';
-import SelectInstallationPathButton from './aviutl/SelectInstallationPathButton';
+import AviutlTab from './aviutl/AviutlTab';
 import { MonacoEditorRenderer } from './monacoEditorRenderer';
 import NicommonsTab from './nicommons/NicommonsTab';
 import OthersTab from './others/OthersTab';
@@ -52,45 +49,17 @@ window.addEventListener('DOMContentLoaded', () => {
       <NicommonsTab />
     </TrpcProvider>,
   );
-  createRoot(document.getElementById('packages-react-root')).render(
+  // プラグイン&スクリプトタブは pane 全体を 1 ルートで描画する
+  createRoot(document.getElementById('packages')).render(
     <TrpcProvider>
       <PackagesTab />
     </TrpcProvider>,
   );
-  createRoot(document.getElementById('aviutl-program-root')).render(
+  // AviUtl タブは pane 全体を 1 ルートで描画する(タブの切り替え自体は
+  // 引き続き index.html のナビ + Bootstrap tab が section の class を切り替える)
+  createRoot(document.getElementById('aviutl')).render(
     <TrpcProvider>
-      <ProgramRow
-        program="aviutl"
-        label="AviUtl"
-        iconClass="bi-film"
-        buttonRoundedClass="rounded-start-0 rounded-bottom-0"
-      />
-    </TrpcProvider>,
-  );
-  createRoot(document.getElementById('exedit-program-root')).render(
-    <TrpcProvider>
-      <ProgramRow
-        program="exedit"
-        label="拡張編集"
-        iconClass="bi-calendar3-range"
-        buttonRoundedClass="rounded-0"
-      />
-    </TrpcProvider>,
-  );
-  // おすすめプラグイン一覧は portal で #batch-install-packages(ul)へ描画する
-  createRoot(document.getElementById('batch-install-react-root')).render(
-    <TrpcProvider>
-      <BatchInstallList />
-    </TrpcProvider>,
-  );
-  createRoot(document.getElementById('batch-install-button-root')).render(
-    <TrpcProvider>
-      <BatchInstallButton />
-    </TrpcProvider>,
-  );
-  createRoot(document.getElementById('select-installation-path-root')).render(
-    <TrpcProvider>
-      <SelectInstallationPathButton />
+      <AviutlTab />
     </TrpcProvider>,
   );
 });

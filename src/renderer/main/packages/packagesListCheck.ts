@@ -38,8 +38,9 @@ export function getPhase() {
 /**
  * Runs the packages-list check flow: shows the loading states, refreshes the
  * list data in the main process, and notifies the React lists.
- * 旧 checkPackagesList と同じ順序(ボタン loading → オーバーレイ表示 →
- * 再取得 → 一覧更新 → 結果メッセージ → オーバーレイ非表示 → 3 秒後復帰)。
+ * 旧 checkPackagesList と同じ順序(ボタン loading → 再取得 → 一覧更新 →
+ * 結果メッセージ → 3 秒後復帰)。一覧のオーバーレイは PackagesTab が
+ * この phase(loading)から導出して表示する。
  * @param {() => Promise<unknown>} refreshList - Calls packages.refreshList.
  */
 export async function runPackagesListCheck(
@@ -48,12 +49,6 @@ export async function runPackagesListCheck(
   // 前回の復帰タイマーが残っていると loading 中に idle へ戻されるため消す
   if (timer !== null) clearTimeout(timer);
   setPhase({ kind: 'loading' });
-
-  const overlay = document.getElementById('packages-table-overlay');
-  if (overlay) {
-    overlay.style.zIndex = '1000';
-    overlay.classList.add('show');
-  }
 
   try {
     // 再取得と日付の記録は main プロセス側(services/packages.ts の
@@ -71,11 +66,6 @@ export async function runPackagesListCheck(
       message: 'エラーが発生しました。',
       color: 'danger',
     });
-  }
-
-  if (overlay) {
-    overlay.classList.remove('show');
-    overlay.style.zIndex = '-1';
   }
 
   timer = setTimeout(() => setPhase({ kind: 'idle' }), 3000);

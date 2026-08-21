@@ -1,5 +1,4 @@
 import React, { type JSX, useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import type { PackageItem } from '../../../types/packageItem';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../instPath';
@@ -7,6 +6,8 @@ import { getInstallationPath } from '../instPath';
 /**
  * The list of the recommended plugins (directURL packages) shown in the
  * batch-install section of the AviUtl tab.
+ * AviutlTab の ul(#batch-install-packages)内に li 群として描画する
+ * (pane の React 化前は portal で静的 HTML の ul へ差し込んでいた)。
  * 旧 package.ts の updateBatchInstallList と同一の表示。
  * クエリは PackagesTab と同じキー(fixIntegrity: true)でキャッシュを共有する
  * (apm.json の整合性補正は冪等のため表示結果は旧実装と変わらない)。
@@ -36,10 +37,7 @@ function BatchInstallList(): JSX.Element {
   const packages = (packagesQuery.data?.packages ?? []) as PackageItem[];
   const batchInstallPackages = packages.filter((p) => p.info.directURL);
 
-  const listElement = document.getElementById('batch-install-packages');
-  if (!listElement) return <></>;
-
-  return createPortal(
+  return (
     <>
       {batchInstallPackages.map((p) => (
         <li
@@ -55,8 +53,7 @@ function BatchInstallList(): JSX.Element {
           </div>
         </li>
       ))}
-    </>,
-    listElement,
+    </>
   );
 }
 

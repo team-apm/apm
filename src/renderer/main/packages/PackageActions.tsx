@@ -1,6 +1,5 @@
 import type { Scripts } from 'apm-schema';
 import React, { type JSX, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { states } from '../../../shared/packageDisplay';
 import type { PackageItem } from '../../../types/packageItem';
 import { TRPCReact } from '../../trpc';
@@ -69,7 +68,7 @@ export type PackageActionsProps = {
 
 /**
  * The action buttons (install / uninstall / open folder / share) of the
- * packages tab.
+ * packages tab, rendered in the header line of PackagesTab.
  * 旧 package.ts の installPackage・installScript・uninstallPackage・
  * openPackageFolder・sharePackages のボタンフローに相当する。
  * ファイル操作・ダウンロードは main プロセス側へ移設済みのため、ここは
@@ -318,10 +317,7 @@ function PackageActions({
       ? '　　更新　　'
       : 'インストール';
 
-  const actionsRoot = document.getElementById('package-actions');
-  if (!actionsRoot) return <></>;
-
-  return createPortal(
+  return (
     <>
       <ActionButton
         id="install-package"
@@ -347,8 +343,7 @@ function PackageActions({
         phase={share.phase}
         onClick={() => void sharePackages()}
       />
-    </>,
-    actionsRoot,
+    </>
   );
 }
 
