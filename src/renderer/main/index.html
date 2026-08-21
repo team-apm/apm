@@ -85,89 +85,13 @@
 		</nav>
 
 		<main class="tab-content" id="nav-tabContent">
+			<!-- 中身は React(aviutl/AviutlTab.tsx)が描画する -->
 			<section
 				class="tab-pane fade show active"
 				id="aviutl"
 				role="tabpanel"
 				aria-labelledby="aviutl"
-			>
-				<div class="container-lg py-2 m-w-800">
-					<nav class="navbar navbar-light">
-						<div class="container-fluid">
-							<span class="navbar-brand">
-								<img
-									src="../../../icon/apm32.png"
-									alt=""
-									class="d-inline-block"
-									width="20"
-									height="20"
-								/>
-								<span class="ms-1 align-middle">AviUtl Package Manager</span>
-							</span>
-						</div>
-					</nav>
-					<div id="tutorial-alert" class="row my-2 d-none">
-						<div
-							class="my-0 alert alert-info alert-dismissible fade show"
-							role="alert"
-						>
-							apmへようこそ！
-							<a
-								href="https://team-apm.github.io/apm/#apm%E3%81%AE%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB"
-								class="alert-link"
-							>
-								チュートリアル</a
-							>
-							から使い方を確認できます。
-							<button
-								type="button"
-								class="btn-close"
-								data-bs-dismiss="alert"
-								aria-label="Close"
-							></button>
-						</div>
-					</div>
-					<div class="row my-2 card">
-						<div class="card-body">
-							<div class="mb-3 d-flex">
-								<div
-									class="flex-grow-1 border rounded-start d-flex align-items-center ps-3"
-									id="addon-wrapping"
-								>
-									<i class="bi bi-folder2 me-3"></i>
-									<input
-										class="form-control-plaintext"
-										id="installation-path"
-										type="text"
-										placeholder="AviUtlフォルダ"
-										aria-label="Installation path"
-										readonly
-									/>
-								</div>
-								<!-- ボタンは React(aviutl/SelectInstallationPathButton.tsx)が描画する -->
-								<div class="d-flex" id="select-installation-path-root"></div>
-							</div>
-							<ul class="list-group mb-3" id="batch-install-packages">
-								<!-- 中身は React(ProgramRow / BatchInstallList)が描画する -->
-								<li
-									class="list-group-item py-0 pe-0 d-flex"
-									id="aviutl-program-root"
-								></li>
-								<li
-									class="list-group-item py-0 pe-0 d-flex"
-									id="exedit-program-root"
-								></li>
-							</ul>
-							<div class="d-none" id="batch-install-react-root"></div>
-							<!-- ボタンは React(BatchInstallButton)が描画する -->
-							<div
-								class="d-flex justify-content-end"
-								id="batch-install-button-root"
-							></div>
-						</div>
-					</div>
-				</div>
-			</section>
+			></section>
 
 			<section
 				class="tab-pane fade"
