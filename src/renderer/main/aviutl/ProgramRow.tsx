@@ -1,5 +1,6 @@
 import type { Core } from 'apm-schema';
 import React, { type JSX, useEffect, useRef, useState } from 'react';
+import { Dropdown } from 'react-bootstrap';
 import { releaseLabel } from '../../../shared/coreVersionText';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../instPath';
@@ -118,14 +119,6 @@ function ProgramRow({
     timer.current = setTimeout(() => setPhase('idle'), 3000);
   };
 
-  const buttonClass = `btn dropdown-toggle ${buttonRoundedClass} ${
-    phase === 'success'
-      ? 'btn-success'
-      : phase === 'danger'
-        ? 'btn-danger'
-        : 'btn-primary'
-  }`;
-
   return (
     <>
       <div className="d-flex align-items-center flex-grow-1">
@@ -133,51 +126,45 @@ function ProgramRow({
       </div>
       <div>
         <span id={`${program}-installed-version`}>{installedText}</span>
-        <button
-          type="button"
-          className={buttonClass}
-          id={`install-${program}`}
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-          disabled={phase === 'loading'}
-        >
-          {phase === 'loading' ? (
-            <>
-              <span
-                className="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              ></span>
-              <span className="visually-hidden">Loading...</span>
-            </>
-          ) : phase === 'idle' ? (
-            ''
-          ) : (
-            buttonMessage
-          )}
-        </button>
-        <div className="dropdown bg-body">
-          <ul
-            className="dropdown-menu dropdown-menu-end"
-            id={`${program}-version-select`}
-            aria-labelledby={`install-${program}`}
+        <Dropdown align="end" className="d-inline-block">
+          <Dropdown.Toggle
+            variant={
+              phase === 'success'
+                ? 'success'
+                : phase === 'danger'
+                  ? 'danger'
+                  : 'primary'
+            }
+            className={buttonRoundedClass}
+            id={`install-${program}`}
+            disabled={phase === 'loading'}
           >
+            {phase === 'loading' ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span className="visually-hidden">Loading...</span>
+              </>
+            ) : phase === 'idle' ? (
+              ''
+            ) : (
+              buttonMessage
+            )}
+          </Dropdown.Toggle>
+          <Dropdown.Menu id={`${program}-version-select`}>
             {releases.map((release) => (
-              <li key={release.version}>
-                <a
-                  className="dropdown-item"
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    void onInstall(release.version);
-                  }}
-                >
-                  {releaseLabel(release.version, latestVersion)}
-                </a>
-              </li>
+              <Dropdown.Item
+                key={release.version}
+                onClick={() => void onInstall(release.version)}
+              >
+                {releaseLabel(release.version, latestVersion)}
+              </Dropdown.Item>
             ))}
-          </ul>
-        </div>
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
     </>
   );
