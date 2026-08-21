@@ -3,22 +3,25 @@ import {
   validatePackageInfo,
 } from '../../shared/packageInfoValidation';
 import {
-  buildShareString,
+  installPackageFlow,
+  openPackageFolder,
+} from '../services/packageInstall';
+import {
   convertPackageIds,
   getApmJsonInstalledIds,
-  getEditorPackages,
   getPackages,
   getPackagesDates,
   getPackagesExtra,
   getPackagesWithStatus,
-  getScriptsList,
-  installPackageFlow,
-  installScriptFlow,
-  openPackageFolder,
   refreshPackagesList,
+} from '../services/packageList';
+import {
+  buildShareString,
+  getEditorPackages,
   setEditorPackages,
-  uninstallPackageFiles,
-} from '../services/packages';
+} from '../services/packageShare';
+import { uninstallPackageFiles } from '../services/packageUninstall';
+import { getScriptsList, installScriptFlow } from '../services/scriptInstall';
 import { procedure, stringInput, t, winProcedure } from './trpc';
 
 // trpc-electron は falsy なトップレベル入力(false / 0 / '')を undefined に

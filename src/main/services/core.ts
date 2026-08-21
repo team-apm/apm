@@ -13,11 +13,8 @@ import { addAviUtlShortcut, removeAviUtlShortcut } from '../shortcut';
 import { downloadFile } from './download';
 import { migrationByFolder } from './migration';
 import { getCoreDataUrl, getInfo, updateInfo } from './modList';
-import {
-  convertPackageIds,
-  getScriptsList,
-  refreshPackagesList,
-} from './packages';
+import { convertPackageIds, refreshPackagesList } from './packageList';
+import { getScriptsList } from './scriptInstall';
 import { existsTempFile } from './tempFile';
 
 /**

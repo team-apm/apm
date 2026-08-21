@@ -51,7 +51,7 @@ export async function runPackagesListCheck(
   setPhase({ kind: 'loading' });
 
   try {
-    // 再取得と日付の記録は main プロセス側(services/packages.ts の
+    // 再取得と日付の記録は main プロセス側(services/packageList.ts の
     // refreshPackagesList)へ移設済み
     await refreshList();
     // 一覧(PackagesTab / BatchInstallList)と日付表示(ManualUpdateTable)が

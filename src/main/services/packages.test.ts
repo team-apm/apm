@@ -16,17 +16,19 @@ import { states } from '../../shared/packageUtil';
 import ApmJson from '../ApmJson';
 import Config from '../Config';
 import {
-  buildShareString,
+  installPackageArchive,
+  installPackageFlow,
+  openPackageFolder,
+} from './packageInstall';
+import {
   getApmJsonInstalledIds,
   getPackages,
   getPackagesDataUrl,
   getPackagesExtra,
-  installPackageArchive,
-  installPackageFlow,
-  installScriptArchive,
-  openPackageFolder,
-  uninstallPackageFiles,
-} from './packages';
+} from './packageList';
+import { buildShareString } from './packageShare';
+import { uninstallPackageFiles } from './packageUninstall';
+import { installScriptArchive } from './scriptInstall';
 
 // electron 依存はすべて main プロセスの実体を持たないため差し替える。
 // userData を一時ディレクトリへ向けることで tempFile.ts は実物のまま使う
@@ -71,8 +73,10 @@ vi.mock('./modList', () => ({
 const win = {} as BrowserWindow;
 
 /**
- * packages サービスの特性化テスト。
- * Phase 5(設計しなおし)のリネーム・分割に先立ち、現行の挙動を固定する。
+ * パッケージ系サービス(packageList / packageInstall / packageUninstall /
+ * scriptInstall / packageShare)を横断する特性化テスト。
+ * Phase 5(設計しなおし)のリネーム・分割に先立ち固定した旧 packages.ts の
+ * 挙動を、分割後もそのまま保証する。
  * ネットワーク(download / browser)と list.json(modList)だけを偽物にし、
  * 一時ファイルのキャッシュ・apm.json・実ファイル操作は実物を使う。
  */
