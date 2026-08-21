@@ -1,5 +1,5 @@
-import { app, BrowserWindow } from 'electron';
-import { download } from 'electron-dl';
+import { app, BrowserWindow, type DownloadItem } from 'electron';
+import { CancelError, download } from 'electron-dl';
 import log from 'electron-log/main';
 import fs, { mkdir } from 'fs-extra';
 import path from 'node:path';
@@ -11,6 +11,64 @@ import { getHash } from '../../shared/getHash';
 // そのため並行実行すると保存先の取り違えや同一ファイルへの同時書き込み
 // (Windows ではロック違反で interrupted)が起きる。呼び出しを直列化して回避する
 let downloadChain: Promise<void> = Promise.resolve();
+
+// 受信バイト数がこの時間増えなかったらダウンロードを停滞と見なして中断する(#2399)
+const STALL_TIMEOUT_MS = 30_000;
+
+/**
+ * Downloads a URL, cancelling the download if no bytes arrive for a while.
+ * @param {BrowserWindow} win - The window that receives the download progress.
+ * @param {string} url - The URL to download.
+ * @param {object} opt - Options passed through to electron-dl.
+ * @param {boolean} opt.overwrite - Whether to overwrite an existing file.
+ * @param {string} opt.directory - The directory to save the file in.
+ * @param {string} opt.filename - Name of the saved file.
+ * @returns {Promise<void>} Resolves when the download completes.
+ */
+async function downloadWithStallGuard(
+  win: BrowserWindow,
+  url: string,
+  opt: { overwrite: boolean; directory: string; filename: string },
+) {
+  // 「開始から N 秒」の全体タイムアウトにはしない。遅い回線で大きなアーカイブを
+  // 落とすケースを打ち切ってしまうため、進んでいる限り待ち続け、止まったら切る。
+  // なお DownloadItem は onStarted(サーバー応答後)でしか取得できないため、
+  // 応答ヘッダが一度も届かないタイプの停滞はここでは中断できない
+  let item: DownloadItem | undefined;
+  let stalled = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let receivedBytes = -1;
+  const resetTimer = () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      stalled = true;
+      item?.cancel();
+    }, STALL_TIMEOUT_MS);
+  };
+  try {
+    await download(win, url, {
+      ...opt,
+      onStarted: (i) => {
+        item = i;
+        resetTimer();
+      },
+      onProgress: (progress) => {
+        if (progress.transferredBytes > receivedBytes) {
+          receivedBytes = progress.transferredBytes;
+          resetTimer();
+        }
+      },
+    });
+  } catch (e) {
+    // 停滞起因の CancelError はログから原因が分かるエラーに変換する
+    if (stalled && e instanceof CancelError) {
+      throw new Error(`Download stalled for ${STALL_TIMEOUT_MS}ms: ${url}`);
+    }
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 /**
  * Downloads a file (or copies a local file) into the data folder.
@@ -59,7 +117,9 @@ export async function downloadFile(
 
   try {
     if (url.startsWith('http')) {
-      const run = downloadChain.then(() => download(win, url, opt));
+      const run = downloadChain.then(() =>
+        downloadWithStallGuard(win, url, opt),
+      );
       downloadChain = run.then(
         (): void => undefined,
         (): void => undefined,
