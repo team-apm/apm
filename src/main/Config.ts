@@ -7,6 +7,7 @@ type StoreType = {
     main: string;
     extra: string;
     packages: string[];
+    approvedOrigins: string[];
   };
   modDate: {
     core: number;
@@ -76,6 +77,12 @@ export default class Config extends Store<StoreType> {
     hasPackages: () => this.has('dataURL.packages'),
     getPackages: () => this.get('dataURL.packages', [] as string[]),
     setPackages: (urls: string[]) => this.set('dataURL.packages', urls),
+
+    // 確認ダイアログで一度承認したデータ取得先のオリジン(#2377)
+    getApprovedOrigins: () =>
+      this.get('dataURL.approvedOrigins', [] as string[]),
+    setApprovedOrigins: (origins: string[]) =>
+      this.set('dataURL.approvedOrigins', origins),
   };
 
   public modDate = {

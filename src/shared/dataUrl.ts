@@ -5,6 +5,52 @@ import path from 'node:path';
 export const DEFAULT_DATA_URL =
   'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/v3/';
 
+export type DataUrlCautions = {
+  /** Origins that are not approved yet. */
+  unknownOrigins: string[];
+  /** Plain-http URLs whose traffic can be tampered with. */
+  insecureUrls: string[];
+};
+
+/** Hostnames that never need a confirmation (developer loopback). */
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+
+/**
+ * Collects the data URLs that deserve a one-time confirmation.
+ * dataURL は自由入力を維持する確定方針のため、ここで拒否はしない。
+ * 未知オリジンと平文 http の列挙だけを行い、確認するかは呼び出し側の責務。
+ * ローカルパスと loopback を対象外にするのは、自作パッケージ検証という
+ * ユースケース(および E2E フィクスチャ)がリモート攻撃面ではないため。
+ * @param {string[]} urls - The data URLs to inspect (local paths are skipped).
+ * @param {string[]} approvedOrigins - Origins already approved by the user.
+ * @returns {DataUrlCautions} The unknown origins and plain-http URLs.
+ */
+export function collectDataUrlCautions(
+  urls: string[],
+  approvedOrigins: string[],
+): DataUrlCautions {
+  const approved = new Set(approvedOrigins);
+  const unknownOrigins: string[] = [];
+  const insecureUrls: string[] = [];
+  for (const url of urls) {
+    if (!/^https?:\/\//.test(url)) continue;
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      continue;
+    }
+    if (LOOPBACK_HOSTS.has(parsed.hostname)) continue;
+    // 承認済みオリジンは平文 http も含めて再確認しない(承認は
+    // 「このオリジンを信頼する」の意味で一度だけ)
+    if (approved.has(parsed.origin)) continue;
+    if (parsed.protocol === 'http:') insecureUrls.push(url);
+    if (!unknownOrigins.includes(parsed.origin))
+      unknownOrigins.push(parsed.origin);
+  }
+  return { unknownOrigins, insecureUrls };
+}
+
 export type DataUrlValidationResult = {
   /** The normalized main data files URL (the default URL when the input is empty). */
   mainUrl: string;

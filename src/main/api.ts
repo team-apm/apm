@@ -332,9 +332,25 @@ export const router = t.router({
     ),
     setDataUrls: procedure
       .input(dataUrlsInput)
-      .mutation(({ input }) =>
-        setDataUrls(getConfig(), input.mainUrl, input.extraDataUrls),
-      ),
+      .mutation(async ({ input, ctx }) => {
+        const win = BrowserWindow.fromWebContents(ctx.event.sender);
+        if (!win) throw new Error('The calling window was not found.');
+        return await setDataUrls(
+          getConfig(),
+          input.mainUrl,
+          input.extraDataUrls,
+          async (message) =>
+            (
+              await dialog.showMessageBox(win, {
+                title: '確認',
+                message,
+                type: 'warning',
+                buttons: ['続行', 'キャンセル'],
+                cancelId: 1,
+              })
+            ).response === 0,
+        );
+      }),
     getDataUrls: procedure.query(() => {
       const config = getConfig();
       return {
