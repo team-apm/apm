@@ -101,48 +101,13 @@
 				aria-labelledby="packages"
 			></section>
 
+			<!-- 中身は React(nicommons/NicommonsTab.tsx)が描画する -->
 			<section
 				class="tab-pane fade"
 				id="nicommons"
 				role="tabpanel"
 				aria-labelledby="nicommons"
-			>
-				<div class="container-lg">
-					<div class="row card border-top-0 border-bottom-0 rounded-0">
-						<div class="card-body d-flex flex-column py-2">
-							<div class="row pb-2 border-bottom">
-								<div class="col-auto">
-									<button
-										type="button"
-										class="btn btn-copy btn-primary"
-										id="copy-nicommons-id-textarea"
-										data-clipboard-target="#nicommons-id-textarea"
-									>
-										コピー
-									</button>
-								</div>
-								<div class="col">
-									<textarea
-										rows="1"
-										name="nicommons-id-textarea"
-										id="nicommons-id-textarea"
-										class="form-control"
-										readonly
-									></textarea>
-								</div>
-							</div>
-							<div class="row flex-grow-1 overflow-auto">
-								<div class="col">
-									<ul
-										class="list-group list-group-flush"
-										id="nicommons-id-list"
-									></ul>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
+			></section>
 
 			<!-- 中身は React(settings/SettingsTab.tsx)が描画する -->
 			<section
@@ -152,14 +117,13 @@
 				aria-labelledby="settings"
 			></section>
 
+			<!-- 中身は React(others/OthersTab.tsx)が描画する -->
 			<section
 				class="tab-pane fade"
 				id="others"
 				role="tabpanel"
 				aria-labelledby="others"
-			>
-				<div id="others-root"></div>
-			</section>
+			></section>
 		</main>
 	</body>
 </html>

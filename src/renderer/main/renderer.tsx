@@ -19,12 +19,14 @@ window.addEventListener('DOMContentLoaded', () => {
       <SettingsTab />
     </TrpcProvider>,
   );
-  createRoot(document.getElementById('others-root')).render(
+  // その他タブは pane 全体を 1 ルートで描画する
+  createRoot(document.getElementById('others')).render(
     <TrpcProvider>
       <OthersTab />
     </TrpcProvider>,
   );
-  createRoot(document.getElementById('nicommons-id-list')).render(
+  // ニコニ・コモンズ ID タブは pane 全体を 1 ルートで描画する
+  createRoot(document.getElementById('nicommons')).render(
     <TrpcProvider>
       <NicommonsTab />
     </TrpcProvider>,

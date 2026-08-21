@@ -87,10 +87,13 @@ function NicommonsRow({
 }
 
 /**
- * The nicommons ID list: installed packages with a nicommons ID, with
- * checkboxes that build the space-separated ID list in the textarea.
+ * The whole pane of the nicommons ID tab (旧 index.html の section#nicommons
+ * の中身): installed packages with a nicommons ID, with checkboxes that
+ * build the space-separated ID list in the textarea.
  * 旧 package.ts の displayNicommonsIdList に相当する。データ取得は tRPC 経由で
  * main プロセス。レガシー側からの再描画通知は apm-packages-changed イベント。
+ * コピーボタンは preload が初期化する ClipboardJS が処理する(セレクタ指定の
+ * ClipboardJS は委譲リスナーのため、React が後から描画する要素でも動く)。
  * @returns {JSX.Element} The rendered component.
  */
 function NicommonsTab(): JSX.Element {
@@ -164,36 +167,68 @@ function NicommonsTab(): JSX.Element {
     ];
   }, [packages, installedIdsQuery.data]);
 
-  // チェック状態に応じて textarea(レガシー DOM、コピーは ClipboardJS)を更新
-  useEffect(() => {
-    const textarea = document.getElementById(
-      'nicommons-id-textarea',
-    ) as HTMLTextAreaElement | null;
-    if (!textarea) return;
-    textarea.value = items
-      .filter((item) => !uncheckedIds.has(item.nicommons))
-      .map((item) => item.nicommons)
-      .join(' ');
-  }, [items, uncheckedIds]);
+  const idListText = useMemo(
+    () =>
+      items
+        .filter((item) => !uncheckedIds.has(item.nicommons))
+        .map((item) => item.nicommons)
+        .join(' '),
+    [items, uncheckedIds],
+  );
 
   return (
-    <>
-      {items.map((item) => (
-        <NicommonsRow
-          key={item.nicommons}
-          item={item}
-          checked={!uncheckedIds.has(item.nicommons)}
-          onChange={(checked) =>
-            setUncheckedIds((prev) => {
-              const next = new Set(prev);
-              if (checked) next.delete(item.nicommons);
-              else next.add(item.nicommons);
-              return next;
-            })
-          }
-        />
-      ))}
-    </>
+    <div className="container-lg">
+      <div className="row card border-top-0 border-bottom-0 rounded-0">
+        <div className="card-body d-flex flex-column py-2">
+          <div className="row pb-2 border-bottom">
+            <div className="col-auto">
+              <button
+                type="button"
+                className="btn btn-copy btn-primary"
+                id="copy-nicommons-id-textarea"
+                data-clipboard-target="#nicommons-id-textarea"
+              >
+                コピー
+              </button>
+            </div>
+            <div className="col">
+              <textarea
+                rows={1}
+                name="nicommons-id-textarea"
+                id="nicommons-id-textarea"
+                className="form-control"
+                readOnly
+                value={idListText}
+              ></textarea>
+            </div>
+          </div>
+          <div className="row flex-grow-1 overflow-auto">
+            <div className="col">
+              <ul
+                className="list-group list-group-flush"
+                id="nicommons-id-list"
+              >
+                {items.map((item) => (
+                  <NicommonsRow
+                    key={item.nicommons}
+                    item={item}
+                    checked={!uncheckedIds.has(item.nicommons)}
+                    onChange={(checked) =>
+                      setUncheckedIds((prev) => {
+                        const next = new Set(prev);
+                        if (checked) next.delete(item.nicommons);
+                        else next.add(item.nicommons);
+                        return next;
+                      })
+                    }
+                  />
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
