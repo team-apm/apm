@@ -9,6 +9,7 @@ import type { ActionPhase } from '../usePhase';
 // シングルトンで共有する。
 
 let phase: ActionPhase = { kind: 'idle' };
+let timer: ReturnType<typeof setTimeout> | null = null;
 const listeners = new Set<() => void>();
 
 const setPhase = (next: ActionPhase) => {
@@ -44,6 +45,8 @@ export function getPhase() {
 export async function runPackagesListCheck(
   refreshList: () => Promise<unknown>,
 ) {
+  // 前回の復帰タイマーが残っていると loading 中に idle へ戻されるため消す
+  if (timer !== null) clearTimeout(timer);
   setPhase({ kind: 'loading' });
 
   const overlay = document.getElementById('packages-table-overlay');
@@ -75,5 +78,5 @@ export async function runPackagesListCheck(
     overlay.style.zIndex = '-1';
   }
 
-  setTimeout(() => setPhase({ kind: 'idle' }), 3000);
+  timer = setTimeout(() => setPhase({ kind: 'idle' }), 3000);
 }

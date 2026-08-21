@@ -1,5 +1,5 @@
 import type { Core } from 'apm-schema';
-import React, { type JSX, useEffect, useState } from 'react';
+import React, { type JSX, useEffect, useRef, useState } from 'react';
 import { releaseLabel } from '../../../shared/coreVersionText';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../instPath';
@@ -31,6 +31,8 @@ function ProgramRow({
   const [instPath, setInstPath] = useState(() => getInstallationPath());
   const [phase, setPhase] = useState<ButtonPhase>('idle');
   const [buttonMessage, setButtonMessage] = useState('');
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => clearTimeout(timer.current), []);
 
   const utils = TRPCReact.useUtils();
   const coreInfoQuery = TRPCReact.core.getCoreInfo.useQuery();
@@ -56,13 +58,16 @@ function ProgramRow({
   const installedText = installedTextsQuery.data?.[program] ?? '';
 
   const showError = (message: string) => {
+    clearTimeout(timer.current);
     setPhase('danger');
     setButtonMessage(message);
-    setTimeout(() => setPhase('idle'), 3000);
+    timer.current = setTimeout(() => setPhase('idle'), 3000);
   };
 
   const onInstall = async (version: string) => {
     if (phase === 'loading') return;
+    // 前回の復帰タイマーが残っていると loading 中に idle へ戻されるため消す
+    clearTimeout(timer.current);
     setPhase('loading');
 
     if (!instPath) {
@@ -110,7 +115,7 @@ function ProgramRow({
     window.dispatchEvent(new Event('apm-packages-changed'));
     setPhase('success');
     setButtonMessage('インストール完了');
-    setTimeout(() => setPhase('idle'), 3000);
+    timer.current = setTimeout(() => setPhase('idle'), 3000);
   };
 
   const buttonClass = `btn dropdown-toggle ${buttonRoundedClass} ${

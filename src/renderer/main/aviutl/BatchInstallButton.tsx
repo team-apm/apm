@@ -31,12 +31,15 @@ function BatchInstallButton(): JSX.Element {
     TRPCReact.packages.installPackage.useMutation();
 
   const finish = (message: string, color: 'success' | 'danger') => {
+    clearTimeout(timer.current);
     setPhase({ kind: 'message', message, color });
     timer.current = setTimeout(() => setPhase({ kind: 'idle' }), 3000);
   };
 
   const onClick = async () => {
     if (phase.kind === 'loading') return;
+    // 前回の復帰タイマーが残っていると loading 中に idle へ戻されるため消す
+    clearTimeout(timer.current);
     setPhase({ kind: 'loading' });
 
     const instPath = getInstallationPath();

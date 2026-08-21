@@ -1,4 +1,4 @@
-import React, { type JSX, useState } from 'react';
+import React, { type JSX, useEffect, useRef, useState } from 'react';
 import { TRPCReact } from '../../trpc';
 
 type ButtonPhase = 'idle' | 'loading' | 'success' | 'danger';
@@ -14,6 +14,8 @@ function DataUrlSettings() {
   const [mainUrl, setMainUrl] = useState<string | null>(null);
   const [extraUrls, setExtraUrls] = useState<string | null>(null);
   const [phase, setPhase] = useState<ButtonPhase>('idle');
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => clearTimeout(timer.current), []);
 
   const setDataUrls = TRPCReact.settings.setDataUrls.useMutation();
   const updateInfo = TRPCReact.modList.updateInfo.useMutation();
@@ -24,6 +26,8 @@ function DataUrlSettings() {
   const extraValue = extraUrls ?? data?.extra ?? '';
 
   const onSet = async () => {
+    // 前回の復帰タイマーが残っていると loading 中に idle へ戻されるため消す
+    clearTimeout(timer.current);
     setPhase('loading');
     try {
       const result = await setDataUrls.mutateAsync({
@@ -54,7 +58,7 @@ function DataUrlSettings() {
     } catch {
       setPhase('danger');
     }
-    setTimeout(() => setPhase('idle'), 3000);
+    timer.current = setTimeout(() => setPhase('idle'), 3000);
   };
 
   const buttonClass =
