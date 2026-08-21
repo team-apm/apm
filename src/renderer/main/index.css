@@ -3,6 +3,8 @@
 }
 html,
 body,
+/* React のマウント先。body 直下に挟まるため高さの継承に加える */
+#root,
 section,
 section#packages .container-lg,
 section#packages .container-lg > .card,
