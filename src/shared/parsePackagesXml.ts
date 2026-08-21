@@ -206,7 +206,9 @@ export class PackageInfo {
               this.isContinuous = Boolean(tmpObj.$continuous[0]);
           }
         } else if (key === 'releases') {
-          this.releases = {};
+          // version はリモート由来のままキーになる。__proto__ のような名前で
+          // プロトタイプを差し替えられないよう、継承なしのオブジェクトにする
+          this.releases = Object.create(null) as Record<string, ReleaseInfo>;
           for (const release of parsedPackage[key][0].release) {
             this.releases[release.$version[0]] = {
               archiveIntegrity: release?.archiveIntegrity?.[0],
@@ -244,7 +246,8 @@ export function parsePackagesXml(xmlData: string): PackagesList {
   const packagesInfo = parser.parse(xmlData) as RawPackagesXml;
   if (!packagesInfo.packages) throw new Error('The list is invalid.');
 
-  const packages: PackagesList = {};
+  // id はリモート由来のままキーになるため、releases と同じく継承なしにする
+  const packages: PackagesList = Object.create(null) as PackagesList;
   for (const packageItem of packagesInfo.packages[0].package) {
     packages[packageItem.id[0]] = new PackageInfo(packageItem);
   }

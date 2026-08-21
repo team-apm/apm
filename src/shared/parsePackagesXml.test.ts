@@ -121,6 +121,33 @@ describe('parsePackagesXml', () => {
     });
   });
 
+  it('id やバージョンに __proto__ を使われてもプロトタイプを差し替えられない', () => {
+    const xml = `<?xml version="1.0" encoding="utf-8"?>
+<packages>
+  <package>
+    <id>__proto__</id>
+    <latestVersion>0.1</latestVersion>
+    <files>
+      <file>a.auf</file>
+    </files>
+    <releases>
+      <release version="__proto__">
+        <archiveIntegrity>sha384-CCC</archiveIntegrity>
+      </release>
+    </releases>
+  </package>
+</packages>
+`;
+    const packages = parsePackagesXml(xml);
+    // 汚染ではなく通常のエントリとして保持される
+    expect(Object.keys(packages)).toEqual(['__proto__']);
+    expect(Object.keys(packages['__proto__'].releases)).toEqual(['__proto__']);
+    expect(
+      ({} as Record<string, unknown>).polluted,
+      'Object.prototype が汚染されていない',
+    ).toBeUndefined();
+  });
+
   it('不正な XML は例外を投げる', () => {
     expect(() => parsePackagesXml('<packages><package>')).toThrow();
   });
