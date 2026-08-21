@@ -1,5 +1,4 @@
 import React, { type JSX, useEffect, useSyncExternalStore } from 'react';
-import { createPortal } from 'react-dom';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../instPath';
 import {
@@ -69,7 +68,8 @@ function formatDates(dates: { modDate: number; checkDate: number } | null) {
 }
 
 /**
- * The manual-update table (core / packages / apm) of the settings tab.
+ * The rows of the manual-update table (core / packages / apm) of the
+ * settings tab, rendered in the tbody of SettingsTab.
  * 旧 core.ts の checkLatestVersion・displayInstalledVersion(日付部分)と
  * 旧 package.ts の updateModDates・checkPackagesList のボタンフローに相当する。
  * パッケージデータの更新フローは packagesListCheck(シングルトン)が持ち、
@@ -150,10 +150,7 @@ function ManualUpdateTable(): JSX.Element {
     } | null,
   );
 
-  const tbody = document.getElementById('manual-update-tbody');
-  if (!tbody) return <></>;
-
-  return createPortal(
+  return (
     <>
       <tr>
         <th scope="row">AviUtl・拡張編集データ</th>
@@ -209,8 +206,7 @@ function ManualUpdateTable(): JSX.Element {
           </div>
         </td>
       </tr>
-    </>,
-    tbody,
+    </>
   );
 }
 

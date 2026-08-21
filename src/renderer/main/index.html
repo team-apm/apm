@@ -144,56 +144,13 @@
 				</div>
 			</section>
 
+			<!-- 中身は React(settings/SettingsTab.tsx)が描画する -->
 			<section
 				class="tab-pane fade"
 				id="settings"
 				role="tabpanel"
 				aria-labelledby="settings"
-			>
-				<div class="container-lg py-2">
-					<div class="row my-2">
-						<div class="card">
-							<div class="card-body">
-								<h3 class="card-title">設定</h3>
-								<div id="settings-data-url-root"></div>
-								<div class="row mb-3">
-									<label for="container" class="form-label"
-										>追加テキストデータ</label
-									>
-									<div class="col-sm-9">
-										<div id="container" class="border rounded"></div>
-									</div>
-									<div class="col-sm-3">
-										<!-- ボタンは React(monacoEditorRenderer.tsx)が描画する -->
-										<div id="save-editor-data-root"></div>
-									</div>
-								</div>
-								<div id="settings-preferences-root"></div>
-								<hr />
-								<div class="row mb-3">
-									<h4>手動更新</h4>
-									<div id="manual-update-react-root" class="d-none"></div>
-									<table class="table table-borderless table-striped">
-										<thead>
-											<tr>
-												<th scope="col" class="col-sm-3"></th>
-												<th scope="col" class="col-sm-3">リスト更新日時</th>
-												<th scope="col" class="col-sm-3">最終更新日時</th>
-												<th scope="col" class="col-sm-3"></th>
-											</tr>
-										</thead>
-										<!-- 行は React(settings/ManualUpdateTable.tsx)が描画する -->
-										<tbody
-											class="align-middle"
-											id="manual-update-tbody"
-										></tbody>
-									</table>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
+			></section>
 
 			<section
 				class="tab-pane fade"

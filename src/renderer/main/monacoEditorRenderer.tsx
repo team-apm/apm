@@ -13,7 +13,6 @@ import schema from 'apm-schema/v3/schema/packages.json';
 // Enum values must be taken from the `monaco` instance passed to onMount.
 import type { editor } from 'monaco-editor';
 import React, { useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { TRPCReact } from '../trpc';
 import { getInstallationPath } from './instPath';
 import { usePhase } from './usePhase';
@@ -146,7 +145,8 @@ loader.config({
 
 /**
  *  A small code editor for apm-data, with validation against apm-schema.
- * 保存ボタン(旧 lib/buttonTransition によるボタンフロー)も portal で描画する。
+ * SettingsTab の「追加テキストデータ」行に、エディタ列と保存ボタン列を
+ * 描画する(旧 lib/buttonTransition によるボタンフロー込み)。
  * @returns {React.ReactElement} React component
  */
 export const MonacoEditorRenderer: React.FC = () => {
@@ -256,45 +256,46 @@ export const MonacoEditorRenderer: React.FC = () => {
     });
   };
 
-  const saveButtonRoot = document.getElementById('save-editor-data-root');
   const saveColor =
     save.phase.kind === 'message' ? save.phase.color : 'primary';
 
   return (
     <>
-      <MonacoEditor
-        height="50vh"
-        defaultLanguage="json"
-        path={modelUri}
-        beforeMount={editorWillMount}
-        onMount={editorDidMount}
-      />
-      {saveButtonRoot &&
-        createPortal(
-          <button
-            type="button"
-            className={`btn btn-${saveColor} w-100`}
-            id="save-editor-data"
-            disabled={save.phase.kind === 'loading'}
-            onClick={() => void saveEditorData()}
-          >
-            {save.phase.kind === 'loading' ? (
-              <>
-                <span
-                  className="spinner-border spinner-border-sm"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                <span className="visually-hidden">Loading...</span>
-              </>
-            ) : save.phase.kind === 'message' ? (
-              save.phase.message
-            ) : (
-              '保存 (Ctrl + S)'
-            )}
-          </button>,
-          saveButtonRoot,
-        )}
+      <div className="col-sm-9">
+        <div id="container" className="border rounded">
+          <MonacoEditor
+            height="50vh"
+            defaultLanguage="json"
+            path={modelUri}
+            beforeMount={editorWillMount}
+            onMount={editorDidMount}
+          />
+        </div>
+      </div>
+      <div className="col-sm-3">
+        <button
+          type="button"
+          className={`btn btn-${saveColor} w-100`}
+          id="save-editor-data"
+          disabled={save.phase.kind === 'loading'}
+          onClick={() => void saveEditorData()}
+        >
+          {save.phase.kind === 'loading' ? (
+            <>
+              <span
+                className="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              <span className="visually-hidden">Loading...</span>
+            </>
+          ) : save.phase.kind === 'message' ? (
+            save.phase.message
+          ) : (
+            '保存 (Ctrl + S)'
+          )}
+        </button>
+      </div>
     </>
   );
 };
