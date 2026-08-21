@@ -92,8 +92,8 @@ function NicommonsRow({
  * build the space-separated ID list in the textarea.
  * 旧 package.ts の displayNicommonsIdList に相当する。データ取得は tRPC 経由で
  * main プロセス。レガシー側からの再描画通知は apm-packages-changed イベント。
- * コピーボタンは preload が初期化する ClipboardJS が処理する(セレクタ指定の
- * ClipboardJS は委譲リスナーのため、React が後から描画する要素でも動く)。
+ * コピーボタンは tRPC(writeClipboardText)でコピーする(旧実装は preload が
+ * 初期化する ClipboardJS。コピーされる文字列は同じ)。
  * @returns {JSX.Element} The rendered component.
  */
 function NicommonsTab(): JSX.Element {
@@ -105,6 +105,7 @@ function NicommonsTab(): JSX.Element {
   );
 
   const utils = TRPCReact.useUtils();
+  const writeClipboardMutation = TRPCReact.writeClipboardText.useMutation();
   const packagesQuery = TRPCReact.packages.getPackages.useQuery(instPath, {
     refetchOnWindowFocus: false,
   });
@@ -186,7 +187,9 @@ function NicommonsTab(): JSX.Element {
                 type="button"
                 className="btn btn-copy btn-primary"
                 id="copy-nicommons-id-textarea"
-                data-clipboard-target="#nicommons-id-textarea"
+                onClick={() =>
+                  writeClipboardMutation.mutate({ text: idListText })
+                }
               >
                 コピー
               </button>

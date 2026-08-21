@@ -9,6 +9,19 @@ import './index.css';
 import { TrpcProvider } from './TrpcProvider';
 
 window.addEventListener('DOMContentLoaded', () => {
+  // dark-theme(旧 preload から移設)
+  const updateTheme = () => {
+    document.querySelector('html').dataset.bsTheme = window.matchMedia(
+      '(prefers-color-scheme: dark)',
+    ).matches
+      ? 'dark'
+      : 'light';
+  };
+  window
+    .matchMedia('(prefers-color-scheme: dark)')
+    .addEventListener('change', updateTheme);
+  updateTheme();
+
   createRoot(document.getElementById('root')).render(
     <TrpcProvider>
       <App />
