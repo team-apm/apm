@@ -5,7 +5,7 @@ import { existsSync, readJson, rm, writeJson } from 'fs-extra';
 import path from 'node:path';
 import { convertV1PackageIds } from '../../shared/packageId';
 import { safeRemove } from '../../shared/safeRemove';
-import { PackageItem } from '../../types/packageItem';
+import { PackageState } from '../../types/packageState';
 import ApmJson from '../ApmJson';
 import type Config from '../Config';
 import { getIdDict } from './packageList';
@@ -27,7 +27,7 @@ export async function uninstallPackageFiles(
   win: BrowserWindow,
   config: Config,
   instPath: string,
-  packageItem: Pick<PackageItem, 'id' | 'info'>,
+  packageItem: Pick<PackageState, 'id' | 'info'>,
 ): Promise<UninstallPackageResult> {
   const filesToRemove = [];
   for (const file of packageItem.info.files) {

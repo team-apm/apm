@@ -17,7 +17,7 @@ import {
   states,
 } from '../../shared/packageUtil';
 import { ApmJsonObject } from '../../types/apmJson';
-import { PackageItem } from '../../types/packageItem';
+import { PackageState } from '../../types/packageState';
 import ApmJson from '../ApmJson';
 import type Config from '../Config';
 import { downloadFile } from './download';
@@ -113,13 +113,13 @@ export async function convertPackageIds(
  * @param {BrowserWindow} win - A browser window used for the download session.
  * @param {Config} config - The config instance.
  * @param {string} instPath - An installation path.
- * @returns {Promise<PackageItem[]>} - A list of object parsed from packages.json
+ * @returns {Promise<PackageState[]>} - A list of object parsed from packages.json
  */
 export async function getPackages(
   win: BrowserWindow,
   config: Config,
   instPath: string,
-): Promise<PackageItem[]> {
+): Promise<PackageState[]> {
   const jsonList: Packages['packages'][] = [];
 
   for (const packageRepository of getPackagesDataUrl(config, instPath)) {
@@ -149,14 +149,14 @@ export async function getPackages(
     }
   }
 
-  const packages: PackageItem[] = [];
+  const packages: PackageState[] = [];
   for (const packagesInfo of jsonList) {
     for (const packageInfo of packagesInfo) {
       packages.push({
         id: packageInfo.id,
         info: packageInfo,
         type: detectPackageTypes(packageInfo.files),
-      } as PackageItem);
+      });
     }
   }
   return packages;
@@ -210,7 +210,7 @@ export async function getPackagesExtra(
   win: BrowserWindow,
   config: Config,
   instPath: string,
-): Promise<{ manuallyInstalledFiles: string[]; packages: PackageItem[] }> {
+): Promise<{ manuallyInstalledFiles: string[]; packages: PackageState[] }> {
   const packages = await getPackages(win, config, instPath);
   const apmJson = await ApmJson.load(instPath);
   const tmpInstalledPackages = (await apmJson.get(
@@ -242,12 +242,12 @@ export async function getPackagesExtra(
  * installed in apm.json, and returns whether apm.json was modified.
  * 旧 getPackagesWithStatus 内の fixIntegrity 分岐の切り出し(挙動同一)。
  * @param {string} instPath - An installation path.
- * @param {PackageItem[]} packages - Packages with their installation status.
+ * @param {PackageState[]} packages - Packages with their installation status.
  * @returns {Promise<boolean>} Whether apm.json was modified.
  */
 export async function adoptManuallyInstalledPackages(
   instPath: string,
-  packages: PackageItem[],
+  packages: PackageState[],
 ): Promise<boolean> {
   const apmJson = await ApmJson.load(instPath);
   let modified = false;
@@ -283,7 +283,7 @@ export async function getPackagesWithStatus(
   config: Config,
   instPath: string,
   fixIntegrity: boolean,
-): Promise<{ manuallyInstalledFiles: string[]; packages: PackageItem[] }> {
+): Promise<{ manuallyInstalledFiles: string[]; packages: PackageState[] }> {
   let { manuallyInstalledFiles, packages } = await getPackagesExtra(
     win,
     config,

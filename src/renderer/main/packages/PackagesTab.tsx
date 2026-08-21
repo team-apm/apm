@@ -13,7 +13,7 @@ import {
   computeShareStringAlerts,
   parseShareString,
 } from '../../../shared/shareString';
-import type { PackageItem } from '../../../types/packageItem';
+import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../instPath';
 import PackageActions, { type SelectedEntry } from './PackageActions';
@@ -26,7 +26,7 @@ const fuzzyOptions = { distance: 10000 };
 type WebpageItem = Scripts['webpage'][number];
 
 type Row =
-  | { kind: 'package'; key: string; p: PackageItem }
+  | { kind: 'package'; key: string; p: PackageState }
   | { kind: 'scriptSite'; key: string; w: WebpageItem };
 
 type SortState = { column: 'name' | 'developer'; order: 'asc' | 'desc' };
@@ -38,30 +38,30 @@ type Filter =
 
 /**
  * Returns the displayed developer text of a package.
- * @param {PackageItem} p - The package.
+ * @param {PackageState} p - The package.
  * @returns {string} The developer text.
  */
-const developerText = (p: PackageItem) =>
+const developerText = (p: PackageState) =>
   p.info.originalDeveloper
     ? `${p.info.developer}（オリジナル：${p.info.originalDeveloper}）`
     : p.info.developer;
 
 /**
  * Returns the displayed installation-status text of a package.
- * @param {PackageItem} p - The package.
+ * @param {PackageState} p - The package.
  * @returns {string} The installation-status text.
  */
-const installationStatusText = (p: PackageItem) =>
+const installationStatusText = (p: PackageState) =>
   p.installationStatus +
   (p.installationStatus === states.installed ? ': ' + p.version : '');
 
 /**
  * Returns the displayed dependency text of a package.
- * @param {PackageItem} p - The package.
- * @param {PackageItem[]} packages - All packages (for resolving names).
+ * @param {PackageState} p - The package.
+ * @param {PackageState[]} packages - All packages (for resolving names).
  * @returns {string} The dependency text.
  */
-const dependencyText = (p: PackageItem, packages: PackageItem[]) =>
+const dependencyText = (p: PackageState, packages: PackageState[]) =>
   p.info.dependencies
     ?.map((ids) =>
       Array.from(
@@ -79,10 +79,10 @@ const dependencyText = (p: PackageItem, packages: PackageItem[]) =>
  * Returns the searchable / sortable column values of a row.
  * 旧 list.js の valueNames(columns)と同じ列構成。
  * @param {Row} row - The row.
- * @param {PackageItem[]} packages - All packages (for resolving dependency names).
+ * @param {PackageState[]} packages - All packages (for resolving dependency names).
  * @returns {Record<string, string>} The column values.
  */
-const rowValues = (row: Row, packages: PackageItem[]) => {
+const rowValues = (row: Row, packages: PackageState[]) => {
   if (row.kind === 'package') {
     const p = row.p;
     return {
@@ -194,7 +194,7 @@ function PackagesTab(): JSX.Element {
   const checkPhase = useSyncExternalStore(subscribePhase, getPhase);
 
   const packages = useMemo(
-    () => (packagesQuery.data?.packages ?? []) as PackageItem[],
+    () => (packagesQuery.data?.packages ?? []) as PackageState[],
     [packagesQuery.data],
   );
   const manuallyInstalledFiles = (packagesQuery.data?.manuallyInstalledFiles ??

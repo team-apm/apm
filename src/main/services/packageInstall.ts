@@ -8,7 +8,7 @@ import { install, verifyFilesByCount } from '../../shared/install';
 import { buildInstallerArgs } from '../../shared/installerArgs';
 import { verifyFile } from '../../shared/integrity';
 import unzip from '../../shared/unzip';
-import { PackageItem } from '../../types/packageItem';
+import { PackageState } from '../../types/packageState';
 import ApmJson from '../ApmJson';
 import type Config from '../Config';
 import { openBrowser } from './browser';
@@ -40,7 +40,7 @@ export function getDate() {
 export async function installPackageArchive(
   instPath: string,
   archivePath: string,
-  packageItem: Pick<PackageItem, 'id' | 'info'>,
+  packageItem: Pick<PackageState, 'id' | 'info'>,
 ): Promise<boolean> {
   let installResult = false;
 
@@ -132,7 +132,7 @@ export type InstallPackageResult =
  * @param {BrowserWindow} win - A browser window used for downloads and dialogs.
  * @param {Config} config - The config instance.
  * @param {string} instPath - An installation path.
- * @param {Pick<PackageItem, 'id' | 'info'>} packageItem - The package to install.
+ * @param {Pick<PackageState, 'id' | 'info'>} packageItem - The package to install.
  * @param {object} [options] - Options.
  * @param {boolean} [options.direct] - Install from the direct link to the zip.
  * @param {string} [options.archivePath] - Path to the already-downloaded archive.
@@ -142,7 +142,7 @@ export async function installPackageFlow(
   win: BrowserWindow,
   config: Config,
   instPath: string,
-  packageItem: Pick<PackageItem, 'id' | 'info'>,
+  packageItem: Pick<PackageState, 'id' | 'info'>,
   { direct = false, archivePath }: { direct?: boolean; archivePath?: string },
 ): Promise<InstallPackageResult> {
   let resolvedArchivePath = '';

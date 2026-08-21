@@ -1,7 +1,7 @@
 import type { Packages } from 'apm-schema';
 import path from 'node:path';
 import { ApmJsonObject } from '../types/apmJson';
-import { PackageItem } from '../types/packageItem';
+import { PackageState } from '../types/packageState';
 import { compareVersionOp } from './compareVersion';
 import { verifyFilesByCount } from './install';
 import { parsePackageType, states } from './packageDisplay';
@@ -56,7 +56,7 @@ export function detectPackageTypes(
 export function getManuallyInstalledFiles(
   files: string[],
   installedPackages: ApmJsonObject['packages'],
-  packages: PackageItem[],
+  packages: PackageState[],
 ) {
   let retFiles = [...files];
   for (const packageItem of packages) {
@@ -85,7 +85,7 @@ export function getManuallyInstalledFiles(
  * @returns {object} Installed version or installation status of the package
  */
 export function getInstalledVersionOfPackage(
-  packageItem: PackageItem,
+  packageItem: PackageState,
   installedFiles: string[],
   manuallyInstalledFiles: string[],
   installedPackages: ApmJsonObject['packages'],
@@ -140,7 +140,7 @@ export function getInstalledVersionOfPackage(
  * @returns {object[]} - packages
  */
 export function computePackagesStatus(
-  _packages: PackageItem[],
+  _packages: PackageState[],
   aviUtlVer: string,
   exeditVer: string,
 ) {

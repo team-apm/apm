@@ -2,7 +2,7 @@ import { mkdtemp, remove, writeFile } from 'fs-extra';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { PackageItem } from '../types/packageItem';
+import { PackageState } from '../types/packageState';
 import {
   computePackagesStatus,
   detectPackageTypes,
@@ -23,7 +23,7 @@ import {
  * @param {string[]} [overrides.conflicts] - Conflicts of the package.
  * @param {string} [overrides.installationStatus] - An installation status.
  * @param {string} [overrides.version] - An installed version.
- * @returns {PackageItem} The created package item.
+ * @returns {PackageState} The created package item.
  */
 function makePackage(
   id: string,
@@ -34,7 +34,7 @@ function makePackage(
     installationStatus?: string;
     version?: string;
   } = {},
-): PackageItem {
+): PackageState {
   return {
     id,
     info: {
@@ -47,7 +47,7 @@ function makePackage(
     },
     installationStatus: overrides.installationStatus ?? states.installed,
     version: overrides.version,
-  } as unknown as PackageItem;
+  } as unknown as PackageState;
 }
 
 describe('parsePackageType', () => {
