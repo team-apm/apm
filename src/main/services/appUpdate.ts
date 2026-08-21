@@ -98,7 +98,9 @@ export async function checkUpdate(silent = true) {
   try {
     const data = (await response.json()) as { name?: string; notes?: string };
     if ('name' in data) {
-      const res = dialog.showMessageBoxSync({
+      // showMessageBoxSync はイベントループを止め、ヘッドレス環境で
+      // ハードハングするため使わない(#2401)
+      const { response } = await dialog.showMessageBox({
         title: 'アップデート',
         message:
           `${data.name}が公開されています。\n` +
@@ -110,7 +112,7 @@ export async function checkUpdate(silent = true) {
         type: 'info',
         icon: icon,
       });
-      if (res === 0) {
+      if (response === 0) {
         const releasePage = `https://github.com/${repo}/releases/latest`;
         await shell.openExternal(releasePage);
         app.quit();

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, MessageBoxSyncOptions } from 'electron';
+import { app, BrowserWindow, dialog, MessageBoxOptions } from 'electron';
 import debug from 'electron-debug';
 import log from 'electron-log/main';
 import Store from 'electron-store';
@@ -19,8 +19,12 @@ log.initialize({ preload: false });
 
 log.errorHandler.startCatching({
   showDialog: false,
-  onError: () => {
-    const options: MessageBoxSyncOptions = {
+  // showMessageBoxSync は main のイベントループごと止めるため使わない。
+  // ヘッドレス環境(CI の E2E 等)では誰も応答できず quit にも到達しない
+  // ハードハングになる(#2401)。electron-log は onError の戻り値(Promise)を
+  // 待たずにログを書くので、ダイアログ応答後の quit でもログは失われない
+  onError: async () => {
+    const options: MessageBoxOptions = {
       title: 'エラー',
       message: `予期しないエラーが発生したため、AviUtl Package Managerを終了します。\nログファイル: ${
         log.transports.file.getFile().path
@@ -28,7 +32,7 @@ log.errorHandler.startCatching({
       type: 'error',
     };
     if (app.isReady()) {
-      dialog.showMessageBoxSync(options);
+      await dialog.showMessageBox(options);
     } else {
       dialog.showErrorBox(options.title, options.message);
     }
