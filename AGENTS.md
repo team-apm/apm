@@ -1,17 +1,17 @@
 # AGENTS.md
 
-AviUtl Package Manager (apm) — AviUtl のプラグイン・スクリプトを管理する Electron 製デスクトップアプリ。TypeScript + webpack (electron-forge)。UI は React + tRPC(main 窓の全タブ + About 窓)。ビジネスロジックは main プロセス(src/main/services)にあり、preload は初期化フロー・contextBridge・tRPC クライアントのみ。
+AviUtl Package Manager (apm) — AviUtl のプラグイン・スクリプトを管理する Electron 製デスクトップアプリ。TypeScript + webpack (electron-forge)。UI は React + tRPC(main 窓は単一ルートの App、About 窓も React)。ビジネスロジックは main プロセス(src/main/services)にあり、preload はログ捕捉と tRPC bridge の公開のみ(初期化フローは renderer 側の startup.ts)。
 
 ## 構成
 
-| パス                 | 役割                                                                                                                     |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `src/main/`          | メインプロセス。`index.ts` = エントリ、`api.ts` = tRPC ルーター、`services/` = ビジネスロジック                          |
-| `src/renderer/`      | 窓ごと(`main` / `about` / `splash`)。forge.config.ts の entryPoints と 1:1 対応                                          |
-| `src/renderer/main/` | main 窓。タブごとのディレクトリ(`aviutl` / `packages` / `nicommons` / `settings` / `others`)+ 初期化フローを持つ preload |
-| `src/lib/`           | renderer から使う electron 依存モジュール(`trpcClient.ts` / `ipcWrapper.ts`)                                             |
-| `src/shared/`        | electron 非依存の純粋モジュール。ユニットテストの主対象                                                                  |
-| `src/common/ipc.ts`  | レガシー IPC のチャンネル名定義                                                                                          |
+| パス                 | 役割                                                                                                                                                 |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/main/`          | メインプロセス。`index.ts` = エントリ、`api.ts` = tRPC ルーター、`services/` = ビジネスロジック                                                      |
+| `src/renderer/`      | 窓ごと(`main` / `about` / `splash`)。forge.config.ts の entryPoints と 1:1 対応                                                                      |
+| `src/renderer/main/` | main 窓。単一 React ルート(`App.tsx`)+ タブごとのディレクトリ(`aviutl` / `packages` / `nicommons` / `settings` / `others`)+ 起動フロー(`startup.ts`) |
+| `src/lib/`           | renderer から使う electron 依存モジュール(`ipcWrapper.ts`)                                                                                           |
+| `src/shared/`        | electron 非依存の純粋モジュール。ユニットテストの主対象                                                                                              |
+| `src/common/ipc.ts`  | レガシー IPC のチャンネル名定義                                                                                                                      |
 
 プロセス構成・main プロセスの内訳・データフローの詳細は ARCHITECTURE.md を参照。
 
@@ -37,7 +37,7 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 - **実現すべき動作は現行コードが仕様書**。置き換えは「特性化テストで現行動作を固定 → 置き換え → テスト緑」の順。この原則の動機は、構造改善(移行)の最中に挙動変更の判断を持ち込まないこと。現行動作が明らかに不自然(バグ)でも**置き換え PR 内では保存**し、issue 化して別 PR で直す(挙動変更と構造変更を同じ PR に混ぜない)
 - v3.x を小出しリリース(v4 番号は使わない)。リリースは release-it(手順は docs/RELEASING.md、ブランチ運用は BRANCHING.md)
 - Windows メイン。明らかなクラッシュは直す。ビルドは 3 OS 継続 — mac/Linux 版に確たる実需要があるからではなく、開発環境が macOS であること(開発者自身の動作確認に必要)と、ファイル操作中心のアプリでクロスプラットフォーム維持コストが低いことが理由。維持コストが上がったら縮小を検討してよい
-- dataURL は自由入力を維持(allowlist しない)。防御は `src/shared/resolvePath.ts` の同一オリジン + 親ディレクトリ脱出禁止 + README/SECURITY での注意喚起。中間案(未知オリジン追加時のみ確認ダイアログ)は #2377 で検討中
+- dataURL は自由入力を維持(allowlist しない)。防御は `src/shared/resolvePath.ts` の同一オリジン + 親ディレクトリ脱出禁止 + 未承認オリジン追加時の一度だけの確認ダイアログ(#2377)+ README/SECURITY での注意喚起
 - i18n は後回し(まず日本語のまま。英語 UI は #1879)
 - メジャー依存更新は 1 PR = 1 major(dependabot は major を ignore — 下の「既知の固定」)
 - テスト: ユニットは Vitest。electron に依存しない純粋関数を優先してテストする
@@ -83,9 +83,9 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 ## 落とし穴
 
-機械化できる制約は ESLint で強制し、背景説明は該当コードのコメントに置く(ここには lint・型で守れない判断基準だけを残す)。lint 化済み: monaco-editor の型のみインポート、renderer / lib での fs 直接 import 禁止(いずれも `eslint.config.mjs` の `no-restricted-imports`)。コード側に説明があるもの: `compareVersion` の NaN 返却(JSDoc)、preload の初期化フローの順序(`src/renderer/main/preload.ts` のコメント)、tRPC の ID 空間分離の背景(`src/shared/trpcIdNamespace.ts` のコメント)。
+機械化できる制約は ESLint で強制し、背景説明は該当コードのコメントに置く(ここには lint・型で守れない判断基準だけを残す)。lint 化済み: monaco-editor の型のみインポート、renderer / lib での fs 直接 import 禁止(いずれも `eslint.config.mjs` の `no-restricted-imports`)。コード側に説明があるもの: `compareVersion` の NaN 返却(JSDoc)、起動フローの順序(`src/renderer/main/startup.ts` のコメント)。
 
-- renderer.tsx は React ルートを機能ごとに分けて createRoot しているため、React Context はルート間で共有できない。複数ルートから共有する実行状態は `packages/packagesListCheck.ts` のようにモジュールシングルトン + `useSyncExternalStore` で持つ。ルート間・レガシーとの通知は DOM イベント(`apm-packages-changed` / `apm-core-changed` / `apm-check-packages-list` / `apm-install-package-by-id`)
+- main 窓は単一 React ルートだが、複数箇所から共有する実行状態(一覧再取得の phase・instPath・firstLaunch)は `packages/packagesListCheck.ts` のようにモジュールシングルトン + `useSyncExternalStore` で持つ(起動元と表示側が別タブにまたがるため)。コンポーネント間の再取得通知は DOM イベント(`apm-packages-changed` / `apm-core-changed` / `apm-check-packages-list` / `apm-install-package-by-id`)が残っている(queryClient への一本化は Phase 5 の設計しなおしで検討)
+- 1 窓に tRPC クライアントを複数作らない(main 窓は `TrpcProvider`、about 窓は `App` の 1 個ずつ)。複数作るとリクエスト ID が衝突し、**他方のリクエストへの応答で resolve される**。かつて preload 側クライアントと共存させるため `shared/trpcIdNamespace.ts` で ID 空間を偶奇分離していた — 再び複数が必要になったら git 履歴から復元する
 - メインワールドの React から import する shared モジュールは electron だけでなく **fs にも依存不可**(renderer の webpack ビルドに Node ポリフィルが無いため、fs-extra が混入するとビルドが落ちる)。直接 import は lint が検出するが、**shared モジュール経由の推移的な fs 依存は lint で検出できない**(webpack のビルド失敗が検出線)。表示用の定数・純関数は `src/shared/packageDisplay.ts` のように fs 非依存モジュールへ分離する
 - trpc-electron(electron-trpc の tRPC 11 対応フォーク。0.7.1 までの本家は tRPC 11 非互換)は falsy なトップレベル入力(`false` / `0` / `''`)を `undefined` に変換する(main ハンドラが `input: g ? deserialize(g) : void 0` と真偽値評価しているため)。tRPC procedure の入力にプリミティブの boolean / number を直接渡さず、必ずオブジェクトで包む(`{ update: boolean }` 等)
-- 同一窓に tRPC クライアントを追加する場合は必ず `shared/trpcIdNamespace.ts` のリンクを ipcLink の手前に挟む(挟まないと他クライアントとリクエスト ID が衝突し、**他方のリクエストへの応答で resolve される**。仕組みは同ファイルのコメント参照)
