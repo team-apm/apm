@@ -16,7 +16,15 @@ const monacoTypeOnlyImport = {
 };
 
 export default config(
-  { ignores: ['node_modules/**', 'out/**', '.webpack/**'] },
+  // .claude/worktrees は Claude Code の並行セッション用 worktree(git 管理外)
+  {
+    ignores: [
+      'node_modules/**',
+      'out/**',
+      '.webpack/**',
+      '.claude/worktrees/**',
+    ],
+  },
   eslint.configs.recommended,
   jsdoc.configs['flat/recommended'],
   tseslintConfigs.recommended,
