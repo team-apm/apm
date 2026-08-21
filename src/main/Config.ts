@@ -69,6 +69,10 @@ export default class Config extends Store<StoreType> {
     hasMain: () => this.has('dataURL.main'),
     getMain: () => this.get('dataURL.main', ''),
     setMain: (url: string) => this.set('dataURL.main', url),
+    // conf は set(key, undefined) を拒否するため、未設定へ戻すのは delete で
+    // 行う。delete の型はトップレベルキー限定だが、実行時は get/set と同じく
+    // ドット記法に対応しているためキャストする
+    deleteMain: () => this.delete('dataURL.main' as keyof StoreType),
 
     hasExtra: () => this.has('dataURL.extra'),
     getExtra: () => this.get('dataURL.extra', ''),

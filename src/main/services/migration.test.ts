@@ -105,15 +105,18 @@ describe('migration service', () => {
       expect(mocks.showMessageBox).toHaveBeenCalledOnce();
     });
 
-    it('v1(旧デフォルト URL)からの移行は setMain(undefined) で例外になる(#2397 のバグ)', async () => {
-      // 本来は確認なしで v2 を経由して 3 まで進むべき経路。conf が
-      // undefined の set を拒否するため現行実装はクラッシュする。
-      // #2397 の修正時にこのテストを成功系へ書き換えること
+    it('v1(旧デフォルト URL)からは確認なしで v2 を経由して 3 まで進む', async () => {
+      // かつて setMain(undefined) が conf に拒否されクラッシュしていた経路
+      // (#2397)。デフォルト利用者は dataURL.main が未設定へ戻る
       config.dataURL.setMain(OLD_DEFAULT_DATA_URL);
 
-      await expect(migrationGlobal(win, config)).rejects.toThrow(
-        'Use `delete()` to clear values',
-      );
+      const result = await migrationGlobal(win, config);
+
+      expect(result).toBe(true);
+      expect(config.getDataVersion()).toBe('3');
+      expect(config.dataURL.hasMain()).toBe(false);
+      // v2→3 の案内ダイアログの 1 回だけ(v1→2 の確認は旧デフォルトなら出ない)
+      expect(mocks.showMessageBox).toHaveBeenCalledOnce();
     });
 
     it('v1(カスタム URL)でキャンセルを選ぶと false(起動中止)', async () => {
