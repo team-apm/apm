@@ -1,16 +1,17 @@
 import type { Core, Program } from 'apm-schema';
-import { app, type BrowserWindow, dialog } from 'electron';
+import { app, type BrowserWindow } from 'electron';
 import log from 'electron-log/main';
 import { existsSync, readJson } from 'fs-extra';
 import path from 'node:path';
 import { installedVersionText } from '../../shared/coreVersionText';
 import { install, verifyFilesByCount } from '../../shared/install';
-import { checkIntegrity, verifyFile } from '../../shared/integrity';
+import { checkIntegrity } from '../../shared/integrity';
 import unzip from '../../shared/unzip';
 import ApmJson from '../ApmJson';
 import type Config from '../Config';
 import { addAviUtlShortcut, removeAviUtlShortcut } from '../shortcut';
 import { downloadFile } from './download';
+import { runInstallFlow } from './installFlow';
 import { migrationByFolder } from './migration';
 import { getCoreDataUrl, getInfo, updateInfo } from './modList';
 import { convertPackageIds, refreshPackagesList } from './packageList';
@@ -174,54 +175,40 @@ export async function installCoreProgram(
   const progInfo = coreInfo[program] as Program;
   const release = progInfo.releases.find((r) => r.version === version);
   const url = release.url;
-  let archivePath = await downloadFile(win, url, {
-    loadCache: true,
-    subDir: 'core',
-  });
 
-  if (!archivePath) {
-    log.error('Failed downloading a file.');
-    return 'downloadFailed';
-  }
-
-  const integrityForArchive = release.integrity.archive;
-
-  if (integrityForArchive) {
-    // Verify file integrity
-    while (!(await verifyFile(archivePath, integrityForArchive))) {
-      const dialogResult = await dialog.showMessageBox(win, {
-        title: 'エラー',
-        message:
-          'ダウンロードされたファイルは破損しています。再ダウンロードしますか？',
-        type: 'warning',
-        buttons: ['はい', 'いいえ'],
-        cancelId: 1,
+  return await runInstallFlow<'downloadFailed' | 'redownloadFailed'>(win, {
+    resolveArchive: async () => {
+      const archivePath = await downloadFile(win, url, {
+        loadCache: true,
+        subDir: 'core',
       });
-
-      if (dialogResult.response !== 0) {
-        log.error(`The downloaded archive file is corrupt. URL:${url}`);
-        return 'corrupt';
+      if (!archivePath) {
+        log.error('Failed downloading a file.');
+        return { failure: 'downloadFailed' as const };
       }
-
-      archivePath = await downloadFile(win, url, { subDir: 'core' });
+      return { archivePath };
+    },
+    integrity: release.integrity.archive,
+    corruptLogUrl: url,
+    redownloadArchive: async () => {
+      const archivePath = await downloadFile(win, url, { subDir: 'core' });
       if (!archivePath) {
         log.error(`Failed downloading the archive file. URL:${url}`);
-        return 'redownloadFailed';
+        return { failure: 'redownloadFailed' as const };
       }
-    }
-  }
+      return { archivePath };
+    },
+    install: async (archivePath) => {
+      const unzippedPath = await unzip(archivePath);
+      // install() の戻り値を検証しないのは旧実装のままの挙動
+      // (core は配置数の検証をせず、throw しなければ成功とみなす)
+      await install(unzippedPath, instPath, progInfo.files, true);
 
-  try {
-    const unzippedPath = await unzip(archivePath);
-    await install(unzippedPath, instPath, progInfo.files, true);
-
-    const apmJson = await ApmJson.load(instPath);
-    await apmJson.setCore(program, version);
-    return 'success';
-  } catch (e) {
-    log.error(e);
-    return 'installFailed';
-  }
+      const apmJson = await ApmJson.load(instPath);
+      await apmJson.setCore(program, version);
+      return true;
+    },
+  });
 }
 
 /**
