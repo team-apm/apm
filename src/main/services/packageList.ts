@@ -1,5 +1,5 @@
 import type { Packages } from 'apm-schema';
-import { type BrowserWindow, dialog } from 'electron';
+import { dialog } from 'electron';
 import log from 'electron-log/main';
 import { existsSync, readdir as fsReaddir, readJson } from 'fs-extra';
 import path from 'node:path';
@@ -16,30 +16,31 @@ import {
   getManuallyInstalledFiles,
   states,
 } from '../../shared/packageUtil';
-import { ApmJsonObject } from '../../types/apmJson';
+import { LedgerObject } from '../../types/ledger';
 import { PackageState } from '../../types/packageState';
-import ApmJson from '../ApmJson';
 import type Config from '../Config';
+import type { Installation } from '../installation';
 import { downloadFile } from './download';
 import { getConvertDataUrl, getInfo, updateInfo } from './modList';
+import type { ServiceContext } from './serviceContext';
 import { existsTempFile } from './tempFile';
 
 /**
  * Returns package data files URLs.
  * 旧 src/lib/modList.ts の getPackagesDataUrl と同一の挙動
- * (設定の取得先 + instPath 直下の packages.json / editorPackages.json)。
+ * (設定の取得先 + インストール先直下の packages.json / editorPackages.json)。
  * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {Installation} inst - The target installation.
  * @returns {string[]} Package data files URLs.
  */
-export function getPackagesDataUrl(config: Config, instPath: string) {
+export function getPackagesDataUrl(config: Config, inst: Installation) {
   return config.dataURL
     .getPackages()
     .concat(
-      instPath && instPath.length > 0
+      inst.path && inst.path.length > 0
         ? [
-            path.join(instPath, 'packages.json'),
-            path.join(instPath, 'editorPackages.json'),
+            inst.localRepoPath,
+            path.join(inst.path, 'editorPackages.json'),
           ].filter((p) => existsSync(p))
         : [],
     );
@@ -48,16 +49,15 @@ export function getPackagesDataUrl(config: Config, instPath: string) {
 /**
  * Returns the id conversion dictionary.
  * 旧 src/lib/convertId.ts の getIdDict と同一の挙動。
- * @param {BrowserWindow} win - A browser window used for the download session.
- * @param {Config} config - The config instance.
+ * @param {ServiceContext} ctx - The service context.
  * @param {boolean} [update] - Download the json file.
  * @returns {Promise<{ [key: string]: string }>} Dictionary of id relationships.
  */
 export async function getIdDict(
-  win: BrowserWindow,
-  config: Config,
+  ctx: ServiceContext,
   update = false,
 ): Promise<{ [key: string]: string }> {
+  const { win, config } = ctx;
   const dictUrl = await getConvertDataUrl(win, config);
   if (update) {
     const convertJson = await downloadFile(win, dictUrl, {
@@ -78,51 +78,47 @@ export async function getIdDict(
 }
 
 /**
- * Converts the package ids in apm.json using the conversion dictionary.
+ * Converts the package ids in the ledger using the conversion dictionary.
  * 旧 src/lib/convertId.ts の convertId と同一の挙動(新 ID の解決に
  * packageItem.id を引く点も含めて維持)。
- * @param {BrowserWindow} win - A browser window used for the download session.
- * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {ServiceContext} ctx - The service context.
+ * @param {Installation} inst - The target installation.
  * @param {number} modTime - A mod time.
  */
 export async function convertPackageIds(
-  win: BrowserWindow,
-  config: Config,
-  instPath: string,
+  ctx: ServiceContext,
+  inst: Installation,
   modTime: number,
 ) {
-  const apmJson = await ApmJson.load(instPath);
-  apmJson.begin();
-  const packages = (await apmJson.get('packages')) as {
+  const ledger = await inst.ledger();
+  ledger.begin();
+  const packages = (await ledger.get('packages')) as {
     [key: string]: { id: string };
   };
 
-  const convDict = await getIdDict(win, config, true);
+  const convDict = await getIdDict(ctx, true);
   convertV1ApmJsonPackages(packages, convDict);
 
-  await apmJson.set('packages', packages);
-  await apmJson.set('convertMod', modTime);
-  await apmJson.commit();
+  await ledger.set('packages', packages);
+  await ledger.set('convertMod', modTime);
+  await ledger.commit();
 }
 
 /**
  * Returns an object parsed from packages.json
  * 旧 src/renderer/main/packageUtil.ts の getPackages
  * (+ src/lib/parseJson.ts の getPackages の ID 変換)と同一の挙動。
- * @param {BrowserWindow} win - A browser window used for the download session.
- * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {ServiceContext} ctx - The service context.
+ * @param {Installation} inst - The target installation.
  * @returns {Promise<PackageState[]>} - A list of object parsed from packages.json
  */
 export async function getPackages(
-  win: BrowserWindow,
-  config: Config,
-  instPath: string,
+  ctx: ServiceContext,
+  inst: Installation,
 ): Promise<PackageState[]> {
   const jsonList: Packages['packages'][] = [];
 
-  for (const packageRepository of getPackagesDataUrl(config, instPath)) {
+  for (const packageRepository of getPackagesDataUrl(ctx.config, inst)) {
     const packagesListFile = existsTempFile(
       `package/${path.basename(packageRepository)}`,
       packageRepository,
@@ -132,7 +128,7 @@ export async function getPackages(
         const packagesInfo = (
           (await readJson(packagesListFile.path)) as Packages
         ).packages;
-        convertV1PackageIds(packagesInfo, await getIdDict(win, config));
+        convertV1PackageIds(packagesInfo, await getIdDict(ctx));
         jsonList.push(packagesInfo);
       } catch {
         log.error('Failed data processing.');
@@ -201,22 +197,20 @@ async function getInstalledFiles(instPath: string) {
  * manually installed files.
  * 旧 src/renderer/main/packageUtil.ts の getPackagesExtra と同一の挙動
  * (パッケージ一覧は main 側の getPackages から取得する)。
- * @param {BrowserWindow} win - A browser window used for the download session.
- * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {ServiceContext} ctx - The service context.
+ * @param {Installation} inst - The target installation.
  * @returns {Promise<object>} List of manually installed files and packages.
  */
 export async function getPackagesExtra(
-  win: BrowserWindow,
-  config: Config,
-  instPath: string,
+  ctx: ServiceContext,
+  inst: Installation,
 ): Promise<{ manuallyInstalledFiles: string[]; packages: PackageState[] }> {
-  const packages = await getPackages(win, config, instPath);
-  const apmJson = await ApmJson.load(instPath);
-  const tmpInstalledPackages = (await apmJson.get(
+  const packages = await getPackages(ctx, inst);
+  const ledger = await inst.ledger();
+  const tmpInstalledPackages = (await ledger.get(
     'packages',
-  )) as ApmJsonObject['packages'];
-  const tmpInstalledFiles = await getInstalledFiles(instPath);
+  )) as LedgerObject['packages'];
+  const tmpInstalledFiles = await getInstalledFiles(inst.path);
   const tmpManuallyInstalledFiles = getManuallyInstalledFiles(
     tmpInstalledFiles,
     tmpInstalledPackages,
@@ -228,7 +222,7 @@ export async function getPackagesExtra(
       tmpInstalledFiles,
       tmpManuallyInstalledFiles,
       tmpInstalledPackages,
-      instPath,
+      inst.path,
     );
   });
   return {
@@ -239,62 +233,56 @@ export async function getPackagesExtra(
 
 /**
  * Records the packages whose release integrity matches an installed file as
- * installed in apm.json, and returns whether apm.json was modified.
+ * installed in the ledger, and returns whether the ledger was modified.
  * 旧 getPackagesWithStatus 内の fixIntegrity 分岐の切り出し(挙動同一)。
- * @param {string} instPath - An installation path.
+ * @param {Installation} inst - The target installation.
  * @param {PackageState[]} packages - Packages with their installation status.
- * @returns {Promise<boolean>} Whether apm.json was modified.
+ * @returns {Promise<boolean>} Whether the ledger was modified.
  */
 export async function adoptManuallyInstalledPackages(
-  instPath: string,
+  inst: Installation,
   packages: PackageState[],
 ): Promise<boolean> {
-  const apmJson = await ApmJson.load(instPath);
+  const ledger = await inst.ledger();
   let modified = false;
-  apmJson.begin();
+  ledger.begin();
   for (const p of packages.filter(
     (p) => p.info.releases && p.installationStatus === states.manuallyInstalled,
   )) {
     for (const release of p.info.releases) {
-      if (await checkIntegrity(instPath, release.integrity.file)) {
-        await apmJson.addPackage(p.id, release.version);
+      if (await checkIntegrity(inst.path, release.integrity.file)) {
+        await ledger.addPackage(p.id, release.version);
         modified = true;
       }
     }
   }
-  await apmJson.commit();
+  await ledger.commit();
   return modified;
 }
 
 /**
  * Returns the packages with their status (doNotInstall / detached) computed.
  * 旧 src/renderer/main/package.ts の setPackagesList 前半
- * (getPackages → getPackagesExtra → 整合性による apm.json 補正 →
+ * (getPackages → getPackagesExtra → 整合性による導入記録の補正 →
  * getPackagesStatus)と同一の挙動。fixIntegrity = false の場合は
  * 補正を行わない(旧 installScript の redirect 解決と同一)。
- * @param {BrowserWindow} win - A browser window used for the download session.
- * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {ServiceContext} ctx - The service context.
+ * @param {Installation} inst - The target installation.
  * @param {boolean} fixIntegrity - Whether to guess installed packages from integrity.
  * @returns {Promise<object>} List of manually installed files and packages.
  */
 export async function getPackagesWithStatus(
-  win: BrowserWindow,
-  config: Config,
-  instPath: string,
+  ctx: ServiceContext,
+  inst: Installation,
   fixIntegrity: boolean,
 ): Promise<{ manuallyInstalledFiles: string[]; packages: PackageState[] }> {
-  let { manuallyInstalledFiles, packages } = await getPackagesExtra(
-    win,
-    config,
-    instPath,
-  );
+  let { manuallyInstalledFiles, packages } = await getPackagesExtra(ctx, inst);
 
   if (fixIntegrity) {
     // guess which packages are installed from integrity
-    const modified = await adoptManuallyInstalledPackages(instPath, packages);
+    const modified = await adoptManuallyInstalledPackages(inst, packages);
     if (modified) {
-      const packagesExtraMod = await getPackagesExtra(win, config, instPath);
+      const packagesExtraMod = await getPackagesExtra(ctx, inst);
       manuallyInstalledFiles = packagesExtraMod.manuallyInstalledFiles;
       packages = packagesExtraMod.packages;
     }
@@ -303,9 +291,9 @@ export async function getPackagesWithStatus(
   let aviUtlVer = '';
   let exeditVer = '';
   try {
-    const apmJson = await ApmJson.load(instPath);
-    aviUtlVer = (await apmJson.get('core.' + 'aviutl', '')) as string;
-    exeditVer = (await apmJson.get('core.' + 'exedit', '')) as string;
+    const ledger = await inst.ledger();
+    aviUtlVer = (await ledger.get('core.' + 'aviutl', '')) as string;
+    exeditVer = (await ledger.get('core.' + 'exedit', '')) as string;
   } catch (e) {
     log.info(e);
   }
@@ -317,18 +305,16 @@ export async function getPackagesWithStatus(
 /**
  * Downloads the package data files.
  * 旧 src/renderer/main/packageUtil.ts の downloadRepository と同一の挙動。
- * @param {BrowserWindow} win - A browser window used for the download session.
- * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {ServiceContext} ctx - The service context.
+ * @param {Installation} inst - The target installation.
  */
 export async function downloadRepository(
-  win: BrowserWindow,
-  config: Config,
-  instPath: string,
+  ctx: ServiceContext,
+  inst: Installation,
 ) {
   // 'electron-dl' does not download all files when downloading them asynchronously.
-  for (const packageRepository of getPackagesDataUrl(config, instPath)) {
-    await downloadFile(win, packageRepository, {
+  for (const packageRepository of getPackagesDataUrl(ctx.config, inst)) {
+    await downloadFile(ctx.win, packageRepository, {
       subDir: 'package',
       keyText: packageRepository,
     });
@@ -340,17 +326,16 @@ export async function downloadRepository(
  * repositories, and records the check/mod dates.
  * 旧 src/renderer/main/package.ts の checkPackagesList のデータ取得部分と
  * 同一の挙動。ボタン・オーバーレイなどの UI は renderer 側に残る。
- * @param {BrowserWindow} win - The main window.
- * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {ServiceContext} ctx - The service context.
+ * @param {Installation} inst - The target installation.
  */
 export async function refreshPackagesList(
-  win: BrowserWindow,
-  config: Config,
-  instPath: string,
+  ctx: ServiceContext,
+  inst: Installation,
 ) {
+  const { win, config } = ctx;
   await updateInfo(win, config);
-  await downloadRepository(win, config, instPath);
+  await downloadRepository(ctx, inst);
   config.checkDate.setPackages(Date.now());
   const modInfo = await getInfo(win, config);
   config.modDate.setPackages(
@@ -376,18 +361,21 @@ export function getPackagesDates(
 }
 
 /**
- * Returns the subset of the given package ids recorded in apm.json.
+ * Returns the subset of the given package ids recorded in the ledger.
  * 旧 displayNicommonsIdList の apmJson.has('packages.' + id) 判定と同一の挙動
  * (dot-prop のパス解釈に依存するため判定ごと main 側で行う)。
- * @param {string} instPath - An installation path.
+ * @param {Installation} inst - The target installation.
  * @param {string[]} ids - Package ids to check.
- * @returns {Promise<string[]>} The ids recorded in apm.json.
+ * @returns {Promise<string[]>} The ids recorded in the ledger.
  */
-export async function getApmJsonInstalledIds(instPath: string, ids: string[]) {
-  const apmJson = await ApmJson.load(instPath);
+export async function getApmJsonInstalledIds(
+  inst: Installation,
+  ids: string[],
+) {
+  const ledger = await inst.ledger();
   const result: string[] = [];
   for (const id of ids) {
-    if (await apmJson.has('packages.' + id)) result.push(id);
+    if (await ledger.has('packages.' + id)) result.push(id);
   }
   return result;
 }

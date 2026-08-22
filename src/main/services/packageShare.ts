@@ -1,28 +1,26 @@
 import type { Packages } from 'apm-schema';
-import { app, type BrowserWindow } from 'electron';
+import { app } from 'electron';
 import { existsSync, readJson, writeJson } from 'fs-extra';
 import path from 'node:path';
 import { convertV1PackageIds } from '../../shared/packageId';
 import { states } from '../../shared/packageUtil';
 import { programs } from '../../shared/programs';
 import { shareStringVersion } from '../../shared/shareString';
-import ApmJson from '../ApmJson';
-import type Config from '../Config';
+import type { Installation } from '../installation';
 import { getIdDict, getPackagesExtra } from './packageList';
+import type { ServiceContext } from './serviceContext';
 
 /**
  * Builds the share string of the installed packages for the clipboard.
  * 旧 src/renderer/main/package.ts の sharePackages の文字列生成部分と同一の
  * 挙動(クリップボードへの書き込みとボタン表示は renderer 側の責務)。
- * @param {BrowserWindow} win - A browser window used for the download session.
- * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {ServiceContext} ctx - The service context.
+ * @param {Installation} inst - The target installation.
  * @returns {Promise<string>} The share string.
  */
 export async function buildShareString(
-  win: BrowserWindow,
-  config: Config,
-  instPath: string,
+  ctx: ServiceContext,
+  inst: Installation,
 ) {
   const ver = {
     share: shareStringVersion, // version of this data
@@ -32,13 +30,13 @@ export async function buildShareString(
     packages: [''],
   };
 
-  const apmJson = await ApmJson.load(instPath);
+  const ledger = await inst.ledger();
 
   for (const program of programs) {
-    const currentVersion = (await apmJson.get('core.' + program)) as string;
+    const currentVersion = (await ledger.get('core.' + program)) as string;
     ver[program] = currentVersion;
   }
-  ver.packages = (await getPackagesExtra(win, config, instPath)).packages
+  ver.packages = (await getPackagesExtra(ctx, inst)).packages
     .filter(
       (p) =>
         p.installationStatus === states.installed ||
@@ -64,36 +62,34 @@ export async function buildShareString(
  * 旧 src/lib/parseJson.ts の getPackages に src/lib/modList.ts の
  * getEditorPackagesDataUrl を合成したものと同一の挙動
  * (ファイルが無いときに例外を投げる点も含めて維持)。
- * @param {BrowserWindow} win - A browser window used for the download session.
- * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {ServiceContext} ctx - The service context.
+ * @param {Installation} inst - The target installation.
  * @returns {Promise<Packages['packages']>} A list of packages.
  */
 export async function getEditorPackages(
-  win: BrowserWindow,
-  config: Config,
-  instPath: string,
+  ctx: ServiceContext,
+  inst: Installation,
 ): Promise<Packages['packages']> {
-  const packagesListPath = path.join(instPath, 'editorPackages.json');
+  const packagesListPath = path.join(inst.path, 'editorPackages.json');
   if (!existsSync(packagesListPath))
     throw new Error('The version file does not exist.');
 
   const packages = ((await readJson(packagesListPath)) as Packages).packages;
-  convertV1PackageIds(packages, await getIdDict(win, config));
+  convertV1PackageIds(packages, await getIdDict(ctx));
   return packages;
 }
 
 /**
  * Writes the packages of the data editor (editorPackages.json).
  * 旧 src/lib/parseJson.ts の setPackages と同一の挙動。
- * @param {string} instPath - An installation path.
+ * @param {Installation} inst - The target installation.
  * @param {Packages['packages']} packages - A list of packages.
  */
 export async function setEditorPackages(
-  instPath: string,
+  inst: Installation,
   packages: Packages['packages'],
 ) {
-  await writeJson(path.join(instPath, 'editorPackages.json'), {
+  await writeJson(path.join(inst.path, 'editorPackages.json'), {
     version: 3,
     packages: packages,
   });

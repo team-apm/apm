@@ -1,6 +1,6 @@
 import type { Packages } from 'apm-schema';
 import path from 'node:path';
-import { ApmJsonObject } from '../types/apmJson';
+import { LedgerObject } from '../types/ledger';
 import { PackageState } from '../types/packageState';
 import { compareVersionOp } from './compareVersion';
 import { verifyFilesByCount } from './install';
@@ -49,13 +49,13 @@ export function detectPackageTypes(
 /**
  * Returns a list of files that were manually installed.
  * @param {string[]} files - List of installed files
- * @param {object[]} installedPackages - A list of object from apmJson
+ * @param {object[]} installedPackages - A list of object from ledger
  * @param {object[]} packages - A list of object parsed from packages.json
  * @returns {string[]} List of manually installed files
  */
 export function getManuallyInstalledFiles(
   files: string[],
-  installedPackages: ApmJsonObject['packages'],
+  installedPackages: LedgerObject['packages'],
   packages: PackageState[],
 ) {
   let retFiles = [...files];
@@ -80,7 +80,7 @@ export function getManuallyInstalledFiles(
  * @param {object} packageItem - A Package
  * @param {string[]} installedFiles - List of installed files
  * @param {string[]} manuallyInstalledFiles - List of manually installed files
- * @param {object[]} installedPackages - A list of object from apmJson
+ * @param {object[]} installedPackages - A list of object from ledger
  * @param {string} instPath - An installation path
  * @returns {object} Installed version or installation status of the package
  */
@@ -88,7 +88,7 @@ export function getInstalledVersionOfPackage(
   packageItem: PackageState,
   installedFiles: string[],
   manuallyInstalledFiles: string[],
-  installedPackages: ApmJsonObject['packages'],
+  installedPackages: LedgerObject['packages'],
   instPath: string,
 ) {
   let installationStatus;

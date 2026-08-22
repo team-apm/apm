@@ -22,7 +22,14 @@ import {
 } from '../services/packageShare';
 import { uninstallPackageFiles } from '../services/packageUninstall';
 import { getScriptsList, installScriptFlow } from '../services/scriptInstall';
-import { procedure, stringInput, t, winProcedure } from './trpc';
+import {
+  instProcedure,
+  procedure,
+  stringInput,
+  t,
+  winInstProcedure,
+  winProcedure,
+} from './trpc';
 
 // trpc-electron は falsy なトップレベル入力(false / 0 / '')を undefined に
 // 変換してしまうため、boolean はオブジェクトで包んで受け取る
@@ -159,106 +166,73 @@ const editorPackagesInput = (
 };
 
 export const packagesRouter = t.router({
-  getPackages: winProcedure
+  getPackages: winInstProcedure
     .input(stringInput)
-    .query(
-      async ({ input, ctx }) => await getPackages(ctx.win, ctx.config, input),
-    ),
-  refreshList: winProcedure
+    .query(async ({ ctx }) => await getPackages(ctx, ctx.inst)),
+  refreshList: winInstProcedure.input(stringInput).mutation(async ({ ctx }) => {
+    await refreshPackagesList(ctx, ctx.inst);
+  }),
+  getPackagesExtra: winInstProcedure
     .input(stringInput)
-    .mutation(async ({ input, ctx }) => {
-      await refreshPackagesList(ctx.win, ctx.config, input);
-    }),
-  getPackagesExtra: winProcedure
-    .input(stringInput)
-    .query(
-      async ({ input, ctx }) =>
-        await getPackagesExtra(ctx.win, ctx.config, input),
-    ),
-  getApmJsonInstalledIds: procedure
+    .query(async ({ ctx }) => await getPackagesExtra(ctx, ctx.inst)),
+  getApmJsonInstalledIds: instProcedure
     .input(installedIdsInput)
     .query(
-      async ({ input }) =>
-        await getApmJsonInstalledIds(input.instPath, input.ids),
+      async ({ input, ctx }) =>
+        await getApmJsonInstalledIds(ctx.inst, input.ids),
     ),
-  convertIds: winProcedure
+  convertIds: winInstProcedure
     .input(convertIdsInput)
     .mutation(async ({ input, ctx }) => {
-      await convertPackageIds(
-        ctx.win,
-        ctx.config,
-        input.instPath,
-        input.modTime,
-      );
+      await convertPackageIds(ctx, ctx.inst, input.modTime);
     }),
-  getShareString: winProcedure
+  getShareString: winInstProcedure
     .input(stringInput)
-    .query(
-      async ({ input, ctx }) =>
-        await buildShareString(ctx.win, ctx.config, input),
-    ),
+    .query(async ({ ctx }) => await buildShareString(ctx, ctx.inst)),
   getScriptsList: winProcedure
     .input(scriptsListInput)
-    .query(
-      async ({ input, ctx }) =>
-        await getScriptsList(ctx.win, ctx.config, input.update),
-    ),
-  getPackagesWithStatus: winProcedure
+    .query(async ({ input, ctx }) => await getScriptsList(ctx, input.update)),
+  getPackagesWithStatus: winInstProcedure
     .input(packagesWithStatusInput)
     .query(async ({ input, ctx }) => {
-      return await getPackagesWithStatus(
-        ctx.win,
-        ctx.config,
-        input.instPath,
-        input.fixIntegrity,
-      );
+      return await getPackagesWithStatus(ctx, ctx.inst, input.fixIntegrity);
     }),
-  installPackage: winProcedure
+  installPackage: winInstProcedure
     .input(installPackageInput)
     .mutation(async ({ input, ctx }) => {
       return await installPackageFlow(
-        ctx.win,
-        ctx.config,
-        input.instPath,
-        input.packageItem as Parameters<typeof installPackageFlow>[3],
+        ctx,
+        ctx.inst,
+        input.packageItem as Parameters<typeof installPackageFlow>[2],
         { direct: input.direct, archivePath: input.archivePath },
       );
     }),
-  uninstallPackage: winProcedure
+  uninstallPackage: winInstProcedure
     .input(uninstallPackageInput)
     .mutation(async ({ input, ctx }) => {
       return await uninstallPackageFiles(
-        ctx.win,
-        ctx.config,
-        input.instPath,
-        input.packageItem as Parameters<typeof uninstallPackageFiles>[3],
+        ctx,
+        ctx.inst,
+        input.packageItem as Parameters<typeof uninstallPackageFiles>[2],
       );
     }),
-  installScript: winProcedure
+  installScript: winInstProcedure
     .input(installScriptFlowInput)
     .mutation(async ({ input, ctx }) => {
-      return await installScriptFlow(
-        ctx.win,
-        ctx.config,
-        input.instPath,
-        input.url,
-      );
+      return await installScriptFlow(ctx, ctx.inst, input.url);
     }),
   getDates: procedure.query(({ ctx }) => getPackagesDates(ctx.config)),
   openPackageFolder: procedure
     .input(stringInput)
     .mutation(async ({ input }) => await openPackageFolder(input)),
-  getEditorPackages: winProcedure
+  getEditorPackages: winInstProcedure
     .input(stringInput)
-    .query(
-      async ({ input, ctx }) =>
-        await getEditorPackages(ctx.win, ctx.config, input),
-    ),
-  setEditorPackages: procedure
+    .query(async ({ ctx }) => await getEditorPackages(ctx, ctx.inst)),
+  setEditorPackages: instProcedure
     .input(editorPackagesInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       await setEditorPackages(
-        input.instPath,
+        ctx.inst,
         input.packages as Parameters<typeof setEditorPackages>[1],
       );
     }),

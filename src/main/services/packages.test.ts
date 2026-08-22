@@ -13,8 +13,9 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getHash } from '../../shared/getHash';
 import { states } from '../../shared/packageUtil';
-import ApmJson from '../ApmJson';
 import Config from '../Config';
+import { type Installation, openInstallation } from '../installation';
+import Ledger from '../Ledger';
 import {
   installPackageArchive,
   installPackageFlow,
@@ -84,6 +85,8 @@ describe('packages service', () => {
   const tempDirs: string[] = [];
   let config: Config;
   let instPath: string;
+  let ctx: { win: BrowserWindow; config: Config };
+  let inst: Installation;
 
   const makeTempDir = async (prefix: string): Promise<string> => {
     const dir = await mkdtemp(path.join(os.tmpdir(), prefix));
@@ -121,6 +124,8 @@ describe('packages service', () => {
     mocks.userDataDir.value = await makeTempDir('apm-userdata-');
     instPath = await makeTempDir('apm-inst-');
     config = new Config({ cwd: await makeTempDir('apm-config-') });
+    ctx = { win, config };
+    inst = openInstallation(instPath);
     await ensureDir(path.join(mocks.userDataDir.value, 'Data/package'));
     await writeConvertDict();
   });
@@ -134,7 +139,7 @@ describe('packages service', () => {
       config.dataURL.setPackages(['https://example.com/packages.json']);
       await writeJson(path.join(instPath, 'packages.json'), {});
 
-      expect(getPackagesDataUrl(config, instPath)).toEqual([
+      expect(getPackagesDataUrl(config, inst)).toEqual([
         'https://example.com/packages.json',
         path.join(instPath, 'packages.json'),
       ]);
@@ -142,7 +147,7 @@ describe('packages service', () => {
 
     it('instPath が空文字列なら設定の取得先のみを返す', () => {
       config.dataURL.setPackages(['https://example.com/packages.json']);
-      expect(getPackagesDataUrl(config, '')).toEqual([
+      expect(getPackagesDataUrl(config, openInstallation(''))).toEqual([
         'https://example.com/packages.json',
       ]);
     });
@@ -164,7 +169,7 @@ describe('packages service', () => {
       });
       await writeConvertDict({ 'old/id': 'new/id' });
 
-      const packages = await getPackages(win, config, instPath);
+      const packages = await getPackages(ctx, inst);
 
       expect(packages).toHaveLength(1);
       expect(packages[0].id).toBe('new/id');
@@ -181,7 +186,7 @@ describe('packages service', () => {
       );
       await writeFile(file, 'not a json');
 
-      const packages = await getPackages(win, config, instPath);
+      const packages = await getPackages(ctx, inst);
 
       expect(packages).toEqual([]);
       expect(mocks.showMessageBox).toHaveBeenCalledOnce();
@@ -189,7 +194,7 @@ describe('packages service', () => {
 
     it('キャッシュが無い取得先は黙ってスキップする', async () => {
       config.dataURL.setPackages(['https://example.com/nocache.json']);
-      expect(await getPackages(win, config, instPath)).toEqual([]);
+      expect(await getPackages(ctx, inst)).toEqual([]);
       expect(mocks.showMessageBox).not.toHaveBeenCalled();
     });
   });
@@ -210,13 +215,12 @@ describe('packages service', () => {
     it('apm.json に記録済みでファイルもあるパッケージはインストール済みになる', async () => {
       await ensureDir(path.join(instPath, 'plugins'));
       await writeFile(path.join(instPath, 'plugins/test.auf'), 'x');
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('author/plugin', '1.0');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('author/plugin', '1.0');
 
       const { packages, manuallyInstalledFiles } = await getPackagesExtra(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
       );
 
       expect(packages[0].installationStatus).toBe(states.installed);
@@ -228,7 +232,7 @@ describe('packages service', () => {
       await ensureDir(path.join(instPath, 'plugins'));
       await writeFile(path.join(instPath, 'plugins/test.auf'), 'x');
 
-      const { packages } = await getPackagesExtra(win, config, instPath);
+      const { packages } = await getPackagesExtra(ctx, inst);
 
       expect(packages[0].installationStatus).toBe(states.manuallyInstalled);
     });
@@ -238,9 +242,8 @@ describe('packages service', () => {
       await writeFile(path.join(instPath, 'plugins/unknown.auf'), 'x');
 
       const { packages, manuallyInstalledFiles } = await getPackagesExtra(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
       );
 
       expect(manuallyInstalledFiles).toEqual(['plugins/unknown.auf']);
@@ -269,15 +272,15 @@ describe('packages service', () => {
       } as unknown as Parameters<typeof installPackageArchive>[2];
 
       const result = await installPackageArchive(
-        instPath,
+        inst,
         archivePath,
         packageItem,
       );
 
       expect(result).toBe(true);
       expect(await pathExists(path.join(instPath, 'test.auf'))).toBe(true);
-      const apmJson = await ApmJson.load(instPath);
-      expect(await apmJson.get('packages.author/plugin.version')).toBe('1.2');
+      const ledger = await Ledger.load(instPath);
+      expect(await ledger.get('packages.author/plugin.version')).toBe('1.2');
     });
 
     it('isContinuous のパッケージはインストール日をバージョンとして記録する', async () => {
@@ -292,10 +295,10 @@ describe('packages service', () => {
         },
       } as unknown as Parameters<typeof installPackageArchive>[2];
 
-      await installPackageArchive(instPath, archivePath, packageItem);
+      await installPackageArchive(inst, archivePath, packageItem);
 
-      const apmJson = await ApmJson.load(instPath);
-      const version = (await apmJson.get(
+      const ledger = await Ledger.load(instPath);
+      const version = (await ledger.get(
         'packages.author/continuous.version',
       )) as string;
       expect(version).toMatch(/^\d{4}\/\d{2}\/\d{2}$/);
@@ -313,14 +316,14 @@ describe('packages service', () => {
       } as unknown as Parameters<typeof installPackageArchive>[2];
 
       const result = await installPackageArchive(
-        instPath,
+        inst,
         archivePath,
         packageItem,
       );
 
       expect(result).toBe(false);
-      const apmJson = await ApmJson.load(instPath);
-      expect(await apmJson.has('packages.author/missing')).toBe(false);
+      const ledger = await Ledger.load(instPath);
+      expect(await ledger.has('packages.author/missing')).toBe(false);
     });
   });
 
@@ -329,13 +332,12 @@ describe('packages service', () => {
       mocks.downloadFile.mockResolvedValueOnce(undefined);
 
       const result = await installPackageFlow(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
         {
           id: 'a/b',
           info: { name: 'x', latestVersion: '1', files: [], directURL: 'u' },
-        } as unknown as Parameters<typeof installPackageFlow>[3],
+        } as unknown as Parameters<typeof installPackageFlow>[2],
         { direct: true },
       );
 
@@ -346,9 +348,8 @@ describe('packages service', () => {
       mocks.openBrowser.mockResolvedValueOnce(null);
 
       const result = await installPackageFlow(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
         {
           id: 'a/b',
           info: {
@@ -357,7 +358,7 @@ describe('packages service', () => {
             files: [],
             downloadURLs: ['https://example.com/dl'],
           },
-        } as unknown as Parameters<typeof installPackageFlow>[3],
+        } as unknown as Parameters<typeof installPackageFlow>[2],
         {},
       );
 
@@ -377,9 +378,8 @@ describe('packages service', () => {
       mocks.showMessageBox.mockResolvedValueOnce({ response: 1 });
 
       const result = await installPackageFlow(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
         {
           id: 'a/b',
           info: {
@@ -398,7 +398,7 @@ describe('packages service', () => {
               },
             ],
           },
-        } as unknown as Parameters<typeof installPackageFlow>[3],
+        } as unknown as Parameters<typeof installPackageFlow>[2],
         { direct: true },
       );
 
@@ -414,9 +414,8 @@ describe('packages service', () => {
       mocks.downloadFile.mockResolvedValueOnce(undefined);
 
       const result = await installPackageFlow(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
         {
           id: 'a/b',
           info: {
@@ -435,7 +434,7 @@ describe('packages service', () => {
               },
             ],
           },
-        } as unknown as Parameters<typeof installPackageFlow>[3],
+        } as unknown as Parameters<typeof installPackageFlow>[2],
         { direct: true },
       );
 
@@ -453,9 +452,8 @@ describe('packages service', () => {
       await writeFile(file, 'plugin');
 
       const result = await installPackageFlow(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
         {
           id: 'a/direct',
           info: {
@@ -463,7 +461,7 @@ describe('packages service', () => {
             latestVersion: '1.0',
             files: [{ filename: 'direct.auf' }],
           },
-        } as unknown as Parameters<typeof installPackageFlow>[3],
+        } as unknown as Parameters<typeof installPackageFlow>[2],
         { archivePath: file },
       );
 
@@ -476,60 +474,60 @@ describe('packages service', () => {
     it('ファイルを削除して apm.json からも取り除く', async () => {
       await ensureDir(path.join(instPath, 'plugins'));
       await writeFile(path.join(instPath, 'plugins/target.auf'), 'x');
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('a/b', '1.0');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('a/b', '1.0');
 
-      const result = await uninstallPackageFiles(win, config, instPath, {
+      const result = await uninstallPackageFiles(ctx, inst, {
         id: 'a/b',
         info: {
           name: 'x',
           latestVersion: '1.0',
           files: [{ filename: 'plugins/target.auf' }],
         },
-      } as unknown as Parameters<typeof uninstallPackageFiles>[3]);
+      } as unknown as Parameters<typeof uninstallPackageFiles>[2]);
 
       expect(result).toBe('success');
       expect(await pathExists(path.join(instPath, 'plugins/target.auf'))).toBe(
         false,
       );
-      const apmJson2 = await ApmJson.load(instPath);
+      const apmJson2 = await Ledger.load(instPath);
       expect(await apmJson2.has('packages.a/b')).toBe(false);
     });
 
     it('isInstallOnly のファイルは削除しない', async () => {
       await writeFile(path.join(instPath, 'keep.txt'), 'x');
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('a/keep', '1.0');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('a/keep', '1.0');
 
-      const result = await uninstallPackageFiles(win, config, instPath, {
+      const result = await uninstallPackageFiles(ctx, inst, {
         id: 'a/keep',
         info: {
           name: 'x',
           latestVersion: '1.0',
           files: [{ filename: 'keep.txt', isInstallOnly: true }],
         },
-      } as unknown as Parameters<typeof uninstallPackageFiles>[3]);
+      } as unknown as Parameters<typeof uninstallPackageFiles>[2]);
 
       expect(result).toBe('success');
       expect(await pathExists(path.join(instPath, 'keep.txt'))).toBe(true);
     });
 
     it('インストール先の外を指す filename は削除に失敗し removeFailed', async () => {
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('a/evil', '1.0');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('a/evil', '1.0');
 
-      const result = await uninstallPackageFiles(win, config, instPath, {
+      const result = await uninstallPackageFiles(ctx, inst, {
         id: 'a/evil',
         info: {
           name: 'x',
           latestVersion: '1.0',
           files: [{ filename: '../outside.txt' }],
         },
-      } as unknown as Parameters<typeof uninstallPackageFiles>[3]);
+      } as unknown as Parameters<typeof uninstallPackageFiles>[2]);
 
       expect(result).toBe('removeFailed');
       // 失敗時は apm.json に残る(削除処理まで到達しない)
-      const apmJson2 = await ApmJson.load(instPath);
+      const apmJson2 = await Ledger.load(instPath);
       expect(await apmJson2.has('packages.a/evil')).toBe(true);
     });
 
@@ -543,17 +541,17 @@ describe('packages service', () => {
           { id: 'other/pkg', name: 'o', files: [] },
         ],
       });
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('script_abc', '2026/01/01');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('script_abc', '2026/01/01');
 
-      const result = await uninstallPackageFiles(win, config, instPath, {
+      const result = await uninstallPackageFiles(ctx, inst, {
         id: 'script_abc',
         info: {
           name: 's',
           latestVersion: '2026/01/01',
           files: [{ filename: 'script/s.anm' }],
         },
-      } as unknown as Parameters<typeof uninstallPackageFiles>[3]);
+      } as unknown as Parameters<typeof uninstallPackageFiles>[2]);
 
       expect(result).toBe('success');
       const local = await readJson(path.join(instPath, 'packages.json'));
@@ -575,9 +573,8 @@ describe('packages service', () => {
       const archivePath = await makeScriptArchive('cool.anm');
 
       const result = await installScriptArchive(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
         archivePath,
         'https://example.com/scripts',
         { folder: 'cool', developer: 'dev' },
@@ -591,17 +588,16 @@ describe('packages service', () => {
       expect(local.packages).toHaveLength(1);
       expect(local.packages[0].id).toMatch(/^script_/);
       expect(local.packages[0].developer).toBe('dev');
-      const apmJson = await ApmJson.load(instPath);
-      expect(await apmJson.has('packages.' + local.packages[0].id)).toBe(true);
+      const ledger = await Ledger.load(instPath);
+      expect(await ledger.has('packages.' + local.packages[0].id)).toBe(true);
     });
 
     it('スクリプトファイルが無ければ noScript', async () => {
       const archivePath = await makeScriptArchive('readme.txt');
 
       const result = await installScriptArchive(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
         archivePath,
         'https://example.com/scripts',
         { folder: 'x' },
@@ -624,9 +620,8 @@ describe('packages service', () => {
       await writeFile(pluginArchive, 'x');
 
       const result = await installScriptArchive(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
         pluginArchive,
         'https://example.com/scripts',
         { folder: 'x' },
@@ -641,9 +636,8 @@ describe('packages service', () => {
       const archivePath = await makeScriptArchive('evil.anm');
 
       const result = await installScriptArchive(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
         archivePath,
         'https://example.com/scripts',
         { folder: '../../evil' },
@@ -677,14 +671,14 @@ describe('packages service', () => {
       for (const f of ['plugins/bx.auf', 'plugins/ay.auf', 'script/z.anm']) {
         await writeFile(path.join(instPath, f), 'x');
       }
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.setCore('aviutl', '1.10');
-      await apmJson.setCore('exedit', '0.92');
-      await apmJson.addPackage('b/x', '1.0');
-      await apmJson.addPackage('a/y', '1.0');
-      await apmJson.addPackage('script_z', '2026/01/01');
+      const ledger = await Ledger.load(instPath);
+      await ledger.setCore('aviutl', '1.10');
+      await ledger.setCore('exedit', '0.92');
+      await ledger.addPackage('b/x', '1.0');
+      await ledger.addPackage('a/y', '1.0');
+      await ledger.addPackage('script_z', '2026/01/01');
 
-      const share = await buildShareString(win, config, instPath);
+      const share = await buildShareString(ctx, inst);
 
       // script_z はスラッシュを含まないため共有対象から外れる
       expect(share).toBe(
@@ -695,10 +689,10 @@ describe('packages service', () => {
 
   describe('getApmJsonInstalledIds', () => {
     it('apm.json に記録済みの ID だけを返す', async () => {
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('a/b', '1.0');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('a/b', '1.0');
 
-      expect(await getApmJsonInstalledIds(instPath, ['a/b', 'c/d'])).toEqual([
+      expect(await getApmJsonInstalledIds(inst, ['a/b', 'c/d'])).toEqual([
         'a/b',
       ]);
     });

@@ -38,13 +38,16 @@ src/main/
   windows.ts      窓生成(splash / main / about)+ 窓依存のレガシー IPC ハンドラ
   ipcHandlers.ts  窓に依存しないレガシー IPC ハンドラの登録
   api/            tRPC ルーター(index = 集約、trpc = middleware、
-                  ドメイン別ルーターの procedure から services/ を呼ぶ)
+                  ドメイン別ルーターの procedure から services/ を呼ぶ。
+                  instPath 入力は middleware が Installation に解決して渡す)
   services/       ビジネスロジック(packageList / packageInstall /
                   packageUninstall / scriptInstall / packageShare / core /
                   download / modList / migration / appUpdate / settings /
                   nicommons / browser)
   Config.ts       electron-store による設定
-  ApmJson.ts      {instPath}/apm.json の読み書き
+  installation.ts インストール先の集約 Installation(path / ledger() /
+                  localRepoPath)。ユースケース系 services が受け取る
+  Ledger.ts       導入記録 Ledger = {instPath}/apm.json の読み書き
 ```
 
 ## データフロー(パッケージ管理の中核)
@@ -56,7 +59,7 @@ graph LR
   T --> M["パッケージ一覧<br>modList.ts + packageList.ts"]
   M --> I["インストール / 更新判定<br>installPackageFlow(packageInstall.ts)"]
   I -->|"unzip + copy<br>(shared/install.ts)"| P["{instPath}/plugins, script 等"]
-  I -->|導入記録| A["{instPath}/apm.json<br>(ApmJson)"]
+  I -->|導入記録| A["{instPath}/apm.json<br>(Ledger)"]
 ```
 
 - dataURL は自由入力(allowlist しない)。防御は `src/shared/resolvePath.ts` の同一オリジン + 親ディレクトリ脱出禁止(確定方針)
