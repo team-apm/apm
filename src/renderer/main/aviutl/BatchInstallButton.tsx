@@ -4,7 +4,7 @@ import { states } from '../../../shared/packageDisplay';
 import { programs } from '../../../shared/programs';
 import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
-import { getInstallationPath } from '../instPath';
+import { getInstallationPath } from '../installationPath';
 
 type ButtonPhase =
   | { kind: 'idle' }
@@ -42,8 +42,8 @@ function BatchInstallButton(): JSX.Element {
     clearTimeout(timer.current);
     setPhase({ kind: 'loading' });
 
-    const instPath = getInstallationPath();
-    if (!instPath) {
+    const installationPath = getInstallationPath();
+    if (!installationPath) {
       finish('インストール先フォルダを指定してください。', 'danger');
       return;
     }
@@ -56,7 +56,7 @@ function BatchInstallButton(): JSX.Element {
         const result = await installProgramMutation.mutateAsync({
           program,
           version: progInfo.latestVersion,
-          instPath,
+          installationPath,
         });
         // 旧 installProgram の btn なしルート: ダウンロード失敗のみ全体を
         // エラーにし、他の失敗は黙って次へ進む
@@ -71,7 +71,7 @@ function BatchInstallButton(): JSX.Element {
       }
 
       const allPackages = (
-        await utils.packages.resolveInstallationStatus.fetch(instPath)
+        await utils.packages.resolveInstallationStatus.fetch(installationPath)
       ).packages as PackageState[];
       const packagesToInstall = allPackages.filter(
         (p) =>
@@ -82,7 +82,7 @@ function BatchInstallButton(): JSX.Element {
       );
       for (const packageItem of packagesToInstall) {
         const result = await installPackageMutation.mutateAsync({
-          instPath,
+          installationPath,
           packageItem: { id: packageItem.id, info: packageItem.info },
           direct: true,
         });

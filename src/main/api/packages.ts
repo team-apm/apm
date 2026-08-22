@@ -57,25 +57,23 @@ const packageItemInput = (
 const installPackageInput = (
   value: unknown,
 ): {
-  instPath: string;
+  installationPath: string;
   packageItem: { id: string; info: Record<string, unknown> };
   direct: boolean;
   archivePath?: string;
 } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, packageItem, direct, archivePath } = value as Record<
-    string,
-    unknown
-  >;
-  if (typeof instPath !== 'string')
-    throw new TypeError('instPath is expected to be a string.');
+  const { installationPath, packageItem, direct, archivePath } =
+    value as Record<string, unknown>;
+  if (typeof installationPath !== 'string')
+    throw new TypeError('installationPath is expected to be a string.');
   if (typeof direct !== 'boolean')
     throw new TypeError('direct is expected to be a boolean.');
   if (archivePath !== undefined && typeof archivePath !== 'string')
     throw new TypeError('archivePath is expected to be a string.');
   return {
-    instPath,
+    installationPath,
     packageItem: packageItemInput(packageItem),
     direct,
     archivePath: archivePath as string | undefined,
@@ -85,87 +83,90 @@ const installPackageInput = (
 const uninstallPackageInput = (
   value: unknown,
 ): {
-  instPath: string;
+  installationPath: string;
   packageItem: { id: string; info: Record<string, unknown> };
 } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, packageItem } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string')
-    throw new TypeError('instPath is expected to be a string.');
-  return { instPath, packageItem: packageItemInput(packageItem) };
+  const { installationPath, packageItem } = value as Record<string, unknown>;
+  if (typeof installationPath !== 'string')
+    throw new TypeError('installationPath is expected to be a string.');
+  return { installationPath, packageItem: packageItemInput(packageItem) };
 };
 
 const installScriptFlowInput = (
   value: unknown,
-): { instPath: string; url: string } => {
+): { installationPath: string; url: string } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, url } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string' || typeof url !== 'string')
-    throw new TypeError('instPath and url are expected to be strings.');
+  const { installationPath, url } = value as Record<string, unknown>;
+  if (typeof installationPath !== 'string' || typeof url !== 'string')
+    throw new TypeError('installationPath and url are expected to be strings.');
   // ブラウザ窓で開く URL なので http(s) 以外(file: 等)を通さない
   if (!isHttpUrl(url))
     throw new TypeError('url is expected to be a http(s) URL.');
-  return { instPath, url };
+  return { installationPath, url };
 };
 
 const convertIdsInput = (
   value: unknown,
-): { instPath: string; modTime: number } => {
+): { installationPath: string; modTime: number } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, modTime } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string' || typeof modTime !== 'number')
+  const { installationPath, modTime } = value as Record<string, unknown>;
+  if (typeof installationPath !== 'string' || typeof modTime !== 'number')
     throw new TypeError(
-      'instPath is expected to be a string and modTime a number.',
+      'installationPath is expected to be a string and modTime a number.',
     );
-  return { instPath, modTime };
+  return { installationPath, modTime };
 };
 
 const installedIdsInput = (
   value: unknown,
-): { instPath: string; ids: string[] } => {
+): { installationPath: string; ids: string[] } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, ids } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string')
-    throw new TypeError('instPath is expected to be a string.');
+  const { installationPath, ids } = value as Record<string, unknown>;
+  if (typeof installationPath !== 'string')
+    throw new TypeError('installationPath is expected to be a string.');
   if (!(Array.isArray(ids) && ids.every((id) => typeof id === 'string')))
     throw new TypeError('ids is expected to be an array of strings.');
-  return { instPath, ids: ids as string[] };
+  return { installationPath, ids: ids as string[] };
 };
 
 const packagesWithStatusInput = (
   value: unknown,
-): { instPath: string; adoptManuallyInstalled: boolean } => {
+): { installationPath: string; adoptManuallyInstalled: boolean } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, adoptManuallyInstalled } = value as Record<string, unknown>;
+  const { installationPath, adoptManuallyInstalled } = value as Record<
+    string,
+    unknown
+  >;
   if (
-    typeof instPath !== 'string' ||
+    typeof installationPath !== 'string' ||
     typeof adoptManuallyInstalled !== 'boolean'
   )
     throw new TypeError(
-      'instPath is expected to be a string and adoptManuallyInstalled a boolean.',
+      'installationPath is expected to be a string and adoptManuallyInstalled a boolean.',
     );
-  return { instPath, adoptManuallyInstalled };
+  return { installationPath, adoptManuallyInstalled };
 };
 
 const editorPackagesInput = (
   value: unknown,
-): { instPath: string; packages: Record<string, unknown>[] } => {
+): { installationPath: string; packages: Record<string, unknown>[] } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, packages } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string')
-    throw new TypeError('instPath is expected to be a string.');
+  const { installationPath, packages } = value as Record<string, unknown>;
+  if (typeof installationPath !== 'string')
+    throw new TypeError('installationPath is expected to be a string.');
   if (!(
     Array.isArray(packages) &&
     packages.every((p) => typeof p === 'object' && p !== null)
   ))
     throw new TypeError('packages is expected to be an array of objects.');
-  return { instPath, packages: packages as Record<string, unknown>[] };
+  return { installationPath, packages: packages as Record<string, unknown>[] };
 };
 
 export const packagesRouter = t.router({

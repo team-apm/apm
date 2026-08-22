@@ -15,7 +15,7 @@ import {
 } from '../../../shared/shareString';
 import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
-import { getInstallationPath } from '../instPath';
+import { getInstallationPath } from '../installationPath';
 import PackageActions, { type SelectedEntry } from './PackageActions';
 import { getPhase, subscribePhase } from './packagesListCheck';
 
@@ -148,7 +148,9 @@ const naturalCompare = (a: string, b: string) => {
  * @returns {JSX.Element} The rendered component.
  */
 function PackagesTab(): JSX.Element {
-  const [instPath, setInstPath] = useState(() => getInstallationPath());
+  const [installationPath, setInstallationPath] = useState(() =>
+    getInstallationPath(),
+  );
   const [searchString, setSearchString] = useState('');
   const [alertDismissed, setAlertDismissed] = useState(false);
   const [sort, setSort] = useState<SortState>({
@@ -160,7 +162,7 @@ function PackagesTab(): JSX.Element {
 
   const utils = TRPCReact.useUtils();
   const packagesQuery = TRPCReact.packages.getPackagesWithStatus.useQuery(
-    { instPath, adoptManuallyInstalled: true },
+    { installationPath, adoptManuallyInstalled: true },
     { refetchOnWindowFocus: false },
   );
   const scriptsQuery = TRPCReact.packages.getScriptsList.useQuery(
@@ -168,14 +170,14 @@ function PackagesTab(): JSX.Element {
     { refetchOnWindowFocus: false },
   );
   const coreVersionsQuery = TRPCReact.core.getLedgerCoreVersions.useQuery(
-    instPath,
+    installationPath,
     { refetchOnWindowFocus: false },
   );
 
   // レガシー側からの通知: インストール先変更と一覧の再取得要求
   useEffect(() => {
     const onCoreChanged = () => {
-      setInstPath(getInstallationPath());
+      setInstallationPath(getInstallationPath());
     };
     const onPackagesChanged = () => {
       void utils.packages.getPackagesWithStatus.invalidate();
@@ -370,7 +372,7 @@ function PackagesTab(): JSX.Element {
                 </div>
                 <div className="d-flex">
                   <PackageActions
-                    instPath={instPath}
+                    installationPath={installationPath}
                     selectedEntry={selectedEntry}
                     packages={packages}
                   />

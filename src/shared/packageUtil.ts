@@ -81,7 +81,7 @@ export function getManuallyInstalledFiles(
  * @param {string[]} installedFiles - List of installed files
  * @param {string[]} manuallyInstalledFiles - List of manually installed files
  * @param {object[]} installedPackages - A list of object from ledger
- * @param {string} instPath - An installation path
+ * @param {string} installationPath - An installation path
  * @returns {object} Installed version or installation status of the package
  */
 export function getInstalledVersionOfPackage(
@@ -89,7 +89,7 @@ export function getInstalledVersionOfPackage(
   installedFiles: string[],
   manuallyInstalledFiles: string[],
   installedPackages: LedgerObject['packages'],
-  instPath: string,
+  installationPath: string,
 ) {
   let installationStatus;
   let version;
@@ -117,7 +117,7 @@ export function getInstalledVersionOfPackage(
         version = installedPackage.version;
       } else {
         // Determine if the package has been installed properly.
-        if (verifyFilesByCount(instPath, packageItem.info.files)) {
+        if (verifyFilesByCount(installationPath, packageItem.info.files)) {
           installationStatus = states.installed;
           version = installedPackage.version;
         } else {

@@ -2,7 +2,7 @@ import React, { type JSX, useEffect, useMemo, useState } from 'react';
 import { parsePackageType } from '../../../shared/packageDisplay';
 import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
-import { getInstallationPath } from '../instPath';
+import { getInstallationPath } from '../installationPath';
 
 type NicommonsItem = {
   name: string;
@@ -97,7 +97,9 @@ function NicommonsRow({
  * @returns {JSX.Element} The rendered component.
  */
 function NicommonsTab(): JSX.Element {
-  const [instPath, setInstPath] = useState(() => getInstallationPath());
+  const [installationPath, setInstallationPath] = useState(() =>
+    getInstallationPath(),
+  );
   // 除外したもの(チェックを外したもの)だけを持つ。一覧の再取得時に全部
   // チェック済みへ戻る旧挙動と同じにするため、checked の集合は持たない
   const [uncheckedIds, setUncheckedIds] = useState<ReadonlySet<string>>(
@@ -106,9 +108,12 @@ function NicommonsTab(): JSX.Element {
 
   const utils = TRPCReact.useUtils();
   const writeClipboardMutation = TRPCReact.writeClipboardText.useMutation();
-  const packagesQuery = TRPCReact.packages.getPackages.useQuery(instPath, {
-    refetchOnWindowFocus: false,
-  });
+  const packagesQuery = TRPCReact.packages.getPackages.useQuery(
+    installationPath,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
   const packages = useMemo(
     () => (packagesQuery.data ?? []) as PackageState[],
     [packagesQuery.data],
@@ -119,13 +124,13 @@ function NicommonsTab(): JSX.Element {
     [packages],
   );
   const installedIdsQuery = TRPCReact.packages.getLedgerInstalledIds.useQuery(
-    { instPath, ids: candidateIds },
+    { installationPath, ids: candidateIds },
     { refetchOnWindowFocus: false, enabled: packagesQuery.isSuccess },
   );
 
   useEffect(() => {
     const onCoreChanged = () => {
-      setInstPath(getInstallationPath());
+      setInstallationPath(getInstallationPath());
     };
     const onPackagesChanged = () => {
       void utils.packages.getPackages.invalidate();

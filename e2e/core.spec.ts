@@ -9,8 +9,8 @@ test('AviUtl 本体のインストールができる', async ({ cleanup, launchA
   const workDir = mkdtempSync(path.join(tmpdir(), 'apm-e2e-core-'));
   cleanup(() => rmSync(workDir, { recursive: true, force: true }));
   const fixturesDir = path.join(workDir, 'fixtures');
-  const instPath = path.join(workDir, 'aviutl');
-  mkdirSync(instPath, { recursive: true });
+  const installationPath = path.join(workDir, 'aviutl');
+  mkdirSync(installationPath, { recursive: true });
 
   const { baseUrl, close } = await serveFixtures(fixturesDir);
   cleanup(close);
@@ -33,15 +33,18 @@ test('AviUtl 本体のインストールができる', async ({ cleanup, launchA
   const app = await launchApp({
     config: {
       dataVersion: '3',
-      installationPath: instPath,
+      installationPath: installationPath,
       dataURL: { main: baseUrl, extra: '' },
     },
   });
   const window = await getMainWindow(app);
   // preload の初期化フロー完了を待つ(完了するとインストール先が入る)
-  await expect(window.locator('#installation-path')).toHaveValue(instPath, {
-    timeout: 120_000,
-  });
+  await expect(window.locator('#installation-path')).toHaveValue(
+    installationPath,
+    {
+      timeout: 120_000,
+    },
+  );
 
   // バージョン選択ドロップダウンから最新版(1.10)をインストールする
   await window.locator('#install-aviutl').click();
@@ -54,7 +57,7 @@ test('AviUtl 本体のインストールができる', async ({ cleanup, launchA
   );
 
   // 実ファイルが置かれ、インストール済みバージョンが表示される
-  expect(existsSync(path.join(instPath, 'aviutl.exe'))).toBe(true);
+  expect(existsSync(path.join(installationPath, 'aviutl.exe'))).toBe(true);
   await expect(window.locator('#aviutl-installed-version')).toContainText(
     'バージョン: 1.10',
   );

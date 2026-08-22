@@ -61,7 +61,7 @@ function ActionButton({
 }
 
 export type PackageActionsProps = {
-  instPath: string;
+  installationPath: string;
   selectedEntry: SelectedEntry;
   packages: PackageState[];
 };
@@ -79,7 +79,7 @@ export type PackageActionsProps = {
  * @returns {JSX.Element} The rendered component.
  */
 function PackageActions({
-  instPath,
+  installationPath,
   selectedEntry,
   packages,
 }: PackageActionsProps): JSX.Element {
@@ -107,13 +107,15 @@ function PackageActions({
   // 一覧データの再取得(旧 checkPackagesList 相当)。設定タブの更新ボタンと
   // 実行状態を共有する
   const checkPackagesList = async () => {
-    await runPackagesListCheck(() => refreshListMutation.mutateAsync(instPath));
+    await runPackagesListCheck(() =>
+      refreshListMutation.mutateAsync(installationPath),
+    );
   };
 
   const installScript = async (url: string) => {
     install.start();
 
-    if (!instPath) {
+    if (!installationPath) {
       install.finish('インストール先フォルダを指定してください。', 'danger');
       return;
     }
@@ -122,7 +124,10 @@ function PackageActions({
       ReturnType<typeof installScriptMutation.mutateAsync>
     > | null;
     try {
-      result = await installScriptMutation.mutateAsync({ instPath, url });
+      result = await installScriptMutation.mutateAsync({
+        installationPath,
+        url,
+      });
     } catch {
       result = null; // installFailed 相当
     }
@@ -170,7 +175,7 @@ function PackageActions({
 
     install.start();
 
-    if (!instPath) {
+    if (!installationPath) {
       install.finish('インストール先フォルダを指定してください。', 'danger');
       return;
     }
@@ -199,7 +204,7 @@ function PackageActions({
     let result: Awaited<ReturnType<typeof installPackageMutation.mutateAsync>>;
     try {
       result = await installPackageMutation.mutateAsync({
-        instPath,
+        installationPath,
         packageItem: { id: installedPackage.id, info: installedPackage.info },
         direct: false,
       });
@@ -248,7 +253,7 @@ function PackageActions({
       return;
     }
 
-    if (!instPath) {
+    if (!installationPath) {
       uninstall.finish('インストール先フォルダを指定してください。', 'danger');
       return;
     }
@@ -260,7 +265,7 @@ function PackageActions({
     >;
     try {
       result = await uninstallPackageMutation.mutateAsync({
-        instPath,
+        installationPath,
         packageItem: {
           id: uninstalledPackage.id,
           info: uninstalledPackage.info,
@@ -305,7 +310,7 @@ function PackageActions({
     if (share.phase.kind === 'loading') return;
     share.start();
 
-    const text = await utils.packages.getShareString.fetch(instPath);
+    const text = await utils.packages.getShareString.fetch(installationPath);
     await writeClipboardMutation.mutateAsync({ text });
     share.finish('コピーしました', 'info');
   };

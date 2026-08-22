@@ -51,7 +51,7 @@ const win = {} as BrowserWindow;
 describe('migration service', () => {
   const tempDirs: string[] = [];
   let config: Config;
-  let instPath: string;
+  let installationPath: string;
   let ctx: { win: BrowserWindow; config: Config };
   let inst: Installation;
 
@@ -64,10 +64,10 @@ describe('migration service', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     mocks.userDataDir.value = await makeTempDir('apm-userdata-');
-    instPath = await makeTempDir('apm-inst-');
+    installationPath = await makeTempDir('apm-inst-');
     config = new Config({ cwd: await makeTempDir('apm-config-') });
     ctx = { win, config };
-    inst = openInstallation(instPath);
+    inst = openInstallation(installationPath);
     // v1 のキャッシュ掃除が readdir する Data/package を用意しておく
     await ensureDir(path.join(mocks.userDataDir.value, 'Data/package'));
   });
@@ -138,11 +138,13 @@ describe('migration service', () => {
   describe('migrationByFolder', () => {
     it('apm.json が無ければ何もしない', async () => {
       await migrationByFolder(ctx, inst);
-      expect(await pathExists(path.join(instPath, 'apm.json'))).toBe(false);
+      expect(await pathExists(path.join(installationPath, 'apm.json'))).toBe(
+        false,
+      );
     });
 
     it('v1 の apm.json は repository の書き換えを経て v3(repository 削除)まで進む', async () => {
-      await writeJson(path.join(instPath, 'apm.json'), {
+      await writeJson(path.join(installationPath, 'apm.json'), {
         core: {},
         packages: {
           'author/pkg': {
@@ -156,7 +158,7 @@ describe('migration service', () => {
 
       await migrationByFolder(ctx, inst);
 
-      const ledger = await readJson(path.join(instPath, 'apm.json'));
+      const ledger = await readJson(path.join(installationPath, 'apm.json'));
       expect(ledger.dataVersion).toBe('3');
       expect(ledger.packages['author/pkg'].repository).toBeUndefined();
       expect(ledger.packages['author/pkg'].version).toBe('1.0');
@@ -165,7 +167,7 @@ describe('migration service', () => {
     });
 
     it('v2 の apm.json + packages.xml は packages.json へ変換される', async () => {
-      await writeJson(path.join(instPath, 'apm.json'), {
+      await writeJson(path.join(installationPath, 'apm.json'), {
         dataVersion: '2',
         core: {},
         packages: {
@@ -173,7 +175,7 @@ describe('migration service', () => {
         },
       });
       await writeFile(
-        path.join(instPath, 'packages.xml'),
+        path.join(installationPath, 'packages.xml'),
         `<?xml version="1.0" encoding="utf-8"?>
 <packages>
   <package>
@@ -191,16 +193,18 @@ describe('migration service', () => {
 
       await migrationByFolder(ctx, inst);
 
-      const ledger = await readJson(path.join(instPath, 'apm.json'));
+      const ledger = await readJson(path.join(installationPath, 'apm.json'));
       expect(ledger.dataVersion).toBe('3');
       expect(ledger.packages.script_old.repository).toBeUndefined();
-      const converted = await readJson(path.join(instPath, 'packages.json'));
+      const converted = await readJson(
+        path.join(installationPath, 'packages.json'),
+      );
       expect(converted.packages).toHaveLength(1);
       expect(converted.packages[0].id).toBe('script_old');
     });
 
     it('v3 済みの apm.json には触れない', async () => {
-      await writeJson(path.join(instPath, 'apm.json'), {
+      await writeJson(path.join(installationPath, 'apm.json'), {
         dataVersion: '3',
         core: {},
         packages: {},

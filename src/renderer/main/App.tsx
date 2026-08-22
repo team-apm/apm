@@ -18,7 +18,7 @@ function Startup(): null {
   const started = useRef(false);
   useEffect(() => {
     // React のマウントより後に開始すれば十分で、完了は待たない
-    // (各コンポーネントは instPath ストアと apm-* イベントで追従する)
+    // (各コンポーネントは installationPath ストアと apm-* イベントで追従する)
     if (started.current) return;
     started.current = true;
     void runStartupFlow(utils.client);

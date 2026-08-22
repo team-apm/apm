@@ -161,10 +161,10 @@ export async function getPackages(
 /**
  * Returns a list of installed files.
  * 旧 src/renderer/main/packageUtil.ts の getInstalledFiles と同一の挙動。
- * @param {string} instPath - An installation path
+ * @param {string} installationPath - An installation path
  * @returns {Promise<string[]>} List of installed files
  */
-async function getInstalledFiles(instPath: string) {
+async function getInstalledFiles(installationPath: string) {
   const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn|lua)$/;
   const safeReaddir = async (path: string) => {
     try {
@@ -179,15 +179,19 @@ async function getInstalledFiles(instPath: string) {
     (await safeReaddir(dir))
       .filter((i) => i.isFile() && regex.test(i.name))
       .map((i) => i.name);
-  return (await readdir(instPath)).concat(
-    (await readdir(path.join(instPath, 'plugins'))).map((i) => 'plugins/' + i),
-    (await readdir(path.join(instPath, 'script'))).map((i) => 'script/' + i),
+  return (await readdir(installationPath)).concat(
+    (await readdir(path.join(installationPath, 'plugins'))).map(
+      (i) => 'plugins/' + i,
+    ),
+    (await readdir(path.join(installationPath, 'script'))).map(
+      (i) => 'script/' + i,
+    ),
     await asyncFlatMap(
-      (await safeReaddir(path.join(instPath, 'script')))
+      (await safeReaddir(path.join(installationPath, 'script')))
         .filter((i) => i.isDirectory())
         .map((i) => 'script/' + i.name),
       async (i) =>
-        (await readdir(path.join(instPath, i))).map((j) => i + '/' + j),
+        (await readdir(path.join(installationPath, i))).map((j) => i + '/' + j),
     ),
   );
 }

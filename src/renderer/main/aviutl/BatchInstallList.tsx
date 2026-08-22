@@ -1,7 +1,7 @@
 import React, { type JSX, useEffect, useState } from 'react';
 import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
-import { getInstallationPath } from '../instPath';
+import { getInstallationPath } from '../installationPath';
 
 /**
  * The list of the recommended plugins (directURL packages) shown in the
@@ -15,18 +15,20 @@ import { getInstallationPath } from '../instPath';
  * @returns {JSX.Element} The rendered component.
  */
 function BatchInstallList(): JSX.Element {
-  const [instPath, setInstPath] = useState(() => getInstallationPath());
+  const [installationPath, setInstallationPath] = useState(() =>
+    getInstallationPath(),
+  );
 
   const utils = TRPCReact.useUtils();
   const packagesQuery = TRPCReact.packages.getPackagesWithStatus.useQuery(
-    { instPath, adoptManuallyInstalled: true },
+    { installationPath, adoptManuallyInstalled: true },
     { refetchOnWindowFocus: false },
   );
 
   // レガシー側(preload の package.ts)からの再描画通知を受けて最新化する
   useEffect(() => {
     const listener = () => {
-      setInstPath(getInstallationPath());
+      setInstallationPath(getInstallationPath());
       void utils.packages.getPackagesWithStatus.invalidate();
     };
     window.addEventListener('apm-packages-changed', listener);

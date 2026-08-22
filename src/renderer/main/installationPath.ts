@@ -3,7 +3,7 @@
 // 初期化フロー移設に伴い DOM から独立させた。React からは
 // useSyncExternalStore(subscribeInstallationPath, getInstallationPath) で購読する。
 
-let instPath = '';
+let installationPath = '';
 const listeners = new Set<() => void>();
 
 /**
@@ -11,7 +11,7 @@ const listeners = new Set<() => void>();
  * @returns {string} The installation path (empty string if not set).
  */
 export function getInstallationPath(): string {
-  return instPath;
+  return installationPath;
 }
 
 /**
@@ -19,7 +19,7 @@ export function getInstallationPath(): string {
  * @param {string} next - The new installation path.
  */
 export function setInstallationPath(next: string): void {
-  instPath = next;
+  installationPath = next;
   listeners.forEach((listener) => listener());
 }
 

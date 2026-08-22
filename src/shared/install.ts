@@ -12,17 +12,17 @@ export type Files = {
 
 /**
  * Verifys files by count.
- * @param {string} instPath - An installation path.
+ * @param {string} installationPath - An installation path.
  * @param {object[]} files - An array of the files to be installed.
  * @returns {boolean} Whether all files exist.
  */
-export function verifyFilesByCount(instPath: string, files: Files) {
+export function verifyFilesByCount(installationPath: string, files: Files) {
   let filesCount = 0;
   let existCount = 0;
   for (const file of files) {
     if (!file.isUninstallOnly && !file.isObsolete) {
       filesCount++;
-      if (existsSync(path.join(instPath, file.filename))) {
+      if (existsSync(path.join(installationPath, file.filename))) {
         existCount++;
       }
     }
@@ -34,24 +34,30 @@ export function verifyFilesByCount(instPath: string, files: Files) {
  * Install some package.
  * エラーは発生元の例外をそのまま投げる(ログは呼び出し側の責務)。
  * @param {string} unzippedPath - A path of the unzipped directory.
- * @param {string} instPath - An installation path.
+ * @param {string} installationPath - An installation path.
  * @param {object[]} files - An array of the files to be installed.
  * @param {boolean} isProgram - Whether it is a program.
  * @returns {Promise<boolean>} Whether the installation was successful.
  */
 export async function install(
   unzippedPath: string,
-  instPath: string,
+  installationPath: string,
   files: Files,
   isProgram = false,
 ) {
   if (isProgram) {
-    await copy(unzippedPath, instPath);
+    await copy(unzippedPath, installationPath);
   } else {
     // Delete obsolete files
     for (const file of files) {
-      if (file.isObsolete && existsSync(path.join(instPath, file.filename))) {
-        await safeRemove(path.join(instPath, file.filename), instPath);
+      if (
+        file.isObsolete &&
+        existsSync(path.join(installationPath, file.filename))
+      ) {
+        await safeRemove(
+          path.join(installationPath, file.filename),
+          installationPath,
+        );
       }
     }
 
@@ -71,7 +77,7 @@ export async function install(
           : path.join(unzippedPath, path.basename(file.filename)),
         // filename はリモート由来。削除側(safeRemove)と同じくインストール先の
         // 外を指していないか確かめてから書き込む
-        resolveInside(instPath, file.filename),
+        resolveInside(installationPath, file.filename),
       ];
       if (file.isUninstallOnly) {
         if (existsSync(filePath[0]) && !existsSync(filePath[1]))
@@ -84,7 +90,7 @@ export async function install(
     );
   }
 
-  if (verifyFilesByCount(instPath, files)) {
+  if (verifyFilesByCount(installationPath, files)) {
     return true;
   } else {
     throw new Error('Could not verify that the files was installed.');

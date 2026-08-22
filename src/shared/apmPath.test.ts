@@ -37,43 +37,45 @@ describe('pathRelated', () => {
 });
 
 describe('resolveInside', () => {
-  const instPath = path.resolve('/data', 'aviutl');
+  const installationPath = path.resolve('/data', 'aviutl');
 
   it('インストール先の中のパスをそのまま解決する', () => {
-    expect(resolveInside(instPath, 'plugins/foo.auf')).toBe(
-      path.join(instPath, 'plugins', 'foo.auf'),
+    expect(resolveInside(installationPath, 'plugins/foo.auf')).toBe(
+      path.join(installationPath, 'plugins', 'foo.auf'),
     );
   });
 
   it('複数のセグメントを結合できる', () => {
-    expect(resolveInside(instPath, 'script', 'developer', 'a.anm')).toBe(
-      path.join(instPath, 'script', 'developer', 'a.anm'),
-    );
+    expect(
+      resolveInside(installationPath, 'script', 'developer', 'a.anm'),
+    ).toBe(path.join(installationPath, 'script', 'developer', 'a.anm'));
   });
 
   it('親ディレクトリへ脱出するパスを拒否する', () => {
-    expect(() => resolveInside(instPath, '../evil.exe')).toThrow();
-    expect(() => resolveInside(instPath, 'plugins/../../evil.exe')).toThrow();
-    expect(() => resolveInside(instPath, 'script', '../../..', 'evil')).toThrow(
-      /invalid path/,
-    );
+    expect(() => resolveInside(installationPath, '../evil.exe')).toThrow();
+    expect(() =>
+      resolveInside(installationPath, 'plugins/../../evil.exe'),
+    ).toThrow();
+    expect(() =>
+      resolveInside(installationPath, 'script', '../../..', 'evil'),
+    ).toThrow(/invalid path/);
   });
 
   it('絶対パス指定を拒否する', () => {
     expect(() =>
-      resolveInside(instPath, path.resolve('/etc/passwd')),
+      resolveInside(installationPath, path.resolve('/etc/passwd')),
     ).toThrow();
   });
 
   it('インストール先そのものを指すパスを拒否する', () => {
-    // copy 先が instPath 自体になる指定は書き込み対象として不正
-    expect(() => resolveInside(instPath, '.')).toThrow();
-    expect(() => resolveInside(instPath, '')).toThrow();
+    // copy 先が installationPath 自体になる指定は書き込み対象として不正
+    expect(() => resolveInside(installationPath, '.')).toThrow();
+    expect(() => resolveInside(installationPath, '')).toThrow();
   });
 
   it('途中に .. があっても中に留まるなら許可する', () => {
-    expect(resolveInside(instPath, 'plugins/../script/a.anm')).toBe(
-      path.join(instPath, 'script', 'a.anm'),
+    expect(resolveInside(installationPath, 'plugins/../script/a.anm')).toBe(
+      path.join(installationPath, 'script', 'a.anm'),
     );
   });
 });

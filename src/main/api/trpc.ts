@@ -33,21 +33,21 @@ export const winProcedure = procedure.use(({ ctx, next }) => {
   return next({ ctx: { win } });
 });
 
-// 入力(instPath 文字列そのもの、または instPath フィールドを持つ
-// オブジェクト)から Installation を解決して ctx に載せる。instPath の
+// 入力(installationPath 文字列そのもの、または installationPath フィールドを持つ
+// オブジェクト)から Installation を解決して ctx に載せる。installationPath の
 // 文字列貫通を tRPC 境界で止め、procedure には Installation を渡す
 const installationMiddleware = t.middleware(async ({ getRawInput, next }) => {
   const raw = await getRawInput();
-  const instPath =
+  const installationPath =
     typeof raw === 'string'
       ? raw
-      : typeof (raw as { instPath?: unknown } | null | undefined)?.instPath ===
-          'string'
-        ? (raw as { instPath: string }).instPath
+      : typeof (raw as { installationPath?: unknown } | null | undefined)
+            ?.installationPath === 'string'
+        ? (raw as { installationPath: string }).installationPath
         : null;
-  if (instPath === null)
-    throw new TypeError('instPath is expected to be a string.');
-  return next({ ctx: { inst: openInstallation(instPath) } });
+  if (installationPath === null)
+    throw new TypeError('installationPath is expected to be a string.');
+  return next({ ctx: { inst: openInstallation(installationPath) } });
 });
 
 export const instProcedure = procedure.use(installationMiddleware);

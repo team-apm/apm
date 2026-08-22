@@ -14,7 +14,7 @@ import schema from 'apm-schema/v3/schema/packages.json';
 import type { editor } from 'monaco-editor';
 import React, { useRef } from 'react';
 import { TRPCReact } from '../trpc';
-import { getInstallationPath } from './instPath';
+import { getInstallationPath } from './installationPath';
 import { usePhase } from './usePhase';
 
 const placeholderStr = `
@@ -188,7 +188,7 @@ export const MonacoEditorRenderer: React.FC = () => {
       // editorPackages.json の読み書きは main プロセス側
       // (src/main/services/packages.ts)
       await setEditorPackagesMutation.mutateAsync({
-        instPath: getInstallationPath(),
+        installationPath: getInstallationPath(),
         packages: json as Packages['packages'],
       });
       // 一覧データの再取得(旧 checkPackagesList)は ManualUpdateTable が
@@ -224,19 +224,19 @@ export const MonacoEditorRenderer: React.FC = () => {
       editor,
       monaco.editor.ContentWidgetPositionPreference.EXACT,
     );
-    // インストール先は起動フロー(startup.ts)が instPath ストアに設定して
+    // インストール先は起動フロー(startup.ts)が installationPath ストアに設定して
     // apm-core-changed を発火するため、未確定なら確定を待って一度だけ読み込む
     // (旧 EditorContextBridge の setOnload / setInstPath の両者待ち合わせ相当。
     // 読み込み失敗を無視するのも旧実装と同じ)
     let loaded = false;
     const loadEditorPackages = async () => {
       if (loaded) return;
-      const instPath = getInstallationPath();
-      if (!instPath) return;
+      const installationPath = getInstallationPath();
+      if (!installationPath) return;
       loaded = true;
       try {
         const packages = (await utils.client.packages.getEditorPackages.query(
-          instPath,
+          installationPath,
         )) as Packages['packages'];
         if (packages.length === 0) return;
         editor.setValue(JSON.stringify(packages));
