@@ -14,7 +14,7 @@ function DataUrlSettings() {
   const [mainUrl, setMainUrl] = useState<string | null>(null);
   const [extraUrls, setExtraUrls] = useState<string | null>(null);
   const [phase, setPhase] = useState<ButtonPhase>('idle');
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const setDataUrls = TRPCReact.settings.setDataUrls.useMutation();
