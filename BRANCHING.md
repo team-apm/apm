@@ -20,8 +20,11 @@ Tags named `v*` mark releases. Pushing a tag triggers the [Release workflow](.gi
 After publishing a release, update the `v3` marker:
 
 ```bash
-git branch -f v3 vX.Y.Z
-git push -f origin v3
+git switch v3
+git merge --ff-only vX.Y.Z
+git push origin v3
 ```
+
+Release tags are always cut on top of `main`, so this is a fast-forward and needs no force. `--ff-only` is there to fail loudly if `v3` has somehow diverged — handle that case deliberately rather than overwriting it.
 
 See [docs/RELEASING.md](./docs/RELEASING.md) for the full release process.
