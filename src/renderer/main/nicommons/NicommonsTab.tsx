@@ -104,7 +104,7 @@ function NicommonsRow({
  * の中身): installed packages with a nicommons ID, with checkboxes that
  * build the space-separated ID list in the textarea.
  * 旧 package.ts の displayNicommonsIdList に相当する。データ取得は tRPC 経由で
- * main プロセス。レガシー側からの再描画通知は apm-packages-changed イベント。
+ * main プロセス。他コンポーネントからの再描画通知は apm-packages-changed イベント。
  * コピーボタンは tRPC(writeClipboardText)でコピーする(旧実装は preload が
  * 初期化する ClipboardJS。コピーされる文字列は同じ)。
  * @returns {JSX.Element} The rendered component.

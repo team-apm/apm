@@ -153,7 +153,7 @@ const naturalCompare = (a: string, b: string) => {
  * alert, the package list and the manually-installed-files list.
  * 旧 package.ts の setPackagesList(DOM 描画部分)+ listFilter +
  * updatableList(list.js)に相当する。データ取得は tRPC 経由で main プロセス。
- * レガシー側からの再描画通知は apm-packages-changed イベントで受け取り、
+ * 他コンポーネントからの再描画通知は apm-packages-changed イベントで受け取り、
  * 選択状態はこのコンポーネントが保持してアクションボタン(PackageActions)
  * と共有する。一覧のオーバーレイは packagesListCheck の phase から導出する。
  * @returns {JSX.Element} The rendered component.
@@ -185,7 +185,7 @@ function PackagesTab(): JSX.Element {
     { refetchOnWindowFocus: false },
   );
 
-  // レガシー側からの通知: インストール先変更と一覧の再取得要求
+  // 他コンポーネントからの通知: インストール先変更と一覧の再取得要求
   useEffect(() => {
     const onCoreChanged = () => {
       setInstallationPath(getInstallationPath());
