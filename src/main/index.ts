@@ -55,6 +55,25 @@ if (userDataDir) {
 }
 debug({ showDevTools: false }); // Press F12 to open DevTools
 
+// 多重起動ガード。同一プロファイルの 2 プロセスが同じインストール先を操作すると
+// apm.json / config.json の read-modify-write がプロセス間で競合し後勝ちで
+// 消失するため(#2379 #A3 の派生)、2 個目は起動せず既存窓へフォーカスを渡す。
+// ロックは userData 単位なので、setPath('userData') より後で取得すること
+// (--user-data-dir 隔離の E2E や _Dev プロファイルの開発起動と干渉させない)。
+// ロック失敗時に即 return せず後続のトップレベル初期化を素通しするのは
+// electron-squirrel-startup と同じ流儀 — quit 済みなら ready が発火せず
+// 窓生成(launch)には到達しない
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    const win = BrowserWindow.getAllWindows().find((w) => !w.isDestroyed());
+    if (!win) return;
+    if (win.isMinimized()) win.restore();
+    win.focus();
+  });
+}
+
 const config = getConfig();
 
 ensureAutoUpdateDefault(config);
