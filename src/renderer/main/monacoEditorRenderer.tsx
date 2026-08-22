@@ -18,7 +18,10 @@ import { getInstallationPath } from './installationPath';
 import { usePhase } from './usePhase';
 
 const placeholderStr = `
-apm-data (https://github.com/team-apm/apm-data) に投稿されたパッケージデータをここにコピーアンドペーストすることで動作の確認ができます。
+ここに書いたパッケージデータは AviUtl フォルダ内の editorPackages.json に保存され、
+パッケージ一覧に追加されます。apm-data へ登録しなくても、自分の環境にだけパッケージを
+追加できます(ローカルリポジトリ)。apm-data (https://github.com/team-apm/apm-data) へ
+投稿する前の動作確認にも使えます。
 \t
 下の例のように、全体を[]で囲む必要があります。
 [
