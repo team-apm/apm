@@ -1,5 +1,6 @@
 import React, { type JSX } from 'react';
 import { MonacoEditorRenderer } from '../monacoEditorRenderer';
+import CacheSettings from './CacheSettings';
 import DataUrlSettings from './DataUrlSettings';
 import ManualUpdateTable from './ManualUpdateTable';
 import PreferencesSettings from './PreferencesSettings';
@@ -7,7 +8,7 @@ import PreferencesSettings from './PreferencesSettings';
 /**
  * The whole pane of the settings tab (旧 index.html の section#settings の
  * 中身): データ取得先・追加テキストデータ(Monaco エディタ)・環境設定・
- * 手動更新テーブル。
+ * ダウンロードキャッシュ・手動更新テーブル。
  * @returns {JSX.Element} The rendered component.
  */
 function SettingsTab(): JSX.Element {
@@ -25,6 +26,7 @@ function SettingsTab(): JSX.Element {
               <MonacoEditorRenderer />
             </div>
             <PreferencesSettings />
+            <CacheSettings />
             <hr />
             <div className="row mb-3">
               <h4>手動更新</h4>

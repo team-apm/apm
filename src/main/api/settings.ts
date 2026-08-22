@@ -1,4 +1,6 @@
 import { dialog } from 'electron';
+import { formatBytes } from '../../shared/formatBytes';
+import { clearCache, getCacheSize } from '../services/cache';
 import { ensureExtraDataUrl, setDataUrls } from '../services/settings';
 import { procedure, stringInput, t, winProcedure } from './trpc';
 
@@ -53,6 +55,24 @@ export const settingsRouter = t.router({
       main: ctx.config.dataUrl.getMain(),
       extra: ctx.config.dataUrl.getExtra(),
     };
+  }),
+  getCacheSize: procedure.query(() => getCacheSize()),
+  clearCache: winProcedure.mutation(async ({ ctx }) => {
+    const size = await getCacheSize();
+    const confirmed =
+      (
+        await dialog.showMessageBox(ctx.win, {
+          title: '確認',
+          message: `ダウンロード済みのアーカイブ(${formatBytes(size)})を削除します。`,
+          detail:
+            'インストール済みのパッケージには影響しません。再インストールや更新のときに再度ダウンロードされます。',
+          type: 'warning',
+          buttons: ['削除', 'キャンセル'],
+          cancelId: 1,
+        })
+      ).response === 0;
+    if (!confirmed) return null;
+    return await clearCache();
   }),
   getAutoUpdate: procedure.query(({ ctx }) => ctx.config.getAutoUpdate()),
   setAutoUpdate: procedure
