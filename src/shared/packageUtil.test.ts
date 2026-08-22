@@ -368,4 +368,58 @@ describe('computePackagesStatus', () => {
     const withNew = computePackagesStatus(base('2.1'), '1.10', '0.92');
     expect(withNew[0].detached).toEqual([]);
   });
+
+  it('依存が循環していても落ちず、循環したパッケージはインストール不可になる', () => {
+    const result = computePackagesStatus(
+      [
+        makePackage('author/a', {
+          installationStatus: states.notInstalled,
+          dependencies: ['author/b'],
+        }),
+        makePackage('author/b', {
+          installationStatus: states.notInstalled,
+          dependencies: ['author/a'],
+        }),
+      ],
+      '1.10',
+      '0.92',
+    );
+    expect(result.map((p) => p.doNotInstall)).toEqual([true, true]);
+  });
+
+  it('自分自身に依存していても落ちない', () => {
+    const result = computePackagesStatus(
+      [
+        makePackage('author/a', {
+          installationStatus: states.notInstalled,
+          dependencies: ['author/a'],
+        }),
+      ],
+      '1.10',
+      '0.92',
+    );
+    expect(result[0].doNotInstall).toBe(true);
+  });
+
+  it('循環に巻き込まれていないパッケージの判定は変わらない', () => {
+    const result = computePackagesStatus(
+      [
+        makePackage('author/a', {
+          installationStatus: states.notInstalled,
+          dependencies: ['author/b'],
+        }),
+        makePackage('author/b', {
+          installationStatus: states.notInstalled,
+          dependencies: ['author/a'],
+        }),
+        makePackage('author/ok', {
+          installationStatus: states.notInstalled,
+          dependencies: ['aviutl1.10'],
+        }),
+      ],
+      '1.10',
+      '0.92',
+    );
+    expect(result[2].doNotInstall).toBe(false);
+  });
 });

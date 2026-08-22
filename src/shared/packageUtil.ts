@@ -150,7 +150,7 @@ export function computePackagesStatus(
   const aviUtlR = /aviutl\d/;
   const exeditR = /exedit\d/;
 
-  const isInstallable = (id: string): boolean => {
+  const computeInstallable = (id: string): boolean => {
     const thisPackage = packages.filter((p) => p.id === id).find(() => true);
     if (thisPackage) {
       const isDepsInstallable = (): boolean =>
@@ -181,6 +181,23 @@ export function computePackagesStatus(
       return id === 'exedit' + exeditVer;
     } else {
       return false;
+    }
+  };
+  // dependencies はリモート由来(dataURL の packages.json と
+  // {installationPath}/packages.json)なので A→B→A や A→A が書かれうる。
+  // 評価中の id を弾かないと無限再帰で RangeError になり、
+  // getPackagesWithStatus に try/catch が無いためパッケージ一覧が丸ごと
+  // 表示できなくなる。
+  const evaluating = new Set<string>();
+  const isInstallable = (id: string): boolean => {
+    // 循環は「導入できない」に倒す。一覧そのものが出なくなるより、
+    // その 1 件が導入不可と表示されるほうがユーザーは先へ進める。
+    if (evaluating.has(id)) return false;
+    evaluating.add(id);
+    try {
+      return computeInstallable(id);
+    } finally {
+      evaluating.delete(id);
     }
   };
   const isInstalled = (rawId: string): boolean => {
