@@ -1,4 +1,5 @@
 import React, { type JSX, useState, useSyncExternalStore } from 'react';
+import { Alert, Row } from 'react-bootstrap';
 import { getFirstLaunch, subscribeFirstLaunch } from '../startup';
 
 /**
@@ -18,27 +19,22 @@ function TutorialAlert(): JSX.Element | null {
 
   if (!firstLaunch || dismissed) return null;
   return (
-    <div id="tutorial-alert" className="row my-2">
-      <div
-        className="my-0 alert alert-info alert-dismissible fade show"
-        role="alert"
+    <Row id="tutorial-alert" className="my-2">
+      <Alert
+        variant="info"
+        dismissible
+        // 既定は 'Close alert'。旧マークアップの aria-label を保つ
+        closeLabel="Close"
+        onClose={() => setDismissed(true)}
+        className="my-0"
       >
         apmへようこそ！
-        <a
-          href="https://team-apm.github.io/apm/#apm%E3%81%AE%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB"
-          className="alert-link"
-        >
+        <Alert.Link href="https://team-apm.github.io/apm/#apm%E3%81%AE%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB">
           チュートリアル
-        </a>
+        </Alert.Link>
         から使い方を確認できます。
-        <button
-          type="button"
-          className="btn-close"
-          aria-label="Close"
-          onClick={() => setDismissed(true)}
-        ></button>
-      </div>
-    </div>
+      </Alert>
+    </Row>
   );
 }
 

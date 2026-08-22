@@ -1,4 +1,5 @@
 import React, { type JSX, useSyncExternalStore } from 'react';
+import { Card, Container, Form, ListGroup, Navbar } from 'react-bootstrap';
 import apmIcon from '../../../../icon/apm32.png';
 import {
   getInstallationPath,
@@ -22,10 +23,12 @@ function AviutlTab(): JSX.Element {
     getInstallationPath,
   );
   return (
-    <div className="container-lg py-2 m-w-800">
-      <nav className="navbar navbar-light">
-        <div className="container-fluid">
-          <span className="navbar-brand">
+    <Container fluid="lg" className="py-2 m-w-800">
+      {/* expand の既定値 true は navbar-expand を足して折り返しを止めるため、
+          横幅いっぱいに広がるこの行では明示的に無効にする */}
+      <Navbar expand={false}>
+        <Container fluid>
+          <Navbar.Brand>
             <img
               src={apmIcon}
               alt=""
@@ -34,20 +37,20 @@ function AviutlTab(): JSX.Element {
               height="20"
             />
             <span className="ms-1 align-middle">AviUtl Package Manager</span>
-          </span>
-        </div>
-      </nav>
+          </Navbar.Brand>
+        </Container>
+      </Navbar>
       <TutorialAlert />
-      <div className="row my-2 card">
-        <div className="card-body">
+      <Card className="row my-2">
+        <Card.Body>
           <div className="mb-3 d-flex">
             <div
               className="flex-grow-1 border rounded-start d-flex align-items-center ps-3"
               id="addon-wrapping"
             >
               <i className="bi bi-folder2 me-3"></i>
-              <input
-                className="form-control-plaintext"
+              <Form.Control
+                plaintext
                 id="installation-path"
                 type="text"
                 placeholder="AviUtlフォルダ"
@@ -60,31 +63,31 @@ function AviutlTab(): JSX.Element {
               <SelectInstallationPathButton />
             </div>
           </div>
-          <ul className="list-group mb-3" id="batch-install-packages">
-            <li className="list-group-item py-0 pe-0 d-flex">
+          <ListGroup as="ul" className="mb-3" id="batch-install-packages">
+            <ListGroup.Item as="li" className="py-0 pe-0 d-flex">
               <ProgramRow
                 program="aviutl"
                 label="AviUtl"
                 iconClass="bi-film"
                 buttonRoundedClass="rounded-start-0 rounded-bottom-0"
               />
-            </li>
-            <li className="list-group-item py-0 pe-0 d-flex">
+            </ListGroup.Item>
+            <ListGroup.Item as="li" className="py-0 pe-0 d-flex">
               <ProgramRow
                 program="exedit"
                 label="拡張編集"
                 iconClass="bi-calendar3-range"
                 buttonRoundedClass="rounded-0"
               />
-            </li>
+            </ListGroup.Item>
             <BatchInstallList />
-          </ul>
+          </ListGroup>
           <div className="d-flex justify-content-end">
             <BatchInstallButton />
           </div>
-        </div>
-      </div>
-    </div>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 }
 

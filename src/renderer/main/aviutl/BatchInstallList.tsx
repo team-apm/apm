@@ -1,4 +1,5 @@
 import React, { type JSX, useEffect, useState } from 'react';
+import { ListGroup } from 'react-bootstrap';
 import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../installationPath';
@@ -42,9 +43,10 @@ function BatchInstallList(): JSX.Element {
   return (
     <>
       {batchInstallPackages.map((p) => (
-        <li
+        <ListGroup.Item
+          as="li"
           key={p.id}
-          className="list-group-item py-0 d-flex py-2 batch-install-package"
+          className="py-0 d-flex py-2 batch-install-package"
         >
           <div className="d-flex align-items-center flex-grow-1">
             <i className="bi bi-box-seam me-3"></i>
@@ -53,7 +55,7 @@ function BatchInstallList(): JSX.Element {
           <div>
             <span className="installed-version">{p.installationStatus}</span>
           </div>
-        </li>
+        </ListGroup.Item>
       ))}
     </>
   );
