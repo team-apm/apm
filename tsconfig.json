@@ -6,9 +6,16 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     // TS 6.0 から strict が既定で有効。strict 化は挙動リスクを伴うため
-    // メジャー更新と混ぜず、従来の設定(noImplicitAny のみ)を明示して維持する
+    // メジャー更新と混ぜず段階導入する。ここに並ぶのはコード修正なしで
+    // 満たせたフラグで、残るのは strictNullChecks / strictPropertyInitialization
+    // / useUnknownInCatchVariables。全部立ったら "strict": true へ畳む
     "strict": false,
     "noImplicitAny": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictBuiltinIteratorReturn": true,
     "sourceMap": true,
     // TS 6.0 から rootDir の暗黙推論が廃止(TS5011)。include が vite.*.config.ts
     // 等リポジトリ直下も含むため "." を明示する
