@@ -173,9 +173,15 @@ export async function installPackageFlow(
         packageState.info.downloadURLs[0],
         'package',
       );
-      if (!downloadResult) {
+      if (downloadResult.status === 'closed') {
         log.info('The installation was canceled.');
         return { failure: 'canceled' as const };
+      }
+      if (downloadResult.status === 'failed') {
+        log.error(
+          `The download did not complete. URL:${packageState.info.downloadURLs[0]}`,
+        );
+        return { failure: 'downloadFailed' as const };
       }
       return { archivePath: downloadResult.savePath };
     },
@@ -212,9 +218,15 @@ export async function installPackageFlow(
         packageState.info.downloadURLs[0],
         'package',
       );
-      if (!redownloadResult) {
+      if (redownloadResult.status === 'closed') {
         log.info('The installation was canceled.');
         return { failure: 'canceled' as const };
+      }
+      if (redownloadResult.status === 'failed') {
+        log.error(
+          `The re-download did not complete. URL:${packageState.info.downloadURLs[0]}`,
+        );
+        return { failure: 'redownloadFailed' as const };
       }
       return { archivePath: redownloadResult.savePath };
     },

@@ -140,6 +140,8 @@ function PackageActions({
     } else if (result.route === 'flow') {
       if (result.status === 'canceled') {
         install.finish('インストールがキャンセルされました。', 'info');
+      } else if (result.status === 'downloadFailed') {
+        install.finish('ダウンロード中にエラーが発生しました。', 'danger');
       } else if (result.status === 'notSupported') {
         install.finish('未対応のスクリプトです。', 'danger');
       } else {
