@@ -67,6 +67,52 @@ describe('install', () => {
     expect(await pathExists(path.join(inst, 'readme.txt'))).toBe(true);
   });
 
+  it('isProgram でも isUninstallOnly の既存ファイルは上書きしない', async () => {
+    // 拡張編集の更新で exedit.ini が初期化される経路。apm-schema の
+    // isUninstallOnly は "Overwriting prohibited" と定義されている
+    const src = await makeTempDir('apm-install-src-');
+    const inst = await makeTempDir('apm-install-dst-');
+    await writeFile(path.join(src, 'exedit.auf'), 'new plugin');
+    await writeFile(path.join(src, 'exedit.ini'), 'default settings');
+    await writeFile(path.join(inst, 'exedit.ini'), 'user settings');
+
+    const result = await install(
+      src,
+      inst,
+      [
+        { filename: 'exedit.auf' },
+        { filename: 'exedit.ini', isUninstallOnly: true },
+      ],
+      true,
+    );
+
+    expect(result).toBe(true);
+    expect(await readFile(path.join(inst, 'exedit.ini'), 'utf8')).toBe(
+      'user settings',
+    );
+    // 保護対象でないものは従来どおり上書きされる
+    expect(await readFile(path.join(inst, 'exedit.auf'), 'utf8')).toBe(
+      'new plugin',
+    );
+  });
+
+  it('isProgram で isUninstallOnly のファイルが未配置なら初回はコピーする', async () => {
+    const src = await makeTempDir('apm-install-src-');
+    const inst = await makeTempDir('apm-install-dst-');
+    await writeFile(path.join(src, 'exedit.ini'), 'default settings');
+
+    await install(
+      src,
+      inst,
+      [{ filename: 'exedit.ini', isUninstallOnly: true }],
+      true,
+    );
+
+    expect(await readFile(path.join(inst, 'exedit.ini'), 'utf8')).toBe(
+      'default settings',
+    );
+  });
+
   it('通常インストールは files に列挙されたファイルだけを配置する', async () => {
     const src = await makeTempDir('apm-install-src-');
     const inst = await makeTempDir('apm-install-dst-');
