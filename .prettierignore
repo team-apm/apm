@@ -2,7 +2,7 @@ out
 .github/**/*.md
 CODE_OF_CONDUCT.md
 docs/_site
-/.webpack/**
+/.vite/**
 # Claude Code が並行セッション用に作る worktree(.git/info/exclude で
 # git からは除外されるが、prettier はそれを読まないためここでも除外する)
 /.claude/worktrees

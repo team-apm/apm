@@ -5,9 +5,10 @@ import jsdoc from 'eslint-plugin-jsdoc';
 import globals from 'globals';
 import { config, configs as tseslintConfigs } from 'typescript-eslint';
 
-// monaco-editor を値インポートすると webpack が Monaco 全体をバンドルし、
-// ビルドにヒープ拡大が必要になる。実行時は CopyWebpackPlugin 同梱の AMD
-// ビルドを @monaco-editor/loader が読み込む(CSP が CDN を許可しないため)
+// monaco-editor を値インポートするとバンドラが Monaco 全体を取り込み、
+// ビルドにヒープ拡大が必要になる。実行時は vite.plugins.config.ts の
+// monacoAssets が同梱する AMD ビルドを @monaco-editor/loader が読み込む
+// (CSP が CDN を許可しないため)
 const monacoTypeOnlyImport = {
   name: 'monaco-editor',
   allowTypeImports: true,
@@ -18,12 +19,7 @@ const monacoTypeOnlyImport = {
 export default config(
   // .claude/worktrees は Claude Code の並行セッション用 worktree(git 管理外)
   {
-    ignores: [
-      'node_modules/**',
-      'out/**',
-      '.webpack/**',
-      '.claude/worktrees/**',
-    ],
+    ignores: ['node_modules/**', 'out/**', '.vite/**', '.claude/worktrees/**'],
   },
   eslint.configs.recommended,
   jsdoc.configs['flat/recommended'],
@@ -67,7 +63,7 @@ export default config(
     },
   },
   {
-    // renderer の webpack ビルドには Node ポリフィルが無く、fs が混入すると
+    // renderer のビルドには Node ポリフィルが無く、fs が混入すると
     // ビルドが落ちる。直接 import はここで検出する(shared モジュール経由の
     // 推移的依存までは検出できない — その場合はビルド失敗が検出線)
     files: ['src/renderer/**/*.ts', 'src/renderer/**/*.tsx', 'src/lib/**/*.ts'],

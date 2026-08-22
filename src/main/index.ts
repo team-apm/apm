@@ -1,6 +1,9 @@
 import { app, BrowserWindow, dialog, MessageBoxOptions } from 'electron';
 import debug from 'electron-debug';
 import log from 'electron-log/main';
+// 生の require() だと Vite が解決できず外部参照として残り、同梱されないまま
+// 実行時に MODULE_NOT_FOUND になる(窓が開かないだけで stderr に出ない)
+import squirrelStartup from 'electron-squirrel-startup';
 import path from 'node:path';
 import 'source-map-support/register';
 import { getConfig } from './Config';
@@ -41,7 +44,7 @@ log.errorHandler.startCatching({
 });
 
 shortcut.uninstaller(app.getPath('appData'));
-if (require('electron-squirrel-startup')) app.quit();
+if (squirrelStartup) app.quit();
 log.debug(process.versions);
 
 const isDevEnv = process.env.NODE_ENV === 'development';

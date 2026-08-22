@@ -18,5 +18,8 @@
 	<body>
 		<!-- 全体は React(App.tsx)が描画する -->
 		<div id="root"></div>
+		<!-- Vite は HTML をビルドの入口として扱うため、エントリはここで指す
+		     (webpack plugin のように forge が注入することはない) -->
+		<script type="module" src="./renderer.tsx"></script>
 	</body>
 </html>

@@ -3,21 +3,40 @@ import { MakerRpm } from '@electron-forge/maker-rpm';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
-import { WebpackPlugin } from '@electron-forge/plugin-webpack';
+import { VitePlugin } from '@electron-forge/plugin-vite';
 import { PublisherGithub } from '@electron-forge/publisher-github';
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import path from 'node:path';
-import { mainConfig } from './webpack.main.config';
-import { rendererConfig } from './webpack.renderer.config';
+import { assetBearingDependencies } from './vite.base.config';
+
+// パッケージに入れるトップレベルのパス。plugin-vite の既定は `.vite` 以外を
+// すべて捨てるが、外部化した依存(vite.base.config.ts 参照)は node_modules
+// のまま同梱しないと自身の __dirname からファイルを引けない
+const packagedPaths = [
+  '/.vite',
+  ...assetBearingDependencies.map((name) => `/node_modules/${name}`),
+];
 
 const config: ForgeConfig = {
   packagerConfig: {
     executableName: 'apm',
     icon: 'icon/apm',
     asar: {
-      unpack: '**/.webpack/**/native_modules/**/*',
+      // 7za は spawn する実行ファイルなので asar の外に出す
+      // (src/shared/unzip.ts が app.asar → app.asar.unpacked に読み替える)
+      unpack: '**/node_modules/{7zip-bin,win-7zip}/**/*',
     },
     extraResource: 'ThirdPartyNotices.txt',
+    ignore: (file) => {
+      if (!file) return false;
+      return !packagedPaths.some(
+        (kept) =>
+          file === kept ||
+          file.startsWith(`${kept}/`) ||
+          // 親ディレクトリを捨てると packager が中へ降りない
+          kept.startsWith(`${file}/`),
+      );
+    },
   },
   makers: [
     new MakerSquirrel({
@@ -50,40 +69,29 @@ const config: ForgeConfig = {
     }),
   ],
   plugins: [
-    new WebpackPlugin({
-      mainConfig: mainConfig,
-      devServer: { liveReload: false },
-      // パッケージ版 main 窓(src/renderer/main/index.html)の CSP と同一に保つ。
-      // worker-src blob: と style-src 'unsafe-inline' は Monaco/Bootstrap のため撤去不可
-      // (理由は index.html のコメント参照)
-      devContentSecurityPolicy:
-        "default-src 'self'; script-src-elem 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp",
-      renderer: {
-        config: rendererConfig,
-        entryPoints: [
-          {
-            html: './src/renderer/main/index.html',
-            js: './src/renderer/main/renderer.tsx',
-            name: 'main_window',
-            preload: {
-              js: './src/renderer/main/preload.ts',
-            },
-          },
-          {
-            html: './src/renderer/about/index.html',
-            js: './src/renderer/about/renderer.ts',
-            name: 'about_window',
-            preload: {
-              js: './src/renderer/about/preload.ts',
-            },
-          },
-          {
-            html: './src/renderer/splash/index.html',
-            js: './src/renderer/splash/renderer.ts',
-            name: 'splash_window',
-          },
-        ],
-      },
+    new VitePlugin({
+      build: [
+        {
+          entry: 'src/main/index.ts',
+          config: 'vite.main.config.ts',
+          target: 'main',
+        },
+        {
+          entry: 'src/renderer/main/preload.ts',
+          config: 'vite.preload.config.ts',
+          target: 'preload',
+        },
+        {
+          entry: 'src/renderer/about/preload.ts',
+          config: 'vite.preload.config.ts',
+          target: 'preload',
+        },
+      ],
+      renderer: [
+        { name: 'main_window', config: 'vite.renderer.config.ts' },
+        { name: 'about_window', config: 'vite.renderer.config.ts' },
+        { name: 'splash_window', config: 'vite.renderer.config.ts' },
+      ],
     }),
     new AutoUnpackNativesPlugin({}),
   ],

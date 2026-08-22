@@ -13,13 +13,42 @@ import { createContext, router } from './api';
 import type Config from './Config';
 import { runAutoUpdate } from './services/appUpdate';
 
-declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
-declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
-declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
-declare const ABOUT_WINDOW_WEBPACK_ENTRY: string;
-declare const ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+// 窓ごとの *_VITE_DEV_SERVER_URL / *_VITE_NAME は plugin-vite がビルド時に
+// 埋め込む定数(型は src/types/forge-vite.d.ts)。dev サーバの URL は
+// serve のときだけ値を持ち、production ビルドでは undefined になる
 
 const isDevEnv = process.env.NODE_ENV === 'development';
+
+/**
+ * Loads a renderer entry point into the given window.
+ * dev は Vite の dev サーバ、production は `.vite/renderer/{name}/index.html`
+ * (`.vite/build` にある main から見た相対位置)。
+ * @param {BrowserWindow} window - The window to load into.
+ * @param {string | undefined} devServerUrl - The dev server URL, if serving.
+ * @param {string} name - The renderer entry point name.
+ */
+function loadRenderer(
+  window: BrowserWindow,
+  devServerUrl: string | undefined,
+  name: string,
+) {
+  if (devServerUrl) {
+    void window.loadURL(devServerUrl);
+  } else {
+    void window.loadFile(
+      path.join(__dirname, '../renderer', name, 'index.html'),
+    );
+  }
+}
+
+/**
+ * Returns the path of a preload script built into `.vite/build`.
+ * @param {string} name - The preload output name (without extension).
+ * @returns {string} The absolute path of the preload script.
+ */
+function preloadPath(name: string): string {
+  return path.join(__dirname, `${name}.js`);
+}
 
 /**
  * Denies all in-window navigations and window creations, opening http(s)
@@ -74,7 +103,11 @@ export async function launch(config: Config) {
     splashWindow.show();
   });
 
-  void splashWindow.loadURL(SPLASH_WINDOW_WEBPACK_ENTRY);
+  loadRenderer(
+    splashWindow,
+    SPLASH_WINDOW_VITE_DEV_SERVER_URL,
+    SPLASH_WINDOW_VITE_NAME,
+  );
 
   const mainWindowState = windowStateKeeper({
     defaultWidth: 800,
@@ -100,7 +133,7 @@ export async function launch(config: Config) {
     titleBarStyle: 'hidden',
     titleBarOverlay: getTitleBarColor(),
     webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      preload: preloadPath('main_preload'),
       sandbox: true,
     },
   });
@@ -134,7 +167,6 @@ export async function launch(config: Config) {
   });
 
   setAboutWindowOpener(() => {
-    const aboutPath = ABOUT_WINDOW_WEBPACK_ENTRY;
     const aboutWindow = new BrowserWindow({
       width: 480,
       height: 360,
@@ -144,7 +176,7 @@ export async function launch(config: Config) {
       parent: mainWindow,
       icon: icon,
       webPreferences: {
-        preload: ABOUT_WINDOW_PRELOAD_WEBPACK_ENTRY,
+        preload: preloadPath('about_preload'),
         sandbox: true,
       },
     });
@@ -160,7 +192,11 @@ export async function launch(config: Config) {
     aboutWindow.once('ready-to-show', () => {
       aboutWindow.show();
     });
-    void aboutWindow.loadURL(aboutPath);
+    loadRenderer(
+      aboutWindow,
+      ABOUT_WINDOW_VITE_DEV_SERVER_URL,
+      ABOUT_WINDOW_VITE_NAME,
+    );
   });
 
   setTimeout(() => {
@@ -169,5 +205,9 @@ export async function launch(config: Config) {
     splashWindow.destroy();
   }, 2000);
 
-  void mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  loadRenderer(
+    mainWindow,
+    MAIN_WINDOW_VITE_DEV_SERVER_URL,
+    MAIN_WINDOW_VITE_NAME,
+  );
 }
