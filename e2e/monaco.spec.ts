@@ -13,7 +13,7 @@ type MonacoWindow = {
       }[];
       getModelMarkers: (filter: object) => { message: string }[];
     };
-    languages: { json?: { jsonDefaults?: unknown } };
+    json?: { jsonDefaults?: unknown };
   };
 };
 
@@ -56,13 +56,12 @@ test('設定タブの Monaco エディタが表示・入力・スキーマ検証
     timeout: 120_000,
   });
 
-  // 0.55 で languages.json は非推奨になったが、AMD の editor.main が互換のため
-  // 再付与している。それに依存しているので生きていることを確かめる
+  // 0.55 で languages.json はトップレベルの json へ移り、型が付いているのは
+  // 新しい方だけなのでそちらを使っている。実体があることを確かめる
+  // (旧 languages.json も editor.main が互換で再付与しているが依存しない)
   expect(
     await window.evaluate(
-      () =>
-        !!(window as unknown as MonacoWindow).monaco.languages.json
-          ?.jsonDefaults,
+      () => !!(window as unknown as MonacoWindow).monaco.json?.jsonDefaults,
     ),
   ).toBe(true);
 
