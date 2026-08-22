@@ -259,7 +259,7 @@ describe('Ledger', () => {
   });
 
   describe('round-trip', () => {
-    it('書き込んだ内容を別インスタンスで読み直しても同じ値になる', async () => {
+    it('書き込んだ内容がディスクへ反映され、読み直しても同じ値になる', async () => {
       const installationPath = await makeInstPath();
 
       const writer = await Ledger.load(installationPath);
@@ -282,6 +282,53 @@ describe('Ledger', () => {
         id: 'author/plugin',
         version: 'v1.2.3',
       });
+    });
+  });
+
+  describe('共有インスタンス', () => {
+    it('同じインストール先の load は同一インスタンスを返す', async () => {
+      const installationPath = await makeInstPath();
+
+      const [a, b] = await Promise.all([
+        Ledger.load(installationPath),
+        Ledger.load(installationPath),
+      ]);
+
+      expect(a).toBe(b);
+    });
+
+    it('並行する 2 経路の書き込みが互いを消さない(lost update の防止)', async () => {
+      const installationPath = await makeInstPath();
+
+      // インストール(addPackage)と一覧再取得中の整合性採認のように、
+      // 別々に load した 2 経路が同時に書き込む状況を再現する
+      const [installer, adopter] = await Promise.all([
+        Ledger.load(installationPath),
+        Ledger.load(installationPath),
+      ]);
+      await Promise.all([
+        installer.addPackage('author/installed', '1.0'),
+        adopter.addPackage('author/adopted', '2.0'),
+      ]);
+
+      const json = await readJson(Ledger.getPath(installationPath));
+      expect(Object.keys(json.packages).sort()).toEqual([
+        'author/adopted',
+        'author/installed',
+      ]);
+    });
+
+    it('トランザクション中の変更は別経路の load からも見える', async () => {
+      const installationPath = await makeInstPath();
+
+      const writer = await Ledger.load(installationPath);
+      writer.begin();
+      await writer.setCore('aviutl', '1.10');
+
+      const reader = await Ledger.load(installationPath);
+      expect(await reader.get('core.aviutl')).toBe('1.10');
+
+      await writer.commit();
     });
   });
 });
