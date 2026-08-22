@@ -125,6 +125,39 @@ describe('getManuallyInstalledFiles', () => {
     ).toEqual(['script/other.anm']);
   });
 
+  it('名前が前方一致するだけの別エントリは除外しない', () => {
+    // 実データの衝突: oov/GCMZDrops の "GCMZDrops"(ディレクトリ)が
+    // oov/PSDToolKit の "GCMZDrops.auf" を巻き込んでいた
+    const packages = [
+      makePackage('oov/GCMZDrops', {
+        files: [{ filename: 'GCMZDrops', isDirectory: true }],
+      }),
+    ];
+    expect(
+      getManuallyInstalledFiles(
+        ['GCMZDrops.auf', 'GCMZDrops/inner.anm'],
+        { 'oov/GCMZDrops': { id: 'oov/GCMZDrops', version: '1.0' } },
+        packages,
+      ),
+    ).toEqual(['GCMZDrops.auf']);
+  });
+
+  it('末尾スラッシュ付きのディレクトリ指定でも配下を除外できる', () => {
+    // 実データに "script/ANM_ssd/" のような書き方がある
+    const packages = [
+      makePackage('satsuki/satsuki', {
+        files: [{ filename: 'script/ANM_ssd/', isDirectory: true }],
+      }),
+    ];
+    expect(
+      getManuallyInstalledFiles(
+        ['script/ANM_ssd/a.anm', 'script/ANM_ssd2/b.anm'],
+        { 'satsuki/satsuki': { id: 'satsuki/satsuki', version: '1.0' } },
+        packages,
+      ),
+    ).toEqual(['script/ANM_ssd2/b.anm']);
+  });
+
   it('apm.json に無いパッケージのファイルは除外しない', () => {
     const packages = [
       makePackage('author/pkg', {
