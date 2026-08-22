@@ -41,6 +41,9 @@
       "path": "./node_modules/cz-conventional-changelog"
     }
   },
+  "resolutions": {
+    "extract-zip": "npm:@electron-internal/extract-zip@1.0.3"
+  },
   "dependencies": {
     "7zip-bin": "^5.2.0",
     "@monaco-editor/react": "^4.7.0",
