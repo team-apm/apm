@@ -20,7 +20,14 @@ const OLD_DEFAULT_DATA_URL =
 
 const mocks = vi.hoisted(() => ({
   userDataDir: { value: '' },
-  showMessageBox: vi.fn(async () => ({ response: 0 })),
+  // 引数の型を書くのは、案内文言のアサーションで mock.calls[0][0] を
+  // 読むため(引数なしで宣言すると calls が空タプルになる)
+  showMessageBox: vi.fn<
+    (options: {
+      message: string;
+      type: string;
+    }) => Promise<{ response: number }>
+  >(async () => ({ response: 0 })),
   downloadFile: vi.fn(async () => '/backup/copy'),
 }));
 
@@ -114,6 +121,28 @@ describe('migration service', () => {
       expect(config.dataUrl.hasMain()).toBe(false);
       // 移行するかどうかを尋ねず、結果の案内を 1 回出すだけ
       expect(mocks.showMessageBox).toHaveBeenCalledOnce();
+    });
+
+    it('案内ダイアログに移行前のデータ取得先を載せる', async () => {
+      config.dataUrl.setMain('https://example.com/custom-v1/');
+
+      await migrationGlobal(ctx);
+
+      expect(mocks.showMessageBox.mock.calls[0][0]).toMatchObject({
+        message: expect.stringContaining('https://example.com/custom-v1/'),
+      });
+    });
+
+    it('リセットの前に config.json を退避する', async () => {
+      config.dataUrl.setMain(OLD_DEFAULT_DATA_URL);
+
+      await migrationGlobal(ctx);
+
+      expect(mocks.downloadFile).toHaveBeenCalledWith(
+        win,
+        path.join(mocks.userDataDir.value, 'config.json'),
+        { subDir: 'migration' },
+      );
     });
   });
 

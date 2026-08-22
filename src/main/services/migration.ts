@@ -40,7 +40,7 @@ async function showErrorDialog(title: string, message: string) {
  * @returns {Promise<void>} A promise that resolves when the migration ends.
  */
 export async function migrationGlobal(ctx: ServiceContext): Promise<void> {
-  const { config } = ctx;
+  const { win, config } = ctx;
 
   // 初回起動。取得先がまだ無い = 移行するユーザーデータが無い
   if (!config.dataUrl.hasMain()) {
@@ -56,7 +56,14 @@ export async function migrationGlobal(ctx: ServiceContext): Promise<void> {
 
   log.info('Start migration: migrationGlobal()');
 
-  // 1. Delete the cache files
+  // 1. config.json を退避する。apm.json と違いバックアップの仕組みが無く、
+  //    カスタムのデータ取得先は再入力に外部の情報が要るため
+  const oldDataUrl = config.dataUrl.getMain();
+  await downloadFile(win, path.join(app.getPath('userData'), 'config.json'), {
+    subDir: BACKUP_SUBDIR,
+  });
+
+  // 2. Delete the cache files
   const dataFolder = path.join(app.getPath('userData'), 'Data/');
   const files = [
     path.join(dataFolder, 'mod.xml'),
@@ -80,7 +87,7 @@ export async function migrationGlobal(ctx: ServiceContext): Promise<void> {
     }
   });
 
-  // 2. 取得先と更新日時をリセットする。既定値を書かずに削除だけするのは、
+  // 3. 取得先と更新日時をリセットする。既定値を書かずに削除だけするのは、
   //    「未設定なら既定値」の解決を startup の initSettings 一箇所に保つため
   config.delete('dataURL');
   config.delete('modDate');
@@ -92,6 +99,8 @@ export async function migrationGlobal(ctx: ServiceContext): Promise<void> {
     message: [
       'お使いのデータが古い形式のため、新しい形式へ移行しました。',
       'これに伴いデータ取得先がリセットされました。デフォルト以外のURLを設定していた場合は、設定タブから再設定してください。',
+      '',
+      `これまでの取得先: ${oldDataUrl}`,
     ].join('\n'),
     type: 'info',
   });
