@@ -301,8 +301,9 @@ export async function migrationByFolder(
   });
 
   // 2. Update the path to the online and local xml files.
+  // repository は削除対象なので optional。必須と書くと delete が型で弾かれる
   const packages = (await ledger.get('packages')) as {
-    [key: string]: { repository: string };
+    [key: string]: { repository?: string };
   };
   for (const id of Object.keys(packages)) {
     if (Object.hasOwn(packages[id], 'repository'))

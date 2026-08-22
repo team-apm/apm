@@ -251,9 +251,9 @@ export async function adoptManuallyInstalledPackages(
   let modified = false;
   ledger.begin();
   for (const p of packages.filter(
-    (p) => p.info.releases && p.installationStatus === states.manuallyInstalled,
+    (p) => p.installationStatus === states.manuallyInstalled,
   )) {
-    for (const release of p.info.releases) {
+    for (const release of p.info.releases ?? []) {
       if (await checkIntegrity(inst.path, release.integrity.file)) {
         await ledger.addPackage(p.id, release.version);
         modified = true;
