@@ -231,9 +231,10 @@ export function computePackagesStatus(
 
   packages.forEach((p) => {
     p.doNotInstall = !isInstallable(p.id);
-    p.detached = missingDeps(p.id).map((depsID) =>
-      packages.filter((pp) => pp.id === depsID).find(() => true),
-    );
+    p.detached = missingDeps(p.id).flatMap((depsID) => {
+      const dep = packages.find((pp) => pp.id === depsID);
+      return dep ? [dep] : [];
+    });
   });
   return packages;
 }

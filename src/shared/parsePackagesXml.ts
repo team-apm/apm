@@ -127,12 +127,12 @@ export interface ReleaseInfo {
 }
 
 /**
- * @param {RawPackage} parsedData - A object parsed from XML.
+ * @param {RawFiles} parsedFiles - The `<files>` element parsed from XML.
  * @returns {XmlFile[]} An array of files.
  */
-function parseFiles(parsedData: RawPackage): XmlFile[] {
+function parseFiles(parsedFiles: RawFiles): XmlFile[] {
   const files: XmlFile[] = [];
-  for (const file of parsedData.files[0].file) {
+  for (const file of parsedFiles.file) {
     const xmlFile: XmlFile = {
       filename: null,
       isOptional: false,
@@ -144,7 +144,7 @@ function parseFiles(parsedData: RawPackage): XmlFile[] {
     if (typeof file === 'string') {
       xmlFile.filename = file;
     } else if (typeof file === 'object') {
-      xmlFile.filename = file._;
+      xmlFile.filename = file._ ?? null;
       if (file.$optional) xmlFile.isOptional = Boolean(file.$optional[0]);
       if (file.$installOnly)
         xmlFile.isInstallOnly = Boolean(file.$installOnly[0]);
@@ -195,7 +195,10 @@ export class PackageInfo {
     for (const key of defaultKeys) {
       if (parsedPackage[key]) {
         if (key === 'files') {
-          this.files = parseFiles(parsedPackage);
+          // 直前の `parsedPackage[key]` で存在は確かめているが、key が
+          // union のループ変数なので files 自体の絞り込みには効かない
+          const parsedFiles = parsedPackage.files;
+          if (parsedFiles) this.files = parseFiles(parsedFiles[0]);
         } else if (key === 'latestVersion') {
           const parsedValue = parsedPackage[key][0];
           if (typeof parsedValue === 'string') {
