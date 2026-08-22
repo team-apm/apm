@@ -98,9 +98,13 @@ test('設定タブの Monaco エディタが表示・入力・スキーマ検証
   await setModelValue('[{"id":"a/b","name":"n"}]');
   await viewLines.click();
   await window.keyboard.press('Shift+Alt+F');
-  // editorDidMount の updateOptions({ tabSize: 2 }) 込みで確かめる
+  // editorDidMount の updateOptions({ tabSize: 2 }) 込みで確かめる。
+  // 既定の EOL はプラットフォーム依存(Windows は CRLF)で、ここで見たいのは
+  // インデントなので改行は正規化する
   await expect
-    .poll(modelValue, { timeout: 60_000 })
+    .poll(async () => (await modelValue()).replace(/\r\n/g, '\n'), {
+      timeout: 60_000,
+    })
     .toBe('[\n  {\n    "id": "a/b",\n    "name": "n"\n  }\n]');
 
   // --- codicon(0.56 で .ttf ファイルから data: URI 埋め込みに変わった)---
