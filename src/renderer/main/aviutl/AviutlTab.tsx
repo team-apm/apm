@@ -1,4 +1,5 @@
 import React, { type JSX, useSyncExternalStore } from 'react';
+import apmIcon from '../../../../icon/apm32.png';
 import {
   getInstallationPath,
   subscribeInstallationPath,
@@ -26,7 +27,7 @@ function AviutlTab(): JSX.Element {
         <div className="container-fluid">
           <span className="navbar-brand">
             <img
-              src="../../../icon/apm32.png"
+              src={apmIcon}
               alt=""
               className="d-inline-block"
               width="20"
