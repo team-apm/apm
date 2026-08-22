@@ -30,11 +30,11 @@
     "test:watch": "vitest"
   },
   "lint-staged": {
-    "*.js": [
+    "*.{ts,tsx,mjs}": [
       "prettier --write",
       "eslint --fix"
     ],
-    "*.{ts,tsx,json,yml,md,html,css,scss}": "prettier --write"
+    "*.{json,yml,md,html,css,scss}": "prettier --write"
   },
   "config": {
     "commitizen": {
