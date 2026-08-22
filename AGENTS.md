@@ -85,7 +85,7 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 改名してはいけないもの(互換のための例外):
 
-- ディスク形式のキー・ファイル名: `config.json` のキー(`dataURL.main` / `migration1to2.oldDataURL` 等)、`apm.json`(ファイル名と `convertMod` 等のキー)
+- ディスク形式のキー・ファイル名: `config.json` のキー(`dataURL.main` 等)、`apm.json`(ファイル名と `convertMod` 等のキー)
 - apm-schema 由来のフィールド(`pageURL` / `downloadURLs` 等)
 - インストーラ引数のプレースホルダ `$instpath`(ユーザーデータに書かれる書式)
 - JSDoc・コメントの「旧 〜 と同一の挙動」に現れる旧実装の識別子(歴史的記述)
@@ -111,6 +111,6 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 - 1 窓に tRPC クライアントを複数作らない(main 窓は `TrpcProvider`、about 窓は `App` の 1 個ずつ)。複数作るとリクエスト ID が衝突し、**他方のリクエストへの応答で resolve される**。かつて preload 側クライアントと共存させるため `shared/trpcIdNamespace.ts` で ID 空間を偶奇分離していた — 再び複数が必要になったら git 履歴から復元する
 - メインワールドの React から import する shared モジュールは electron だけでなく **fs にも依存不可**(renderer のビルドに Node ポリフィルが無いため、fs-extra が混入するとビルドが落ちる)。直接 import は lint が検出するが、**shared モジュール経由の推移的な fs 依存は lint で検出できない**(ビルド失敗が検出線)。表示用の定数・純関数は `src/shared/packageDisplay.ts` のように fs 非依存モジュールへ分離する
 - trpc-electron(electron-trpc の tRPC 11 対応フォーク。0.7.1 までの本家は tRPC 11 非互換)は falsy なトップレベル入力(`false` / `0` / `''`)を `undefined` に変換する(main ハンドラが `input: g ? deserialize(g) : void 0` と真偽値評価しているため)。tRPC procedure の入力にプリミティブの boolean / number を直接渡さず、必ずオブジェクトで包む(`{ update: boolean }` 等)
-- **バンドルできない依存が 2 種類ある**(一覧は `vite.base.config.ts`)。① 自身の `__dirname` からファイルを読むもの(`7zip-bin` / `win-7zip` の実行ファイル、`electron-prompt` の HTML)② 副作用の評価順を保つため生の `require()` のまま残すもの(`electron-squirrel-startup`)。webpack は `require()` を静的に解決してその位置のまま bundle していたが Rollup にその機能は無く、静的 import へ直すと ESM の規則で**import 側の本体より先に評価される**。どちらも external にして `node_modules` ごと同梱する
+- **バンドルできない依存が 2 種類ある**(一覧は `vite.base.config.ts`)。① 自身の `__dirname` からファイルを読むもの(`7zip-bin` / `win-7zip` の実行ファイル)② 副作用の評価順を保つため生の `require()` のまま残すもの(`electron-squirrel-startup`)。webpack は `require()` を静的に解決してその位置のまま bundle していたが Rollup にその機能は無く、静的 import へ直すと ESM の規則で**import 側の本体より先に評価される**。どちらも external にして `node_modules` ごと同梱する
 - 上の一覧から漏れるとパッケージ版だけが `MODULE_NOT_FOUND` で落ちるが、**Electron が main のロード例外をダイアログに出すため stderr には何も出ず「窓が開かない」としか見えない**。`assertExternals` プラグインが静的 import(`chunk.imports`)と出力コードの生 `require()` の両方を見てビルド時に落とすので、そのエラーが出たら「バンドルできるよう静的 import に直す」か「一覧に足す」かを選ぶ。外部化した依存がさらに require する分(`debug` / `ms`)は external にせず同梱一覧にだけ足す(external にするとバンドル内の別の import まで外部化される)
 - renderer のエントリは `index.html` の `<script type="module">` で、webpack plugin のような JS 自動注入は無い。窓を追加するときは forge.config.ts の `renderer[]` と `vite.renderer.config.ts` の `SOURCE_DIRS` の両方に足す(前者だけだとビルドが「Unknown renderer entry point」で落ちる)

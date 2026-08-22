@@ -18,11 +18,31 @@ import { migrationByFolder, migrationGlobal } from './migration';
 const OLD_DEFAULT_DATA_URL =
   'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/data/';
 
+const PACKAGES_XML = `<?xml version="1.0" encoding="utf-8"?>
+<packages>
+  <package>
+    <id>script_old</id>
+    <name>スクリプト</name>
+    <downloadURL>https://example.com/s.zip</downloadURL>
+    <latestVersion>1</latestVersion>
+    <files>
+      <file>script/s.anm</file>
+    </files>
+  </package>
+</packages>
+`;
+
 const mocks = vi.hoisted(() => ({
   userDataDir: { value: '' },
-  showMessageBox: vi.fn(async () => ({ response: 0 })),
-  prompt: vi.fn(),
-  downloadFile: vi.fn(),
+  // 引数の型を書くのは、案内文言のアサーションで mock.calls[0][0] を
+  // 読むため(引数なしで宣言すると calls が空タプルになる)
+  showMessageBox: vi.fn<
+    (options: {
+      message: string;
+      type: string;
+    }) => Promise<{ response: number }>
+  >(async () => ({ response: 0 })),
+  downloadFile: vi.fn(async () => '/backup/copy'),
 }));
 
 vi.mock('electron', () => ({
@@ -38,15 +58,14 @@ vi.mock('electron', () => ({
 vi.mock('electron-log/main', () => ({
   default: { error: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
-vi.mock('electron-prompt', () => ({ default: mocks.prompt }));
 vi.mock('./download', () => ({ downloadFile: mocks.downloadFile }));
 
 const win = {} as BrowserWindow;
 
 /**
- * migration サービスの特性化テスト。
- * v1 → v2 → v3 の段階移行の決定表(どの状態から始めても最終的に
- * dataVersion '3' で揃う)を、リネーム・分割に先立って固定する。
+ * migration サービスのテスト。
+ * 契約は「入力の版(v1 = dataVersion キー無し / v2)が何であれ、出力は v3 の
+ * 正規形」。段(1→2→3)は踏まないので、中間状態ではなく最終状態を固定する。
  */
 describe('migration service', () => {
   const tempDirs: string[] = [];
@@ -61,6 +80,9 @@ describe('migration service', () => {
     return dir;
   };
 
+  const dataPath = (...segments: string[]) =>
+    path.join(mocks.userDataDir.value, 'Data', ...segments);
+
   beforeEach(async () => {
     vi.clearAllMocks();
     mocks.userDataDir.value = await makeTempDir('apm-userdata-');
@@ -68,8 +90,6 @@ describe('migration service', () => {
     config = new Config({ cwd: await makeTempDir('apm-config-') });
     ctx = { win, config };
     inst = openInstallation(installationPath);
-    // v1 のキャッシュ掃除が readdir する Data/package を用意しておく
-    await ensureDir(path.join(mocks.userDataDir.value, 'Data/package'));
   });
 
   afterEach(async () => {
@@ -78,20 +98,19 @@ describe('migration service', () => {
 
   describe('migrationGlobal', () => {
     it('初回起動(main 未設定)は dataVersion 3 を書いて終わる', async () => {
-      const result = await migrationGlobal(ctx);
+      await migrationGlobal(ctx);
 
-      expect(result).toBe(true);
       expect(config.getDataVersion()).toBe('3');
       expect(mocks.showMessageBox).not.toHaveBeenCalled();
+      expect(mocks.downloadFile).not.toHaveBeenCalled();
     });
 
     it('dataVersion 3 済みなら何もしない', async () => {
       config.dataUrl.setMain('https://example.com/v3/');
       config.setDataVersion('3');
 
-      const result = await migrationGlobal(ctx);
+      await migrationGlobal(ctx);
 
-      expect(result).toBe(true);
       expect(config.dataUrl.getMain()).toBe('https://example.com/v3/');
       expect(mocks.showMessageBox).not.toHaveBeenCalled();
     });
@@ -100,74 +119,126 @@ describe('migration service', () => {
       config.dataUrl.setMain('https://example.com/custom/');
       config.setDataVersion('2');
       config.modDate.setCore(1000);
+      config.checkDate.setCore(2000);
 
-      const result = await migrationGlobal(ctx);
+      await migrationGlobal(ctx);
 
-      expect(result).toBe(true);
       expect(config.getDataVersion()).toBe('3');
       expect(config.dataUrl.hasMain()).toBe(false);
       expect(config.modDate.hasCore()).toBe(false);
+      expect(config.checkDate.hasCore()).toBe(false);
       expect(mocks.showMessageBox).toHaveBeenCalledOnce();
     });
 
-    it('v1(旧デフォルト URL)からは確認なしで v2 を経由して 3 まで進む', async () => {
-      // かつて setMain(undefined) が conf に拒否されクラッシュしていた経路
-      // (#2397)。デフォルト利用者は dataURL.main が未設定へ戻る
+    it('v1(dataVersion キー無し)からも確認なしで同じ最終状態になる', async () => {
       config.dataUrl.setMain(OLD_DEFAULT_DATA_URL);
 
-      const result = await migrationGlobal(ctx);
+      await migrationGlobal(ctx);
 
-      expect(result).toBe(true);
       expect(config.getDataVersion()).toBe('3');
       expect(config.dataUrl.hasMain()).toBe(false);
-      // v2→3 の案内ダイアログの 1 回だけ(v1→2 の確認は旧デフォルトなら出ない)
+      // 移行するかどうかを尋ねず、結果の案内を 1 回出すだけ
       expect(mocks.showMessageBox).toHaveBeenCalledOnce();
     });
 
-    it('v1(カスタム URL)でキャンセルを選ぶと false(起動中止)', async () => {
+    it('案内ダイアログに移行前のデータ取得先を載せる', async () => {
       config.dataUrl.setMain('https://example.com/custom-v1/');
-      mocks.showMessageBox.mockResolvedValueOnce({ response: 0 });
 
-      const result = await migrationGlobal(ctx);
+      await migrationGlobal(ctx);
 
-      expect(result).toBe(false);
-      expect(config.hasDataVersion()).toBe(false);
+      expect(mocks.showMessageBox.mock.calls[0][0]).toMatchObject({
+        message: expect.stringContaining('https://example.com/custom-v1/'),
+      });
+    });
+
+    it('リセットの前に config.json を退避する', async () => {
+      config.dataUrl.setMain(OLD_DEFAULT_DATA_URL);
+
+      await migrationGlobal(ctx);
+
+      expect(mocks.downloadFile).toHaveBeenCalledWith(
+        win,
+        path.join(mocks.userDataDir.value, 'config.json'),
+        { subDir: 'migration' },
+      );
+    });
+
+    it('v3 が読まないキャッシュだけを消す', async () => {
+      config.dataUrl.setMain(OLD_DEFAULT_DATA_URL);
+      await ensureDir(dataPath('core'));
+      await ensureDir(dataPath('package'));
+      await writeFile(dataPath('mod.xml'), '');
+      await writeFile(dataPath('core', 'core.xml'), '');
+      await writeFile(dataPath('package', 'aaa_packages_list.xml'), '');
+      await writeFile(dataPath('package', 'bbb_packages.xml'), '');
+      await writeFile(dataPath('package', 'ccc_packages.json'), '');
+      await writeFile(dataPath('list.json'), '');
+
+      await migrationGlobal(ctx);
+
+      expect(await pathExists(dataPath('mod.xml'))).toBe(false);
+      expect(await pathExists(dataPath('core', 'core.xml'))).toBe(false);
+      expect(
+        await pathExists(dataPath('package', 'aaa_packages_list.xml')),
+      ).toBe(false);
+      expect(await pathExists(dataPath('package', 'bbb_packages.xml'))).toBe(
+        false,
+      );
+      // v3 が読むものは残す
+      expect(await pathExists(dataPath('package', 'ccc_packages.json'))).toBe(
+        true,
+      );
+      expect(await pathExists(dataPath('list.json'))).toBe(true);
+    });
+
+    it('キャッシュのディレクトリが無くても移行できる', async () => {
+      // 一度も取得していないと Data/package ごと存在しない
+      config.dataUrl.setMain(OLD_DEFAULT_DATA_URL);
+
+      await migrationGlobal(ctx);
+
+      expect(config.getDataVersion()).toBe('3');
     });
   });
 
   describe('migrationByFolder', () => {
+    const writeLedger = (ledger: object) =>
+      writeJson(path.join(installationPath, 'apm.json'), ledger);
+    const readLedger = () => readJson(path.join(installationPath, 'apm.json'));
+
     it('apm.json が無ければ何もしない', async () => {
       await migrationByFolder(ctx, inst);
+
       expect(await pathExists(path.join(installationPath, 'apm.json'))).toBe(
         false,
       );
+      expect(mocks.downloadFile).not.toHaveBeenCalled();
     });
 
-    it('v1 の apm.json は repository の書き換えを経て v3(repository 削除)まで進む', async () => {
-      await writeJson(path.join(installationPath, 'apm.json'), {
+    it('v1 の apm.json は repository を落として v3 になる', async () => {
+      await writeLedger({
         core: {},
         packages: {
           'author/pkg': {
             id: 'author/pkg',
             version: '1.0',
-            repository:
-              'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/data/packages_list.xml',
+            repository: `${OLD_DEFAULT_DATA_URL}packages_list.xml`,
           },
         },
       });
 
       await migrationByFolder(ctx, inst);
 
-      const ledger = await readJson(path.join(installationPath, 'apm.json'));
+      const ledger = await readLedger();
       expect(ledger.dataVersion).toBe('3');
       expect(ledger.packages['author/pkg'].repository).toBeUndefined();
       expect(ledger.packages['author/pkg'].version).toBe('1.0');
-      // v1→2 と v2→3 の両方でバックアップされる
-      expect(mocks.downloadFile).toHaveBeenCalledTimes(2);
+      // 段を踏まないのでバックアップは 1 回だけ
+      expect(mocks.downloadFile).toHaveBeenCalledOnce();
     });
 
-    it('v2 の apm.json + packages.xml は packages.json へ変換される', async () => {
-      await writeJson(path.join(installationPath, 'apm.json'), {
+    it('v2 の packages.xml は packages.json へ変換される', async () => {
+      await writeLedger({
         dataVersion: '2',
         core: {},
         packages: {
@@ -176,39 +247,72 @@ describe('migration service', () => {
       });
       await writeFile(
         path.join(installationPath, 'packages.xml'),
-        `<?xml version="1.0" encoding="utf-8"?>
-<packages>
-  <package>
-    <id>script_old</id>
-    <name>スクリプト</name>
-    <downloadURL>https://example.com/s.zip</downloadURL>
-    <latestVersion>1</latestVersion>
-    <files>
-      <file>script/s.anm</file>
-    </files>
-  </package>
-</packages>
-`,
+        PACKAGES_XML,
       );
 
       await migrationByFolder(ctx, inst);
 
-      const ledger = await readJson(path.join(installationPath, 'apm.json'));
-      expect(ledger.dataVersion).toBe('3');
-      expect(ledger.packages.script_old.repository).toBeUndefined();
-      const converted = await readJson(
-        path.join(installationPath, 'packages.json'),
-      );
+      expect((await readLedger()).dataVersion).toBe('3');
+      const converted = await readJson(inst.localRepoPath);
       expect(converted.packages).toHaveLength(1);
       expect(converted.packages[0].id).toBe('script_old');
     });
 
-    it('v3 済みの apm.json には触れない', async () => {
-      await writeJson(path.join(installationPath, 'apm.json'), {
-        dataVersion: '3',
+    it('v1 の packages_list.xml も同じ変換に流れる(リネームを経由しない)', async () => {
+      await writeLedger({ core: {}, packages: {} });
+      await writeFile(
+        path.join(installationPath, 'packages_list.xml'),
+        PACKAGES_XML,
+      );
+
+      await migrationByFolder(ctx, inst);
+
+      const converted = await readJson(inst.localRepoPath);
+      expect(converted.packages[0].id).toBe('script_old');
+      // 元のファイルは消さずに残す
+      expect(
+        await pathExists(path.join(installationPath, 'packages_list.xml')),
+      ).toBe(true);
+    });
+
+    it('ローカルリポジトリが壊れていても apm.json は v3 まで進み、エラーを知らせる', async () => {
+      await writeLedger({
         core: {},
-        packages: {},
+        packages: { 'author/pkg': { id: 'author/pkg', version: '1.0' } },
       });
+      await writeFile(
+        path.join(installationPath, 'packages.xml'),
+        '<packages><package>壊れている',
+      );
+
+      await migrationByFolder(ctx, inst);
+
+      expect((await readLedger()).dataVersion).toBe('3');
+      expect(await pathExists(inst.localRepoPath)).toBe(false);
+      expect(mocks.showMessageBox).toHaveBeenCalledOnce();
+      expect(mocks.showMessageBox.mock.calls[0][0]).toMatchObject({
+        type: 'error',
+      });
+    });
+
+    it('バックアップを取れなかったときは apm.json を書き換えない', async () => {
+      mocks.downloadFile.mockResolvedValueOnce(undefined as unknown as string);
+      await writeLedger({
+        core: {},
+        packages: { 'author/pkg': { id: 'author/pkg', repository: 'x' } },
+      });
+
+      await expect(migrationByFolder(ctx, inst)).rejects.toThrow(
+        /Failed to back up/,
+      );
+
+      const ledger = await readLedger();
+      expect(ledger.dataVersion).toBeUndefined();
+      expect(ledger.packages['author/pkg'].repository).toBe('x');
+    });
+
+    it('v3 済みの apm.json には触れない', async () => {
+      await writeLedger({ dataVersion: '3', core: {}, packages: {} });
 
       await migrationByFolder(ctx, inst);
 

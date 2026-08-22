@@ -2093,13 +2093,6 @@
   resolved "https://registry.yarnpkg.com/@types/deep-eql/-/deep-eql-4.0.2.tgz#334311971d3a07121e7eb91b684a605e7eea9cbd"
   integrity sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==
 
-"@types/electron-prompt@^1.6.5":
-  version "1.6.5"
-  resolved "https://registry.yarnpkg.com/@types/electron-prompt/-/electron-prompt-1.6.5.tgz#471372212c84ff81c07c5c8e4f99602d3e0869a2"
-  integrity sha512-CuhgXY5xQZ2lzoXdofCHrLEHoQdf6DIZelmRlDf+uvWhF7z00vIOjXxlXcp3rUAJ28qkM8MDdSFh9NyU8vKi0g==
-  dependencies:
-    electron latest
-
 "@types/electron-window-state@^5.0.2":
   version "5.0.2"
   resolved "https://registry.yarnpkg.com/@types/electron-window-state/-/electron-window-state-5.0.2.tgz#b3aae242233a652606bc7ff8e77ca0f1ba0a489e"
@@ -4062,11 +4055,6 @@ electron-log@^5.4.4:
   resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-5.4.4.tgz#957cb6fc43a73759bad32fadd4927f870eed0254"
   integrity sha512-istWgaXjBfURBSS8LWVW9C3jsc6+ac+tY1lXrQEOTp0lVj+a4OlO1Tmqb36GgnEUDv92DGC9VI1HNXwJinWpgA==
 
-electron-prompt@^1.7.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/electron-prompt/-/electron-prompt-1.7.0.tgz#6f9dedb2dac1dd6bad2e6592ab81cb87c37f2a35"
-  integrity sha512-IfqJYEgcRO6NuyPROo8AtdkAiZ6N9I1lQEf4dJAkPuhV5YgOHdmLqZJf6OXumZJfzrjpzCM5jHeYOrhGdgbnEA==
-
 electron-squirrel-startup@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/electron-squirrel-startup/-/electron-squirrel-startup-1.0.1.tgz#c9171568d724884c7a2b03760bfeedcf921c63ab"
@@ -4109,7 +4097,7 @@ electron-winstaller@^5.3.0:
   optionalDependencies:
     "@electron/windows-sign" "^1.1.2"
 
-electron@^43.4.1, electron@latest:
+electron@^43.4.1:
   version "43.4.1"
   resolved "https://registry.yarnpkg.com/electron/-/electron-43.4.1.tgz#38fe7deff46c1c848b30ac46ad8e57c942704a34"
   integrity sha512-5b+EuiwkgG5iRcsEL34rimgRpkYp15SsfZOa0pC5kXs0Tb82TH4n95rpQzTZa7yRCbA7tm0WoEbuBL6NaAhAcA==
