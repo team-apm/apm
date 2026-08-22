@@ -167,6 +167,9 @@ export async function installCoreProgram(
 
   const progInfo = coreInfo[program] as Program;
   const release = progInfo.releases.find((r) => r.version === version);
+  if (!release) {
+    throw new Error(`No release found. program:${program} version:${version}`);
+  }
   const url = release.url;
 
   return await runInstallFlow<'downloadFailed' | 'redownloadFailed'>(win, {

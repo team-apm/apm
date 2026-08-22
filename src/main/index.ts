@@ -23,13 +23,13 @@ log.errorHandler.startCatching({
   // ハードハングになる(#2401)。electron-log は onError の戻り値(Promise)を
   // 待たずにログを書くので、ダイアログ応答後の quit でもログは失われない
   onError: async () => {
-    const options: MessageBoxOptions = {
+    const options = {
       title: 'エラー',
       message: `予期しないエラーが発生したため、AviUtl Package Managerを終了します。\nログファイル: ${
         log.transports.file.getFile().path
       }`,
       type: 'error',
-    };
+    } satisfies MessageBoxOptions;
     if (app.isReady()) {
       await dialog.showMessageBox(options);
     } else {
@@ -96,15 +96,19 @@ app.on(
       if (allowedHosts.includes(host)) {
         callback(true);
       } else {
-        const win = BrowserWindow.getFocusedWindow();
-        const response = await dialog.showMessageBox(win, {
+        const options: MessageBoxOptions = {
           title: '安全ではない接続',
           message: `このサイトでは古いセキュリティ設定を使用しています。このサイトに情報を送信すると流出する恐れがあります。`,
           detail: error,
           type: 'warning',
           buttons: ['戻る', `${host}にアクセスする（安全ではありません）`],
           cancelId: 0,
-        });
+        };
+        // フォーカス窓が無いときは窓なしのオーバーロードへ回す
+        const win = BrowserWindow.getFocusedWindow();
+        const response = await (win
+          ? dialog.showMessageBox(win, options)
+          : dialog.showMessageBox(options));
         if (response.response === 1) {
           allowedHosts.push(host);
           callback(true);

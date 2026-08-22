@@ -21,8 +21,11 @@ class Ledger {
   // apm の多重起動(プロセス間の競合)はこの方式では防げない(別課題)
   private static instances = new Map<string, Promise<Ledger>>();
 
-  private path: string;
-  private object: LedgerObject;
+  // 生成は必ず静的ファクトリ(load / getInstance)経由で、どちらも
+  // new した直後に load() を呼ぶ。load() は成功・失敗のどちらの経路でも
+  // この 2 つを設定するが、コンストラクタからは追えないため明示する
+  private path!: string;
+  private object!: LedgerObject;
   private inTransaction = false;
   private dirty = false;
   // 同じファイルへの writeJson が並行すると内容が交錯しうるため直列化する

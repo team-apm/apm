@@ -306,6 +306,9 @@ export async function installScriptFlow(
       return { route: 'flow', status: 'redirectNotFound' };
     }
     const packageToInstall = packages.find((p) => p.id === packageId);
+    if (!packageToInstall) {
+      throw new Error(`The redirect target is not listed. id:${packageId}`);
+    }
     return {
       route: 'redirect',
       status: await installPackageFlow(ctx, inst, packageToInstall, {
