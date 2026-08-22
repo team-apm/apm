@@ -12,7 +12,7 @@ export type ActionPhase =
  */
 export function usePhase() {
   const [phase, setPhase] = useState<ActionPhase>({ kind: 'idle' });
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
 
   // 前回の復帰タイマーを残したまま次の遷移をすると、3 秒前の操作の

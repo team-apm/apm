@@ -34,7 +34,7 @@ function ProgramRow({
   );
   const [phase, setPhase] = useState<ButtonPhase>('idle');
   const [buttonMessage, setButtonMessage] = useState('');
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const utils = TRPCReact.useUtils();

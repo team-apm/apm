@@ -22,7 +22,7 @@ const IDLE_LABEL = 'AviUtl・拡張編集とおすすめプラグインのイン
  */
 function BatchInstallButton(): JSX.Element {
   const [phase, setPhase] = useState<ButtonPhase>({ kind: 'idle' });
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const utils = TRPCReact.useUtils();
