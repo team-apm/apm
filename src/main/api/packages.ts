@@ -1,5 +1,6 @@
 import {
   isHttpUrl,
+  isSafeRelativePath,
   validatePackageInfo,
 } from '../../shared/packageInfoValidation';
 import {
@@ -50,6 +51,9 @@ const packageStateInput = (
   const { id, info } = value as Record<string, unknown>;
   if (typeof id !== 'string' || typeof info !== 'object' || info === null)
     throw new TypeError('id is expected to be a string and info an object.');
+  // id は展開先フォルダ名になるため、files[].filename と同じ関門を通す
+  if (!isSafeRelativePath(id))
+    throw new TypeError('id is expected to be a safe relative path.');
   // renderer は非信頼。パス・コマンド・URL に到達するフィールドはここで検証する
   return { id, info: validatePackageInfo(info) };
 };

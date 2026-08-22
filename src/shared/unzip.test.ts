@@ -78,6 +78,42 @@ describe('unzip', () => {
     expect(targetPath).toBe(path.join(dir, 'fixture'));
     expect(await pathExists(path.join(targetPath, 'hello.txt'))).toBe(true);
   }, 30000);
+
+  it('展開先の外へ出る folderName を拒否して展開しない', async () => {
+    // 脱出先も後片付けの対象に入るよう、掃除される root の内側に置く
+    const root = await mkdtemp(path.join(os.tmpdir(), 'apm-unzip-'));
+    tempDirs.push(root);
+    const dir = path.join(root, 'inner');
+    await ensureDir(dir);
+    const zipPath = await createZipFixture(dir);
+    const outside = path.join(root, 'escaped');
+
+    await expect(unzip(zipPath, path.join('..', 'escaped'))).rejects.toThrow(
+      /invalid path/,
+    );
+    expect(await pathExists(outside)).toBe(false);
+  }, 30000);
+
+  it('Data フォルダ配下では 1 階層上を基点にしつつ、その外へは出さない', async () => {
+    // 実運用の配置(userData/Data/package/archive/x.zip)を模す。
+    // getTargetPath は基点を Data/package に取るので、'..' 付きの
+    // folderName は Data から外れる前に弾かれる
+    const root = await mkdtemp(path.join(os.tmpdir(), 'apm-unzip-'));
+    tempDirs.push(root);
+    const archiveDir = path.join(root, 'Data', 'package', 'archive');
+    await ensureDir(archiveDir);
+    const zipPath = await createZipFixture(archiveDir);
+
+    const targetPath = await unzip(zipPath, 'author/plugin');
+    expect(targetPath).toBe(
+      path.join(root, 'Data', 'package', 'author', 'plugin'),
+    );
+
+    await expect(
+      unzip(zipPath, path.join('..', '..', 'escaped')),
+    ).rejects.toThrow(/invalid path/);
+    expect(await pathExists(path.join(root, 'escaped'))).toBe(false);
+  }, 60000);
 });
 
 describe('removeSymlinks', () => {

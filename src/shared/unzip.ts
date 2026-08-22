@@ -4,6 +4,7 @@ import { extractFull } from 'node-7z';
 import { chmodSync } from 'node:fs';
 import path from 'node:path';
 import win7zip from 'win-7zip';
+import { resolveInside } from './apmPath';
 
 const isDevEnv = process.env.NODE_ENV === 'development';
 
@@ -52,18 +53,20 @@ export async function removeSymlinks(dir: string) {
  */
 async function unzip(zipPath: string, folderName?: string) {
   const getTargetPath = () => {
-    if (path.resolve(path.dirname(zipPath), '../../').endsWith('Data')) {
-      return path.resolve(
-        path.dirname(zipPath),
-        '../',
-        folderName ?? path.basename(zipPath, path.extname(zipPath)),
-      );
-    } else {
-      return path.resolve(
-        path.dirname(zipPath),
-        folderName ?? path.basename(zipPath, path.extname(zipPath)),
-      );
-    }
+    // folderName はパッケージ ID(リモートのパッケージデータ由来)が渡ってくる。
+    // path.resolve は '..' を素通しするので、基点を明示して resolveInside に
+    // 通す。openPackageFolder が同じ ID に対して既に isParent で守っており、
+    // 展開先だけがこの関門を通っていなかった
+    const base = path.resolve(
+      path.dirname(zipPath),
+      path.resolve(path.dirname(zipPath), '../../').endsWith('Data')
+        ? '../'
+        : '',
+    );
+    return resolveInside(
+      base,
+      folderName ?? path.basename(zipPath, path.extname(zipPath)),
+    );
   };
   const targetPath = getTargetPath();
   const zipStream = extractFull(zipPath, targetPath, {
