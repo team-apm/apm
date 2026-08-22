@@ -10,7 +10,7 @@ import { TrpcProvider } from './TrpcProvider';
 window.addEventListener('DOMContentLoaded', () => {
   // dark-theme(旧 preload から移設)
   const updateTheme = () => {
-    document.querySelector('html').dataset.bsTheme = window.matchMedia(
+    document.documentElement.dataset.bsTheme = window.matchMedia(
       '(prefers-color-scheme: dark)',
     ).matches
       ? 'dark'
@@ -21,7 +21,9 @@ window.addEventListener('DOMContentLoaded', () => {
     .addEventListener('change', updateTheme);
   updateTheme();
 
-  createRoot(document.getElementById('root')).render(
+  const container = document.getElementById('root');
+  if (!container) throw new Error('#root is not found.');
+  createRoot(container).render(
     <TrpcProvider>
       <App />
     </TrpcProvider>,
