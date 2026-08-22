@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { convertPackagesV2toV3 } from './convertPackagesV2toV3';
 import { parsePackagesXml } from './parsePackagesXml';
 
-// migration2to3.byFolder が行う「packages.xml → packages.json」変換の
-// 特性化テスト。パース → 変換のパイプライン全体を現行挙動のまま固定する
+// 「packages.xml → packages.json」変換のテスト。
+// パース → 変換のパイプライン全体を通して出力の形を固定する
 const fixtureXml = `<?xml version="1.0" encoding="utf-8"?>
 <packages>
   <package>
@@ -110,16 +110,34 @@ describe('convertPackagesV2toV3', () => {
     });
   });
 
-  it('isOptional の変換は JSON 文字列全体への置換として働く(現行挙動の固定)', () => {
-    // キーだけでなく値に含まれる isOptional も置換される。
-    // 旧実装の JSON.stringify + replaceAll をそのまま移植しているため
+  it('isOptional の改名はファイル要素のキーだけに効き、説明文は書き換えない', () => {
     const result = convertPackagesV2toV3([
-      { id: 'x', overview: 'isOptional を説明する文章' },
+      {
+        id: 'x',
+        overview: 'isOptional を説明する文章',
+        files: [
+          {
+            filename: 'readme.txt',
+            isOptional: true,
+            isInstallOnly: false,
+            isDirectory: false,
+            isObsolete: false,
+            archivePath: null,
+          },
+        ],
+      },
     ]);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((result.packages[0] as any).overview).toBe(
-      'isUninstallOnly を説明する文章',
-    );
+    const converted = result.packages[0] as any;
+    expect(converted.overview).toBe('isOptional を説明する文章');
+    expect(converted.files[0]).toEqual({
+      filename: 'readme.txt',
+      isUninstallOnly: true,
+      isInstallOnly: false,
+      isDirectory: false,
+      isObsolete: false,
+      archivePath: null,
+    });
   });
 
   it('releases が無いパッケージは downloadURLs の組み立てのみ行う', () => {
