@@ -132,8 +132,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Webpack
-.webpack/
+# Vite
+.vite/
 
 # Electron-Forge
 out/

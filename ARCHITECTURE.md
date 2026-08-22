@@ -13,7 +13,7 @@ Electron の 3 窓 + main プロセス。窓はすべて `sandbox: true`。
 | splash | `src/renderer/splash/`                                                                                                 | なし                            |
 
 - ビジネスロジックは main プロセス(`src/main/services/`)。renderer からは tRPC(trpc-electron)で呼ぶ
-- このほか `services/browser.ts` がダウンロード用のモーダルブラウザ窓を動的に生成する(forge の entryPoint ではない)
+- このほか `services/browser.ts` がダウンロード用のモーダルブラウザ窓を動的に生成する(forge の renderer エントリではない)
 - IPC は tRPC に集約済み。例外は preload のエラーハンドラ用ダイアログの 1 チャンネルのみ(`src/common/ipc.ts` + `src/lib/ipcWrapper.ts`。preload に tRPC クライアントを置けない理由は `src/common/ipc.ts` のコメントを参照)
 
 ## ディレクトリと責務
@@ -66,6 +66,23 @@ graph LR
 - `{installationPath}` = ユーザーが選ぶ AviUtl インストールフォルダ。apm の状態はすべてここと electron-store(`Config.ts`)にある
 - ファイルの整合性は apm-data 側の ssri ハッシュを `src/shared/integrity.ts` で検証
 
+## ビルド構成(Vite + electron-forge)
+
+`forge.config.ts` の `VitePlugin` が 3 種類のターゲットをビルドする。設定は種類ごとにファイルが分かれ、共有部分は `vite.base.config.ts` / `vite.plugins.config.ts` に置く。
+
+| ターゲット | 入口                                          | 設定                      | 出力                                  |
+| ---------- | --------------------------------------------- | ------------------------- | ------------------------------------- |
+| main       | `src/main/index.ts`                           | `vite.main.config.ts`     | `.vite/build/main.js`(CJS)            |
+| preload    | `src/renderer/{main,about}/preload.ts`        | `vite.preload.config.ts`  | `.vite/build/{main,about}_preload.js` |
+| renderer   | `src/renderer/{main,about,splash}/index.html` | `vite.renderer.config.ts` | `.vite/renderer/{name}/`              |
+
+- **renderer は `index.html` が入口**。Vite は HTML を起点にビルドするため、各 `index.html` が `<script type="module" src="./renderer.tsx">` で自分のエントリを指す
+- 窓ごとに Vite の `root` を移して出力を `.vite/renderer/{name}/index.html` に平坦化している。main プロセスは dev なら `*_VITE_DEV_SERVER_URL`、製品版なら `loadFile('../renderer/{name}/index.html')` で読む(`src/main/windows.ts`)
+- preload は 2 本とも `preload.ts` という同名なので、出力名を親ディレクトリ名から `{main,about}_preload.js` に振り分けている(共有の `outDir` で後勝ち上書きになるため)
+- **バンドルできない依存**は external にして `node_modules` ごとパッケージへ同梱する。自身の `__dirname` からファイルを読むもの(`7zip-bin` / `win-7zip` / `electron-prompt`)と、副作用の評価順を保つため生の `require()` のまま残すもの(`electron-squirrel-startup`)の 2 種類。取りこぼしはパッケージ版だけが静かに壊れるため、`assertExternals` プラグインがビルド時に検出する
+- Monaco は依存解決に載せず、`monacoAssets` プラグインが AMD ビルドを `vs/` として同梱する(dev は同じ `/vs` を middleware で配信)。CSP から CDN 許可を外すための構成
+- CSP は `index.html` の meta が単一ソース。dev のみ `devContentSecurityPolicy` プラグインが Fast Refresh のインライン script を通すために緩める(出力には影響しない)
+
 ## このドキュメントの更新
 
-構造が変わる PR(ディレクトリ再編、services の追加・移設、窓や IPC 系統の変更)では、この文書の該当箇所を同じ PR で更新する。
+構造が変わる PR(ディレクトリ再編、services の追加・移設、窓や IPC 系統の変更、ビルド構成の変更)では、この文書の該当箇所を同じ PR で更新する。

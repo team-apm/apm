@@ -41,6 +41,11 @@ log.errorHandler.startCatching({
 });
 
 shortcut.uninstaller(app.getPath('appData'));
+// 静的 import にしない: ESM の規則でこのファイルの本体より先に評価され、
+// 直前の shortcut.uninstaller より先に Squirrel のイベント処理が始まってしまう
+// (--squirrel-uninstall では Update.exe の完了で app.quit() が走るため、
+// AviUtl のショートカット削除が間に合わなくなりうる)。位置を保つために
+// require のまま残し、vite.base.config.ts で外部化して同梱する
 if (require('electron-squirrel-startup')) app.quit();
 log.debug(process.versions);
 

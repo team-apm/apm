@@ -10,13 +10,13 @@
     "strict": false,
     "noImplicitAny": true,
     "sourceMap": true,
-    // TS 6.0 から rootDir の暗黙推論が廃止(TS5011)。include が webpack.*.ts 等
-    // リポジトリ直下も含むため "." を明示する
+    // TS 6.0 から rootDir の暗黙推論が廃止(TS5011)。include が vite.*.config.ts
+    // 等リポジトリ直下も含むため "." を明示する
     "rootDir": ".",
     "outDir": "dist",
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "jsx": "react-jsx"
   },
-  "include": ["src/**/*", "e2e/**/*", "webpack.*.ts", "*.config.ts"]
+  "include": ["src/**/*", "e2e/**/*", "*.config.ts"]
 }

@@ -9,7 +9,7 @@ import schema from 'apm-schema/v3/schema/packages.json';
 // Type-only import to avoid bundling the entire monaco-editor package
 // (enforced by @typescript-eslint/no-restricted-imports). The runtime editor
 // is NOT loaded from a CDN (the CSP does not allow it): @monaco-editor/loader
-// loads the AMD build that CopyWebpackPlugin bundles into main_window/vs.
+// loads the AMD build that the monacoAssets plugin bundles next to index.html.
 // Enum values must be taken from the `monaco` instance passed to onMount.
 import type { editor } from 'monaco-editor';
 import React, { useRef } from 'react';
@@ -132,15 +132,13 @@ class PlaceholderContentWidget {
 
 self.MonacoEnvironment = null;
 
-// Monaco は loader のデフォルト(cdn.jsdelivr.net)ではなく、webpack が
-// main_window/vs に同梱する monaco-editor の AMD ビルドから読み込む
-// (CSP から CDN 許可を外すため。webpack.renderer.config.ts の CopyWebpackPlugin)。
-// 基準 URL に location を使わないのは、dev サーバのエントリ URL が
-// `/main_window`(/index.html 無し)で、相対解決すると main_window セグメント
-// が落ちて 404 になるため。vs と同じ場所に置かれるこのバンドル自身を基準にする
-const bundleUrl = (document.currentScript as HTMLScriptElement | null)?.src;
+// Monaco は loader のデフォルト(cdn.jsdelivr.net)ではなく、monacoAssets
+// プラグインが index.html と同じ階層へ同梱する AMD ビルドから読み込む
+// (CSP から CDN 許可を外すため。vite.plugins.config.ts)。
+// dev サーバも同じ `/vs` で引けるよう middleware を持たせてあるので、
+// 基準 URL は dev・パッケージ版とも index.html の位置でよい
 loader.config({
-  paths: { vs: new URL('vs', bundleUrl ?? window.location.href).toString() },
+  paths: { vs: new URL('vs', window.location.href).toString() },
 });
 
 /**
