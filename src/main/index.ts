@@ -1,7 +1,6 @@
 import { app, BrowserWindow, dialog, MessageBoxOptions } from 'electron';
 import debug from 'electron-debug';
 import log from 'electron-log/main';
-import Store from 'electron-store';
 import path from 'node:path';
 import 'source-map-support/register';
 import { getConfig } from './Config';
@@ -56,7 +55,6 @@ if (userDataDir) {
 }
 debug({ showDevTools: false }); // Press F12 to open DevTools
 
-Store.initRenderer();
 const config = getConfig();
 
 ensureAutoUpdateDefault(config);
