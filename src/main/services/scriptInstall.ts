@@ -18,8 +18,8 @@ import { asyncFlatMap } from '../../shared/asyncFlatMap';
 import { getHash } from '../../shared/getHash';
 import { convertV1PackageIds } from '../../shared/packageId';
 import unzip from '../../shared/unzip';
-import ApmJson from '../ApmJson';
 import type Config from '../Config';
+import Ledger from '../Ledger';
 import { openBrowser } from './browser';
 import { downloadFile } from './download';
 import { getInfo, getScriptsDataUrl } from './modList';
@@ -255,8 +255,8 @@ export async function installScriptArchive(
       packages: newLocalPackages,
     });
 
-    const apmJson = await ApmJson.load(instPath);
-    await apmJson.addPackage(packageItem.id, packageItem.latestVersion);
+    const ledger = await Ledger.load(instPath);
+    await ledger.addPackage(packageItem.id, packageItem.latestVersion);
     return 'success';
   } catch (e) {
     log.error(e);

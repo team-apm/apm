@@ -7,8 +7,8 @@ import { installedVersionText } from '../../shared/coreVersionText';
 import { install, verifyFilesByCount } from '../../shared/install';
 import { checkIntegrity } from '../../shared/integrity';
 import unzip from '../../shared/unzip';
-import ApmJson from '../ApmJson';
 import type Config from '../Config';
+import Ledger from '../Ledger';
 import { addAviUtlShortcut, removeAviUtlShortcut } from '../shortcut';
 import { downloadFile } from './download';
 import { runInstallFlow } from './installFlow';
@@ -72,10 +72,10 @@ export async function checkCoreLatestVersion(
 export async function getApmJsonCoreVersions(
   instPath: string,
 ): Promise<{ aviutl?: string; exedit?: string }> {
-  const apmJson = await ApmJson.load(instPath);
+  const ledger = await Ledger.load(instPath);
   return {
-    aviutl: (await apmJson.get('core.aviutl')) as string | undefined,
-    exedit: (await apmJson.get('core.exedit')) as string | undefined,
+    aviutl: (await ledger.get('core.aviutl')) as string | undefined,
+    exedit: (await ledger.get('core.exedit')) as string | undefined,
   };
 }
 
@@ -101,16 +101,16 @@ export async function getInstalledVersionTexts(
       const progInfo: Program = coreInfo[program];
 
       // Set the version of the manually installed program
-      const apmJson = await ApmJson.load(instPath);
-      if (!(await apmJson.has('core.' + program))) {
+      const ledger = await Ledger.load(instPath);
+      if (!(await ledger.has('core.' + program))) {
         for (const release of progInfo.releases) {
           if (await checkIntegrity(instPath, release.integrity.file))
-            await apmJson.setCore(program, release.version);
+            await ledger.setCore(program, release.version);
         }
       }
 
-      const installedVersion = (await apmJson.has('core.' + program))
-        ? ((await apmJson.get('core.' + program)) as string)
+      const installedVersion = (await ledger.has('core.' + program))
+        ? ((await ledger.get('core.' + program)) as string)
         : null;
       const filesVerified = verifyFilesByCount(instPath, progInfo.files);
       texts[program] = installedVersionText(
@@ -204,8 +204,8 @@ export async function installCoreProgram(
       // (core は配置数の検証をせず、throw しなければ成功とみなす)
       await install(unzippedPath, instPath, progInfo.files, true);
 
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.setCore(program, version);
+      const ledger = await Ledger.load(instPath);
+      await ledger.setCore(program, version);
       return true;
     },
   });
@@ -245,10 +245,10 @@ export async function changeInstallationPath(
     // migration
     await migrationByFolder(win, config, instPath);
 
-    if (existsSync(ApmJson.getPath(instPath)) && currentMod.convert) {
-      const apmJson = await ApmJson.load(instPath);
+    if (existsSync(Ledger.getPath(instPath)) && currentMod.convert) {
+      const ledger = await Ledger.load(instPath);
       const oldConvertMod = new Date(
-        (await apmJson.get('convertMod', 0)) as number,
+        (await ledger.get('convertMod', 0)) as number,
       );
       const currentConvertMod = new Date(currentMod.convert.modified).getTime();
 

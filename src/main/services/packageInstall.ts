@@ -8,8 +8,8 @@ import { install, verifyFilesByCount } from '../../shared/install';
 import { buildInstallerArgs } from '../../shared/installerArgs';
 import unzip from '../../shared/unzip';
 import { PackageState } from '../../types/packageState';
-import ApmJson from '../ApmJson';
 import type Config from '../Config';
+import Ledger from '../Ledger';
 import { openBrowser } from './browser';
 import { downloadFile } from './download';
 import { runInstallFlow } from './installFlow';
@@ -109,8 +109,8 @@ export async function installPackageArchive(
     const latestVersion = packageItem.info.isContinuous
       ? getDate()
       : packageItem.info.latestVersion;
-    const apmJson = await ApmJson.load(instPath);
-    await apmJson.addPackage(packageItem.id, latestVersion);
+    const ledger = await Ledger.load(instPath);
+    await ledger.addPackage(packageItem.id, latestVersion);
   }
 
   return installResult;

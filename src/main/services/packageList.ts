@@ -16,10 +16,10 @@ import {
   getManuallyInstalledFiles,
   states,
 } from '../../shared/packageUtil';
-import { ApmJsonObject } from '../../types/apmJson';
+import { LedgerObject } from '../../types/ledger';
 import { PackageState } from '../../types/packageState';
-import ApmJson from '../ApmJson';
 import type Config from '../Config';
+import Ledger from '../Ledger';
 import { downloadFile } from './download';
 import { getConvertDataUrl, getInfo, updateInfo } from './modList';
 import { existsTempFile } from './tempFile';
@@ -92,18 +92,18 @@ export async function convertPackageIds(
   instPath: string,
   modTime: number,
 ) {
-  const apmJson = await ApmJson.load(instPath);
-  apmJson.begin();
-  const packages = (await apmJson.get('packages')) as {
+  const ledger = await Ledger.load(instPath);
+  ledger.begin();
+  const packages = (await ledger.get('packages')) as {
     [key: string]: { id: string };
   };
 
   const convDict = await getIdDict(win, config, true);
   convertV1ApmJsonPackages(packages, convDict);
 
-  await apmJson.set('packages', packages);
-  await apmJson.set('convertMod', modTime);
-  await apmJson.commit();
+  await ledger.set('packages', packages);
+  await ledger.set('convertMod', modTime);
+  await ledger.commit();
 }
 
 /**
@@ -212,10 +212,10 @@ export async function getPackagesExtra(
   instPath: string,
 ): Promise<{ manuallyInstalledFiles: string[]; packages: PackageState[] }> {
   const packages = await getPackages(win, config, instPath);
-  const apmJson = await ApmJson.load(instPath);
-  const tmpInstalledPackages = (await apmJson.get(
+  const ledger = await Ledger.load(instPath);
+  const tmpInstalledPackages = (await ledger.get(
     'packages',
-  )) as ApmJsonObject['packages'];
+  )) as LedgerObject['packages'];
   const tmpInstalledFiles = await getInstalledFiles(instPath);
   const tmpManuallyInstalledFiles = getManuallyInstalledFiles(
     tmpInstalledFiles,
@@ -249,20 +249,20 @@ export async function adoptManuallyInstalledPackages(
   instPath: string,
   packages: PackageState[],
 ): Promise<boolean> {
-  const apmJson = await ApmJson.load(instPath);
+  const ledger = await Ledger.load(instPath);
   let modified = false;
-  apmJson.begin();
+  ledger.begin();
   for (const p of packages.filter(
     (p) => p.info.releases && p.installationStatus === states.manuallyInstalled,
   )) {
     for (const release of p.info.releases) {
       if (await checkIntegrity(instPath, release.integrity.file)) {
-        await apmJson.addPackage(p.id, release.version);
+        await ledger.addPackage(p.id, release.version);
         modified = true;
       }
     }
   }
-  await apmJson.commit();
+  await ledger.commit();
   return modified;
 }
 
@@ -303,9 +303,9 @@ export async function getPackagesWithStatus(
   let aviUtlVer = '';
   let exeditVer = '';
   try {
-    const apmJson = await ApmJson.load(instPath);
-    aviUtlVer = (await apmJson.get('core.' + 'aviutl', '')) as string;
-    exeditVer = (await apmJson.get('core.' + 'exedit', '')) as string;
+    const ledger = await Ledger.load(instPath);
+    aviUtlVer = (await ledger.get('core.' + 'aviutl', '')) as string;
+    exeditVer = (await ledger.get('core.' + 'exedit', '')) as string;
   } catch (e) {
     log.info(e);
   }
@@ -377,17 +377,17 @@ export function getPackagesDates(
 
 /**
  * Returns the subset of the given package ids recorded in apm.json.
- * 旧 displayNicommonsIdList の apmJson.has('packages.' + id) 判定と同一の挙動
+ * 旧 displayNicommonsIdList の ledger.has('packages.' + id) 判定と同一の挙動
  * (dot-prop のパス解釈に依存するため判定ごと main 側で行う)。
  * @param {string} instPath - An installation path.
  * @param {string[]} ids - Package ids to check.
  * @returns {Promise<string[]>} The ids recorded in apm.json.
  */
 export async function getApmJsonInstalledIds(instPath: string, ids: string[]) {
-  const apmJson = await ApmJson.load(instPath);
+  const ledger = await Ledger.load(instPath);
   const result: string[] = [];
   for (const id of ids) {
-    if (await apmJson.has('packages.' + id)) result.push(id);
+    if (await ledger.has('packages.' + id)) result.push(id);
   }
   return result;
 }

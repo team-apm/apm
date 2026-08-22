@@ -6,8 +6,8 @@ import { convertV1PackageIds } from '../../shared/packageId';
 import { states } from '../../shared/packageUtil';
 import { programs } from '../../shared/programs';
 import { shareStringVersion } from '../../shared/shareString';
-import ApmJson from '../ApmJson';
 import type Config from '../Config';
+import Ledger from '../Ledger';
 import { getIdDict, getPackagesExtra } from './packageList';
 
 /**
@@ -32,10 +32,10 @@ export async function buildShareString(
     packages: [''],
   };
 
-  const apmJson = await ApmJson.load(instPath);
+  const ledger = await Ledger.load(instPath);
 
   for (const program of programs) {
-    const currentVersion = (await apmJson.get('core.' + program)) as string;
+    const currentVersion = (await ledger.get('core.' + program)) as string;
     ver[program] = currentVersion;
   }
   ver.packages = (await getPackagesExtra(win, config, instPath)).packages

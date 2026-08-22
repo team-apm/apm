@@ -14,8 +14,8 @@ import * as os from 'node:os';
 import path from 'node:path';
 import { fromData } from 'ssri';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import ApmJson from '../ApmJson';
 import Config from '../Config';
+import Ledger from '../Ledger';
 import {
   changeInstallationPath,
   ensureInstallationPath,
@@ -144,8 +144,8 @@ describe('core service', () => {
     });
 
     it('記録済みのバージョンを返す', async () => {
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.setCore('aviutl', '1.10');
+      const ledger = await Ledger.load(instPath);
+      await ledger.setCore('aviutl', '1.10');
       expect(await getApmJsonCoreVersions(instPath)).toEqual({
         aviutl: '1.10',
         exedit: undefined,
@@ -254,8 +254,8 @@ describe('core service', () => {
 
       expect(result).toBe('success');
       expect(await pathExists(path.join(instPath, 'aviutl.exe'))).toBe(true);
-      const apmJson = await ApmJson.load(instPath);
-      expect(await apmJson.get('core.aviutl')).toBe('1.10');
+      const ledger = await Ledger.load(instPath);
+      expect(await ledger.get('core.aviutl')).toBe('1.10');
     });
 
     it('integrity 不一致で再ダウンロードを断ると corrupt', async () => {
@@ -312,8 +312,8 @@ describe('core service', () => {
         await installCoreProgram(win, config, 'aviutl', '1.10', instPath),
       ).toBe('success');
       expect(await pathExists(path.join(instPath, 'aviutl.exe'))).toBe(true);
-      const apmJson = await ApmJson.load(instPath);
-      expect(await apmJson.get('core.aviutl')).toBe('1.10');
+      const ledger = await Ledger.load(instPath);
+      expect(await ledger.get('core.aviutl')).toBe('1.10');
     });
   });
 
@@ -412,8 +412,8 @@ describe('core service', () => {
       config.modDate.setCore(new Date('2026-01-02').getTime());
       config.modDate.setPackages(new Date('2026-01-02').getTime());
       // apm.json が存在し convertMod が古い
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.set('convertMod', new Date('2026-01-01').getTime());
+      const ledger = await Ledger.load(instPath);
+      await ledger.set('convertMod', new Date('2026-01-01').getTime());
 
       await changeInstallationPath(win, config, instPath);
 

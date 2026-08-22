@@ -151,10 +151,10 @@ describe('migration service', () => {
 
       await migrationByFolder(win, config, instPath);
 
-      const apmJson = await readJson(path.join(instPath, 'apm.json'));
-      expect(apmJson.dataVersion).toBe('3');
-      expect(apmJson.packages['author/pkg'].repository).toBeUndefined();
-      expect(apmJson.packages['author/pkg'].version).toBe('1.0');
+      const ledger = await readJson(path.join(instPath, 'apm.json'));
+      expect(ledger.dataVersion).toBe('3');
+      expect(ledger.packages['author/pkg'].repository).toBeUndefined();
+      expect(ledger.packages['author/pkg'].version).toBe('1.0');
       // v1→2 と v2→3 の両方でバックアップされる
       expect(mocks.downloadFile).toHaveBeenCalledTimes(2);
     });
@@ -186,9 +186,9 @@ describe('migration service', () => {
 
       await migrationByFolder(win, config, instPath);
 
-      const apmJson = await readJson(path.join(instPath, 'apm.json'));
-      expect(apmJson.dataVersion).toBe('3');
-      expect(apmJson.packages.script_old.repository).toBeUndefined();
+      const ledger = await readJson(path.join(instPath, 'apm.json'));
+      expect(ledger.dataVersion).toBe('3');
+      expect(ledger.packages.script_old.repository).toBeUndefined();
       const converted = await readJson(path.join(instPath, 'packages.json'));
       expect(converted.packages).toHaveLength(1);
       expect(converted.packages[0].id).toBe('script_old');

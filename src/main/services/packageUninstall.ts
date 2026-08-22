@@ -6,8 +6,8 @@ import path from 'node:path';
 import { convertV1PackageIds } from '../../shared/packageId';
 import { safeRemove } from '../../shared/safeRemove';
 import { PackageState } from '../../types/packageState';
-import ApmJson from '../ApmJson';
 import type Config from '../Config';
+import Ledger from '../Ledger';
 import { getIdDict } from './packageList';
 
 export type UninstallPackageResult = 'success' | 'removeFailed' | 'filesRemain';
@@ -55,8 +55,8 @@ export async function uninstallPackageFiles(
     }
   }
 
-  const apmJson = await ApmJson.load(instPath);
-  await apmJson.removePackage(packageItem.id);
+  const ledger = await Ledger.load(instPath);
+  await ledger.removePackage(packageItem.id);
 
   const result: UninstallPackageResult =
     filesCount === notExistCount ? 'success' : 'filesRemain';

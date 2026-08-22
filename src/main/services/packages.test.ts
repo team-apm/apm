@@ -13,8 +13,8 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getHash } from '../../shared/getHash';
 import { states } from '../../shared/packageUtil';
-import ApmJson from '../ApmJson';
 import Config from '../Config';
+import Ledger from '../Ledger';
 import {
   installPackageArchive,
   installPackageFlow,
@@ -210,8 +210,8 @@ describe('packages service', () => {
     it('apm.json に記録済みでファイルもあるパッケージはインストール済みになる', async () => {
       await ensureDir(path.join(instPath, 'plugins'));
       await writeFile(path.join(instPath, 'plugins/test.auf'), 'x');
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('author/plugin', '1.0');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('author/plugin', '1.0');
 
       const { packages, manuallyInstalledFiles } = await getPackagesExtra(
         win,
@@ -276,8 +276,8 @@ describe('packages service', () => {
 
       expect(result).toBe(true);
       expect(await pathExists(path.join(instPath, 'test.auf'))).toBe(true);
-      const apmJson = await ApmJson.load(instPath);
-      expect(await apmJson.get('packages.author/plugin.version')).toBe('1.2');
+      const ledger = await Ledger.load(instPath);
+      expect(await ledger.get('packages.author/plugin.version')).toBe('1.2');
     });
 
     it('isContinuous のパッケージはインストール日をバージョンとして記録する', async () => {
@@ -294,8 +294,8 @@ describe('packages service', () => {
 
       await installPackageArchive(instPath, archivePath, packageItem);
 
-      const apmJson = await ApmJson.load(instPath);
-      const version = (await apmJson.get(
+      const ledger = await Ledger.load(instPath);
+      const version = (await ledger.get(
         'packages.author/continuous.version',
       )) as string;
       expect(version).toMatch(/^\d{4}\/\d{2}\/\d{2}$/);
@@ -319,8 +319,8 @@ describe('packages service', () => {
       );
 
       expect(result).toBe(false);
-      const apmJson = await ApmJson.load(instPath);
-      expect(await apmJson.has('packages.author/missing')).toBe(false);
+      const ledger = await Ledger.load(instPath);
+      expect(await ledger.has('packages.author/missing')).toBe(false);
     });
   });
 
@@ -476,8 +476,8 @@ describe('packages service', () => {
     it('ファイルを削除して apm.json からも取り除く', async () => {
       await ensureDir(path.join(instPath, 'plugins'));
       await writeFile(path.join(instPath, 'plugins/target.auf'), 'x');
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('a/b', '1.0');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('a/b', '1.0');
 
       const result = await uninstallPackageFiles(win, config, instPath, {
         id: 'a/b',
@@ -492,14 +492,14 @@ describe('packages service', () => {
       expect(await pathExists(path.join(instPath, 'plugins/target.auf'))).toBe(
         false,
       );
-      const apmJson2 = await ApmJson.load(instPath);
+      const apmJson2 = await Ledger.load(instPath);
       expect(await apmJson2.has('packages.a/b')).toBe(false);
     });
 
     it('isInstallOnly のファイルは削除しない', async () => {
       await writeFile(path.join(instPath, 'keep.txt'), 'x');
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('a/keep', '1.0');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('a/keep', '1.0');
 
       const result = await uninstallPackageFiles(win, config, instPath, {
         id: 'a/keep',
@@ -515,8 +515,8 @@ describe('packages service', () => {
     });
 
     it('インストール先の外を指す filename は削除に失敗し removeFailed', async () => {
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('a/evil', '1.0');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('a/evil', '1.0');
 
       const result = await uninstallPackageFiles(win, config, instPath, {
         id: 'a/evil',
@@ -529,7 +529,7 @@ describe('packages service', () => {
 
       expect(result).toBe('removeFailed');
       // 失敗時は apm.json に残る(削除処理まで到達しない)
-      const apmJson2 = await ApmJson.load(instPath);
+      const apmJson2 = await Ledger.load(instPath);
       expect(await apmJson2.has('packages.a/evil')).toBe(true);
     });
 
@@ -543,8 +543,8 @@ describe('packages service', () => {
           { id: 'other/pkg', name: 'o', files: [] },
         ],
       });
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('script_abc', '2026/01/01');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('script_abc', '2026/01/01');
 
       const result = await uninstallPackageFiles(win, config, instPath, {
         id: 'script_abc',
@@ -591,8 +591,8 @@ describe('packages service', () => {
       expect(local.packages).toHaveLength(1);
       expect(local.packages[0].id).toMatch(/^script_/);
       expect(local.packages[0].developer).toBe('dev');
-      const apmJson = await ApmJson.load(instPath);
-      expect(await apmJson.has('packages.' + local.packages[0].id)).toBe(true);
+      const ledger = await Ledger.load(instPath);
+      expect(await ledger.has('packages.' + local.packages[0].id)).toBe(true);
     });
 
     it('スクリプトファイルが無ければ noScript', async () => {
@@ -677,12 +677,12 @@ describe('packages service', () => {
       for (const f of ['plugins/bx.auf', 'plugins/ay.auf', 'script/z.anm']) {
         await writeFile(path.join(instPath, f), 'x');
       }
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.setCore('aviutl', '1.10');
-      await apmJson.setCore('exedit', '0.92');
-      await apmJson.addPackage('b/x', '1.0');
-      await apmJson.addPackage('a/y', '1.0');
-      await apmJson.addPackage('script_z', '2026/01/01');
+      const ledger = await Ledger.load(instPath);
+      await ledger.setCore('aviutl', '1.10');
+      await ledger.setCore('exedit', '0.92');
+      await ledger.addPackage('b/x', '1.0');
+      await ledger.addPackage('a/y', '1.0');
+      await ledger.addPackage('script_z', '2026/01/01');
 
       const share = await buildShareString(win, config, instPath);
 
@@ -695,8 +695,8 @@ describe('packages service', () => {
 
   describe('getApmJsonInstalledIds', () => {
     it('apm.json に記録済みの ID だけを返す', async () => {
-      const apmJson = await ApmJson.load(instPath);
-      await apmJson.addPackage('a/b', '1.0');
+      const ledger = await Ledger.load(instPath);
+      await ledger.addPackage('a/b', '1.0');
 
       expect(await getApmJsonInstalledIds(instPath, ['a/b', 'c/d'])).toEqual([
         'a/b',

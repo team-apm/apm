@@ -7,11 +7,13 @@ import {
 import log from 'electron-log';
 import { readJson, writeJson } from 'fs-extra';
 import path from 'node:path';
-import { type ApmJsonObject } from '../types/apmJson';
+import { type LedgerObject } from '../types/ledger';
 
-class ApmJson {
+// 導入記録(ユビキタス言語の Ledger)。ディスク上の実体はインストール
+// フォルダ直下の apm.json で、ファイル名は互換のため変えない
+class Ledger {
   private path: string;
-  private object: ApmJsonObject;
+  private object: LedgerObject;
   private inTransaction = false;
   private dirty = false;
 
@@ -25,23 +27,23 @@ class ApmJson {
   }
 
   /**
-   * Creates an instance of ApmJson.
+   * Creates an instance of Ledger.
    * @param {string} [instPath] - The path to the installation directory.
-   * @returns {Promise<ApmJson>} A promise that resolves with the instance of ApmJson.
+   * @returns {Promise<Ledger>} A promise that resolves with the instance of Ledger.
    */
-  public static async load(instPath: string): Promise<ApmJson> {
-    const apmJson = new ApmJson();
+  public static async load(instPath: string): Promise<Ledger> {
+    const ledger = new Ledger();
     const jsonPath = this.getPath(instPath);
-    await apmJson.load(jsonPath);
-    return apmJson;
+    await ledger.load(jsonPath);
+    return ledger;
   }
 
   /**
    * Loads the object parsed from `apm.json`.
    * @param {string} path - The path to the `apm.json` file.
-   * @returns {Promise<ApmJson>} A promise that resolves with the instance of ApmJson.
+   * @returns {Promise<Ledger>} A promise that resolves with the instance of Ledger.
    */
-  private async load(path: string): Promise<ApmJson> {
+  private async load(path: string): Promise<Ledger> {
     this.path = path;
 
     try {
@@ -170,4 +172,4 @@ class ApmJson {
   }
 }
 
-export default ApmJson;
+export default Ledger;
