@@ -160,7 +160,7 @@ function PackagesTab(): JSX.Element {
 
   const utils = TRPCReact.useUtils();
   const packagesQuery = TRPCReact.packages.getPackagesWithStatus.useQuery(
-    { instPath, fixIntegrity: true },
+    { instPath, adoptManuallyInstalled: true },
     { refetchOnWindowFocus: false },
   );
   const scriptsQuery = TRPCReact.packages.getScriptsList.useQuery(

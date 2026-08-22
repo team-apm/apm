@@ -9,7 +9,7 @@ import { getInstallationPath } from '../instPath';
  * AviutlTab の ul(#batch-install-packages)内に li 群として描画する
  * (pane の React 化前は portal で静的 HTML の ul へ差し込んでいた)。
  * 旧 package.ts の updateBatchInstallList と同一の表示。
- * クエリは PackagesTab と同じキー(fixIntegrity: true)でキャッシュを共有する
+ * クエリは PackagesTab と同じキー(adoptManuallyInstalled: true)でキャッシュを共有する
  * (apm.json の整合性補正は冪等のため表示結果は旧実装と変わらない)。
  * レガシー側からの再描画通知(apm-packages-changed イベント)で自動更新する。
  * @returns {JSX.Element} The rendered component.
@@ -19,7 +19,7 @@ function BatchInstallList(): JSX.Element {
 
   const utils = TRPCReact.useUtils();
   const packagesQuery = TRPCReact.packages.getPackagesWithStatus.useQuery(
-    { instPath, fixIntegrity: true },
+    { instPath, adoptManuallyInstalled: true },
     { refetchOnWindowFocus: false },
   );
 

@@ -25,7 +25,7 @@ import {
   getLedgerInstalledIds,
   getPackages,
   getPackagesDataUrl,
-  getPackagesExtra,
+  resolveInstallationStatus,
 } from './packageList';
 import { buildShareString } from './packageShare';
 import { uninstallPackageFiles } from './packageUninstall';
@@ -199,7 +199,7 @@ describe('packages service', () => {
     });
   });
 
-  describe('getPackagesExtra', () => {
+  describe('resolveInstallationStatus', () => {
     const repo = 'https://example.com/packages.json';
     const packageInfo = {
       id: 'author/plugin',
@@ -218,10 +218,8 @@ describe('packages service', () => {
       const ledger = await Ledger.load(instPath);
       await ledger.addPackage('author/plugin', '1.0');
 
-      const { packages, manuallyInstalledFiles } = await getPackagesExtra(
-        ctx,
-        inst,
-      );
+      const { packages, manuallyInstalledFiles } =
+        await resolveInstallationStatus(ctx, inst);
 
       expect(packages[0].installationStatus).toBe(states.installed);
       expect(packages[0].version).toBe('1.0');
@@ -232,7 +230,7 @@ describe('packages service', () => {
       await ensureDir(path.join(instPath, 'plugins'));
       await writeFile(path.join(instPath, 'plugins/test.auf'), 'x');
 
-      const { packages } = await getPackagesExtra(ctx, inst);
+      const { packages } = await resolveInstallationStatus(ctx, inst);
 
       expect(packages[0].installationStatus).toBe(states.manuallyInstalled);
     });
@@ -241,10 +239,8 @@ describe('packages service', () => {
       await ensureDir(path.join(instPath, 'plugins'));
       await writeFile(path.join(instPath, 'plugins/unknown.auf'), 'x');
 
-      const { packages, manuallyInstalledFiles } = await getPackagesExtra(
-        ctx,
-        inst,
-      );
+      const { packages, manuallyInstalledFiles } =
+        await resolveInstallationStatus(ctx, inst);
 
       expect(manuallyInstalledFiles).toEqual(['plugins/unknown.auf']);
       expect(packages[0].installationStatus).toBe(states.notInstalled);

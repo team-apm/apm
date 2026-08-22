@@ -193,40 +193,40 @@ async function getInstalledFiles(instPath: string) {
 }
 
 /**
- * Updates the installedVersion of the packages and returns a list of
- * manually installed files.
+ * Resolves the installation status (installationStatus / version) of each
+ * package and returns them with a list of manually installed files.
  * 旧 src/renderer/main/packageUtil.ts の getPackagesExtra と同一の挙動
  * (パッケージ一覧は main 側の getPackages から取得する)。
  * @param {ServiceContext} ctx - The service context.
  * @param {Installation} inst - The target installation.
  * @returns {Promise<object>} List of manually installed files and packages.
  */
-export async function getPackagesExtra(
+export async function resolveInstallationStatus(
   ctx: ServiceContext,
   inst: Installation,
 ): Promise<{ manuallyInstalledFiles: string[]; packages: PackageState[] }> {
   const packages = await getPackages(ctx, inst);
   const ledger = await inst.ledger();
-  const tmpInstalledPackages = (await ledger.get(
+  const ledgerPackages = (await ledger.get(
     'packages',
   )) as LedgerObject['packages'];
-  const tmpInstalledFiles = await getInstalledFiles(inst.path);
-  const tmpManuallyInstalledFiles = getManuallyInstalledFiles(
-    tmpInstalledFiles,
-    tmpInstalledPackages,
+  const installedFiles = await getInstalledFiles(inst.path);
+  const manuallyInstalledFiles = getManuallyInstalledFiles(
+    installedFiles,
+    ledgerPackages,
     packages,
   );
   packages.forEach((p) => {
     [p.installationStatus, p.version] = getInstalledVersionOfPackage(
       p,
-      tmpInstalledFiles,
-      tmpManuallyInstalledFiles,
-      tmpInstalledPackages,
+      installedFiles,
+      manuallyInstalledFiles,
+      ledgerPackages,
       inst.path,
     );
   });
   return {
-    manuallyInstalledFiles: tmpManuallyInstalledFiles,
+    manuallyInstalledFiles: manuallyInstalledFiles,
     packages: packages,
   };
 }
@@ -263,28 +263,31 @@ export async function adoptManuallyInstalledPackages(
 /**
  * Returns the packages with their status (doNotInstall / detached) computed.
  * 旧 src/renderer/main/package.ts の setPackagesList 前半
- * (getPackages → getPackagesExtra → 整合性による導入記録の補正 →
- * getPackagesStatus)と同一の挙動。fixIntegrity = false の場合は
+ * (getPackages → resolveInstallationStatus → 整合性による導入記録の補正 →
+ * getPackagesStatus)と同一の挙動。adoptManuallyInstalled = false の場合は
  * 補正を行わない(旧 installScript の redirect 解決と同一)。
  * @param {ServiceContext} ctx - The service context.
  * @param {Installation} inst - The target installation.
- * @param {boolean} fixIntegrity - Whether to guess installed packages from integrity.
+ * @param {boolean} adoptManuallyInstalled - Whether to guess installed packages from integrity.
  * @returns {Promise<object>} List of manually installed files and packages.
  */
 export async function getPackagesWithStatus(
   ctx: ServiceContext,
   inst: Installation,
-  fixIntegrity: boolean,
+  adoptManuallyInstalled: boolean,
 ): Promise<{ manuallyInstalledFiles: string[]; packages: PackageState[] }> {
-  let { manuallyInstalledFiles, packages } = await getPackagesExtra(ctx, inst);
+  let { manuallyInstalledFiles, packages } = await resolveInstallationStatus(
+    ctx,
+    inst,
+  );
 
-  if (fixIntegrity) {
+  if (adoptManuallyInstalled) {
     // guess which packages are installed from integrity
     const modified = await adoptManuallyInstalledPackages(inst, packages);
     if (modified) {
-      const packagesExtraMod = await getPackagesExtra(ctx, inst);
-      manuallyInstalledFiles = packagesExtraMod.manuallyInstalledFiles;
-      packages = packagesExtraMod.packages;
+      const resolved = await resolveInstallationStatus(ctx, inst);
+      manuallyInstalledFiles = resolved.manuallyInstalledFiles;
+      packages = resolved.packages;
     }
   }
 
@@ -308,7 +311,7 @@ export async function getPackagesWithStatus(
  * @param {ServiceContext} ctx - The service context.
  * @param {Installation} inst - The target installation.
  */
-export async function downloadRepository(
+export async function downloadPackagesData(
   ctx: ServiceContext,
   inst: Installation,
 ) {
@@ -335,7 +338,7 @@ export async function refreshPackagesList(
 ) {
   const { win, config } = ctx;
   await updateInfo(win, config);
-  await downloadRepository(ctx, inst);
+  await downloadPackagesData(ctx, inst);
   config.checkDate.setPackages(Date.now());
   const modInfo = await getInfo(win, config);
   config.modDate.setPackages(

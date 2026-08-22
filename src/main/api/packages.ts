@@ -11,9 +11,9 @@ import {
   getLedgerInstalledIds,
   getPackages,
   getPackagesDates,
-  getPackagesExtra,
   getPackagesWithStatus,
   refreshPackagesList,
+  resolveInstallationStatus,
 } from '../services/packageList';
 import {
   buildShareString,
@@ -138,15 +138,18 @@ const installedIdsInput = (
 
 const packagesWithStatusInput = (
   value: unknown,
-): { instPath: string; fixIntegrity: boolean } => {
+): { instPath: string; adoptManuallyInstalled: boolean } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, fixIntegrity } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string' || typeof fixIntegrity !== 'boolean')
+  const { instPath, adoptManuallyInstalled } = value as Record<string, unknown>;
+  if (
+    typeof instPath !== 'string' ||
+    typeof adoptManuallyInstalled !== 'boolean'
+  )
     throw new TypeError(
-      'instPath is expected to be a string and fixIntegrity a boolean.',
+      'instPath is expected to be a string and adoptManuallyInstalled a boolean.',
     );
-  return { instPath, fixIntegrity };
+  return { instPath, adoptManuallyInstalled };
 };
 
 const editorPackagesInput = (
@@ -172,9 +175,9 @@ export const packagesRouter = t.router({
   refreshList: winInstProcedure.input(stringInput).mutation(async ({ ctx }) => {
     await refreshPackagesList(ctx, ctx.inst);
   }),
-  getPackagesExtra: winInstProcedure
+  resolveInstallationStatus: winInstProcedure
     .input(stringInput)
-    .query(async ({ ctx }) => await getPackagesExtra(ctx, ctx.inst)),
+    .query(async ({ ctx }) => await resolveInstallationStatus(ctx, ctx.inst)),
   getLedgerInstalledIds: instProcedure
     .input(installedIdsInput)
     .query(
@@ -195,7 +198,11 @@ export const packagesRouter = t.router({
   getPackagesWithStatus: winInstProcedure
     .input(packagesWithStatusInput)
     .query(async ({ input, ctx }) => {
-      return await getPackagesWithStatus(ctx, ctx.inst, input.fixIntegrity);
+      return await getPackagesWithStatus(
+        ctx,
+        ctx.inst,
+        input.adoptManuallyInstalled,
+      );
     }),
   installPackage: winInstProcedure
     .input(installPackageInput)

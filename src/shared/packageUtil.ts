@@ -134,7 +134,7 @@ export function getInstalledVersionOfPackage(
  * Computes doNotInstall / detached of the packages from the dependency and
  * conflict information.
  * 旧 getPackagesStatus の計算部分(apm.json の読み出しを除く)と同一の挙動。
- * @param {object[]} _packages - A list of object parsed from packages.json and getPackagesExtra()
+ * @param {object[]} _packages - A list of object parsed from packages.json and resolveInstallationStatus()
  * @param {string} aviUtlVer - An installed version of AviUtl.
  * @param {string} exeditVer - An installed version of 拡張編集.
  * @returns {object[]} - packages

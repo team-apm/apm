@@ -133,7 +133,7 @@ export interface ReleaseInfo {
 function parseFiles(parsedData: RawPackage): XmlFile[] {
   const files: XmlFile[] = [];
   for (const file of parsedData.files[0].file) {
-    const tmpFile: XmlFile = {
+    const xmlFile: XmlFile = {
       filename: null,
       isOptional: false,
       isInstallOnly: false,
@@ -142,20 +142,20 @@ function parseFiles(parsedData: RawPackage): XmlFile[] {
       archivePath: null,
     };
     if (typeof file === 'string') {
-      tmpFile.filename = file;
+      xmlFile.filename = file;
     } else if (typeof file === 'object') {
-      tmpFile.filename = file._;
-      if (file.$optional) tmpFile.isOptional = Boolean(file.$optional[0]);
+      xmlFile.filename = file._;
+      if (file.$optional) xmlFile.isOptional = Boolean(file.$optional[0]);
       if (file.$installOnly)
-        tmpFile.isInstallOnly = Boolean(file.$installOnly[0]);
-      if (file.$directory) tmpFile.isDirectory = Boolean(file.$directory[0]);
-      if (file.$obsolete) tmpFile.isObsolete = Boolean(file.$obsolete[0]);
-      if (file.$archivePath) tmpFile.archivePath = file.$archivePath[0];
+        xmlFile.isInstallOnly = Boolean(file.$installOnly[0]);
+      if (file.$directory) xmlFile.isDirectory = Boolean(file.$directory[0]);
+      if (file.$obsolete) xmlFile.isObsolete = Boolean(file.$obsolete[0]);
+      if (file.$archivePath) xmlFile.archivePath = file.$archivePath[0];
     } else {
       continue;
     }
-    Object.freeze(tmpFile);
-    files.push(tmpFile);
+    Object.freeze(xmlFile);
+    files.push(xmlFile);
   }
   return files;
 }
@@ -197,13 +197,13 @@ export class PackageInfo {
         if (key === 'files') {
           this.files = parseFiles(parsedPackage);
         } else if (key === 'latestVersion') {
-          const tmpObj = parsedPackage[key][0];
-          if (typeof tmpObj === 'string') {
-            this[key] = tmpObj;
-          } else if (typeof tmpObj === 'object') {
-            this[key] = tmpObj._;
-            if (tmpObj.$continuous)
-              this.isContinuous = Boolean(tmpObj.$continuous[0]);
+          const parsedValue = parsedPackage[key][0];
+          if (typeof parsedValue === 'string') {
+            this[key] = parsedValue;
+          } else if (typeof parsedValue === 'object') {
+            this[key] = parsedValue._;
+            if (parsedValue.$continuous)
+              this.isContinuous = Boolean(parsedValue.$continuous[0]);
           }
         } else if (key === 'releases') {
           // version はリモート由来のままキーになる。__proto__ のような名前で

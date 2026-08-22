@@ -71,7 +71,7 @@ function BatchInstallButton(): JSX.Element {
       }
 
       const allPackages = (
-        await utils.packages.getPackagesExtra.fetch(instPath)
+        await utils.packages.resolveInstallationStatus.fetch(instPath)
       ).packages as PackageState[];
       const packagesToInstall = allPackages.filter(
         (p) =>
