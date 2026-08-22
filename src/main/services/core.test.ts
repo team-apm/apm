@@ -70,10 +70,12 @@ vi.mock('./modList', () => ({
 vi.mock('./migration', () => ({
   migrationByFolder: mocks.migrationByFolder,
 }));
-vi.mock('./packages', () => ({
+vi.mock('./packageList', () => ({
   convertPackageIds: mocks.convertPackageIds,
-  getScriptsList: mocks.getScriptsList,
   refreshPackagesList: mocks.refreshPackagesList,
+}));
+vi.mock('./scriptInstall', () => ({
+  getScriptsList: mocks.getScriptsList,
 }));
 
 const win = {} as BrowserWindow;

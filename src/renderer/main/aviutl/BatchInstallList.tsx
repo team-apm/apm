@@ -1,5 +1,5 @@
 import React, { type JSX, useEffect, useState } from 'react';
-import type { PackageItem } from '../../../types/packageItem';
+import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../instPath';
 
@@ -34,7 +34,7 @@ function BatchInstallList(): JSX.Element {
   }, [utils]);
 
   // tRPC の Serialize 型はプロパティを optional 化するため元の型に戻す
-  const packages = (packagesQuery.data?.packages ?? []) as PackageItem[];
+  const packages = (packagesQuery.data?.packages ?? []) as PackageState[];
   const batchInstallPackages = packages.filter((p) => p.info.directURL);
 
   return (

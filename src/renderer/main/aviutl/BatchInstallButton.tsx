@@ -2,7 +2,7 @@ import type { Core } from 'apm-schema';
 import React, { type JSX, useEffect, useRef, useState } from 'react';
 import { states } from '../../../shared/packageDisplay';
 import { programs } from '../../../shared/programs';
-import type { PackageItem } from '../../../types/packageItem';
+import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../instPath';
 
@@ -72,7 +72,7 @@ function BatchInstallButton(): JSX.Element {
 
       const allPackages = (
         await utils.packages.getPackagesExtra.fetch(instPath)
-      ).packages as PackageItem[];
+      ).packages as PackageState[];
       const packagesToInstall = allPackages.filter(
         (p) =>
           p.info.directURL &&

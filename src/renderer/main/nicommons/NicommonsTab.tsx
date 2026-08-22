@@ -1,6 +1,6 @@
 import React, { type JSX, useEffect, useMemo, useState } from 'react';
 import { parsePackageType } from '../../../shared/packageDisplay';
-import type { PackageItem } from '../../../types/packageItem';
+import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../instPath';
 
@@ -110,7 +110,7 @@ function NicommonsTab(): JSX.Element {
     refetchOnWindowFocus: false,
   });
   const packages = useMemo(
-    () => (packagesQuery.data ?? []) as PackageItem[],
+    () => (packagesQuery.data ?? []) as PackageState[],
     [packagesQuery.data],
   );
 

@@ -1,7 +1,7 @@
 import type { Scripts } from 'apm-schema';
 import React, { type JSX, useEffect } from 'react';
 import { states } from '../../../shared/packageDisplay';
-import type { PackageItem } from '../../../types/packageItem';
+import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
 import { type ActionPhase, usePhase } from '../usePhase';
 import { runPackagesListCheck } from './packagesListCheck';
@@ -9,7 +9,7 @@ import { runPackagesListCheck } from './packagesListCheck';
 type WebpageItem = Scripts['webpage'][number];
 
 export type SelectedEntry =
-  | { kind: 'package'; p: PackageItem }
+  | { kind: 'package'; p: PackageState }
   | { kind: 'scriptSite'; w: WebpageItem }
   | null;
 
@@ -63,7 +63,7 @@ function ActionButton({
 export type PackageActionsProps = {
   instPath: string;
   selectedEntry: SelectedEntry;
-  packages: PackageItem[];
+  packages: PackageState[];
 };
 
 /**
@@ -159,7 +159,7 @@ function PackageActions({
     }
   };
 
-  const installPackage = async (packageToInstall?: PackageItem) => {
+  const installPackage = async (packageToInstall?: PackageState) => {
     if (install.phase.kind === 'loading') return;
 
     // 選択エントリがスクリプト配布サイトならスクリプトのインストールへ
@@ -175,7 +175,7 @@ function PackageActions({
       return;
     }
 
-    let installedPackage: PackageItem;
+    let installedPackage: PackageState;
     if (packageToInstall) {
       installedPackage = { ...packageToInstall };
     } else {

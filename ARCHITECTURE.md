@@ -37,9 +37,12 @@ src/main/
   index.ts        エントリ(ログ・config 初期化、app イベント、ハンドラ登録)
   windows.ts      窓生成(splash / main / about)+ 窓依存のレガシー IPC ハンドラ
   ipcHandlers.ts  窓に依存しないレガシー IPC ハンドラの登録
-  api.ts          tRPC ルーター(procedure から services/ を呼ぶ)
-  services/       ビジネスロジック(packages / core / download / modList /
-                  migration / appUpdate / settings / nicommons / browser)
+  api/            tRPC ルーター(index = 集約、trpc = middleware、
+                  ドメイン別ルーターの procedure から services/ を呼ぶ)
+  services/       ビジネスロジック(packageList / packageInstall /
+                  packageUninstall / scriptInstall / packageShare / core /
+                  download / modList / migration / appUpdate / settings /
+                  nicommons / browser)
   Config.ts       electron-store による設定
   ApmJson.ts      {instPath}/apm.json の読み書き
 ```
@@ -50,8 +53,8 @@ src/main/
 graph LR
   D[dataURL<br>既定: apm-data] -->|"download.ts"| T["一時ファイル<br>list.json / packages.json"]
   L["{instPath}/packages.json<br>{instPath}/editorPackages.json"] --> M
-  T --> M["パッケージ一覧<br>modList.ts + packages.ts"]
-  M --> I["インストール / 更新判定<br>installPackageFlow(packages.ts)"]
+  T --> M["パッケージ一覧<br>modList.ts + packageList.ts"]
+  M --> I["インストール / 更新判定<br>installPackageFlow(packageInstall.ts)"]
   I -->|"unzip + copy<br>(shared/install.ts)"| P["{instPath}/plugins, script 等"]
   I -->|導入記録| A["{instPath}/apm.json<br>(ApmJson)"]
 ```
