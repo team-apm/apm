@@ -1,6 +1,6 @@
 import type { Core } from 'apm-schema';
 import React, { type JSX, useEffect, useRef, useState } from 'react';
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, Spinner } from 'react-bootstrap';
 import { releaseLabel } from '../../../shared/coreVersionText';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../installationPath';
@@ -143,11 +143,13 @@ function ProgramRow({
           >
             {phase === 'loading' ? (
               <>
-                <span
-                  className="spinner-border spinner-border-sm"
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
                   role="status"
                   aria-hidden="true"
-                ></span>
+                />
                 <span className="visually-hidden">Loading...</span>
               </>
             ) : phase === 'idle' ? (

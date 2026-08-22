@@ -6,6 +6,17 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
+import {
+  Alert,
+  Badge,
+  Card,
+  Col,
+  Container,
+  Form,
+  ListGroup,
+  Row,
+  Spinner,
+} from 'react-bootstrap';
 import { compareVersion } from '../../../shared/compareVersion';
 import { matchesFuzzyFilter } from '../../../shared/fuzzySearch';
 import { parsePackageType, states } from '../../../shared/packageDisplay';
@@ -346,20 +357,23 @@ function PackagesTab(): JSX.Element {
   );
 
   return (
-    <div className="container-lg">
-      <div className="row card border-top-0 border-bottom-0 rounded-0">
-        <div className="card-body py-2">
+    <Container fluid="lg">
+      <Card className="row border-top-0 border-bottom-0 rounded-0">
+        <Card.Body className="py-2">
           <div className="d-flex flex-column h-100">
             <div className="flex-shrink-1">
               <div className="d-flex mb-2">
                 <div className="border rounded flex-grow-1 w-auto d-flex">
                   {/* 検索欄は非制御にして DOM の入力値をそのまま残し、
                       state には trim した文字列だけを持つ(旧実装と同一) */}
-                  <input
-                    className="form-control border-0 flex-grow-1 w-auto"
+                  <Form.Control
+                    className="border-0 flex-grow-1 w-auto"
                     placeholder="🔍︎ 検索  |  共有貼り付け"
                     aria-label="検索 / 共有"
-                    size={2}
+                    // size は Bootstrap のサイズ指定に使われるため、
+                    // HTML の size 属性(既定 20 文字幅より縮められるように
+                    // する)は htmlSize で渡す
+                    htmlSize={2}
                     onChange={(e) => {
                       setSearchString(e.target.value.trim());
                       setAlertDismissed(false);
@@ -380,8 +394,16 @@ function PackagesTab(): JSX.Element {
               </div>
             </div>
             <div className="h-100 min-h-0">
-              <div className="row h-100">
-                <div className="col-sm-auto overflow-x-hidden overflow-y-auto h-100">
+              <Row className="h-100">
+                <Col
+                  sm="auto"
+                  className="overflow-x-hidden overflow-y-auto h-100"
+                >
+                  {/* dropdown-menu は開閉するメニューではなく、常時表示の
+                      サイドバーとして見た目だけを借りている。react-bootstrap
+                      の Dropdown は開閉の振る舞いを持つコンポーネントなので
+                      ここには合わず、クラスのまま使う(配下の dropdown-item /
+                      dropdown-divider も同じ理由) */}
                   <ul
                     id="filter"
                     className="list-unstyled dropdown-menu d-block position-static border-0"
@@ -552,41 +574,41 @@ function PackagesTab(): JSX.Element {
                       </a>
                     </li>
                   </ul>
-                </div>
-                <div className="col d-flex flex-column h-100">
+                </Col>
+                <Col className="d-flex flex-column h-100">
                   <div>
                     {alertStrings.length > 0 && !alertDismissed && (
-                      <div
-                        className="mt-2 mb-1 alert alert-info alert-dismissible fade show"
-                        role="alert"
+                      <Alert
+                        variant="info"
+                        dismissible
+                        // 既定は 'Close alert'。旧マークアップの aria-label を保つ
+                        closeLabel="Close"
+                        onClose={() => setAlertDismissed(true)}
+                        className="mt-2 mb-1"
                       >
                         {alertStrings.map((s) => (
                           <div key={s}>{s}</div>
                         ))}
-                        <button
-                          type="button"
-                          className="btn-close"
-                          aria-label="Close"
-                          onClick={() => setAlertDismissed(true)}
-                        />
-                      </div>
+                      </Alert>
                     )}
                   </div>
-                  <div className="row flex-grow-1 overflow-auto">
-                    <div className="col" id="packages-table">
-                      <ul
-                        className="list list-group list-group-flush"
+                  <Row className="flex-grow-1 overflow-auto">
+                    <Col id="packages-table">
+                      <ListGroup
+                        as="ul"
+                        variant="flush"
+                        className="list"
                         id="packages-list"
                       >
                         {visibleRows.map(({ row, values }) => (
-                          <li
-                            key={row.key}
-                            className={
-                              'list-group-item list-group-item-action text-muted' +
-                              (selectedKey === row.key
-                                ? ' list-group-item-light'
-                                : '')
+                          <ListGroup.Item
+                            as="li"
+                            action
+                            variant={
+                              selectedKey === row.key ? 'light' : undefined
                             }
+                            key={row.key}
+                            className="text-muted"
                             onClick={() => selectRow(row)}
                           >
                             <input
@@ -596,8 +618,8 @@ function PackagesTab(): JSX.Element {
                               readOnly
                             />
                             <label className="d-block">
-                              <div className="row">
-                                <div className="col-sm-9 clearfix">
+                              <Row>
+                                <Col sm={9} className="clearfix">
                                   <div className="d-none packageID">
                                     {values.packageID}
                                   </div>
@@ -607,17 +629,24 @@ function PackagesTab(): JSX.Element {
                                         ? (row.p.type ?? [])
                                         : [],
                                     ).map((e, i) => (
-                                      <span
+                                      // bg の既定値 primary は bg-primary
+                                      // (!important)を足して main.css の
+                                      // .badge の配色を上書きするため外す
+                                      <Badge
                                         key={i}
-                                        className="badge list-group-item-light d-block fw-normal"
+                                        bg=""
+                                        className="list-group-item-light d-block fw-normal"
                                       >
                                         {e}
-                                      </span>
+                                      </Badge>
                                     ))}
                                     {row.kind === 'scriptSite' && (
-                                      <span className="badge list-group-item-success d-block fw-normal">
+                                      <Badge
+                                        bg=""
+                                        className="list-group-item-success d-block fw-normal"
+                                      >
                                         スクリプト配布サイト
-                                      </span>
+                                      </Badge>
                                     )}
                                   </div>
                                   <h5 className="float-none d-inline mb-1 me-2 text-break text-body name">
@@ -645,8 +674,8 @@ function PackagesTab(): JSX.Element {
                                       </a>
                                     </div>
                                   </div>
-                                </div>
-                                <div className="col-sm-3">
+                                </Col>
+                                <Col sm={3}>
                                   <div className="text-break latestVersion">
                                     {values.latestVersion}
                                   </div>
@@ -695,38 +724,38 @@ function PackagesTab(): JSX.Element {
                                   <div className="text-break installationStatus">
                                     {values.installationStatus}
                                   </div>
-                                </div>
-                              </div>
+                                </Col>
+                              </Row>
                             </label>
-                          </li>
+                          </ListGroup.Item>
                         ))}
-                      </ul>
-                      <ul
-                        className="list-group list-group-flush"
-                        id="packages-list2"
-                      >
+                      </ListGroup>
+                      <ListGroup as="ul" variant="flush" id="packages-list2">
                         {manuallyInstalledFiles.map((file) => (
-                          <li
+                          <ListGroup.Item
+                            as="li"
+                            action
+                            variant="secondary"
                             key={file}
-                            className="list-group-item list-group-item-action text-muted list-group-item-secondary"
+                            className="text-muted"
                           >
                             <label className="d-block">
-                              <div className="row">
-                                <div className="col-sm-9 clearfix">
+                              <Row>
+                                <Col sm={9} className="clearfix">
                                   <h5 className="float-none d-inline mb-1 me-2 text-break text-body name">
                                     {file}
                                   </h5>
                                   <div className="text-break overview">
                                     手動で追加されたファイル
                                   </div>
-                                </div>
-                                <div className="col-sm-3"></div>
-                              </div>
+                                </Col>
+                                <Col sm={3}></Col>
+                              </Row>
                             </label>
-                          </li>
+                          </ListGroup.Item>
                         ))}
-                      </ul>
-                    </div>
+                      </ListGroup>
+                    </Col>
                     <div
                       className={
                         'd-flex justify-content-center align-items-center fade' +
@@ -737,18 +766,18 @@ function PackagesTab(): JSX.Element {
                         zIndex: checkPhase.kind === 'loading' ? 1000 : -1,
                       }}
                     >
-                      <div className="spinner-border" role="status">
+                      <Spinner animation="border" role="status">
                         <span className="visually-hidden">Loading...</span>
-                      </div>
+                      </Spinner>
                     </div>
-                  </div>
-                </div>
-              </div>
+                  </Row>
+                </Col>
+              </Row>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 }
 

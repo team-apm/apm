@@ -1,5 +1,6 @@
 import type { Core } from 'apm-schema';
 import React, { type JSX, useEffect, useRef, useState } from 'react';
+import { Button, Spinner } from 'react-bootstrap';
 import { states } from '../../../shared/packageDisplay';
 import { programs } from '../../../shared/programs';
 import type { PackageState } from '../../../types/packageState';
@@ -107,20 +108,21 @@ function BatchInstallButton(): JSX.Element {
   };
 
   return (
-    <button
-      type="button"
-      className={`btn btn-${phase.kind === 'message' ? phase.color : 'primary'}`}
+    <Button
+      variant={phase.kind === 'message' ? phase.color : 'primary'}
       id="batch-install"
       disabled={phase.kind === 'loading'}
       onClick={() => void onClick()}
     >
       {phase.kind === 'loading' ? (
         <>
-          <span
-            className="spinner-border spinner-border-sm"
+          <Spinner
+            as="span"
+            animation="border"
+            size="sm"
             role="status"
             aria-hidden="true"
-          ></span>
+          />
           <span className="visually-hidden">Loading...</span>
         </>
       ) : phase.kind === 'message' ? (
@@ -128,7 +130,7 @@ function BatchInstallButton(): JSX.Element {
       ) : (
         IDLE_LABEL
       )}
-    </button>
+    </Button>
   );
 }
 

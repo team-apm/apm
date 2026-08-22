@@ -1,4 +1,5 @@
 import React, { type JSX } from 'react';
+import { Button } from 'react-bootstrap';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath, setInstallationPath } from '../installationPath';
 
@@ -51,14 +52,14 @@ function SelectInstallationPathButton(): JSX.Element {
   };
 
   return (
-    <button
-      type="button"
-      className="btn btn-primary rounded-0 rounded-end"
+    <Button
+      variant="primary"
+      className="rounded-0 rounded-end"
       id="select-installation-path"
       onClick={() => void selectInstallationPath()}
     >
       AviUtlインストールフォルダを選択
-    </button>
+    </Button>
   );
 }
 

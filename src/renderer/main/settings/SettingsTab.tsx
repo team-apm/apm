@@ -1,4 +1,5 @@
 import React, { type JSX } from 'react';
+import { Card, Col, Container, Form, Row, Table } from 'react-bootstrap';
 import { MonacoEditorRenderer } from '../monacoEditorRenderer';
 import CacheSettings from './CacheSettings';
 import DataUrlSettings from './DataUrlSettings';
@@ -13,45 +14,43 @@ import PreferencesSettings from './PreferencesSettings';
  */
 function SettingsTab(): JSX.Element {
   return (
-    <div className="container-lg py-2">
-      <div className="row my-2">
-        <div className="card">
-          <div className="card-body">
-            <h3 className="card-title">設定</h3>
+    <Container fluid="lg" className="py-2">
+      <Row className="my-2">
+        <Card>
+          <Card.Body>
+            <Card.Title as="h3">設定</Card.Title>
             <DataUrlSettings />
-            <div className="row mb-3">
-              <label htmlFor="container" className="form-label">
-                追加テキストデータ
-              </label>
+            <Row className="mb-3">
+              <Form.Label htmlFor="container">追加テキストデータ</Form.Label>
               <MonacoEditorRenderer />
-            </div>
+            </Row>
             <PreferencesSettings />
             <CacheSettings />
             <hr />
-            <div className="row mb-3">
+            <Row className="mb-3">
               <h4>手動更新</h4>
-              <table className="table table-borderless table-striped">
+              <Table borderless striped>
                 <thead>
                   <tr>
-                    <th scope="col" className="col-sm-3"></th>
-                    <th scope="col" className="col-sm-3">
+                    <Col as="th" scope="col" sm={3}></Col>
+                    <Col as="th" scope="col" sm={3}>
                       リスト更新日時
-                    </th>
-                    <th scope="col" className="col-sm-3">
+                    </Col>
+                    <Col as="th" scope="col" sm={3}>
                       最終更新日時
-                    </th>
-                    <th scope="col" className="col-sm-3"></th>
+                    </Col>
+                    <Col as="th" scope="col" sm={3}></Col>
                   </tr>
                 </thead>
                 <tbody className="align-middle" id="manual-update-tbody">
                   <ManualUpdateTable />
                 </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+              </Table>
+            </Row>
+          </Card.Body>
+        </Card>
+      </Row>
+    </Container>
   );
 }
 

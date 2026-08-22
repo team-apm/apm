@@ -1,4 +1,14 @@
 import React, { type JSX, useEffect, useMemo, useState } from 'react';
+import {
+  Badge,
+  Button,
+  Card,
+  Col,
+  Container,
+  Form,
+  ListGroup,
+  Row,
+} from 'react-bootstrap';
 import { parsePackageType } from '../../../shared/packageDisplay';
 import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
@@ -40,25 +50,25 @@ function NicommonsRow({
       : null;
 
   return (
-    <li className="list-group-item list-group-item-action">
+    <ListGroup.Item as="li" action>
       <label className="d-block">
-        <div className="row">
-          <div className="col-auto d-flex align-items-center">
-            <input
-              className="form-check-input m-0"
+        <Row>
+          <Col xs="auto" className="d-flex align-items-center">
+            <Form.Check.Input
+              className="m-0"
               type="checkbox"
               name="nicommons-id"
               value={item.nicommons}
               checked={checked}
               onChange={(e) => onChange(e.target.checked)}
             />
-          </div>
-          <div className="col-sm-1 d-flex align-items-center thumbnail">
+          </Col>
+          <Col sm={1} className="d-flex align-items-center thumbnail">
             {thumbnailURL && (
               <img src={thumbnailURL} className="img-fluid" alt="" />
             )}
-          </div>
-          <div className="col">
+          </Col>
+          <Col>
             <h5 className="d-inline-block name">{item.name}</h5>
             <div className="text-primary d-inline-block ms-2 developer">
               {item.originalDeveloper
@@ -67,22 +77,25 @@ function NicommonsRow({
             </div>
             <div className="d-inline-block ms-1 type">
               {item.typeBadges.map((e, i) => (
-                <span
+                /* bg の既定値 primary は bg-primary(!important)を足して
+                   main.css の .badge の配色を上書きするため空文字で外す */
+                <Badge
                   key={i}
-                  className="badge list-group-item-light d-block fw-normal"
+                  bg=""
+                  className="list-group-item-light d-block fw-normal"
                 >
                   {e}
-                </span>
+                </Badge>
               ))}
             </div>
             <br />
             <div className="d-inline-block text-break nicommons text-muted">
               {item.nicommons}
             </div>
-          </div>
-        </div>
+          </Col>
+        </Row>
       </label>
-    </li>
+    </ListGroup.Item>
   );
 }
 
@@ -189,39 +202,35 @@ function NicommonsTab(): JSX.Element {
   );
 
   return (
-    <div className="container-lg">
-      <div className="row card border-top-0 border-bottom-0 rounded-0">
-        <div className="card-body d-flex flex-column py-2">
-          <div className="row pb-2 border-bottom">
-            <div className="col-auto">
-              <button
-                type="button"
-                className="btn btn-primary"
+    <Container fluid="lg">
+      <Card className="row border-top-0 border-bottom-0 rounded-0">
+        <Card.Body className="d-flex flex-column py-2">
+          <Row className="pb-2 border-bottom">
+            <Col xs="auto">
+              <Button
+                variant="primary"
                 id="copy-nicommons-id-textarea"
                 onClick={() =>
                   writeClipboardMutation.mutate({ text: idListText })
                 }
               >
                 コピー
-              </button>
-            </div>
-            <div className="col">
-              <textarea
+              </Button>
+            </Col>
+            <Col>
+              <Form.Control
+                as="textarea"
                 rows={1}
                 name="nicommons-id-textarea"
                 id="nicommons-id-textarea"
-                className="form-control"
                 readOnly
                 value={idListText}
-              ></textarea>
-            </div>
-          </div>
-          <div className="row flex-grow-1 overflow-auto">
-            <div className="col">
-              <ul
-                className="list-group list-group-flush"
-                id="nicommons-id-list"
-              >
+              />
+            </Col>
+          </Row>
+          <Row className="flex-grow-1 overflow-auto">
+            <Col>
+              <ListGroup as="ul" variant="flush" id="nicommons-id-list">
                 {items.map((item) => (
                   <NicommonsRow
                     key={item.nicommons}
@@ -237,12 +246,12 @@ function NicommonsTab(): JSX.Element {
                     }
                   />
                 ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+              </ListGroup>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 }
 

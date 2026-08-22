@@ -12,6 +12,7 @@ import schema from 'apm-schema/v3/schema/packages.json';
 // Enum values must be taken from the `monaco` instance passed to onMount.
 import type { editor } from 'monaco-editor';
 import React, { useRef } from 'react';
+import { Button, Col, Spinner } from 'react-bootstrap';
 import { TRPCReact } from '../trpc';
 import { getInstallationPath } from './installationPath';
 import { usePhase } from './usePhase';
@@ -282,7 +283,7 @@ export const MonacoEditorRenderer: React.FC = () => {
 
   return (
     <>
-      <div className="col-sm-9">
+      <Col sm={9}>
         <div id="container" className="border rounded">
           <MonacoEditor
             height="50vh"
@@ -292,22 +293,24 @@ export const MonacoEditorRenderer: React.FC = () => {
             onMount={editorDidMount}
           />
         </div>
-      </div>
-      <div className="col-sm-3">
-        <button
-          type="button"
-          className={`btn btn-${saveColor} w-100`}
+      </Col>
+      <Col sm={3}>
+        <Button
+          variant={saveColor}
+          className="w-100"
           id="save-editor-data"
           disabled={save.phase.kind === 'loading'}
           onClick={() => void saveEditorData()}
         >
           {save.phase.kind === 'loading' ? (
             <>
-              <span
-                className="spinner-border spinner-border-sm"
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
                 role="status"
                 aria-hidden="true"
-              ></span>
+              />
               <span className="visually-hidden">Loading...</span>
             </>
           ) : save.phase.kind === 'message' ? (
@@ -315,8 +318,8 @@ export const MonacoEditorRenderer: React.FC = () => {
           ) : (
             '保存 (Ctrl + S)'
           )}
-        </button>
-      </div>
+        </Button>
+      </Col>
     </>
   );
 };

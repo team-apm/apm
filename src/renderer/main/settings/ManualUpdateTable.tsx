@@ -1,4 +1,5 @@
 import React, { type JSX, useEffect, useSyncExternalStore } from 'react';
+import { Button, Spinner } from 'react-bootstrap';
 import { TRPCReact } from '../../trpc';
 import { getInstallationPath } from '../installationPath';
 import {
@@ -27,20 +28,22 @@ function UpdateButton({
 }) {
   const color = phase.kind === 'message' ? phase.color : 'primary';
   return (
-    <button
-      type="button"
-      className={`btn btn-${color} w-100`}
+    <Button
+      variant={color}
+      className="w-100"
       id={id}
       disabled={phase.kind === 'loading'}
       onClick={onClick}
     >
       {phase.kind === 'loading' ? (
         <>
-          <span
-            className="spinner-border spinner-border-sm"
+          <Spinner
+            as="span"
+            animation="border"
+            size="sm"
             role="status"
             aria-hidden="true"
-          ></span>
+          />
           <span className="visually-hidden">Loading...</span>
         </>
       ) : phase.kind === 'message' ? (
@@ -48,7 +51,7 @@ function UpdateButton({
       ) : (
         '更新'
       )}
-    </button>
+    </Button>
   );
 }
 
@@ -197,14 +200,14 @@ function ManualUpdateTable(): JSX.Element {
         <td>
           <div className="bg-body">
             {/* 旧実装どおりボタンの状態遷移はなし(結果は main 側のダイアログ) */}
-            <button
-              type="button"
-              className="btn btn-primary w-100"
+            <Button
+              variant="primary"
+              className="w-100"
               id="check-apm-update"
               onClick={() => checkUpdateMutation.mutate()}
             >
               更新
-            </button>
+            </Button>
           </div>
         </td>
       </tr>

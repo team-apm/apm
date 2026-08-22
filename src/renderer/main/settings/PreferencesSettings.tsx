@@ -1,4 +1,5 @@
 import React, { type JSX, useState } from 'react';
+import { Col, Form, Row } from 'react-bootstrap';
 import { TRPCReact } from '../../trpc';
 
 const ZOOM_OPTIONS = [
@@ -42,13 +43,12 @@ function PreferencesSettings() {
 
   return (
     <>
-      <div className="row mb-3">
-        <label htmlFor="zoom-factor-select" className="col-sm-3 col-form-label">
+      <Row className="mb-3">
+        <Form.Label htmlFor="zoom-factor-select" column sm={3}>
           拡大率
-        </label>
-        <div className="col-sm-6">
-          <select
-            className="form-select"
+        </Form.Label>
+        <Col sm={6}>
+          <Form.Select
             id="zoom-factor-select"
             aria-label="Zoom level select"
             value={zoomValue}
@@ -62,43 +62,36 @@ function PreferencesSettings() {
                 {label}
               </option>
             ))}
-          </select>
-        </div>
-        <div className="col-sm-3"></div>
-      </div>
-      <div className="row mb-3">
-        <label htmlFor="zoom-factor-select" className="col-sm-3 col-form-label">
+          </Form.Select>
+        </Col>
+        <Col sm={3}></Col>
+      </Row>
+      <Row className="mb-3">
+        <Form.Label htmlFor="zoom-factor-select" column sm={3}>
           apmの自動更新
-        </label>
-        <div className="col-sm-6">
-          <div className="col">
+        </Form.Label>
+        <Col sm={6}>
+          <Col>
             {AUTO_UPDATE_OPTIONS.map(([value, label]) => (
-              <div className="form-check" key={value}>
-                <input
-                  className="form-check-input"
-                  type="radio"
-                  name="auto-update"
-                  id={`auto-update-${value}`}
-                  value={value}
-                  checked={autoUpdateValue === value}
-                  disabled={value === 'download' && exeVersion === false}
-                  onChange={() => {
-                    setAutoUpdateValue(value);
-                    setAutoUpdate.mutate(value);
-                  }}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor={`auto-update-${value}`}
-                >
-                  {label}
-                </label>
-              </div>
+              <Form.Check
+                key={value}
+                type="radio"
+                name="auto-update"
+                id={`auto-update-${value}`}
+                value={value}
+                label={label}
+                checked={autoUpdateValue === value}
+                disabled={value === 'download' && exeVersion === false}
+                onChange={() => {
+                  setAutoUpdateValue(value);
+                  setAutoUpdate.mutate(value);
+                }}
+              />
             ))}
-          </div>
-        </div>
-        <div className="col-sm-3"></div>
-      </div>
+          </Col>
+        </Col>
+        <Col sm={3}></Col>
+      </Row>
     </>
   );
 }

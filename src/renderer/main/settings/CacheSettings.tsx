@@ -1,4 +1,5 @@
 import React, { type JSX } from 'react';
+import { Button, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { formatBytes } from '../../../shared/formatBytes';
 import { TRPCReact } from '../../trpc';
 import { usePhase } from '../usePhase';
@@ -31,32 +32,34 @@ function CacheSettings(): JSX.Element {
   const color = clear.phase.kind === 'message' ? clear.phase.color : 'primary';
 
   return (
-    <div className="row mb-3">
-      <label htmlFor="clear-cache" className="col-sm-3 col-form-label">
+    <Row className="mb-3">
+      <Form.Label htmlFor="clear-cache" column sm={3}>
         ダウンロードキャッシュ
-      </label>
-      <div className="col-sm-6 d-flex align-items-center">
+      </Form.Label>
+      <Col sm={6} className="d-flex align-items-center">
         <span className="text-body-secondary">
           {cacheSize.data === undefined
             ? '計算中…'
             : `${formatBytes(cacheSize.data)} 使用中`}
         </span>
-      </div>
-      <div className="col-sm-3">
-        <button
-          type="button"
-          className={`btn btn-outline-${color} w-100`}
+      </Col>
+      <Col sm={3}>
+        <Button
+          variant={`outline-${color}`}
+          className="w-100"
           id="clear-cache"
           disabled={clear.phase.kind === 'loading' || !cacheSize.data}
           onClick={() => void onClick()}
         >
           {clear.phase.kind === 'loading' ? (
             <>
-              <span
-                className="spinner-border spinner-border-sm"
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
                 role="status"
                 aria-hidden="true"
-              ></span>
+              />
               <span className="visually-hidden">Loading...</span>
             </>
           ) : clear.phase.kind === 'message' ? (
@@ -64,9 +67,9 @@ function CacheSettings(): JSX.Element {
           ) : (
             '削除'
           )}
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Col>
+    </Row>
   );
 }
 
