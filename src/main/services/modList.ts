@@ -41,24 +41,26 @@ export async function updateInfo(win: BrowserWindow, config: Config) {
 
 /**
  * Returns an object parsed from list.json, downloading it if not cached.
- * 旧 src/lib/modList.ts の getInfo と同一の挙動(読めなければ null)。
+ * 旧 src/lib/modList.ts の getInfo は読めなければ null を返したが、
+ * 呼び出し側 8 箇所はいずれも即座にプロパティを参照していて null を
+ * 扱っておらず、返しても呼び出し元で TypeError になるだけだった。
  * @param {BrowserWindow} win - A browser window used for the download session.
  * @param {Config} config - The config instance.
- * @returns {Promise<List | null>} An object parsed from list.json.
+ * @returns {Promise<List>} An object parsed from list.json.
  */
 export async function getInfo(
   win: BrowserWindow,
   config: Config,
-): Promise<List | null> {
+): Promise<List> {
   if (!existsTempFile('list.json').exists) {
     await updateInfo(win, config);
   }
   const modFile = existsTempFile('list.json');
-  if (!modFile.exists) return null;
+  if (!modFile.exists) throw new Error('list.json is not downloaded.');
   try {
     return (await readJson(modFile.path)) as List;
-  } catch {
-    return null;
+  } catch (e) {
+    throw new Error('Failed to parse list.json.', { cause: e });
   }
 }
 
