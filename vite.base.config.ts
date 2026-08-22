@@ -14,8 +14,6 @@ const assetBearingDependencies = [
   '7zip-bin',
   // package.json の bin を __dirname 基準で resolve する(7zip-lite/7z.exe)
   'win-7zip',
-  // path.join(__dirname, "page", "prompt.html") をプロンプト窓に読み込む
-  'electron-prompt',
 ];
 
 /**
