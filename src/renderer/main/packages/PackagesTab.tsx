@@ -560,11 +560,9 @@ function PackagesTab(): JSX.Element {
                         className="mt-2 mb-1 alert alert-info alert-dismissible fade show"
                         role="alert"
                       >
-                        <div className="alert-text">
-                          {alertStrings.map((s) => (
-                            <div key={s}>{s}</div>
-                          ))}
-                        </div>
+                        {alertStrings.map((s) => (
+                          <div key={s}>{s}</div>
+                        ))}
                         <button
                           type="button"
                           className="btn-close"
