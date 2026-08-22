@@ -69,7 +69,7 @@ class Ledger {
         throw new Error('Invalid apm.json.');
       }
     } catch (e) {
-      if (e.code !== 'ENOENT') log.error(e);
+      if ((e as NodeJS.ErrnoException).code !== 'ENOENT') log.error(e);
       this.object = {
         dataVersion: '3',
         core: {},

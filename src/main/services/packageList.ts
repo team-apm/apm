@@ -170,7 +170,7 @@ async function getInstalledFiles(installationPath: string) {
     try {
       return await fsReaddir(path, { withFileTypes: true });
     } catch (e) {
-      if (e.code === 'ENOENT') return [];
+      if ((e as NodeJS.ErrnoException).code === 'ENOENT') return [];
       log.error(e);
       throw e;
     }
