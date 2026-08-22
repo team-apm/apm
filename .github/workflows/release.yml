@@ -18,9 +18,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          # Node 22 固定: Node 24 では electron-forge 6.4.1 の make/publish が
-          # 「Copying files」後に無言で失敗する
-          node-version: '22'
+          node-version: '24'
           cache: 'yarn'
 
       - name: Install dependencies
