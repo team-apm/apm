@@ -14,7 +14,7 @@ Electron の 3 窓 + main プロセス。窓はすべて `sandbox: true`。
 
 - ビジネスロジックは main プロセス(`src/main/services/`)。renderer からは tRPC(trpc-electron)で呼ぶ
 - このほか `services/browser.ts` がダウンロード用のモーダルブラウザ窓を動的に生成する(forge の entryPoint ではない)
-- IPC は 2 系統が併存: tRPC(主)と、レガシー `ipcMain.handle`(`src/common/ipc.ts` のチャンネル定義 + `src/lib/ipcWrapper.ts`。ダイアログ・app 情報取得など少数のチャンネルが残る)
+- IPC は tRPC に集約済み。例外は preload のエラーハンドラ用ダイアログの 1 チャンネルのみ(`src/common/ipc.ts` + `src/lib/ipcWrapper.ts`。preload に tRPC クライアントを置けない理由は `src/common/ipc.ts` のコメントを参照)
 
 ## ディレクトリと責務
 
@@ -22,8 +22,8 @@ Electron の 3 窓 + main プロセス。窓はすべて `sandbox: true`。
 src/
   shared/     electron 完全非依存の純粋モジュール(main / renderer 両方から import 可)。
               ユニットテストの主対象。fs 依存の可否は AGENTS.md 落とし穴を参照
-  lib/        renderer から使う electron 依存モジュール(ipcWrapper)
-  common/     レガシー IPC のチャンネル名定義(ipc.ts)
+  lib/        renderer から使う electron 依存モジュール(ipcWrapper = preload 専用)
+  common/     preload 専用 IPC のチャンネル名定義(ipc.ts)
   main/       main プロセス(下記)
   renderer/   窓ごとの UI(上の表を参照)。main/ 配下はタブ単位
               (aviutl / packages / nicommons / settings / others)
@@ -35,8 +35,8 @@ main プロセスの内訳:
 ```
 src/main/
   index.ts        エントリ(ログ・config 初期化、app イベント、ハンドラ登録)
-  windows.ts      窓生成(splash / main / about)+ 窓依存のレガシー IPC ハンドラ
-  ipcHandlers.ts  窓に依存しないレガシー IPC ハンドラの登録
+  windows.ts      窓生成(splash / main / about)+ tRPC ハンドラの張り付け
+  ipcHandlers.ts  preload 専用 IPC ハンドラの登録(エラーダイアログのみ)
   api/            tRPC ルーター(index = 集約、trpc = middleware、
                   ドメイン別ルーターの procedure から services/ を呼ぶ。
                   installationPath 入力は middleware が Installation に解決して渡す)
