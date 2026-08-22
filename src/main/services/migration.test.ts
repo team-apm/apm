@@ -22,7 +22,7 @@ const mocks = vi.hoisted(() => ({
   userDataDir: { value: '' },
   showMessageBox: vi.fn(async () => ({ response: 0 })),
   prompt: vi.fn(),
-  downloadFile: vi.fn(),
+  downloadFile: vi.fn(async () => '/backup/copy'),
 }));
 
 vi.mock('electron', () => ({
@@ -233,6 +233,22 @@ describe('migration service', () => {
       );
       expect(converted.packages).toHaveLength(1);
       expect(converted.packages[0].id).toBe('script_old');
+    });
+
+    it('バックアップを取れなかったときは apm.json を書き換えない', async () => {
+      mocks.downloadFile.mockResolvedValueOnce(undefined as unknown as string);
+      await writeJson(path.join(installationPath, 'apm.json'), {
+        core: {},
+        packages: { 'author/pkg': { id: 'author/pkg', repository: 'x' } },
+      });
+
+      await expect(migrationByFolder(ctx, inst)).rejects.toThrow(
+        /Failed to back up/,
+      );
+
+      const ledger = await readJson(path.join(installationPath, 'apm.json'));
+      expect(ledger.dataVersion).toBeUndefined();
+      expect(ledger.packages['author/pkg'].repository).toBe('x');
     });
 
     it('v3 済みの apm.json には触れない', async () => {

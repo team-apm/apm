@@ -244,11 +244,15 @@ export async function migrationByFolder(
 
   log.info(`Start migration: migrationByFolder(${inst.path})`);
 
-  // 1. apm.json を退避する
-  await downloadFile(win, jsonPath, {
+  // 1. apm.json を退避する。取れなかったときに破壊的な書き換えへ進まないよう
+  //    戻り値を見る(downloadFile は失敗を undefined で返す)
+  const backup = await downloadFile(win, jsonPath, {
     subDir: BACKUP_SUBDIR,
     keyText: jsonPath,
   });
+  if (!backup) {
+    throw new Error(`Failed to back up ${jsonPath} before the migration.`);
+  }
 
   await ledger.transaction(async () => {
     // 2. repository は v3 のデータモデルに無い。v1 の値も v2 の値も使わない
