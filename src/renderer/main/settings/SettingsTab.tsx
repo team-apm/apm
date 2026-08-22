@@ -1,5 +1,5 @@
 import React, { type JSX } from 'react';
-import { Card, Container, Form, Row, Table } from 'react-bootstrap';
+import { Card, Col, Container, Form, Row, Table } from 'react-bootstrap';
 import { MonacoEditorRenderer } from '../monacoEditorRenderer';
 import CacheSettings from './CacheSettings';
 import DataUrlSettings from './DataUrlSettings';
@@ -32,14 +32,14 @@ function SettingsTab(): JSX.Element {
               <Table borderless striped>
                 <thead>
                   <tr>
-                    <th scope="col" className="col-sm-3"></th>
-                    <th scope="col" className="col-sm-3">
+                    <Col as="th" scope="col" sm={3}></Col>
+                    <Col as="th" scope="col" sm={3}>
                       リスト更新日時
-                    </th>
-                    <th scope="col" className="col-sm-3">
+                    </Col>
+                    <Col as="th" scope="col" sm={3}>
                       最終更新日時
-                    </th>
-                    <th scope="col" className="col-sm-3"></th>
+                    </Col>
+                    <Col as="th" scope="col" sm={3}></Col>
                   </tr>
                 </thead>
                 <tbody className="align-middle" id="manual-update-tbody">

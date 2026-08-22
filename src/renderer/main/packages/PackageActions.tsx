@@ -1,5 +1,6 @@
 import type { Scripts } from 'apm-schema';
 import React, { type JSX, useEffect } from 'react';
+import { Button, Spinner } from 'react-bootstrap';
 import { states } from '../../../shared/packageDisplay';
 import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
@@ -35,20 +36,22 @@ function ActionButton({
 }) {
   const color = phase.kind === 'message' ? phase.color : 'primary';
   return (
-    <button
-      type="button"
-      className={`btn btn-${color} ms-2`}
+    <Button
+      variant={color}
+      className="ms-2"
       id={id}
       disabled={phase.kind === 'loading'}
       onClick={onClick}
     >
       {phase.kind === 'loading' ? (
         <>
-          <span
-            className="spinner-border spinner-border-sm"
+          <Spinner
+            as="span"
+            animation="border"
+            size="sm"
             role="status"
             aria-hidden="true"
-          ></span>
+          />
           <span className="visually-hidden">Loading...</span>
         </>
       ) : phase.kind === 'message' ? (
@@ -56,7 +59,7 @@ function ActionButton({
       ) : (
         label
       )}
-    </button>
+    </Button>
   );
 }
 
