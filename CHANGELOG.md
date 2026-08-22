@@ -1,5 +1,34 @@
 # Changelog
 
+# [3.14.0](https://github.com/team-apm/apm/compare/v3.13.0...v3.14.0) (2026-08-22)
+
+### Bug Fixes
+
+- electron-squirrel-startup を require のまま残して評価順を保つ ([3d18b39](https://github.com/team-apm/apm/commit/3d18b390ec15cceff3b0beded160ead5b5830202))
+- **main:** macOS の再アクティブ化で tRPC リスナーと nativeTheme リスナーが増殖する問題を修正 ([aa6ef68](https://github.com/team-apm/apm/commit/aa6ef687d6fbb2c71f3f097e2b6eaca0ac364c6a)), closes [#2379](https://github.com/team-apm/apm/issues/2379) [#B2](https://github.com/team-apm/apm/issues/B2)
+- **main:** requestSingleInstanceLock で多重起動を防止 ([79deb8c](https://github.com/team-apm/apm/commit/79deb8cd4ad4e61b136f824daee9441ef4744c08)), closes [#2413](https://github.com/team-apm/apm/issues/2413) [#2379](https://github.com/team-apm/apm/issues/2379)
+- **main:** showMessageBoxSync を非同期の showMessageBox に置き換え ([11ec304](https://github.com/team-apm/apm/commit/11ec3042459d8b3bffb40cce068cab6ea5394e65)), closes [#2398](https://github.com/team-apm/apm/issues/2398) [#2401](https://github.com/team-apm/apm/issues/2401)
+- **main:** v1 からの移行がデータ取得先のリセットでクラッシュする問題を修正 ([f7283da](https://github.com/team-apm/apm/commit/f7283da479979b1a5c510186239159ce89a53e21)), closes [#T1](https://github.com/team-apm/apm/issues/T1) [#2397](https://github.com/team-apm/apm/issues/2397)
+- **main:** ダウンロード停滞時に electron-dl をキャンセルする ([a930047](https://github.com/team-apm/apm/commit/a93004779908f8e478788c7e0f1108bb3a7ab244)), closes [#2398](https://github.com/team-apm/apm/issues/2398) [#2399](https://github.com/team-apm/apm/issues/2399)
+- **main:** 更新確認と nicommons 取得の通信エラーで落ちる・固まる問題を修正 ([a8822bb](https://github.com/team-apm/apm/commit/a8822bb25b9275ae4fb71cb75466286f34a8986a)), closes [#2379](https://github.com/team-apm/apm/issues/2379) [#B1](https://github.com/team-apm/apm/issues/B1)
+- **main:** 並行書き込みで導入記録が消える競合を Ledger の共有インスタンス化で修正 ([4974017](https://github.com/team-apm/apm/commit/4974017e4686d86b59e057a0ebf3d7618e2fb6fe))
+- **renderer:** パッケージ版で AviUtl タブのアイコンが表示されないのを修正する ([74de0ad](https://github.com/team-apm/apm/commit/74de0adcda3e85edb23b19458890cf62f689fe5c)), closes [#2419](https://github.com/team-apm/apm/issues/2419)
+- **renderer:** ボタン復帰タイマーを操作開始時に解除して多重発火レースを防ぐ ([d4a6955](https://github.com/team-apm/apm/commit/d4a6955bdfc0f4ab6e6251db6e075bdde8d6f63e)), closes [#2379](https://github.com/team-apm/apm/issues/2379) [#B3](https://github.com/team-apm/apm/issues/B3)
+- **security:** integrity 検証を手動 DL・archivePath 渡しの経路にも適用 ([6af7566](https://github.com/team-apm/apm/commit/6af7566572eff38342e8b702f3bb67ccfbd9bd94))
+- **security:** parsePackagesXml のキーを継承なしオブジェクトにする ([461273a](https://github.com/team-apm/apm/commit/461273a7af66aafb34d32eac1e6178d13fb221ac))
+- **security:** tRPC 境界で packageItem.info のセキュリティ不変条件を検証 ([915bb81](https://github.com/team-apm/apm/commit/915bb81557957c29d2c472745d160d0345a8587b))
+- **security:** インストーラ引数のコマンドインジェクションを塞ぐ ([f7ff29d](https://github.com/team-apm/apm/commit/f7ff29d328a3e36cb108f8f8d60b170e19004002))
+- **security:** インストール先の外へ書き込めるパストラバーサルを塞ぐ ([4d5ea81](https://github.com/team-apm/apm/commit/4d5ea81a29b9a3fda9163d9e13d6ed3635036a69))
+- **security:** ダウンロードファイル名のエンコード済みパス区切りを拒否 ([ee80673](https://github.com/team-apm/apm/commit/ee80673d7480267a212c7110dd286c4fb8b7625f))
+- **security:** 窓内ナビゲーションを既定 deny に反転し全窓へ適用 ([824263b](https://github.com/team-apm/apm/commit/824263bdfb14c626c8a3e84ad8110b0e1ebc6f26))
+- **security:** 展開ディレクトリ外を指す archivePath のコピー元を拒否 ([1a5d3ed](https://github.com/team-apm/apm/commit/1a5d3ed1e6e49ee5fafcdfd91e0be0cb62c2e5e4)), closes [#2380](https://github.com/team-apm/apm/issues/2380)
+- **security:** 展開後に symlink を一掃して外部参照を断つ ([60ff5ae](https://github.com/team-apm/apm/commit/60ff5ae11a3e4e8d07e95446c12d57493de82d87))
+- **security:** 埋め込みブラウザ窓をセッション分離しダウンロード保存先を検証 ([9edfaba](https://github.com/team-apm/apm/commit/9edfaba23d6f3bcaba6ffeff2d3280feeb6c3130))
+
+### Features
+
+- **security:** 未承認オリジンの dataURL 追加時に確認ダイアログを表示 ([321c5a1](https://github.com/team-apm/apm/commit/321c5a1e9374e0690a12a9e2a13d7db7c5a33866)), closes [#2377](https://github.com/team-apm/apm/issues/2377)
+
 # [3.13.0](https://github.com/team-apm/apm/compare/v3.12.0...v3.13.0) (2026-08-19)
 
 ### Bug Fixes
