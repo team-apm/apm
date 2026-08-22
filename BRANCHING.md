@@ -27,4 +27,4 @@ git push origin v3
 
 Release tags are always cut on top of `main`, so this is a fast-forward and needs no force. `--ff-only` is there to fail loudly if `v3` has somehow diverged — handle that case deliberately rather than overwriting it.
 
-See [docs/RELEASING.md](./docs/RELEASING.md) for the full release process.
+See [RELEASING.md](./RELEASING.md) for the full release process.
