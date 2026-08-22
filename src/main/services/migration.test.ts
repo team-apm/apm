@@ -143,7 +143,7 @@ describe('migration service', () => {
       );
     });
 
-    it('v1 の apm.json は repository の書き換えを経て v3(repository 削除)まで進む', async () => {
+    it('v1 の apm.json は repository を落として v3 になる', async () => {
       await writeJson(path.join(installationPath, 'apm.json'), {
         core: {},
         packages: {
@@ -162,8 +162,40 @@ describe('migration service', () => {
       expect(ledger.dataVersion).toBe('3');
       expect(ledger.packages['author/pkg'].repository).toBeUndefined();
       expect(ledger.packages['author/pkg'].version).toBe('1.0');
-      // v1→2 と v2→3 の両方でバックアップされる
-      expect(mocks.downloadFile).toHaveBeenCalledTimes(2);
+      // 段を踏まないのでバックアップは 1 回だけ
+      expect(mocks.downloadFile).toHaveBeenCalledOnce();
+    });
+
+    it('v1 の packages_list.xml も同じ変換に流れる(リネームを経由しない)', async () => {
+      await writeJson(path.join(installationPath, 'apm.json'), {
+        core: {},
+        packages: {},
+      });
+      await writeFile(
+        path.join(installationPath, 'packages_list.xml'),
+        `<?xml version="1.0" encoding="utf-8"?>
+<packages>
+  <package>
+    <id>script_old</id>
+    <name>スクリプト</name>
+    <downloadURL>https://example.com/s.zip</downloadURL>
+    <latestVersion>1</latestVersion>
+    <files>
+      <file>script/s.anm</file>
+    </files>
+  </package>
+</packages>
+`,
+      );
+
+      await migrationByFolder(ctx, inst);
+
+      const converted = await readJson(inst.localRepoPath);
+      expect(converted.packages[0].id).toBe('script_old');
+      // 元のファイルは消さずに残す
+      expect(
+        await pathExists(path.join(installationPath, 'packages_list.xml')),
+      ).toBe(true);
     });
 
     it('v2 の apm.json + packages.xml は packages.json へ変換される', async () => {
