@@ -3,11 +3,18 @@ name: 'Electronegativity'
 on:
   push:
     branches: [main]
+  # base を main に限定しない: 中間ブランチ宛ての PR(stacked PR)にも CI を回すため。
+  # branches フィルタは head ではなく base を見るので、限定すると stacked PR が無検証になる。
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [main]
   schedule:
     - cron: '43 19 * * 5'
+
+# 同一 PR の古い実行は打ち切る。push イベントでは打ち切らない:
+# main の各コミットは Actions のステータスとして残す必要があり、
+# 短時間に複数マージが来たときに先行分を消してしまうため。
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build_job:
