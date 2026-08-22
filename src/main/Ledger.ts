@@ -100,7 +100,7 @@ class Ledger {
    * Starts a transaction. Subsequent set / delete calls are kept in memory
    * (still visible via get / has) until commit() is called.
    */
-  public begin() {
+  private begin() {
     this.inTransaction = true;
   }
 
@@ -109,11 +109,34 @@ class Ledger {
    * ends the transaction. Does not write when nothing has changed.
    * @returns {Promise<void>} A promise that resolves when the object is saved.
    */
-  public async commit() {
+  private async commit() {
     this.inTransaction = false;
     if (this.dirty) {
       this.dirty = false;
       await this.save();
+    }
+  }
+
+  /**
+   * Runs the given operation, writing everything it changed to `apm.json` in
+   * one go.
+   * begin / commit を公開せず必ずこの経路を通すのは、例外で commit を飛ばすと
+   * inTransaction が立ったままになり、以降の set / delete が「書き込みを遅延
+   * する」側へ落ちて二度とディスクに書かれないため(インストール記録が黙って
+   * 消える)。
+   * 失敗時に変更を破棄して復元しないのは、インスタンスがプロセス内で共有され
+   * ておりスナップショットへ戻すと、同じ間に別経路が行った即時書き込み
+   * (インストールの addPackage 等)まで巻き戻してしまうため。途中まで書かれても
+   * 次回の実行でやり直せる(冪等な)処理だけをここへ渡す。
+   * @param {() => Promise<T>} operation - The operation to run in the transaction.
+   * @returns {Promise<T>} The value returned by the operation.
+   */
+  public async transaction<T>(operation: () => Promise<T>): Promise<T> {
+    this.begin();
+    try {
+      return await operation();
+    } finally {
+      await this.commit();
     }
   }
 

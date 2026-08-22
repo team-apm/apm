@@ -91,17 +91,17 @@ export async function convertPackageIds(
   modTime: number,
 ) {
   const ledger = await inst.ledger();
-  ledger.begin();
-  const packages = (await ledger.get('packages')) as {
-    [key: string]: { id: string };
-  };
+  await ledger.transaction(async () => {
+    const packages = (await ledger.get('packages')) as {
+      [key: string]: { id: string };
+    };
 
-  const convDict = await getIdDict(ctx, true);
-  convertV1LedgerPackages(packages, convDict);
+    const convDict = await getIdDict(ctx, true);
+    convertV1LedgerPackages(packages, convDict);
 
-  await ledger.set('packages', packages);
-  await ledger.set('convertMod', modTime);
-  await ledger.commit();
+    await ledger.set('packages', packages);
+    await ledger.set('convertMod', modTime);
+  });
 }
 
 /**
@@ -249,18 +249,18 @@ export async function adoptManuallyInstalledPackages(
 ): Promise<boolean> {
   const ledger = await inst.ledger();
   let modified = false;
-  ledger.begin();
-  for (const p of packages.filter(
-    (p) => p.installationStatus === states.manuallyInstalled,
-  )) {
-    for (const release of p.info.releases ?? []) {
-      if (await checkIntegrity(inst.path, release.integrity.file)) {
-        await ledger.addPackage(p.id, release.version);
-        modified = true;
+  await ledger.transaction(async () => {
+    for (const p of packages.filter(
+      (p) => p.installationStatus === states.manuallyInstalled,
+    )) {
+      for (const release of p.info.releases ?? []) {
+        if (await checkIntegrity(inst.path, release.integrity.file)) {
+          await ledger.addPackage(p.id, release.version);
+          modified = true;
+        }
       }
     }
-  }
-  await ledger.commit();
+  });
   return modified;
 }
 

@@ -185,23 +185,23 @@ describe('Ledger', () => {
     });
   });
 
-  describe('begin / commit(トランザクション)', () => {
-    it('begin 中の set は書き込みを遅延し、commit で 1 回だけ書き込む', async () => {
+  describe('transaction(まとめ書き)', () => {
+    it('中の set は書き込みを遅延し、抜けるときに 1 回だけ書き込む', async () => {
       const installationPath = await makeInstPath();
       const jsonPath = Ledger.getPath(installationPath);
       const ledger = await Ledger.load(installationPath);
 
-      ledger.begin();
-      await ledger.set('core.aviutl', '1.10');
-      await ledger.set('core.exedit', '0.92');
+      await ledger.transaction(async () => {
+        await ledger.set('core.aviutl', '1.10');
+        await ledger.set('core.exedit', '0.92');
 
-      // commit まではディスクに書き込まれない
-      expect(await pathExists(jsonPath)).toBe(false);
-      // read-your-writes: メモリ上では set した値が見える
-      expect(await ledger.get('core.aviutl')).toBe('1.10');
-      expect(await ledger.has('core.exedit')).toBe(true);
+        // 抜けるまではディスクに書き込まれない
+        expect(await pathExists(jsonPath)).toBe(false);
+        // read-your-writes: メモリ上では set した値が見える
+        expect(await ledger.get('core.aviutl')).toBe('1.10');
+        expect(await ledger.has('core.exedit')).toBe(true);
+      });
 
-      await ledger.commit();
       expect(await readJson(jsonPath)).toEqual({
         dataVersion: '3',
         core: { aviutl: '1.10', exedit: '0.92' },
@@ -209,7 +209,7 @@ describe('Ledger', () => {
       });
     });
 
-    it('begin 中の delete も遅延され、戻り値の意味は変わらない', async () => {
+    it('中の delete も遅延され、戻り値の意味は変わらない', async () => {
       const installationPath = await makeInstPath();
       const jsonPath = Ledger.getPath(installationPath);
       await writeJson(jsonPath, {
@@ -219,42 +219,73 @@ describe('Ledger', () => {
       });
       const ledger = await Ledger.load(installationPath);
 
-      ledger.begin();
-      // 戻り値は「親パスまで辿れたかどうか」(即時書き込み時と同じ)
-      expect(await ledger.delete('core.aviutl')).toBe(true);
-      expect(await ledger.delete('nonexistent.parent.key')).toBe(false);
-      expect((await readJson(jsonPath)).core).toEqual({ aviutl: '1.10' });
+      await ledger.transaction(async () => {
+        // 戻り値は「親パスまで辿れたかどうか」(即時書き込み時と同じ)
+        expect(await ledger.delete('core.aviutl')).toBe(true);
+        expect(await ledger.delete('nonexistent.parent.key')).toBe(false);
+        expect((await readJson(jsonPath)).core).toEqual({ aviutl: '1.10' });
+      });
 
-      await ledger.commit();
       expect((await readJson(jsonPath)).core).toEqual({});
     });
 
-    it('変更がないまま commit してもファイルを書き込まない', async () => {
+    it('変更がないまま抜けてもファイルを書き込まない', async () => {
       const installationPath = await makeInstPath();
       const ledger = await Ledger.load(installationPath);
 
-      ledger.begin();
-      // 存在しないキーの delete はオブジェクトを変更しないため dirty にならない
-      await ledger.delete('nonexistent.parent.key');
-      await ledger.commit();
+      await ledger.transaction(async () => {
+        // 存在しないキーの delete はオブジェクトを変更しないため dirty にならない
+        await ledger.delete('nonexistent.parent.key');
+      });
 
       expect(await pathExists(Ledger.getPath(installationPath))).toBe(false);
     });
 
-    it('commit 後の set は従来どおり即時書き込みに戻る', async () => {
+    it('抜けた後の set は従来どおり即時書き込みに戻る', async () => {
       const installationPath = await makeInstPath();
       const jsonPath = Ledger.getPath(installationPath);
       const ledger = await Ledger.load(installationPath);
 
-      ledger.begin();
-      await ledger.set('core.aviutl', '1.10');
-      await ledger.commit();
+      await ledger.transaction(async () => {
+        await ledger.set('core.aviutl', '1.10');
+      });
 
       await ledger.set('core.exedit', '0.92');
       expect((await readJson(jsonPath)).core).toEqual({
         aviutl: '1.10',
         exedit: '0.92',
       });
+    });
+
+    it('中で例外が起きても中断までの変更を書き込み、例外は呼び出し元へ伝わる', async () => {
+      const installationPath = await makeInstPath();
+      const jsonPath = Ledger.getPath(installationPath);
+      const ledger = await Ledger.load(installationPath);
+
+      await expect(
+        ledger.transaction(async () => {
+          await ledger.set('core.aviutl', '1.10');
+          throw new Error('boom');
+        }),
+      ).rejects.toThrow('boom');
+
+      expect((await readJson(jsonPath)).core).toEqual({ aviutl: '1.10' });
+    });
+
+    it('中で例外が起きた後も set は即時書き込みに戻る(トランザクションを閉じ忘れない)', async () => {
+      const installationPath = await makeInstPath();
+      const jsonPath = Ledger.getPath(installationPath);
+      const ledger = await Ledger.load(installationPath);
+
+      await expect(
+        ledger.transaction(async () => {
+          throw new Error('boom');
+        }),
+      ).rejects.toThrow('boom');
+
+      // 閉じ忘れると以降の set が遅延側へ落ち、二度と書き込まれない
+      await ledger.set('core.exedit', '0.92');
+      expect((await readJson(jsonPath)).core).toEqual({ exedit: '0.92' });
     });
   });
 
@@ -322,13 +353,12 @@ describe('Ledger', () => {
       const installationPath = await makeInstPath();
 
       const writer = await Ledger.load(installationPath);
-      writer.begin();
-      await writer.setCore('aviutl', '1.10');
+      await writer.transaction(async () => {
+        await writer.setCore('aviutl', '1.10');
 
-      const reader = await Ledger.load(installationPath);
-      expect(await reader.get('core.aviutl')).toBe('1.10');
-
-      await writer.commit();
+        const reader = await Ledger.load(installationPath);
+        expect(await reader.get('core.aviutl')).toBe('1.10');
+      });
     });
   });
 });
