@@ -141,7 +141,9 @@ describe('parsePackagesXml', () => {
     const packages = parsePackagesXml(xml);
     // 汚染ではなく通常のエントリとして保持される
     expect(Object.keys(packages)).toEqual(['__proto__']);
-    expect(Object.keys(packages['__proto__'].releases)).toEqual(['__proto__']);
+    expect(Object.keys(packages['__proto__'].releases ?? {})).toEqual([
+      '__proto__',
+    ]);
     expect(
       ({} as Record<string, unknown>).polluted,
       'Object.prototype が汚染されていない',

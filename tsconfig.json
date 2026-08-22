@@ -5,17 +5,8 @@
     "module": "nodenext",
     "skipLibCheck": true,
     "esModuleInterop": true,
-    // TS 6.0 から strict が既定で有効。strict 化は挙動リスクを伴うため
-    // メジャー更新と混ぜず段階導入する。残るのは strictNullChecks と
-    // strictPropertyInitialization。全部立ったら "strict": true へ畳む
-    "strict": false,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "strictBindCallApply": true,
-    "strictFunctionTypes": true,
-    "strictBuiltinIteratorReturn": true,
-    "useUnknownInCatchVariables": true,
+    // TS 6.0 の既定。段階導入(#2379)を終えたので個別フラグは畳んである
+    "strict": true,
     "sourceMap": true,
     // TS 6.0 から rootDir の暗黙推論が廃止(TS5011)。include が vite.*.config.ts
     // 等リポジトリ直下も含むため "." を明示する

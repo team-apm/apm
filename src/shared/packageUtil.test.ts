@@ -340,7 +340,7 @@ describe('computePackagesStatus', () => {
       '1.10',
       '0.92',
     );
-    expect(result[0].detached.map((p) => p.id)).toEqual(['author/dep']);
+    expect(result[0].detached?.map((p) => p.id)).toEqual(['author/dep']);
   });
 
   it('依存のバージョン指定(>=)は compareVersionOp で判定される', () => {
@@ -362,7 +362,7 @@ describe('computePackagesStatus', () => {
     ];
     // 1.5 < 2.0 なので未充足 → or 内でインストール可能な author/alt が候補になる
     const withOld = computePackagesStatus(base('1.5'), '1.10', '0.92');
-    expect(withOld[0].detached.map((p) => p.id)).toEqual(['author/alt']);
+    expect(withOld[0].detached?.map((p) => p.id)).toEqual(['author/alt']);
 
     // 2.1 >= 2.0 で充足 → detached なし
     const withNew = computePackagesStatus(base('2.1'), '1.10', '0.92');

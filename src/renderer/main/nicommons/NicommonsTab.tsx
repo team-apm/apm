@@ -162,14 +162,20 @@ function NicommonsTab(): JSX.Element {
         nicommons: 'nc251912',
       },
       ...packages
-        .filter((p) => installedIds.has(p.id) && p.info.nicommons)
-        .map((p) => ({
-          name: p.info.name,
-          developer: p.info.developer,
-          originalDeveloper: p.info.originalDeveloper,
-          typeBadges: parsePackageType(p.type ?? []),
-          nicommons: p.info.nicommons,
-        })),
+        .filter((p) => installedIds.has(p.id))
+        .flatMap((p) =>
+          p.info.nicommons
+            ? [
+                {
+                  name: p.info.name,
+                  developer: p.info.developer,
+                  originalDeveloper: p.info.originalDeveloper,
+                  typeBadges: parsePackageType(p.type ?? []),
+                  nicommons: p.info.nicommons,
+                },
+              ]
+            : [],
+        ),
     ];
   }, [packages, installedIdsQuery.data]);
 
