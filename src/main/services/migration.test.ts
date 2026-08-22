@@ -235,6 +235,24 @@ describe('migration service', () => {
       expect(converted.packages[0].id).toBe('script_old');
     });
 
+    it('ローカルリポジトリが壊れていても apm.json は v3 まで進み、エラーを知らせる', async () => {
+      await writeJson(path.join(installationPath, 'apm.json'), {
+        core: {},
+        packages: { 'author/pkg': { id: 'author/pkg', version: '1.0' } },
+      });
+      await writeFile(
+        path.join(installationPath, 'packages.xml'),
+        '<packages><package>壊れている',
+      );
+
+      await migrationByFolder(ctx, inst);
+
+      const ledger = await readJson(path.join(installationPath, 'apm.json'));
+      expect(ledger.dataVersion).toBe('3');
+      expect(await pathExists(inst.localRepoPath)).toBe(false);
+      expect(mocks.showMessageBox).toHaveBeenCalledOnce();
+    });
+
     it('バックアップを取れなかったときは apm.json を書き換えない', async () => {
       mocks.downloadFile.mockResolvedValueOnce(undefined as unknown as string);
       await writeJson(path.join(installationPath, 'apm.json'), {

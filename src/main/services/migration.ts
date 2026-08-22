@@ -201,6 +201,9 @@ export async function migrationGlobal(ctx: ServiceContext): Promise<boolean> {
  * v1 は packages_list.xml、v2 は packages.xml という名前だったが XML の形式は
  * 同じなので、見つかった方をそのまま同じ変換に流す(旧実装はリネームしてから
  * 変換していた)。
+ * パース失敗で移行を止めないのは、手書きの XML が 1 つ壊れているだけで
+ * apm.json の移行が毎起動やり直しになるため。元の XML は消さずに残し、
+ * 変換できなかったことをユーザーへ知らせる。
  * @param {Installation} inst - The target installation.
  * @returns {Promise<void>} A promise that resolves when the conversion ends.
  */
@@ -210,16 +213,18 @@ async function convertLocalRepository(inst: Installation): Promise<void> {
     .find((candidate) => fs.existsSync(candidate));
   if (!xmlPath) return;
 
-  // パース失敗は従来どおり呼び出し元へ伝播させる(try の外に置く)。
-  // 変換・書き込みの失敗のみログに留めて続行する
-  const packagesList = parsePackagesXml(fs.readFileSync(xmlPath, 'utf-8'));
   try {
+    const packagesList = parsePackagesXml(fs.readFileSync(xmlPath, 'utf-8'));
     await writeJson(
       inst.localRepoPath,
       convertPackagesV2toV3(Object.values(packagesList)),
     );
   } catch (e) {
     log.error(e);
+    await showErrorDialog(
+      'エラー',
+      `ローカルリポジトリを新しい形式へ変換できませんでした。\n${xmlPath}\n元のファイルは残してあります。内容を確認して登録しなおしてください。`,
+    );
   }
 }
 
