@@ -196,7 +196,7 @@ function NicommonsTab(): JSX.Element {
             <div className="col-auto">
               <button
                 type="button"
-                className="btn btn-copy btn-primary"
+                className="btn btn-primary"
                 id="copy-nicommons-id-textarea"
                 onClick={() =>
                   writeClipboardMutation.mutate({ text: idListText })
