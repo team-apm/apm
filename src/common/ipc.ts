@@ -1,10 +1,7 @@
+// レガシー IPC は preload 専用の 1 チャンネルのみ(他はすべて tRPC へ集約済み)。
+// preload にも tRPC クライアントを置けば揃えられるが、1 窓に複数クライアントを
+// 作るとリクエスト ID が衝突する(AGENTS.md 落とし穴)ため、エラーダイアログは
+// レガシー IPC のまま維持する
 export const IPC_CHANNELS = {
-  GET_APP_NAME: 'get-app-name',
-  GET_APP_VERSION: 'get-app-version',
-  APP_GET_PATH: 'app-get-path',
-  APP_QUIT: 'app-quit',
-  OPEN_PATH: 'open-path',
   OPEN_DIALOG: 'open-dialog',
-  OPEN_YES_NO_DIALOG: 'open-yes-no-dialog',
-  CLIPBOARD_WRITE_TEXT: 'clipboard-write-text',
 };
