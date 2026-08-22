@@ -12,10 +12,21 @@ import { type LedgerObject } from '../types/ledger';
 // 導入記録(ユビキタス言語の Ledger)。ディスク上の実体はインストール
 // フォルダ直下の apm.json で、ファイル名は互換のため変えない
 class Ledger {
+  // 同一 apm.json のインスタンスをプロセス内で共有する。load ごとに別の
+  // メモリコピーを作ると、並行する read-modify-write(インストールの
+  // addPackage と、一覧再取得 query 内の整合性採認など)が互いの書き込みを
+  // 全体書き戻しで消し合う(lost update)。操作単位のミューテックスで直列化
+  // する案は全サービスの呼び出し境界の再定義が必要で差分が大きく、単一
+  // プロセスなら共有オブジェクト化で同じ効果が得られるため採らない。
+  // apm の多重起動(プロセス間の競合)はこの方式では防げない(別課題)
+  private static instances = new Map<string, Promise<Ledger>>();
+
   private path: string;
   private object: LedgerObject;
   private inTransaction = false;
   private dirty = false;
+  // 同じファイルへの writeJson が並行すると内容が交錯しうるため直列化する
+  private saveQueue: Promise<void> = Promise.resolve();
 
   /**
    * Gets the path to `apm.json`.
@@ -27,15 +38,19 @@ class Ledger {
   }
 
   /**
-   * Creates an instance of Ledger.
+   * Creates an instance of Ledger. Instances are shared per installation
+   * so that concurrent operations see and modify the same object.
    * @param {string} [installationPath] - The path to the installation directory.
    * @returns {Promise<Ledger>} A promise that resolves with the instance of Ledger.
    */
   public static async load(installationPath: string): Promise<Ledger> {
-    const ledger = new Ledger();
-    const jsonPath = this.getPath(installationPath);
-    await ledger.load(jsonPath);
-    return ledger;
+    const jsonPath = path.resolve(this.getPath(installationPath));
+    let instance = this.instances.get(jsonPath);
+    if (!instance) {
+      instance = new Ledger().load(jsonPath);
+      this.instances.set(jsonPath, instance);
+    }
+    return await instance;
   }
 
   /**
@@ -70,7 +85,12 @@ class Ledger {
    * @returns {Promise<void>} A promise that resolves when the object is saved.
    */
   private save(): Promise<void> {
-    return writeJson(this.path, this.object, { spaces: 2 });
+    const queued = this.saveQueue.then(() =>
+      writeJson(this.path, this.object, { spaces: 2 }),
+    );
+    // 失敗は呼び出し元へは queued で伝播させ、後続の書き込みは止めない
+    this.saveQueue = queued.catch(() => {});
+    return queued;
   }
 
   /**
