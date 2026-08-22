@@ -5,10 +5,15 @@
 		<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
 		<!-- Monaco はローカル同梱(main_window/vs)から読むため CDN 許可は無い。
 		     worker-src blob: は Monaco の AMD loader が worker を blob 経由で起動するため、
-		     style-src 'unsafe-inline' は Monaco と Bootstrap の動的スタイルのために残している -->
+		     style-src 'unsafe-inline' は Monaco と Bootstrap の動的スタイルのために残している。
+		     font-src data: は Monaco 0.56 が codicon フォントを .ttf ファイルではなく
+		     editor.main.css へ data: URI で埋め込むようになったため(0.55 以前は
+		     vs/base/.../codicon.ttf という実ファイルで 'self' に収まっていた)。
+		     外さないこと: 阻まれてもエディタは動くので、折りたたみ・検索ウィジェット等の
+		     アイコンだけが無言で消える -->
 		<meta
 			http-equiv="Content-Security-Policy"
-			content="default-src 'self'; script-src-elem 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp"
+			content="default-src 'self'; script-src-elem 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https://*.nicovideo.jp https://*.nicoseiga.jp https://nicovideo.cdn.nimg.jp"
 		/>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>AviUtl Package Manager</title>
