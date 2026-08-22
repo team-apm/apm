@@ -230,7 +230,6 @@ export async function changeInstallationPath(
   inst: Installation,
 ): Promise<void> {
   const { win, config } = ctx;
-  config.setInstallationPath(inst.path);
 
   // update 1
   await updateInfo(win, config);
@@ -283,6 +282,13 @@ export async function changeInstallationPath(
       log.error(e);
     }
   }
+
+  // 確定はここまで通ってから。先頭で書くと、updateInfo や migration が
+  // 失敗したときに「config は新しいパスなのに移行も再取得も済んでいない」
+  // 状態がディスクに残る。呼び出し側(SelectInstallationPathButton)は
+  // 失敗すると renderer 側のストアを更新しないので、そのセッションは
+  // 旧パスに対して操作しながら次回起動で無言で新パスへ切り替わる
+  config.setInstallationPath(inst.path);
 }
 
 /**
