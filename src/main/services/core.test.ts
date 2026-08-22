@@ -136,7 +136,7 @@ describe('core service', () => {
     it('キャッシュ済みの core.json を返す', async () => {
       await writeCachedCoreInfo({ aviutl: { latestVersion: '1.10' } });
       const info = await getCoreInfo(ctx);
-      expect(info.aviutl.latestVersion).toBe('1.10');
+      expect(info?.aviutl.latestVersion).toBe('1.10');
     });
   });
 
