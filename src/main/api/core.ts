@@ -2,10 +2,10 @@ import {
   changeInstallationPath,
   checkCoreLatestVersion,
   ensureInstallationPath,
-  getApmJsonCoreVersions,
   getCoreDates,
   getCoreInfo,
   getInstalledVersionTexts,
+  getLedgerCoreVersions,
   hasExeditInPluginsFolder,
   installCoreProgram,
 } from '../services/core';
@@ -20,15 +20,24 @@ import {
 
 const installProgramInput = (
   value: unknown,
-): { program: 'aviutl' | 'exedit'; version: string; instPath: string } => {
+): {
+  program: 'aviutl' | 'exedit';
+  version: string;
+  installationPath: string;
+} => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { program, version, instPath } = value as Record<string, unknown>;
+  const { program, version, installationPath } = value as Record<
+    string,
+    unknown
+  >;
   if (program !== 'aviutl' && program !== 'exedit')
     throw new TypeError('program is expected to be aviutl or exedit.');
-  if (typeof version !== 'string' || typeof instPath !== 'string')
-    throw new TypeError('version and instPath are expected to be strings.');
-  return { program, version, instPath };
+  if (typeof version !== 'string' || typeof installationPath !== 'string')
+    throw new TypeError(
+      'version and installationPath are expected to be strings.',
+    );
+  return { program, version, installationPath };
 };
 
 export const coreRouter = t.router({
@@ -43,9 +52,9 @@ export const coreRouter = t.router({
   changeInstallationPath: winInstProcedure
     .input(stringInput)
     .mutation(async ({ ctx }) => await changeInstallationPath(ctx, ctx.inst)),
-  getApmJsonCoreVersions: instProcedure
+  getLedgerCoreVersions: instProcedure
     .input(stringInput)
-    .query(async ({ ctx }) => await getApmJsonCoreVersions(ctx.inst)),
+    .query(async ({ ctx }) => await getLedgerCoreVersions(ctx.inst)),
   getInstalledVersionTexts: winInstProcedure
     .input(stringInput)
     .query(async ({ ctx }) => await getInstalledVersionTexts(ctx, ctx.inst)),

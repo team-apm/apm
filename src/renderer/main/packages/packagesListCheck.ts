@@ -6,7 +6,7 @@ import type { ActionPhase } from '../usePhase';
 // からのイベント)の 3 経路から起動され、どこから呼んでもボタン表示と
 // オーバーレイが連動する。実行状態は起動元と表示側(別タブ)にまたがるため、
 // Context ではなくモジュールシングルトン + useSyncExternalStore で共有する
-// (instPath / startup の firstLaunch も同じパターン)。
+// (installationPath / startup の firstLaunch も同じパターン)。
 
 let phase: ActionPhase = { kind: 'idle' };
 let timer: ReturnType<typeof setTimeout> | null = null;

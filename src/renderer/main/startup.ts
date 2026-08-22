@@ -1,6 +1,6 @@
 import log from 'electron-log/renderer';
 import type { TRPCReact } from '../trpc';
-import { setInstallationPath } from './instPath';
+import { setInstallationPath } from './installationPath';
 
 // 初回起動かどうかのモジュールストア(TutorialAlert が購読する)。
 // 値は起動フローが一度だけ false → true に変えうるのみ
@@ -65,7 +65,7 @@ async function initSettings(client: TrpcClient): Promise<boolean> {
  * 以下の順序は仕様
  * (migration → initSettings → ensureInstallationPath → changeInstallationPath)。
  * 並べ替え・並列化はしない。React のマウントとは並行に走り、確定した値は
- * instPath ストアと firstLaunch ストア + apm-* イベントで各コンポーネントへ
+ * installationPath ストアと firstLaunch ストア + apm-* イベントで各コンポーネントへ
  * 伝える(イベント購読は旧実装からの継続。ストアへの一本化は別スライス)。
  * @param {TrpcClient} client - The tRPC client.
  */
@@ -84,8 +84,8 @@ export async function runStartupFlow(client: TrpcClient): Promise<void> {
     // *local*
     // インストール先の既定値書き込みと取得・mod 情報の更新・migration・
     // 変換辞書の適用は main プロセス側(services/core.ts)
-    const instPath = await client.core.ensureInstallationPath.mutate();
-    await client.core.changeInstallationPath.mutate(instPath);
+    const installationPath = await client.core.ensureInstallationPath.mutate();
+    await client.core.changeInstallationPath.mutate(installationPath);
     window.dispatchEvent(new Event('apm-core-changed'));
     window.dispatchEvent(new Event('apm-packages-changed'));
 
@@ -94,7 +94,7 @@ export async function runStartupFlow(client: TrpcClient): Promise<void> {
       firstLaunch = true;
       listeners.forEach((listener) => listener());
     }
-    setInstallationPath(instPath);
+    setInstallationPath(installationPath);
     // インストール先確定後に ProgramRow・データエディタへ再描画を通知する
     // (旧 preload と同じく、確定前にも一度発火している)
     window.dispatchEvent(new Event('apm-core-changed'));

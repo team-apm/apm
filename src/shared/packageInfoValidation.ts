@@ -1,4 +1,4 @@
-// tRPC 境界(renderer は非信頼)で packageItem.info のセキュリティ不変条件を
+// tRPC 境界(renderer は非信頼)で packageState.info のセキュリティ不変条件を
 // 検証する。apm-schema の JSON Schema 全体を強制しないのは、name の文字数上限の
 // ような表示用制約まで強制するとサードパーティ dataURL の緩いデータが
 // インストールできなくなるため(dataURL 自由入力の確定方針と衝突する)。

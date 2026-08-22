@@ -19,21 +19,21 @@ class Ledger {
 
   /**
    * Gets the path to `apm.json`.
-   * @param {string} [instPath] - The path to the installation directory.
+   * @param {string} [installationPath] - The path to the installation directory.
    * @returns {string} The path to `apm.json`.
    */
-  public static getPath(instPath: string): string {
-    return path.join(instPath, 'apm.json');
+  public static getPath(installationPath: string): string {
+    return path.join(installationPath, 'apm.json');
   }
 
   /**
    * Creates an instance of Ledger.
-   * @param {string} [instPath] - The path to the installation directory.
+   * @param {string} [installationPath] - The path to the installation directory.
    * @returns {Promise<Ledger>} A promise that resolves with the instance of Ledger.
    */
-  public static async load(instPath: string): Promise<Ledger> {
+  public static async load(installationPath: string): Promise<Ledger> {
     const ledger = new Ledger();
-    const jsonPath = this.getPath(instPath);
+    const jsonPath = this.getPath(installationPath);
     await ledger.load(jsonPath);
     return ledger;
   }

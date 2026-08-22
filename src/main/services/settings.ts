@@ -17,10 +17,10 @@ export function ensureExtraDataUrl(config: Config): {
   hasMain: boolean;
   extra: string;
 } {
-  if (!config.dataURL.hasExtra()) config.dataURL.setExtra('');
+  if (!config.dataUrl.hasExtra()) config.dataUrl.setExtra('');
   return {
-    hasMain: config.dataURL.hasMain(),
-    extra: config.dataURL.getExtra(),
+    hasMain: config.dataUrl.hasMain(),
+    extra: config.dataUrl.getExtra(),
   };
 }
 
@@ -72,7 +72,7 @@ export async function setDataUrls(
 
   const approvedOrigins = [
     new URL(DEFAULT_DATA_URL).origin,
-    ...config.dataURL.getApprovedOrigins(),
+    ...config.dataUrl.getApprovedOrigins(),
   ];
   const cautions = collectDataUrlCautions(
     [result.mainUrl, ...result.extraUrls],
@@ -81,15 +81,15 @@ export async function setDataUrls(
   if (cautions.unknownOrigins.length > 0 || cautions.insecureUrls.length > 0) {
     if (!(await confirm(buildCautionMessage(cautions))))
       return { ...result, canceled: true };
-    config.dataURL.setApprovedOrigins([
+    config.dataUrl.setApprovedOrigins([
       ...new Set([
-        ...config.dataURL.getApprovedOrigins(),
+        ...config.dataUrl.getApprovedOrigins(),
         ...cautions.unknownOrigins,
       ]),
     ]);
   }
 
-  config.dataURL.setMain(result.mainUrl);
-  config.dataURL.setExtra(result.extraUrls.join(os.EOL));
+  config.dataUrl.setMain(result.mainUrl);
+  config.dataUrl.setExtra(result.extraUrls.join(os.EOL));
   return { ...result, canceled: false };
 }

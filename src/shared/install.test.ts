@@ -165,7 +165,7 @@ describe('install', () => {
   it('展開ディレクトリの外を指す archivePath をコピー元にできない', async () => {
     const src = await makeTempDir('apm-install-src-');
     const inst = await makeTempDir('apm-install-dst-');
-    // 展開ディレクトリの外にあるファイル(instPath 内へ持ち出される標的)
+    // 展開ディレクトリの外にあるファイル(installationPath 内へ持ち出される標的)
     await writeFile(path.join(src, '..', 'apm-install-secret.txt'), 'secret');
 
     await expect(

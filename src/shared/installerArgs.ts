@@ -5,7 +5,7 @@ const INSTALL_PATH_PLACEHOLDER = '$instpath';
  * Splits an `installArg` string into an argument array.
  *
  * 引用符はシェルと同じく引数の区切りを打ち消す用途にのみ使い、トークンからは
- * 取り除く(`/DIR="$instpath"` → `/DIR=<instPath>`)。シェルを介さず
+ * 取り除く(`/DIR="$instpath"` → `/DIR=<installationPath>`)。シェルを介さず
  * execFileSync へ渡すため、メタ文字(`&` `|` `;` など)は展開されず
  * ただの文字として実行ファイルに届く。
  * @param {string} installArg - The raw `installArg` from the package data.
@@ -51,15 +51,15 @@ function tokenize(installArg: string): string[] {
  * `$instpath` はトークン化した後に置換するため、インストール先のパスに空白や
  * シェルメタ文字が含まれていても引数の境界は動かない。
  * @param {string | undefined} installArg - The raw `installArg` from the package data.
- * @param {string} instPath - An installation path.
+ * @param {string} installationPath - An installation path.
  * @returns {string[]} The arguments for the installer.
  */
 export function buildInstallerArgs(
   installArg: string | undefined,
-  instPath: string,
+  installationPath: string,
 ): string[] {
   if (!installArg) return [];
   return tokenize(installArg).map((arg) =>
-    arg.replaceAll(INSTALL_PATH_PLACEHOLDER, instPath),
+    arg.replaceAll(INSTALL_PATH_PLACEHOLDER, installationPath),
   );
 }

@@ -40,9 +40,9 @@ async function migration1to2Global(ctx: ServiceContext): Promise<boolean> {
   if (!isVerOne) return true;
 
   // Show the dialogs for those using custom dataURL.main
-  let useDefaultDataURL = true;
+  let useDefaultDataUrl = true;
   if (
-    config.dataURL.getMain() !==
+    config.dataUrl.getMain() !==
     'https://cdn.jsdelivr.net/gh/team-apm/apm-data@main/data/'
   ) {
     for (;;) {
@@ -69,7 +69,7 @@ async function migration1to2Global(ctx: ServiceContext): Promise<boolean> {
       }
       // else (response === 1) // use new dataURL.main
 
-      const newDataURL = await prompt(
+      const newDataUrl = await prompt(
         {
           title: '新しいデータ取得先の入力',
           label: '新しいデータ取得先のURL（例: https://example.com/data/）',
@@ -79,30 +79,30 @@ async function migration1to2Global(ctx: ServiceContext): Promise<boolean> {
         },
         win,
       );
-      if (!newDataURL) {
+      if (!newDataUrl) {
         continue;
-      } else if (!newDataURL.startsWith('http') && !fs.existsSync(newDataURL)) {
+      } else if (!newDataUrl.startsWith('http') && !fs.existsSync(newDataUrl)) {
         await showErrorDialog(
           'エラー',
           '有効なURLまたは場所を入力してください。',
         );
         continue;
-      } else if (path.extname(newDataURL) === '.xml') {
+      } else if (path.extname(newDataUrl) === '.xml') {
         await showErrorDialog('エラー', 'フォルダのURLを入力してください。');
         continue;
       } else {
-        const oldDataURL = config.dataURL.getMain();
-        const urls = config.dataURL
+        const oldDataUrl = config.dataUrl.getMain();
+        const urls = config.dataUrl
           .getPackages()
-          .filter((url) => !url.includes(oldDataURL));
-        urls.push(joinUrlOrPath(newDataURL, 'packages.xml'));
-        config.dataURL.setMain(newDataURL);
-        config.dataURL.setPackages(urls);
+          .filter((url) => !url.includes(oldDataUrl));
+        urls.push(joinUrlOrPath(newDataUrl, 'packages.xml'));
+        config.dataUrl.setMain(newDataUrl);
+        config.dataUrl.setPackages(urls);
         config.set('migration1to2', {
-          oldDataURL: oldDataURL,
-          newDataURL: newDataURL,
+          oldDataURL: oldDataUrl,
+          newDataURL: newDataUrl,
         });
-        useDefaultDataURL = false;
+        useDefaultDataUrl = false;
         break;
       }
     }
@@ -139,7 +139,7 @@ async function migration1to2Global(ctx: ServiceContext): Promise<boolean> {
   // 3. Triggers initialization
   // 旧実装の setMain(undefined) は conf が TypeError で拒否し、この移行が
   // 必ずクラッシュしていた(#2397)
-  if (useDefaultDataURL) config.dataURL.deleteMain();
+  if (useDefaultDataUrl) config.dataUrl.deleteMain();
 
   // Finalize
   config.setDataVersion('2');
@@ -206,10 +206,10 @@ async function migration1to2ByFolder(ctx: ServiceContext, inst: Installation) {
       path.join(inst.path, 'packages.xml'),
     );
     if (config.has('migration1to2')) {
-      const dataURLs = config.get('migration1to2');
+      const dataUrls = config.get('migration1to2');
       text = text.replaceAll(
-        joinUrlOrPath(dataURLs.oldDataURL, 'packages_list.xml'),
-        joinUrlOrPath(dataURLs.newDataURL, 'packages.xml'),
+        joinUrlOrPath(dataUrls.oldDataURL, 'packages_list.xml'),
+        joinUrlOrPath(dataUrls.newDataURL, 'packages.xml'),
       );
     }
     packages[id].repository = text;
@@ -230,7 +230,7 @@ async function migration1to2ByFolder(ctx: ServiceContext, inst: Installation) {
  */
 export async function migrationGlobal(ctx: ServiceContext): Promise<boolean> {
   const { config } = ctx;
-  const firstLaunch = !config.dataURL.hasMain();
+  const firstLaunch = !config.dataUrl.hasMain();
   if (firstLaunch) {
     config.setDataVersion('3');
     return true;

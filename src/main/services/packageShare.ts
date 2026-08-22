@@ -7,7 +7,7 @@ import { states } from '../../shared/packageUtil';
 import { programs } from '../../shared/programs';
 import { shareStringVersion } from '../../shared/shareString';
 import type { Installation } from '../installation';
-import { getIdDict, getPackagesExtra } from './packageList';
+import { getIdDict, resolveInstallationStatus } from './packageList';
 import type { ServiceContext } from './serviceContext';
 
 /**
@@ -36,7 +36,7 @@ export async function buildShareString(
     const currentVersion = (await ledger.get('core.' + program)) as string;
     ver[program] = currentVersion;
   }
-  ver.packages = (await getPackagesExtra(ctx, inst)).packages
+  ver.packages = (await resolveInstallationStatus(ctx, inst)).packages
     .filter(
       (p) =>
         p.installationStatus === states.installed ||

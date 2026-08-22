@@ -24,18 +24,18 @@ export function convertV1PackageIds(
 /**
  * Converts the keys and ids of the apm.json packages object in place.
  * 旧 convertId と同一の挙動 — 変換対象かどうかは旧キー(oldId)で判定するが、
- * 新 ID の解決は packageItem.id を辞書に引く(キーと id が食い違うデータでは
+ * 新 ID の解決は ledgerEntry.id を辞書に引く(キーと id が食い違うデータでは
  * 結果も食い違う。これは既存挙動の保存であり、意図的な仕様ではない)。
  * @param {{ [key: string]: { id: string } }} packages - The apm.json packages object.
  * @param {PackageIdDict} convDict - Dictionary of id relationships.
  */
-export function convertV1ApmJsonPackages(
+export function convertV1LedgerPackages(
   packages: { [key: string]: { id: string } },
   convDict: PackageIdDict,
 ) {
-  for (const [oldId, packageItem] of Object.entries(packages)) {
+  for (const [oldId, ledgerEntry] of Object.entries(packages)) {
     if (Object.prototype.hasOwnProperty.call(convDict, oldId)) {
-      const newId = convDict[packageItem.id];
+      const newId = convDict[ledgerEntry.id];
       packages[newId] = packages[oldId];
       delete packages[oldId];
       packages[newId].id = newId;

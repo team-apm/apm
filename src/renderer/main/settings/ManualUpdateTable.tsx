@@ -1,6 +1,6 @@
 import React, { type JSX, useEffect, useSyncExternalStore } from 'react';
 import { TRPCReact } from '../../trpc';
-import { getInstallationPath } from '../instPath';
+import { getInstallationPath } from '../installationPath';
 import {
   getPhase,
   runPackagesListCheck,
@@ -91,8 +91,10 @@ function ManualUpdateTable(): JSX.Element {
 
   const checkPackagesList = async () => {
     // 旧実装どおり呼び出し時点の入力値を使う
-    const instPath = getInstallationPath();
-    await runPackagesListCheck(() => refreshListMutation.mutateAsync(instPath));
+    const installationPath = getInstallationPath();
+    await runPackagesListCheck(() =>
+      refreshListMutation.mutateAsync(installationPath),
+    );
   };
 
   // レガシー・他コンポーネントからの再描画通知と、データエディタ保存後の

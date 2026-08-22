@@ -1,5 +1,8 @@
 import Store from 'electron-store';
 
+// キー名はディスク上の config.json の形式そのもの。dataURL / oldDataURL /
+// newDataURL を識別子規約(dataUrl)に合わせて改名すると既存ユーザーの設定を
+// 読めなくなるため、ここでは大文字 URL のまま維持する
 type StoreType = {
   dataVersion: '1' | '2' | '3';
   installationPath: string;
@@ -65,7 +68,7 @@ export default class Config extends Store<StoreType> {
     this.set('installationPath', path);
   }
 
-  public dataURL = {
+  public dataUrl = {
     hasMain: () => this.has('dataURL.main'),
     getMain: () => this.get('dataURL.main', ''),
     setMain: (url: string) => this.set('dataURL.main', url),

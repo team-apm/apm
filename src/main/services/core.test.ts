@@ -20,10 +20,10 @@ import Ledger from '../Ledger';
 import {
   changeInstallationPath,
   ensureInstallationPath,
-  getApmJsonCoreVersions,
   getCoreDates,
   getCoreInfo,
   getInstalledVersionTexts,
+  getLedgerCoreVersions,
   hasExeditInPluginsFolder,
   installCoreProgram,
 } from './core';
@@ -92,7 +92,7 @@ const win = {} as BrowserWindow;
 describe('core service', () => {
   const tempDirs: string[] = [];
   let config: Config;
-  let instPath: string;
+  let installationPath: string;
   let ctx: { win: BrowserWindow; config: Config };
   let inst: Installation;
 
@@ -118,10 +118,10 @@ describe('core service', () => {
     vi.clearAllMocks();
     mocks.userDataDir.value = await makeTempDir('apm-userdata-');
     mocks.homeDir.value = await makeTempDir('apm-home-');
-    instPath = await makeTempDir('apm-inst-');
+    installationPath = await makeTempDir('apm-inst-');
     config = new Config({ cwd: await makeTempDir('apm-config-') });
     ctx = { win, config };
-    inst = openInstallation(instPath);
+    inst = openInstallation(installationPath);
   });
 
   afterEach(async () => {
@@ -140,18 +140,18 @@ describe('core service', () => {
     });
   });
 
-  describe('getApmJsonCoreVersions', () => {
+  describe('getLedgerCoreVersions', () => {
     it('未記録なら undefined を返す', async () => {
-      expect(await getApmJsonCoreVersions(inst)).toEqual({
+      expect(await getLedgerCoreVersions(inst)).toEqual({
         aviutl: undefined,
         exedit: undefined,
       });
     });
 
     it('記録済みのバージョンを返す', async () => {
-      const ledger = await Ledger.load(instPath);
+      const ledger = await Ledger.load(installationPath);
       await ledger.setCore('aviutl', '1.10');
-      expect(await getApmJsonCoreVersions(inst)).toEqual({
+      expect(await getLedgerCoreVersions(inst)).toEqual({
         aviutl: '1.10',
         exedit: undefined,
       });
@@ -161,8 +161,8 @@ describe('core service', () => {
   describe('hasExeditInPluginsFolder', () => {
     it('plugins/exedit.auf があるときだけ true', async () => {
       expect(hasExeditInPluginsFolder(inst)).toBe(false);
-      await ensureDir(path.join(instPath, 'plugins'));
-      await writeFile(path.join(instPath, 'plugins/exedit.auf'), 'x');
+      await ensureDir(path.join(installationPath, 'plugins'));
+      await writeFile(path.join(installationPath, 'plugins/exedit.auf'), 'x');
       expect(hasExeditInPluginsFolder(inst)).toBe(true);
     });
   });
@@ -252,8 +252,10 @@ describe('core service', () => {
       const result = await installCoreProgram(ctx, inst, 'aviutl', '1.10');
 
       expect(result).toBe('success');
-      expect(await pathExists(path.join(instPath, 'aviutl.exe'))).toBe(true);
-      const ledger = await Ledger.load(instPath);
+      expect(await pathExists(path.join(installationPath, 'aviutl.exe'))).toBe(
+        true,
+      );
+      const ledger = await Ledger.load(installationPath);
       expect(await ledger.get('core.aviutl')).toBe('1.10');
     });
 
@@ -310,8 +312,10 @@ describe('core service', () => {
       expect(await installCoreProgram(ctx, inst, 'aviutl', '1.10')).toBe(
         'success',
       );
-      expect(await pathExists(path.join(instPath, 'aviutl.exe'))).toBe(true);
-      const ledger = await Ledger.load(instPath);
+      expect(await pathExists(path.join(installationPath, 'aviutl.exe'))).toBe(
+        true,
+      );
+      const ledger = await Ledger.load(installationPath);
       expect(await ledger.get('core.aviutl')).toBe('1.10');
     });
   });
@@ -341,7 +345,7 @@ describe('core service', () => {
 
       await changeInstallationPath(ctx, inst);
 
-      expect(config.getInstallationPath()).toBe(instPath);
+      expect(config.getInstallationPath()).toBe(installationPath);
       expect(mocks.migrationByFolder).toHaveBeenCalledOnce();
       expect(mocks.getScriptsList).toHaveBeenCalledWith(ctx, true);
       // core の再取得は checkCoreLatestVersion 経由の downloadFile で観測する
@@ -372,7 +376,7 @@ describe('core service', () => {
       expect(mocks.refreshPackagesList).not.toHaveBeenCalled();
     });
 
-    it('instPath が存在しなければ migration も変換も行わない', async () => {
+    it('installationPath が存在しなければ migration も変換も行わない', async () => {
       mocks.getInfo.mockResolvedValue(
         modInfo({
           scripts: '2026-01-01',
@@ -386,7 +390,7 @@ describe('core service', () => {
 
       await changeInstallationPath(
         ctx,
-        openInstallation(path.join(instPath, 'not-exist')),
+        openInstallation(path.join(installationPath, 'not-exist')),
       );
 
       expect(mocks.migrationByFolder).not.toHaveBeenCalled();
@@ -406,7 +410,7 @@ describe('core service', () => {
       config.modDate.setCore(new Date('2026-01-02').getTime());
       config.modDate.setPackages(new Date('2026-01-02').getTime());
       // apm.json が存在し convertMod が古い
-      const ledger = await Ledger.load(instPath);
+      const ledger = await Ledger.load(installationPath);
       await ledger.set('convertMod', new Date('2026-01-01').getTime());
 
       await changeInstallationPath(ctx, inst);

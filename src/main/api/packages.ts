@@ -8,12 +8,12 @@ import {
 } from '../services/packageInstall';
 import {
   convertPackageIds,
-  getApmJsonInstalledIds,
+  getLedgerInstalledIds,
   getPackages,
   getPackagesDates,
-  getPackagesExtra,
   getPackagesWithStatus,
   refreshPackagesList,
+  resolveInstallationStatus,
 } from '../services/packageList';
 import {
   buildShareString,
@@ -42,7 +42,7 @@ const scriptsListInput = (value: unknown): { update: boolean } => {
   return { update };
 };
 
-const packageItemInput = (
+const packageStateInput = (
   value: unknown,
 ): { id: string; info: Record<string, unknown> } => {
   if (typeof value !== 'object' || value === null)
@@ -57,26 +57,24 @@ const packageItemInput = (
 const installPackageInput = (
   value: unknown,
 ): {
-  instPath: string;
-  packageItem: { id: string; info: Record<string, unknown> };
+  installationPath: string;
+  packageState: { id: string; info: Record<string, unknown> };
   direct: boolean;
   archivePath?: string;
 } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, packageItem, direct, archivePath } = value as Record<
-    string,
-    unknown
-  >;
-  if (typeof instPath !== 'string')
-    throw new TypeError('instPath is expected to be a string.');
+  const { installationPath, packageState, direct, archivePath } =
+    value as Record<string, unknown>;
+  if (typeof installationPath !== 'string')
+    throw new TypeError('installationPath is expected to be a string.');
   if (typeof direct !== 'boolean')
     throw new TypeError('direct is expected to be a boolean.');
   if (archivePath !== undefined && typeof archivePath !== 'string')
     throw new TypeError('archivePath is expected to be a string.');
   return {
-    instPath,
-    packageItem: packageItemInput(packageItem),
+    installationPath,
+    packageState: packageStateInput(packageState),
     direct,
     archivePath: archivePath as string | undefined,
   };
@@ -85,84 +83,90 @@ const installPackageInput = (
 const uninstallPackageInput = (
   value: unknown,
 ): {
-  instPath: string;
-  packageItem: { id: string; info: Record<string, unknown> };
+  installationPath: string;
+  packageState: { id: string; info: Record<string, unknown> };
 } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, packageItem } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string')
-    throw new TypeError('instPath is expected to be a string.');
-  return { instPath, packageItem: packageItemInput(packageItem) };
+  const { installationPath, packageState } = value as Record<string, unknown>;
+  if (typeof installationPath !== 'string')
+    throw new TypeError('installationPath is expected to be a string.');
+  return { installationPath, packageState: packageStateInput(packageState) };
 };
 
 const installScriptFlowInput = (
   value: unknown,
-): { instPath: string; url: string } => {
+): { installationPath: string; url: string } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, url } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string' || typeof url !== 'string')
-    throw new TypeError('instPath and url are expected to be strings.');
+  const { installationPath, url } = value as Record<string, unknown>;
+  if (typeof installationPath !== 'string' || typeof url !== 'string')
+    throw new TypeError('installationPath and url are expected to be strings.');
   // ブラウザ窓で開く URL なので http(s) 以外(file: 等)を通さない
   if (!isHttpUrl(url))
     throw new TypeError('url is expected to be a http(s) URL.');
-  return { instPath, url };
+  return { installationPath, url };
 };
 
 const convertIdsInput = (
   value: unknown,
-): { instPath: string; modTime: number } => {
+): { installationPath: string; modTime: number } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, modTime } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string' || typeof modTime !== 'number')
+  const { installationPath, modTime } = value as Record<string, unknown>;
+  if (typeof installationPath !== 'string' || typeof modTime !== 'number')
     throw new TypeError(
-      'instPath is expected to be a string and modTime a number.',
+      'installationPath is expected to be a string and modTime a number.',
     );
-  return { instPath, modTime };
+  return { installationPath, modTime };
 };
 
 const installedIdsInput = (
   value: unknown,
-): { instPath: string; ids: string[] } => {
+): { installationPath: string; ids: string[] } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, ids } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string')
-    throw new TypeError('instPath is expected to be a string.');
+  const { installationPath, ids } = value as Record<string, unknown>;
+  if (typeof installationPath !== 'string')
+    throw new TypeError('installationPath is expected to be a string.');
   if (!(Array.isArray(ids) && ids.every((id) => typeof id === 'string')))
     throw new TypeError('ids is expected to be an array of strings.');
-  return { instPath, ids: ids as string[] };
+  return { installationPath, ids: ids as string[] };
 };
 
 const packagesWithStatusInput = (
   value: unknown,
-): { instPath: string; fixIntegrity: boolean } => {
+): { installationPath: string; adoptManuallyInstalled: boolean } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, fixIntegrity } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string' || typeof fixIntegrity !== 'boolean')
+  const { installationPath, adoptManuallyInstalled } = value as Record<
+    string,
+    unknown
+  >;
+  if (
+    typeof installationPath !== 'string' ||
+    typeof adoptManuallyInstalled !== 'boolean'
+  )
     throw new TypeError(
-      'instPath is expected to be a string and fixIntegrity a boolean.',
+      'installationPath is expected to be a string and adoptManuallyInstalled a boolean.',
     );
-  return { instPath, fixIntegrity };
+  return { installationPath, adoptManuallyInstalled };
 };
 
 const editorPackagesInput = (
   value: unknown,
-): { instPath: string; packages: Record<string, unknown>[] } => {
+): { installationPath: string; packages: Record<string, unknown>[] } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { instPath, packages } = value as Record<string, unknown>;
-  if (typeof instPath !== 'string')
-    throw new TypeError('instPath is expected to be a string.');
+  const { installationPath, packages } = value as Record<string, unknown>;
+  if (typeof installationPath !== 'string')
+    throw new TypeError('installationPath is expected to be a string.');
   if (!(
     Array.isArray(packages) &&
     packages.every((p) => typeof p === 'object' && p !== null)
   ))
     throw new TypeError('packages is expected to be an array of objects.');
-  return { instPath, packages: packages as Record<string, unknown>[] };
+  return { installationPath, packages: packages as Record<string, unknown>[] };
 };
 
 export const packagesRouter = t.router({
@@ -172,14 +176,14 @@ export const packagesRouter = t.router({
   refreshList: winInstProcedure.input(stringInput).mutation(async ({ ctx }) => {
     await refreshPackagesList(ctx, ctx.inst);
   }),
-  getPackagesExtra: winInstProcedure
+  resolveInstallationStatus: winInstProcedure
     .input(stringInput)
-    .query(async ({ ctx }) => await getPackagesExtra(ctx, ctx.inst)),
-  getApmJsonInstalledIds: instProcedure
+    .query(async ({ ctx }) => await resolveInstallationStatus(ctx, ctx.inst)),
+  getLedgerInstalledIds: instProcedure
     .input(installedIdsInput)
     .query(
       async ({ input, ctx }) =>
-        await getApmJsonInstalledIds(ctx.inst, input.ids),
+        await getLedgerInstalledIds(ctx.inst, input.ids),
     ),
   convertIds: winInstProcedure
     .input(convertIdsInput)
@@ -195,7 +199,11 @@ export const packagesRouter = t.router({
   getPackagesWithStatus: winInstProcedure
     .input(packagesWithStatusInput)
     .query(async ({ input, ctx }) => {
-      return await getPackagesWithStatus(ctx, ctx.inst, input.fixIntegrity);
+      return await getPackagesWithStatus(
+        ctx,
+        ctx.inst,
+        input.adoptManuallyInstalled,
+      );
     }),
   installPackage: winInstProcedure
     .input(installPackageInput)
@@ -203,7 +211,7 @@ export const packagesRouter = t.router({
       return await installPackageFlow(
         ctx,
         ctx.inst,
-        input.packageItem as Parameters<typeof installPackageFlow>[2],
+        input.packageState as Parameters<typeof installPackageFlow>[2],
         { direct: input.direct, archivePath: input.archivePath },
       );
     }),
@@ -213,7 +221,7 @@ export const packagesRouter = t.router({
       return await uninstallPackageFiles(
         ctx,
         ctx.inst,
-        input.packageItem as Parameters<typeof uninstallPackageFiles>[2],
+        input.packageState as Parameters<typeof uninstallPackageFiles>[2],
       );
     }),
   installScript: winInstProcedure

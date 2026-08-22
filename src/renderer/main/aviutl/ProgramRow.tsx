@@ -3,7 +3,7 @@ import React, { type JSX, useEffect, useRef, useState } from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { releaseLabel } from '../../../shared/coreVersionText';
 import { TRPCReact } from '../../trpc';
-import { getInstallationPath } from '../instPath';
+import { getInstallationPath } from '../installationPath';
 
 type ButtonPhase = 'idle' | 'loading' | 'success' | 'danger';
 
@@ -29,7 +29,9 @@ function ProgramRow({
   iconClass,
   buttonRoundedClass,
 }: ProgramRowProps) {
-  const [instPath, setInstPath] = useState(() => getInstallationPath());
+  const [installationPath, setInstallationPath] = useState(() =>
+    getInstallationPath(),
+  );
   const [phase, setPhase] = useState<ButtonPhase>('idle');
   const [buttonMessage, setButtonMessage] = useState('');
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -38,13 +40,13 @@ function ProgramRow({
   const utils = TRPCReact.useUtils();
   const coreInfoQuery = TRPCReact.core.getCoreInfo.useQuery();
   const installedTextsQuery =
-    TRPCReact.core.getInstalledVersionTexts.useQuery(instPath);
+    TRPCReact.core.getInstalledVersionTexts.useQuery(installationPath);
   const installProgram = TRPCReact.core.installProgram.useMutation();
 
   // レガシー側(preload の core.ts)からの再描画通知を受けて最新化する
   useEffect(() => {
     const listener = () => {
-      setInstPath(getInstallationPath());
+      setInstallationPath(getInstallationPath());
       void utils.core.getCoreInfo.invalidate();
       void utils.core.getInstalledVersionTexts.invalidate();
     };
@@ -71,7 +73,7 @@ function ProgramRow({
     clearTimeout(timer.current);
     setPhase('loading');
 
-    if (!instPath) {
+    if (!installationPath) {
       showError('インストール先フォルダを指定してください。');
       return;
     }
@@ -81,7 +83,7 @@ function ProgramRow({
       result = await installProgram.mutateAsync({
         program,
         version,
-        instPath,
+        installationPath,
       });
     } catch {
       showError('エラーが発生しました。');

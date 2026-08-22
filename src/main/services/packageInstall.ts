@@ -34,23 +34,23 @@ export function getDate() {
  * (展開 → インストーラ実行または配置 → 検証 → 導入記録への記帳)と同一の挙動。
  * @param {Installation} inst - The target installation.
  * @param {string} archivePath - Path to the downloaded archive.
- * @param {object} packageItem - A package to install.
+ * @param {object} packageState - A package to install.
  * @returns {Promise<boolean>} Whether the installation succeeded.
  */
 export async function installPackageArchive(
   inst: Installation,
   archivePath: string,
-  packageItem: Pick<PackageState, 'id' | 'info'>,
+  packageState: Pick<PackageState, 'id' | 'info'>,
 ): Promise<boolean> {
   let installResult = false;
 
   try {
     const getUnzippedPath = async () => {
       if (['.zip', '.lzh', '.7z', '.rar'].includes(path.extname(archivePath))) {
-        return await unzip(archivePath, packageItem.id);
+        return await unzip(archivePath, packageState.id);
       } else {
         // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
-        const newFolder = path.join(path.dirname(archivePath), packageItem.id);
+        const newFolder = path.join(path.dirname(archivePath), packageState.id);
         await mkdir(newFolder, { recursive: true });
         await rename(
           archivePath,
@@ -62,7 +62,7 @@ export async function installPackageArchive(
 
     const unzippedPath = await getUnzippedPath();
 
-    if (packageItem.info.installer) {
+    if (packageState.info.installer) {
       const searchFiles = async (dirName: string) => {
         let result: string[][] = [];
         const dirents = await fsReaddir(dirName, {
@@ -75,7 +75,7 @@ export async function installPackageArchive(
             );
             result = result.concat(childResult);
           } else {
-            if (dirent.name === packageItem.info.installer) {
+            if (dirent.name === packageState.info.installer) {
               result.push([path.join(dirName, dirent.name)]);
               break;
             }
@@ -88,15 +88,15 @@ export async function installPackageArchive(
       // シェルを介さないため installArg のメタ文字がコマンドとして解釈されない
       execFileSync(
         exePath[0][0],
-        buildInstallerArgs(packageItem.info.installArg, inst.path),
+        buildInstallerArgs(packageState.info.installArg, inst.path),
       );
 
-      installResult = verifyFilesByCount(inst.path, packageItem.info.files);
+      installResult = verifyFilesByCount(inst.path, packageState.info.files);
     } else {
       installResult = await install(
         unzippedPath,
         inst.path,
-        packageItem.info.files,
+        packageState.info.files,
       );
     }
   } catch (e) {
@@ -106,11 +106,11 @@ export async function installPackageArchive(
 
   if (installResult) {
     // isContinuous のパッケージはインストール日をバージョンとして記録する
-    const latestVersion = packageItem.info.isContinuous
+    const latestVersion = packageState.info.isContinuous
       ? getDate()
-      : packageItem.info.latestVersion;
+      : packageState.info.latestVersion;
     const ledger = await inst.ledger();
-    await ledger.addPackage(packageItem.id, latestVersion);
+    await ledger.addPackage(packageState.id, latestVersion);
   }
 
   return installResult;
@@ -131,7 +131,7 @@ export type InstallPackageResult =
  * 同一の挙動。UI(ボタン遷移・メッセージ表示)は renderer 側に残る。
  * @param {ServiceContext} ctx - The service context.
  * @param {Installation} inst - The target installation.
- * @param {Pick<PackageState, 'id' | 'info'>} packageItem - The package to install.
+ * @param {Pick<PackageState, 'id' | 'info'>} packageState - The package to install.
  * @param {object} [options] - Options.
  * @param {boolean} [options.direct] - Install from the direct link to the zip.
  * @param {string} [options.archivePath] - Path to the already-downloaded archive.
@@ -140,7 +140,7 @@ export type InstallPackageResult =
 export async function installPackageFlow(
   ctx: ServiceContext,
   inst: Installation,
-  packageItem: Pick<PackageState, 'id' | 'info'>,
+  packageState: Pick<PackageState, 'id' | 'info'>,
   { direct = false, archivePath }: { direct?: boolean; archivePath?: string },
 ): Promise<InstallPackageResult> {
   const { win } = ctx;
@@ -152,7 +152,7 @@ export async function installPackageFlow(
       if (direct) {
         const resolvedArchivePath = await downloadFile(
           win,
-          packageItem.info.directURL,
+          packageState.info.directURL,
           { loadCache: true, subDir: 'package' },
         );
         if (!resolvedArchivePath) {
@@ -163,7 +163,7 @@ export async function installPackageFlow(
       }
       const downloadResult = await openBrowser(
         win,
-        packageItem.info.downloadURLs[0],
+        packageState.info.downloadURLs[0],
         'package',
       );
       if (!downloadResult) {
@@ -175,21 +175,21 @@ export async function installPackageFlow(
     // integrity があるなら取得経路(直リンク・手動 DL・archivePath 渡し)に
     // よらず検証する。無いパッケージ(公式データの約 1/4)を弾かないのは、
     // 検証必須化すると既存パッケージのインストールが広く壊れるため
-    integrity: packageItem.info.releases?.find(
-      (r) => r.version === packageItem.info.latestVersion,
+    integrity: packageState.info.releases?.find(
+      (r) => r.version === packageState.info.latestVersion,
     )?.integrity?.archive,
-    corruptLogUrl: packageItem.info.directURL,
+    corruptLogUrl: packageState.info.directURL,
     redownloadArchive: async () => {
       if (direct) {
         // 再ダウンロード先が subDir 'core' なのは旧実装のままの挙動
         const resolvedArchivePath = await downloadFile(
           win,
-          packageItem.info.directURL,
+          packageState.info.directURL,
           { subDir: 'core' },
         );
         if (!resolvedArchivePath) {
           log.error(
-            `Failed downloading the archive file. URL:${packageItem.info.directURL}`,
+            `Failed downloading the archive file. URL:${packageState.info.directURL}`,
           );
           return { failure: 'redownloadFailed' as const };
         }
@@ -198,7 +198,7 @@ export async function installPackageFlow(
       // 手動 DL・archivePath 渡しの経路はブラウザ窓での再取得になる
       const redownloadResult = await openBrowser(
         win,
-        packageItem.info.downloadURLs[0],
+        packageState.info.downloadURLs[0],
         'package',
       );
       if (!redownloadResult) {
@@ -208,7 +208,7 @@ export async function installPackageFlow(
       return { archivePath: redownloadResult.savePath };
     },
     install: (resolvedArchivePath) =>
-      installPackageArchive(inst, resolvedArchivePath, packageItem),
+      installPackageArchive(inst, resolvedArchivePath, packageState),
   });
 }
 

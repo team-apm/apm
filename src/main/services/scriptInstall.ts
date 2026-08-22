@@ -220,7 +220,7 @@ export async function installScriptArchive(
     await rename(unzippedPath, newPath);
 
     // Save package information
-    const packageItem = {
+    const newPackage = {
       id: id,
       name: name,
       overview: 'スクリプト',
@@ -242,14 +242,14 @@ export async function installScriptArchive(
       : [];
     convertV1PackageIds(localPackages, await getIdDict(ctx));
     const newLocalPackages = localPackages.filter((p) => p.id !== id);
-    newLocalPackages.push(packageItem as Packages['packages'][number]);
+    newLocalPackages.push(newPackage as Packages['packages'][number]);
     await writeJson(localPackagesPath, {
       version: 3,
       packages: newLocalPackages,
     });
 
     const ledger = await inst.ledger();
-    await ledger.addPackage(packageItem.id, packageItem.latestVersion);
+    await ledger.addPackage(newPackage.id, newPackage.latestVersion);
     return 'success';
   } catch (e) {
     log.error(e);

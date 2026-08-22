@@ -48,9 +48,9 @@ test('dataURL の差し替えとパッケージのインストール・アンイ
   cleanup(() => rmSync(workDir, { recursive: true, force: true }));
   const fixturesDir = path.join(workDir, 'fixtures');
   const initialInstPath = path.join(workDir, 'aviutl-initial');
-  const instPath = path.join(workDir, 'aviutl');
+  const installationPath = path.join(workDir, 'aviutl');
   mkdirSync(initialInstPath, { recursive: true });
-  mkdirSync(instPath, { recursive: true });
+  mkdirSync(installationPath, { recursive: true });
 
   const { baseUrl, close } = await serveFixtures(fixturesDir);
   cleanup(close);
@@ -81,13 +81,16 @@ test('dataURL の差し替えとパッケージのインストール・アンイ
     }, dir);
 
   // インストール先をテスト用フォルダへ変更
-  await mockOpenDialog(instPath);
+  await mockOpenDialog(installationPath);
   await window
     .getByRole('button', { name: 'AviUtlインストールフォルダを選択' })
     .click();
-  await expect(window.locator('#installation-path')).toHaveValue(instPath, {
-    timeout: 120_000,
-  });
+  await expect(window.locator('#installation-path')).toHaveValue(
+    installationPath,
+    {
+      timeout: 120_000,
+    },
+  );
 
   // 差し替え前のデータにはダミープラグインが存在しない
   await window.getByRole('tab', { name: 'プラグイン&スクリプト' }).click();
@@ -119,7 +122,7 @@ test('dataURL の差し替えとパッケージのインストール・アンイ
   );
 
   // 実ファイルが置かれ、一覧の表示もインストール済みになる
-  expect(existsSync(path.join(instPath, 'dummy.auf'))).toBe(true);
+  expect(existsSync(path.join(installationPath, 'dummy.auf'))).toBe(true);
   await expect(row).toContainText('インストール済み');
 
   // アンインストールすると実ファイルが消え、一覧の表示も戻る
@@ -130,6 +133,6 @@ test('dataURL の差し替えとパッケージのインストール・アンイ
     'アンインストール完了',
     { timeout: 120_000 },
   );
-  expect(existsSync(path.join(instPath, 'dummy.auf'))).toBe(false);
+  expect(existsSync(path.join(installationPath, 'dummy.auf'))).toBe(false);
   await expect(row).not.toContainText('インストール済み');
 });

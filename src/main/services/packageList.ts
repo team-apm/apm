@@ -6,7 +6,7 @@ import path from 'node:path';
 import { asyncFlatMap } from '../../shared/asyncFlatMap';
 import { checkIntegrity } from '../../shared/integrity';
 import {
-  convertV1ApmJsonPackages,
+  convertV1LedgerPackages,
   convertV1PackageIds,
 } from '../../shared/packageId';
 import {
@@ -34,7 +34,7 @@ import { existsTempFile } from './tempFile';
  * @returns {string[]} Package data files URLs.
  */
 export function getPackagesDataUrl(config: Config, inst: Installation) {
-  return config.dataURL
+  return config.dataUrl
     .getPackages()
     .concat(
       inst.path && inst.path.length > 0
@@ -80,7 +80,7 @@ export async function getIdDict(
 /**
  * Converts the package ids in the ledger using the conversion dictionary.
  * 旧 src/lib/convertId.ts の convertId と同一の挙動(新 ID の解決に
- * packageItem.id を引く点も含めて維持)。
+ * ledgerEntry.id を引く点も含めて維持)。
  * @param {ServiceContext} ctx - The service context.
  * @param {Installation} inst - The target installation.
  * @param {number} modTime - A mod time.
@@ -97,7 +97,7 @@ export async function convertPackageIds(
   };
 
   const convDict = await getIdDict(ctx, true);
-  convertV1ApmJsonPackages(packages, convDict);
+  convertV1LedgerPackages(packages, convDict);
 
   await ledger.set('packages', packages);
   await ledger.set('convertMod', modTime);
@@ -161,10 +161,10 @@ export async function getPackages(
 /**
  * Returns a list of installed files.
  * 旧 src/renderer/main/packageUtil.ts の getInstalledFiles と同一の挙動。
- * @param {string} instPath - An installation path
+ * @param {string} installationPath - An installation path
  * @returns {Promise<string[]>} List of installed files
  */
-async function getInstalledFiles(instPath: string) {
+async function getInstalledFiles(installationPath: string) {
   const regex = /^(?!exedit).*\.(auf|aui|auo|auc|aul|anm|obj|cam|tra|scn|lua)$/;
   const safeReaddir = async (path: string) => {
     try {
@@ -179,54 +179,58 @@ async function getInstalledFiles(instPath: string) {
     (await safeReaddir(dir))
       .filter((i) => i.isFile() && regex.test(i.name))
       .map((i) => i.name);
-  return (await readdir(instPath)).concat(
-    (await readdir(path.join(instPath, 'plugins'))).map((i) => 'plugins/' + i),
-    (await readdir(path.join(instPath, 'script'))).map((i) => 'script/' + i),
+  return (await readdir(installationPath)).concat(
+    (await readdir(path.join(installationPath, 'plugins'))).map(
+      (i) => 'plugins/' + i,
+    ),
+    (await readdir(path.join(installationPath, 'script'))).map(
+      (i) => 'script/' + i,
+    ),
     await asyncFlatMap(
-      (await safeReaddir(path.join(instPath, 'script')))
+      (await safeReaddir(path.join(installationPath, 'script')))
         .filter((i) => i.isDirectory())
         .map((i) => 'script/' + i.name),
       async (i) =>
-        (await readdir(path.join(instPath, i))).map((j) => i + '/' + j),
+        (await readdir(path.join(installationPath, i))).map((j) => i + '/' + j),
     ),
   );
 }
 
 /**
- * Updates the installedVersion of the packages and returns a list of
- * manually installed files.
+ * Resolves the installation status (installationStatus / version) of each
+ * package and returns them with a list of manually installed files.
  * 旧 src/renderer/main/packageUtil.ts の getPackagesExtra と同一の挙動
  * (パッケージ一覧は main 側の getPackages から取得する)。
  * @param {ServiceContext} ctx - The service context.
  * @param {Installation} inst - The target installation.
  * @returns {Promise<object>} List of manually installed files and packages.
  */
-export async function getPackagesExtra(
+export async function resolveInstallationStatus(
   ctx: ServiceContext,
   inst: Installation,
 ): Promise<{ manuallyInstalledFiles: string[]; packages: PackageState[] }> {
   const packages = await getPackages(ctx, inst);
   const ledger = await inst.ledger();
-  const tmpInstalledPackages = (await ledger.get(
+  const ledgerPackages = (await ledger.get(
     'packages',
   )) as LedgerObject['packages'];
-  const tmpInstalledFiles = await getInstalledFiles(inst.path);
-  const tmpManuallyInstalledFiles = getManuallyInstalledFiles(
-    tmpInstalledFiles,
-    tmpInstalledPackages,
+  const installedFiles = await getInstalledFiles(inst.path);
+  const manuallyInstalledFiles = getManuallyInstalledFiles(
+    installedFiles,
+    ledgerPackages,
     packages,
   );
   packages.forEach((p) => {
     [p.installationStatus, p.version] = getInstalledVersionOfPackage(
       p,
-      tmpInstalledFiles,
-      tmpManuallyInstalledFiles,
-      tmpInstalledPackages,
+      installedFiles,
+      manuallyInstalledFiles,
+      ledgerPackages,
       inst.path,
     );
   });
   return {
-    manuallyInstalledFiles: tmpManuallyInstalledFiles,
+    manuallyInstalledFiles: manuallyInstalledFiles,
     packages: packages,
   };
 }
@@ -263,28 +267,31 @@ export async function adoptManuallyInstalledPackages(
 /**
  * Returns the packages with their status (doNotInstall / detached) computed.
  * 旧 src/renderer/main/package.ts の setPackagesList 前半
- * (getPackages → getPackagesExtra → 整合性による導入記録の補正 →
- * getPackagesStatus)と同一の挙動。fixIntegrity = false の場合は
+ * (getPackages → resolveInstallationStatus → 整合性による導入記録の補正 →
+ * getPackagesStatus)と同一の挙動。adoptManuallyInstalled = false の場合は
  * 補正を行わない(旧 installScript の redirect 解決と同一)。
  * @param {ServiceContext} ctx - The service context.
  * @param {Installation} inst - The target installation.
- * @param {boolean} fixIntegrity - Whether to guess installed packages from integrity.
+ * @param {boolean} adoptManuallyInstalled - Whether to guess installed packages from integrity.
  * @returns {Promise<object>} List of manually installed files and packages.
  */
 export async function getPackagesWithStatus(
   ctx: ServiceContext,
   inst: Installation,
-  fixIntegrity: boolean,
+  adoptManuallyInstalled: boolean,
 ): Promise<{ manuallyInstalledFiles: string[]; packages: PackageState[] }> {
-  let { manuallyInstalledFiles, packages } = await getPackagesExtra(ctx, inst);
+  let { manuallyInstalledFiles, packages } = await resolveInstallationStatus(
+    ctx,
+    inst,
+  );
 
-  if (fixIntegrity) {
+  if (adoptManuallyInstalled) {
     // guess which packages are installed from integrity
     const modified = await adoptManuallyInstalledPackages(inst, packages);
     if (modified) {
-      const packagesExtraMod = await getPackagesExtra(ctx, inst);
-      manuallyInstalledFiles = packagesExtraMod.manuallyInstalledFiles;
-      packages = packagesExtraMod.packages;
+      const resolved = await resolveInstallationStatus(ctx, inst);
+      manuallyInstalledFiles = resolved.manuallyInstalledFiles;
+      packages = resolved.packages;
     }
   }
 
@@ -308,7 +315,7 @@ export async function getPackagesWithStatus(
  * @param {ServiceContext} ctx - The service context.
  * @param {Installation} inst - The target installation.
  */
-export async function downloadRepository(
+export async function downloadPackagesData(
   ctx: ServiceContext,
   inst: Installation,
 ) {
@@ -335,7 +342,7 @@ export async function refreshPackagesList(
 ) {
   const { win, config } = ctx;
   await updateInfo(win, config);
-  await downloadRepository(ctx, inst);
+  await downloadPackagesData(ctx, inst);
   config.checkDate.setPackages(Date.now());
   const modInfo = await getInfo(win, config);
   config.modDate.setPackages(
@@ -368,10 +375,7 @@ export function getPackagesDates(
  * @param {string[]} ids - Package ids to check.
  * @returns {Promise<string[]>} The ids recorded in the ledger.
  */
-export async function getApmJsonInstalledIds(
-  inst: Installation,
-  ids: string[],
-) {
+export async function getLedgerInstalledIds(inst: Installation, ids: string[]) {
   const ledger = await inst.ledger();
   const result: string[] = [];
   for (const id of ids) {

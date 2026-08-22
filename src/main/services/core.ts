@@ -65,7 +65,7 @@ export async function checkCoreLatestVersion(ctx: ServiceContext) {
  * @param {Installation} inst - The target installation.
  * @returns {Promise<{ aviutl?: string; exedit?: string }>} The recorded versions.
  */
-export async function getApmJsonCoreVersions(
+export async function getLedgerCoreVersions(
   inst: Installation,
 ): Promise<{ aviutl?: string; exedit?: string }> {
   const ledger = await inst.ledger();

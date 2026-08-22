@@ -1,5 +1,8 @@
 import React, { type JSX, useSyncExternalStore } from 'react';
-import { getInstallationPath, subscribeInstallationPath } from '../instPath';
+import {
+  getInstallationPath,
+  subscribeInstallationPath,
+} from '../installationPath';
 import BatchInstallButton from './BatchInstallButton';
 import BatchInstallList from './BatchInstallList';
 import ProgramRow from './ProgramRow';
@@ -8,12 +11,12 @@ import TutorialAlert from './TutorialAlert';
 
 /**
  * The whole pane of the AviUtl tab (旧 index.html の section#aviutl の中身).
- * インストール先の表示は instPath ストアの購読で更新する(旧実装は
+ * インストール先の表示は installationPath ストアの購読で更新する(旧実装は
  * preload が #installation-path の value を直接書いていた)。
  * @returns {JSX.Element} The rendered component.
  */
 function AviutlTab(): JSX.Element {
-  const instPath = useSyncExternalStore(
+  const installationPath = useSyncExternalStore(
     subscribeInstallationPath,
     getInstallationPath,
   );
@@ -49,7 +52,7 @@ function AviutlTab(): JSX.Element {
                 placeholder="AviUtlフォルダ"
                 aria-label="Installation path"
                 readOnly
-                value={instPath}
+                value={installationPath}
               />
             </div>
             <div className="d-flex">
