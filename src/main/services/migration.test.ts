@@ -73,8 +73,6 @@ describe('migration service', () => {
     config = new Config({ cwd: await makeTempDir('apm-config-') });
     ctx = { win, config };
     inst = openInstallation(installationPath);
-    // v1 のキャッシュ掃除が readdir する Data/package を用意しておく
-    await ensureDir(path.join(mocks.userDataDir.value, 'Data/package'));
   });
 
   afterEach(async () => {
@@ -121,6 +119,45 @@ describe('migration service', () => {
       expect(config.dataUrl.hasMain()).toBe(false);
       // 移行するかどうかを尋ねず、結果の案内を 1 回出すだけ
       expect(mocks.showMessageBox).toHaveBeenCalledOnce();
+    });
+
+    it('v3 が読まないキャッシュだけを消す', async () => {
+      const dataPath = (...segments: string[]) =>
+        path.join(mocks.userDataDir.value, 'Data', ...segments);
+      config.dataUrl.setMain(OLD_DEFAULT_DATA_URL);
+      await ensureDir(dataPath('core'));
+      await ensureDir(dataPath('package'));
+      await writeFile(dataPath('mod.xml'), '');
+      await writeFile(dataPath('core', 'core.xml'), '');
+      await writeFile(dataPath('package', 'aaa_packages_list.xml'), '');
+      await writeFile(dataPath('package', 'bbb_packages.xml'), '');
+      await writeFile(dataPath('package', 'ccc_packages.json'), '');
+      await writeFile(dataPath('list.json'), '');
+
+      await migrationGlobal(ctx);
+
+      expect(await pathExists(dataPath('mod.xml'))).toBe(false);
+      expect(await pathExists(dataPath('core', 'core.xml'))).toBe(false);
+      expect(
+        await pathExists(dataPath('package', 'aaa_packages_list.xml')),
+      ).toBe(false);
+      expect(await pathExists(dataPath('package', 'bbb_packages.xml'))).toBe(
+        false,
+      );
+      // v3 が読むものは残す
+      expect(await pathExists(dataPath('package', 'ccc_packages.json'))).toBe(
+        true,
+      );
+      expect(await pathExists(dataPath('list.json'))).toBe(true);
+    });
+
+    it('キャッシュのディレクトリが無くても移行できる', async () => {
+      // 一度も取得していないと Data/package ごと存在しない
+      config.dataUrl.setMain(OLD_DEFAULT_DATA_URL);
+
+      await migrationGlobal(ctx);
+
+      expect(config.getDataVersion()).toBe('3');
     });
 
     it('案内ダイアログに移行前のデータ取得先を載せる', async () => {

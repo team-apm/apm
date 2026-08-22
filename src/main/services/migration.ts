@@ -1,9 +1,10 @@
 import { app, dialog } from 'electron';
 import log from 'electron-log/main';
-import fs, { readdir, unlink, writeJson } from 'fs-extra';
+import fs, { readdir, writeJson } from 'fs-extra';
 import path from 'node:path';
 import { convertPackagesV2toV3 } from '../../shared/convertPackagesV2toV3';
 import { parsePackagesXml } from '../../shared/parsePackagesXml';
+import { safeRemove } from '../../shared/safeRemove';
 import type { Installation } from '../installation';
 import Ledger from '../Ledger';
 import { downloadFile } from './download';
@@ -21,6 +22,12 @@ const BACKUP_SUBDIR = 'migration';
 /** 移行対象の dataVersion。キーが無い場合は v1。 */
 const OLD_DATA_VERSIONS = ['1', '2'];
 
+/** v3 が読まないキャッシュ。`{userData}/Data/` からの相対パス。 */
+const OBSOLETE_CACHE_FILES = ['mod.xml', 'core/core.xml'];
+
+/** パッケージ一覧キャッシュの旧名。v1 は packages_list.xml、v2 は packages.xml。 */
+const OBSOLETE_CACHE_SUFFIXES = ['_packages_list.xml', '_packages.xml'];
+
 /**
  * Shows an error dialog. 旧 openDialog(IPC)と同じく親ウィンドウなしで開く。
  * @param {string} title - A title of the dialog.
@@ -32,6 +39,46 @@ async function showErrorDialog(title: string, message: string) {
     message: message,
     type: 'error',
   });
+}
+
+/**
+ * Removes the cache files that v3 never reads.
+ * 消しても再取得されるだけなので、失敗はログに留めて移行を続ける。
+ * @returns {Promise<void>} A promise that resolves when the files are removed.
+ */
+async function removeObsoleteCache(): Promise<void> {
+  const dataDir = path.join(app.getPath('userData'), 'Data/');
+  const packageDir = path.join(dataDir, 'package/');
+
+  let obsoleteLists: string[] = [];
+  try {
+    obsoleteLists = (await readdir(packageDir, { withFileTypes: true }))
+      .filter(
+        (dirent) =>
+          dirent.isFile() &&
+          OBSOLETE_CACHE_SUFFIXES.some((suffix) =>
+            dirent.name.endsWith(suffix),
+          ),
+      )
+      .map(({ name }) => path.join(packageDir, name));
+  } catch (e) {
+    // まだ一度も取得していなければディレクトリごと存在しない
+    log.info(e);
+  }
+
+  const targets = [
+    ...OBSOLETE_CACHE_FILES.map((file) => path.join(dataDir, file)),
+    ...obsoleteLists,
+  ];
+  await Promise.all(
+    targets.map(async (target) => {
+      try {
+        await safeRemove(target, dataDir);
+      } catch (e) {
+        log.error(e);
+      }
+    }),
+  );
 }
 
 /**
@@ -63,29 +110,8 @@ export async function migrationGlobal(ctx: ServiceContext): Promise<void> {
     subDir: BACKUP_SUBDIR,
   });
 
-  // 2. Delete the cache files
-  const dataFolder = path.join(app.getPath('userData'), 'Data/');
-  const files = [
-    path.join(dataFolder, 'mod.xml'),
-    path.join(dataFolder, 'core/core.xml'),
-    ...(
-      await readdir(path.join(dataFolder, 'package/'), {
-        withFileTypes: true,
-      })
-    )
-      .filter(
-        (dirent) =>
-          dirent.isFile() && dirent.name.endsWith('_packages_list.xml'),
-      )
-      .map(({ name }) => path.join(dataFolder, 'package/', name)),
-  ];
-  files.forEach(async (file) => {
-    try {
-      await unlink(file);
-    } catch (e) {
-      log.error(e);
-    }
-  });
+  // 2. v3 が読まないキャッシュを消す
+  await removeObsoleteCache();
 
   // 3. 取得先と更新日時をリセットする。既定値を書かずに削除だけするのは、
   //    「未設定なら既定値」の解決を startup の initSettings 一箇所に保つため
@@ -110,8 +136,7 @@ export async function migrationGlobal(ctx: ServiceContext): Promise<void> {
 /**
  * Converts the local repository into the v3 `packages.json`.
  * v1 は packages_list.xml、v2 は packages.xml という名前だったが XML の形式は
- * 同じなので、見つかった方をそのまま同じ変換に流す(旧実装はリネームしてから
- * 変換していた)。
+ * 同じなので、見つかった方をそのまま同じ変換に流す。
  * パース失敗で移行を止めないのは、手書きの XML が 1 つ壊れているだけで
  * apm.json の移行が毎起動やり直しになるため。元の XML は消さずに残し、
  * 変換できなかったことをユーザーへ知らせる。
@@ -183,7 +208,8 @@ export async function migrationByFolder(
     await ledger.set('dataVersion', '3');
   });
 
-  // 3. ローカルリポジトリの変換は apm.json の確定後に行う
+  // 3. ローカルリポジトリの変換は apm.json の確定後に行う。ここでの失敗が
+  //    apm.json の移行を巻き戻さないようにするため
   await convertLocalRepository(inst);
 
   log.info(`End of migration: migrationByFolder(${inst.path})`);
