@@ -72,26 +72,33 @@ export function assertExternals(allowed: string[]): Plugin {
   };
 }
 
-// JSON エディタに不要な言語サービス・UI 翻訳は同梱しない(-8MB 超)。
-// JSON のハイライトは basic-languages ではなく language/json が持つ
+// JSON エディタから到達しない大物は同梱しない(27MB -> 6MB 弱)。
+// 0.53 で AMD ビルドが Rollup 製に変わりチャンク名にハッシュが付いたため、
+// ディレクトリ名の前方一致ではなく正規表現で表す。
+//   language/  : 0.52 までの単独エントリの名残。editor/editor.main.js は同じ
+//                worker を assets/ 配下のハッシュ付きチャンク経由で読むので、
+//                同じ内容が二重に入っている
+//   nls/       : vs/nls の availableLanguages を設定したときだけ読まれる。
+//                apm は設定しないので Monaco の UI は英語のまま(0.52 で
+//                nls.messages.*.js を除外していたのと結果は同じ)
+//   assets/{css,html,ts}.worker : その言語のモデルを作った時点で初めて
+//                fetch される。apm が開くのは JSON だけ
+// basic-languages と各言語のトークナイザは除外しない。前者は editor.main の
+// 静的依存に入っており(欠けると AMD の解決が止まる)、後者は合計 0.5MB 程度
 const MONACO_EXCLUDED = [
-  'language/css',
-  'language/html',
-  'language/typescript',
-  'basic-languages',
+  /^language(?:\/|$)/,
+  /^nls(?:\/|$)/,
+  /^assets\/(?:css|html|ts)\.worker-[^/]*\.js$/,
 ];
 
 /**
- * Returns whether the given path under `vs` should be bundled.
+ * Returns the exclusion pattern covering the given path, if any.
  * @param {string} relative - Path relative to the `vs` directory.
- * @returns {boolean} True when the file should be copied.
+ * @returns {RegExp | undefined} The matching pattern, or undefined to copy.
  */
-function isMonacoAssetIncluded(relative: string): boolean {
+function monacoExclusionFor(relative: string): RegExp | undefined {
   const normalized = relative.split(path.sep).join('/');
-  if (/(^|\/)nls\.messages\..*\.js$/.test(normalized)) return false;
-  return !MONACO_EXCLUDED.some(
-    (dir) => normalized === dir || normalized.startsWith(`${dir}/`),
-  );
+  return MONACO_EXCLUDED.find((pattern) => pattern.test(normalized));
 }
 
 /**
@@ -135,13 +142,31 @@ export function monacoAssets(projectRoot: string): Plugin {
       });
     },
     async writeBundle() {
+      const used = new Set<RegExp>();
       await cp(source, path.join(outDir, 'vs'), {
         recursive: true,
         filter: (src) => {
           const relative = path.relative(source, src);
-          return relative === '' || isMonacoAssetIncluded(relative);
+          if (relative === '') return true;
+          const pattern = monacoExclusionFor(relative);
+          if (!pattern) return true;
+          used.add(pattern);
+          return false;
         },
       });
+
+      // 1 件も当たらない除外は、Monaco 側の min/vs の構成が変わって意図した
+      // 除外が効かなくなった合図。同梱物が増えるだけなら気付けないのに、
+      // 逆に必要なものが除外側へ回り込むと「ビルドは通るのに起動時に落ちる」
+      // ため、構成が動いたこと自体をここで落とす
+      const dead = MONACO_EXCLUDED.filter((pattern) => !used.has(pattern));
+      if (dead.length > 0) {
+        throw new Error(
+          `一致しなかった Monaco の除外パターンがあります: ${dead.join(', ')}\n` +
+            'monaco-editor の min/vs の構成が変わっている。同梱すべきものが' +
+            '除外されていないか確かめて MONACO_EXCLUDED を見直すこと。',
+        );
+      }
     },
   };
 }

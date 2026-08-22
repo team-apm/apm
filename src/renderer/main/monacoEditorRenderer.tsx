@@ -1,7 +1,6 @@
 import MonacoEditor, {
   BeforeMount,
   loader,
-  Monaco,
   OnMount,
 } from '@monaco-editor/react';
 import { Packages } from 'apm-schema';
@@ -16,6 +15,17 @@ import React, { useRef } from 'react';
 import { TRPCReact } from '../trpc';
 import { getInstallationPath } from './installationPath';
 import { usePhase } from './usePhase';
+
+// beforeMount / onMount が渡してくるのは window.monaco そのもの。一方
+// @monaco-editor/react の Monaco 型は 'monaco-editor/esm/vs/editor/editor.api'
+// を型 import しており、monaco-editor 0.56 の exports マップ
+// ("./*": "./esm/vs/*.js")がこのパスを esm/vs/esm/vs/... へ写像するため解決
+// できない。skipLibCheck が失敗を隠すので any に劣化し、コールバック引数が
+// 暗黙 any になって noImplicitAny で落ちる。
+// 解決できる方("." の exports)の型を実体として使い、境界で一度だけ被せる。
+// editor.api を paths で直接指させないのは、language 系(json 等)が 0.55 で
+// index 側へ移っており editor.api では表現できないため
+type Monaco = typeof import('monaco-editor');
 
 const placeholderStr = `
 ここに書いたパッケージデータは AviUtl フォルダ内の editorPackages.json に保存されます。
@@ -208,8 +218,12 @@ export const MonacoEditorRenderer: React.FC = () => {
   const saveEditorDataRef = useRef(saveEditorData);
   saveEditorDataRef.current = saveEditorData;
 
-  const editorWillMount: BeforeMount = (monaco) => {
-    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+  const editorWillMount: BeforeMount = (monacoInstance) => {
+    const monaco = monacoInstance as unknown as Monaco;
+    // 0.55 で languages.json はトップレベルの json へ移った。AMD の
+    // editor.main が互換のため languages.json も再付与しているので実行時は
+    // どちらでも動くが、型が付いているのは新しい方だけ
+    monaco.json.jsonDefaults.setDiagnosticsOptions({
       validate: true,
       schemas: [
         {
@@ -221,7 +235,8 @@ export const MonacoEditorRenderer: React.FC = () => {
     });
   };
 
-  const editorDidMount: OnMount = (editor, monaco) => {
+  const editorDidMount: OnMount = (editor, monacoInstance) => {
+    const monaco = monacoInstance as unknown as Monaco;
     editorRef.current = editor;
     monacoRef.current = monaco;
     editor.getModel()!.updateOptions({ tabSize: 2 });
