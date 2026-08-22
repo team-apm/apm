@@ -1,9 +1,6 @@
 import { app, BrowserWindow, dialog, MessageBoxOptions } from 'electron';
 import debug from 'electron-debug';
 import log from 'electron-log/main';
-// 生の require() だと Vite が解決できず外部参照として残り、同梱されないまま
-// 実行時に MODULE_NOT_FOUND になる(窓が開かないだけで stderr に出ない)
-import squirrelStartup from 'electron-squirrel-startup';
 import path from 'node:path';
 import 'source-map-support/register';
 import { getConfig } from './Config';
@@ -44,7 +41,12 @@ log.errorHandler.startCatching({
 });
 
 shortcut.uninstaller(app.getPath('appData'));
-if (squirrelStartup) app.quit();
+// 静的 import にしない: ESM の規則でこのファイルの本体より先に評価され、
+// 直前の shortcut.uninstaller より先に Squirrel のイベント処理が始まってしまう
+// (--squirrel-uninstall では Update.exe の完了で app.quit() が走るため、
+// AviUtl のショートカット削除が間に合わなくなりうる)。位置を保つために
+// require のまま残し、vite.base.config.ts で外部化して同梱する
+if (require('electron-squirrel-startup')) app.quit();
 log.debug(process.versions);
 
 const isDevEnv = process.env.NODE_ENV === 'development';

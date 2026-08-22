@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { assetBearingDependencies } from './vite.base.config';
+import { externalDependencies } from './vite.base.config';
 import { assertExternals } from './vite.plugins.config';
 
 // main プロセス。plugin-vite の既定が CJS + build.lib なので、
@@ -12,8 +12,8 @@ export default defineConfig({
       formats: ['cjs'],
     },
     rollupOptions: {
-      external: assetBearingDependencies,
+      external: externalDependencies,
     },
   },
-  plugins: [assertExternals(assetBearingDependencies)],
+  plugins: [assertExternals(externalDependencies)],
 });

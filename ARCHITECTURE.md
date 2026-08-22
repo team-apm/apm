@@ -79,7 +79,7 @@ graph LR
 - **renderer は `index.html` が入口**。Vite は HTML を起点にビルドするため、各 `index.html` が `<script type="module" src="./renderer.tsx">` で自分のエントリを指す
 - 窓ごとに Vite の `root` を移して出力を `.vite/renderer/{name}/index.html` に平坦化している。main プロセスは dev なら `*_VITE_DEV_SERVER_URL`、製品版なら `loadFile('../renderer/{name}/index.html')` で読む(`src/main/windows.ts`)
 - preload は 2 本とも `preload.ts` という同名なので、出力名を親ディレクトリ名から `{main,about}_preload.js` に振り分けている(共有の `outDir` で後勝ち上書きになるため)
-- **バンドルできない依存**(自身の `__dirname` からファイルを読む `7zip-bin` / `win-7zip` / `electron-prompt`)は external にして `node_modules` ごとパッケージへ同梱する。取りこぼしはパッケージ版だけが静かに壊れるため、`assertExternals` プラグインがビルド時に検出する
+- **バンドルできない依存**は external にして `node_modules` ごとパッケージへ同梱する。自身の `__dirname` からファイルを読むもの(`7zip-bin` / `win-7zip` / `electron-prompt`)と、副作用の評価順を保つため生の `require()` のまま残すもの(`electron-squirrel-startup`)の 2 種類。取りこぼしはパッケージ版だけが静かに壊れるため、`assertExternals` プラグインがビルド時に検出する
 - Monaco は依存解決に載せず、`monacoAssets` プラグインが AMD ビルドを `vs/` として同梱する(dev は同じ `/vs` を middleware で配信)。CSP から CDN 許可を外すための構成
 - CSP は `index.html` の meta が単一ソース。dev のみ `devContentSecurityPolicy` プラグインが Fast Refresh のインライン script を通すために緩める(出力には影響しない)
 

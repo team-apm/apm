@@ -15,6 +15,12 @@ const BUILTINS = new Set([
   ...builtinModules.map((name) => `node:${name}`),
 ]);
 
+// 出力コードに残った生の require("x")。Rollup は元コードの require() を
+// 解釈せずそのまま出すため、これらは chunk.imports に載らない。
+// 直前が引用符のものは文字列リテラル内(ajv が standalone 用に生成する
+// `'require("ajv/dist/runtime/equal").default'` 等)なので除く
+const RAW_REQUIRE = /(?<!['"`])require\(["']([^"']+)["']\)/g;
+
 /**
  * Fails the build when the bundle keeps an unexpected bare dependency.
  *
@@ -24,6 +30,10 @@ const BUILTINS = new Set([
  * 出すため stderr には何も出ず「窓が開かない」としか見えない。webpack の
  * asset relocator が自動でやっていた解決を人手の一覧で代替する以上、
  * 食い違いはビルド時に落とす。
+ *
+ * chunk.imports(静的 import 由来)だけでなく出力コードの生 require() も見る。
+ * 後者を見落とすと、まさに位置を保つために require のまま残した依存
+ * (vite.base.config.ts の positionalRequireDependencies)が素通りする。
  * @param {string[]} allowed - Dependencies that are intentionally external.
  * @returns {Plugin} The Vite plugin.
  */
@@ -32,22 +42,30 @@ export function assertExternals(allowed: string[]): Plugin {
     name: 'apm:assert-externals',
     generateBundle(_options, bundle) {
       const unexpected = new Set<string>();
+      const check = (id: string, isInternalChunk: boolean) => {
+        if (isInternalChunk) return;
+        if (BUILTINS.has(id)) return;
+        if (allowed.some((name) => id === name || id.startsWith(`${name}/`)))
+          return;
+        unexpected.add(id);
+      };
+
       for (const output of Object.values(bundle)) {
         if (output.type !== 'chunk') continue;
         for (const id of [...output.imports, ...output.dynamicImports]) {
           // 内部チャンクは出力ファイル名で現れる
-          if (id in bundle) continue;
-          if (BUILTINS.has(id)) continue;
-          if (allowed.some((name) => id === name || id.startsWith(`${name}/`)))
-            continue;
-          unexpected.add(id);
+          check(id, id in bundle);
+        }
+        for (const [, id] of output.code.matchAll(RAW_REQUIRE)) {
+          check(id, id.startsWith('.') || id.startsWith('/'));
         }
       }
+
       if (unexpected.size > 0) {
         throw new Error(
           `バンドルされなかった依存があります: ${[...unexpected].sort().join(', ')}\n` +
             'バンドルできるよう静的 import に直すか、vite.base.config.ts の ' +
-            'assetBearingDependencies に足してパッケージへ同梱すること。',
+            'externalDependencies に足してパッケージへ同梱すること。',
         );
       }
     },

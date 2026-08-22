@@ -7,14 +7,14 @@ import { VitePlugin } from '@electron-forge/plugin-vite';
 import { PublisherGithub } from '@electron-forge/publisher-github';
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import path from 'node:path';
-import { assetBearingDependencies } from './vite.base.config';
+import { packagedDependencies } from './vite.base.config';
 
 // パッケージに入れるトップレベルのパス。plugin-vite の既定は `.vite` 以外を
-// すべて捨てるが、外部化した依存(vite.base.config.ts 参照)は node_modules
-// のまま同梱しないと自身の __dirname からファイルを引けない
+// すべて捨てるが、バンドルしない依存(理由は vite.base.config.ts)は
+// node_modules のまま同梱しないと実行時に解決できない
 const packagedPaths = [
   '/.vite',
-  ...assetBearingDependencies.map((name) => `/node_modules/${name}`),
+  ...packagedDependencies.map((name) => `/node_modules/${name}`),
 ];
 
 const config: ForgeConfig = {
