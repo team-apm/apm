@@ -1,4 +1,11 @@
-import { mkdtemp, pathExists, readJson, remove, writeJson } from 'fs-extra';
+import {
+  ensureDir,
+  mkdtemp,
+  pathExists,
+  readJson,
+  remove,
+  writeJson,
+} from 'fs-extra';
 import { promises as fsPromises } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -359,6 +366,33 @@ describe('Ledger', () => {
         const reader = await Ledger.load(installationPath);
         expect(await reader.get('core.aviutl')).toBe('1.10');
       });
+    });
+  });
+
+  describe('原子書き込み', () => {
+    it('書き込みに失敗しても apm.json は前の内容のまま残る', async () => {
+      const installationPath = await makeInstPath();
+      const ledger = await Ledger.load(installationPath);
+      await ledger.setCore('aviutl', '1.10');
+
+      // 書き込み先を「ディレクトリ」にして rename を失敗させる
+      // (実ファイルへ直接書いていると、この時点で apm.json が壊れる)
+      await ensureDir(Ledger.getPath(installationPath) + '.tmp');
+
+      await expect(ledger.setCore('aviutl', '1.20')).rejects.toThrow();
+
+      const json = await readJson(Ledger.getPath(installationPath));
+      expect(json.core.aviutl).toBe('1.10');
+    });
+
+    it('書き損じた一時ファイルを残さない', async () => {
+      const installationPath = await makeInstPath();
+      const ledger = await Ledger.load(installationPath);
+      await ledger.setCore('aviutl', '1.10');
+
+      expect(await pathExists(Ledger.getPath(installationPath) + '.tmp')).toBe(
+        false,
+      );
     });
   });
 });
