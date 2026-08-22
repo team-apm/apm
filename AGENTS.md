@@ -6,12 +6,12 @@ AviUtl Package Manager (apm) — AviUtl のプラグイン・スクリプトを�
 
 | パス                 | 役割                                                                                                                                                 |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/main/`          | メインプロセス。`index.ts` = エントリ、`api.ts` = tRPC ルーター、`services/` = ビジネスロジック                                                      |
+| `src/main/`          | メインプロセス。`index.ts` = エントリ、`api/` = tRPC ルーター、`services/` = ビジネスロジック                                                        |
 | `src/renderer/`      | 窓ごと(`main` / `about` / `splash`)。forge.config.ts の entryPoints と 1:1 対応                                                                      |
 | `src/renderer/main/` | main 窓。単一 React ルート(`App.tsx`)+ タブごとのディレクトリ(`aviutl` / `packages` / `nicommons` / `settings` / `others`)+ 起動フロー(`startup.ts`) |
-| `src/lib/`           | renderer から使う electron 依存モジュール(`ipcWrapper.ts`)                                                                                           |
+| `src/lib/`           | renderer から使う electron 依存モジュール(`ipcWrapper.ts` = preload 専用)                                                                            |
 | `src/shared/`        | electron 非依存の純粋モジュール。ユニットテストの主対象                                                                                              |
-| `src/common/ipc.ts`  | レガシー IPC のチャンネル名定義                                                                                                                      |
+| `src/common/ipc.ts`  | preload 専用 IPC のチャンネル名定義(他はすべて tRPC。理由はファイル内コメント)                                                                       |
 
 プロセス構成・main プロセスの内訳・データフローの詳細は ARCHITECTURE.md を参照。
 
