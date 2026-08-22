@@ -1,5 +1,4 @@
 import type { Packages, Scripts } from 'apm-schema';
-import type { BrowserWindow } from 'electron';
 import log from 'electron-log/main';
 import {
   copy,
@@ -18,8 +17,7 @@ import { asyncFlatMap } from '../../shared/asyncFlatMap';
 import { getHash } from '../../shared/getHash';
 import { convertV1PackageIds } from '../../shared/packageId';
 import unzip from '../../shared/unzip';
-import type Config from '../Config';
-import Ledger from '../Ledger';
+import type { Installation } from '../installation';
 import { openBrowser } from './browser';
 import { downloadFile } from './download';
 import { getInfo, getScriptsDataUrl } from './modList';
@@ -29,20 +27,17 @@ import {
   type InstallPackageResult,
 } from './packageInstall';
 import { getIdDict, getPackagesWithStatus } from './packageList';
+import type { ServiceContext } from './serviceContext';
 
 /**
  * Returns an object parsed from scripts.json.
  * 旧 src/renderer/main/package.ts の getScriptsList と同一の挙動。
- * @param {BrowserWindow} win - A browser window used for the download session.
- * @param {Config} config - The config instance.
+ * @param {ServiceContext} ctx - The service context.
  * @param {boolean} update - Download the json file.
  * @returns {Promise<{webpage: Scripts['webpage']; scripts: Scripts['scripts']}>} An object parsed from scripts.json.
  */
-export async function getScriptsList(
-  win: BrowserWindow,
-  config: Config,
-  update: boolean,
-) {
+export async function getScriptsList(ctx: ServiceContext, update: boolean) {
+  const { win, config } = ctx;
   const dictUrl = await getScriptsDataUrl(win, config);
   const result: { webpage: Scripts['webpage']; scripts: Scripts['scripts'] } = {
     webpage: [],
@@ -85,14 +80,13 @@ export type InstallScriptResult =
 
 /**
  * Unzips the downloaded script archive, verifies and copies the script files,
- * and records the generated package in the local packages.json and apm.json.
+ * and records the generated package in the local packages.json and the ledger.
  * 旧 src/renderer/main/package.ts の installScript 後半
  * (展開 → スクリプト有無の検証 → 配置 → パッケージ情報の生成と保存)と
  * 同一の挙動。ローカル packages.json への追記は旧 parseJson.addPackage 相当
  * (データ v1 互換の ID 変換込み)。
- * @param {BrowserWindow} win - A browser window used for the download session.
- * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {ServiceContext} ctx - The service context.
+ * @param {Installation} inst - The target installation.
  * @param {string} archivePath - Path to the downloaded archive.
  * @param {string} url - The URL of the script distribution page.
  * @param {object} matchInfo - The matched script information.
@@ -102,9 +96,8 @@ export type InstallScriptResult =
  * @returns {Promise<InstallScriptResult>} The result of the installation.
  */
 export async function installScriptArchive(
-  win: BrowserWindow,
-  config: Config,
-  instPath: string,
+  ctx: ServiceContext,
+  inst: Installation,
   archivePath: string,
   url: string,
   matchInfo: { folder: string; developer?: string; dependencies?: string[] },
@@ -185,7 +178,7 @@ export async function installScriptArchive(
     const scriptRoot = (await searchScriptRoot(unzippedPath))[0];
     // folder は scripts.json(リモート)由来。インストール先の外に出る指定を
     // 書き込み前に弾く
-    const scriptFolder = resolveInside(instPath, 'script', matchInfo.folder);
+    const scriptFolder = resolveInside(inst.path, 'script', matchInfo.folder);
     const entriesToCopy = (
       await fsReaddir(scriptRoot, {
         withFileTypes: true,
@@ -243,11 +236,11 @@ export async function installScriptArchive(
     };
 
     // 旧 parseJson.addPackage と同一の挙動(既存一覧の ID 変換込み)
-    const localPackagesPath = path.join(instPath, 'packages.json');
+    const localPackagesPath = inst.localRepoPath;
     const localPackages: Packages['packages'] = existsSync(localPackagesPath)
       ? ((await readJson(localPackagesPath)) as Packages).packages
       : [];
-    convertV1PackageIds(localPackages, await getIdDict(win, config));
+    convertV1PackageIds(localPackages, await getIdDict(ctx));
     const newLocalPackages = localPackages.filter((p) => p.id !== id);
     newLocalPackages.push(packageItem as Packages['packages'][number]);
     await writeJson(localPackagesPath, {
@@ -255,7 +248,7 @@ export async function installScriptArchive(
       packages: newLocalPackages,
     });
 
-    const ledger = await Ledger.load(instPath);
+    const ledger = await inst.ledger();
     await ledger.addPackage(packageItem.id, packageItem.latestVersion);
     return 'success';
   } catch (e) {
@@ -274,19 +267,17 @@ export type InstallScriptFlowResult =
  * script (or its redirect package) from the download history, and installs it.
  * 旧 src/renderer/main/package.ts の installScript 前半(ブラウザ DL →
  * matchInfo 解決 → redirect 分岐)と同一の挙動。UI は renderer 側に残る。
- * @param {BrowserWindow} win - A browser window used for downloads and dialogs.
- * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {ServiceContext} ctx - The service context.
+ * @param {Installation} inst - The target installation.
  * @param {string} url - The URL of the script distribution site.
  * @returns {Promise<InstallScriptFlowResult>} The result status with its route.
  */
 export async function installScriptFlow(
-  win: BrowserWindow,
-  config: Config,
-  instPath: string,
+  ctx: ServiceContext,
+  inst: Installation,
   url: string,
 ): Promise<InstallScriptFlowResult> {
-  const downloadResult = await openBrowser(win, url, 'package');
+  const downloadResult = await openBrowser(ctx.win, url, 'package');
   if (!downloadResult) {
     log.info('The installation was canceled.');
     return { route: 'flow', status: 'canceled' };
@@ -294,7 +285,7 @@ export async function installScriptFlow(
 
   const archivePath = downloadResult.savePath;
   const history = downloadResult.history;
-  const matchInfo = [...(await getScriptsList(win, config, false)).scripts]
+  const matchInfo = [...(await getScriptsList(ctx, false)).scripts]
     .reverse()
     .find((item) => isMatch(history, item.match));
 
@@ -305,8 +296,7 @@ export async function installScriptFlow(
 
   if ('redirect' in matchInfo) {
     // Determine which of the redirections can be installed and install them.
-    const packages = (await getPackagesWithStatus(win, config, instPath, false))
-      .packages;
+    const packages = (await getPackagesWithStatus(ctx, inst, false)).packages;
     const packageId = matchInfo.redirect
       .split('|')
       .find((candidate: string) =>
@@ -318,31 +308,18 @@ export async function installScriptFlow(
     const packageToInstall = packages.find((p) => p.id === packageId);
     return {
       route: 'redirect',
-      status: await installPackageFlow(
-        win,
-        config,
-        instPath,
-        packageToInstall,
-        {
-          archivePath,
-        },
-      ),
+      status: await installPackageFlow(ctx, inst, packageToInstall, {
+        archivePath,
+      }),
     };
   }
 
   return {
     route: 'script',
-    status: await installScriptArchive(
-      win,
-      config,
-      instPath,
-      archivePath,
-      url,
-      {
-        folder: matchInfo.folder,
-        developer: matchInfo.developer,
-        dependencies: matchInfo.dependencies,
-      },
-    ),
+    status: await installScriptArchive(ctx, inst, archivePath, url, {
+      folder: matchInfo.folder,
+      developer: matchInfo.developer,
+      dependencies: matchInfo.dependencies,
+    }),
   };
 }

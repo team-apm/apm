@@ -15,6 +15,7 @@ import path from 'node:path';
 import { fromData } from 'ssri';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Config from '../Config';
+import { type Installation, openInstallation } from '../installation';
 import Ledger from '../Ledger';
 import {
   changeInstallationPath,
@@ -92,6 +93,8 @@ describe('core service', () => {
   const tempDirs: string[] = [];
   let config: Config;
   let instPath: string;
+  let ctx: { win: BrowserWindow; config: Config };
+  let inst: Installation;
 
   const makeTempDir = async (prefix: string): Promise<string> => {
     const dir = await mkdtemp(path.join(os.tmpdir(), prefix));
@@ -117,6 +120,8 @@ describe('core service', () => {
     mocks.homeDir.value = await makeTempDir('apm-home-');
     instPath = await makeTempDir('apm-inst-');
     config = new Config({ cwd: await makeTempDir('apm-config-') });
+    ctx = { win, config };
+    inst = openInstallation(instPath);
   });
 
   afterEach(async () => {
@@ -125,19 +130,19 @@ describe('core service', () => {
 
   describe('getCoreInfo', () => {
     it('キャッシュが無ければ null を返す', async () => {
-      expect(await getCoreInfo(win, config)).toBeNull();
+      expect(await getCoreInfo(ctx)).toBeNull();
     });
 
     it('キャッシュ済みの core.json を返す', async () => {
       await writeCachedCoreInfo({ aviutl: { latestVersion: '1.10' } });
-      const info = await getCoreInfo(win, config);
+      const info = await getCoreInfo(ctx);
       expect(info.aviutl.latestVersion).toBe('1.10');
     });
   });
 
   describe('getApmJsonCoreVersions', () => {
     it('未記録なら undefined を返す', async () => {
-      expect(await getApmJsonCoreVersions(instPath)).toEqual({
+      expect(await getApmJsonCoreVersions(inst)).toEqual({
         aviutl: undefined,
         exedit: undefined,
       });
@@ -146,7 +151,7 @@ describe('core service', () => {
     it('記録済みのバージョンを返す', async () => {
       const ledger = await Ledger.load(instPath);
       await ledger.setCore('aviutl', '1.10');
-      expect(await getApmJsonCoreVersions(instPath)).toEqual({
+      expect(await getApmJsonCoreVersions(inst)).toEqual({
         aviutl: '1.10',
         exedit: undefined,
       });
@@ -155,10 +160,10 @@ describe('core service', () => {
 
   describe('hasExeditInPluginsFolder', () => {
     it('plugins/exedit.auf があるときだけ true', async () => {
-      expect(hasExeditInPluginsFolder(instPath)).toBe(false);
+      expect(hasExeditInPluginsFolder(inst)).toBe(false);
       await ensureDir(path.join(instPath, 'plugins'));
       await writeFile(path.join(instPath, 'plugins/exedit.auf'), 'x');
-      expect(hasExeditInPluginsFolder(instPath)).toBe(true);
+      expect(hasExeditInPluginsFolder(inst)).toBe(true);
     });
   });
 
@@ -189,7 +194,7 @@ describe('core service', () => {
 
   describe('getInstalledVersionTexts', () => {
     it('core.json が未取得なら両方とも未取得になる', async () => {
-      expect(await getInstalledVersionTexts(win, config, instPath)).toEqual({
+      expect(await getInstalledVersionTexts(ctx, inst)).toEqual({
         aviutl: '未取得',
         exedit: '未取得',
       });
@@ -226,31 +231,25 @@ describe('core service', () => {
     };
 
     it('バージョンデータが無ければ noVersionData', async () => {
-      expect(
-        await installCoreProgram(win, config, 'aviutl', '1.10', instPath),
-      ).toBe('noVersionData');
+      expect(await installCoreProgram(ctx, inst, 'aviutl', '1.10')).toBe(
+        'noVersionData',
+      );
     });
 
     it('ダウンロード失敗は downloadFailed', async () => {
       await writeCachedCoreInfo(coreInfo);
       mocks.downloadFile.mockResolvedValueOnce(undefined);
 
-      expect(
-        await installCoreProgram(win, config, 'aviutl', '1.10', instPath),
-      ).toBe('downloadFailed');
+      expect(await installCoreProgram(ctx, inst, 'aviutl', '1.10')).toBe(
+        'downloadFailed',
+      );
     });
 
     it('展開・配置に成功すると apm.json に記録して success', async () => {
       await writeCachedCoreInfo(coreInfo);
       mocks.downloadFile.mockResolvedValueOnce(await makeCoreZip());
 
-      const result = await installCoreProgram(
-        win,
-        config,
-        'aviutl',
-        '1.10',
-        instPath,
-      );
+      const result = await installCoreProgram(ctx, inst, 'aviutl', '1.10');
 
       expect(result).toBe('success');
       expect(await pathExists(path.join(instPath, 'aviutl.exe'))).toBe(true);
@@ -266,9 +265,9 @@ describe('core service', () => {
       mocks.downloadFile.mockResolvedValueOnce(await makeCoreZip());
       mocks.showMessageBox.mockResolvedValueOnce({ response: 1 });
 
-      expect(
-        await installCoreProgram(win, config, 'aviutl', '1.10', instPath),
-      ).toBe('corrupt');
+      expect(await installCoreProgram(ctx, inst, 'aviutl', '1.10')).toBe(
+        'corrupt',
+      );
     });
 
     it('integrity 不一致の再ダウンロードに失敗すると redownloadFailed', async () => {
@@ -280,9 +279,9 @@ describe('core service', () => {
       mocks.showMessageBox.mockResolvedValueOnce({ response: 0 });
       mocks.downloadFile.mockResolvedValueOnce(undefined);
 
-      expect(
-        await installCoreProgram(win, config, 'aviutl', '1.10', instPath),
-      ).toBe('redownloadFailed');
+      expect(await installCoreProgram(ctx, inst, 'aviutl', '1.10')).toBe(
+        'redownloadFailed',
+      );
       expect(mocks.downloadFile).toHaveBeenLastCalledWith(
         win,
         'https://example.com/aviutl110.zip',
@@ -308,9 +307,9 @@ describe('core service', () => {
       mocks.showMessageBox.mockResolvedValueOnce({ response: 0 });
       mocks.downloadFile.mockResolvedValueOnce(zipPath);
 
-      expect(
-        await installCoreProgram(win, config, 'aviutl', '1.10', instPath),
-      ).toBe('success');
+      expect(await installCoreProgram(ctx, inst, 'aviutl', '1.10')).toBe(
+        'success',
+      );
       expect(await pathExists(path.join(instPath, 'aviutl.exe'))).toBe(true);
       const ledger = await Ledger.load(instPath);
       expect(await ledger.get('core.aviutl')).toBe('1.10');
@@ -340,22 +339,18 @@ describe('core service', () => {
       config.modDate.setCore(new Date('2026-01-01').getTime());
       config.modDate.setPackages(new Date('2026-01-01').getTime());
 
-      await changeInstallationPath(win, config, instPath);
+      await changeInstallationPath(ctx, inst);
 
       expect(config.getInstallationPath()).toBe(instPath);
       expect(mocks.migrationByFolder).toHaveBeenCalledOnce();
-      expect(mocks.getScriptsList).toHaveBeenCalledWith(win, config, true);
+      expect(mocks.getScriptsList).toHaveBeenCalledWith(ctx, true);
       // core の再取得は checkCoreLatestVersion 経由の downloadFile で観測する
       expect(mocks.downloadFile).toHaveBeenCalledWith(
         win,
         'https://example.com/core.json',
         { subDir: 'core' },
       );
-      expect(mocks.refreshPackagesList).toHaveBeenCalledWith(
-        win,
-        config,
-        instPath,
-      );
+      expect(mocks.refreshPackagesList).toHaveBeenCalledWith(ctx, inst);
     });
 
     it('mod 情報が古ければ何も再取得しない', async () => {
@@ -370,7 +365,7 @@ describe('core service', () => {
       config.modDate.setCore(new Date('2026-01-02').getTime());
       config.modDate.setPackages(new Date('2026-01-02').getTime());
 
-      await changeInstallationPath(win, config, instPath);
+      await changeInstallationPath(ctx, inst);
 
       expect(mocks.getScriptsList).not.toHaveBeenCalled();
       expect(mocks.downloadFile).not.toHaveBeenCalled();
@@ -390,9 +385,8 @@ describe('core service', () => {
       config.modDate.setPackages(new Date('2026-01-02').getTime());
 
       await changeInstallationPath(
-        win,
-        config,
-        path.join(instPath, 'not-exist'),
+        ctx,
+        openInstallation(path.join(instPath, 'not-exist')),
       );
 
       expect(mocks.migrationByFolder).not.toHaveBeenCalled();
@@ -415,12 +409,11 @@ describe('core service', () => {
       const ledger = await Ledger.load(instPath);
       await ledger.set('convertMod', new Date('2026-01-01').getTime());
 
-      await changeInstallationPath(win, config, instPath);
+      await changeInstallationPath(ctx, inst);
 
       expect(mocks.convertPackageIds).toHaveBeenCalledWith(
-        win,
-        config,
-        instPath,
+        ctx,
+        inst,
         new Date('2026-01-02').getTime(),
       );
     });

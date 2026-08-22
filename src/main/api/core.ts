@@ -9,7 +9,14 @@ import {
   hasExeditInPluginsFolder,
   installCoreProgram,
 } from '../services/core';
-import { procedure, stringInput, t, winProcedure } from './trpc';
+import {
+  instProcedure,
+  procedure,
+  stringInput,
+  t,
+  winInstProcedure,
+  winProcedure,
+} from './trpc';
 
 const installProgramInput = (
   value: unknown,
@@ -25,43 +32,34 @@ const installProgramInput = (
 };
 
 export const coreRouter = t.router({
-  getCoreInfo: winProcedure.query(
-    async ({ ctx }) => await getCoreInfo(ctx.win, ctx.config),
-  ),
-  hasExeditInPluginsFolder: procedure
+  getCoreInfo: winProcedure.query(async ({ ctx }) => await getCoreInfo(ctx)),
+  hasExeditInPluginsFolder: instProcedure
     .input(stringInput)
-    .query(({ input }) => hasExeditInPluginsFolder(input)),
+    .query(({ ctx }) => hasExeditInPluginsFolder(ctx.inst)),
   ensureInstallationPath: procedure.mutation(({ ctx }) =>
     ensureInstallationPath(ctx.config),
   ),
   getDates: procedure.query(({ ctx }) => getCoreDates(ctx.config)),
-  changeInstallationPath: winProcedure
+  changeInstallationPath: winInstProcedure
     .input(stringInput)
-    .mutation(
-      async ({ input, ctx }) =>
-        await changeInstallationPath(ctx.win, ctx.config, input),
-    ),
-  getApmJsonCoreVersions: procedure
+    .mutation(async ({ ctx }) => await changeInstallationPath(ctx, ctx.inst)),
+  getApmJsonCoreVersions: instProcedure
     .input(stringInput)
-    .query(async ({ input }) => await getApmJsonCoreVersions(input)),
-  getInstalledVersionTexts: winProcedure
+    .query(async ({ ctx }) => await getApmJsonCoreVersions(ctx.inst)),
+  getInstalledVersionTexts: winInstProcedure
     .input(stringInput)
-    .query(
-      async ({ input, ctx }) =>
-        await getInstalledVersionTexts(ctx.win, ctx.config, input),
-    ),
+    .query(async ({ ctx }) => await getInstalledVersionTexts(ctx, ctx.inst)),
   checkLatestVersion: winProcedure.mutation(async ({ ctx }) => {
-    await checkCoreLatestVersion(ctx.win, ctx.config);
+    await checkCoreLatestVersion(ctx);
   }),
-  installProgram: winProcedure
+  installProgram: winInstProcedure
     .input(installProgramInput)
     .mutation(async ({ input, ctx }) => {
       return await installCoreProgram(
-        ctx.win,
-        ctx.config,
+        ctx,
+        ctx.inst,
         input.program,
         input.version,
-        input.instPath,
       );
     }),
 });

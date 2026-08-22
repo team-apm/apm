@@ -1,4 +1,4 @@
-import { app, type BrowserWindow, shell } from 'electron';
+import { app, shell } from 'electron';
 import log from 'electron-log/main';
 import { existsSync, readdir as fsReaddir, mkdir, rename } from 'fs-extra';
 import { execFileSync } from 'node:child_process';
@@ -8,11 +8,11 @@ import { install, verifyFilesByCount } from '../../shared/install';
 import { buildInstallerArgs } from '../../shared/installerArgs';
 import unzip from '../../shared/unzip';
 import { PackageState } from '../../types/packageState';
-import type Config from '../Config';
-import Ledger from '../Ledger';
+import type { Installation } from '../installation';
 import { openBrowser } from './browser';
 import { downloadFile } from './download';
 import { runInstallFlow } from './installFlow';
+import type { ServiceContext } from './serviceContext';
 
 /**
  * Get the date today
@@ -29,16 +29,16 @@ export function getDate() {
 
 /**
  * Unzips (or moves) the downloaded archive, installs the files and records
- * the package in apm.json.
+ * the package in the ledger.
  * 旧 src/renderer/main/package.ts の installPackage 後半
- * (展開 → インストーラ実行または配置 → 検証 → apm.json 記録)と同一の挙動。
- * @param {string} instPath - An installation path.
+ * (展開 → インストーラ実行または配置 → 検証 → 導入記録への記帳)と同一の挙動。
+ * @param {Installation} inst - The target installation.
  * @param {string} archivePath - Path to the downloaded archive.
  * @param {object} packageItem - A package to install.
  * @returns {Promise<boolean>} Whether the installation succeeded.
  */
 export async function installPackageArchive(
-  instPath: string,
+  inst: Installation,
   archivePath: string,
   packageItem: Pick<PackageState, 'id' | 'info'>,
 ): Promise<boolean> {
@@ -88,14 +88,14 @@ export async function installPackageArchive(
       // シェルを介さないため installArg のメタ文字がコマンドとして解釈されない
       execFileSync(
         exePath[0][0],
-        buildInstallerArgs(packageItem.info.installArg, instPath),
+        buildInstallerArgs(packageItem.info.installArg, inst.path),
       );
 
-      installResult = verifyFilesByCount(instPath, packageItem.info.files);
+      installResult = verifyFilesByCount(inst.path, packageItem.info.files);
     } else {
       installResult = await install(
         unzippedPath,
-        instPath,
+        inst.path,
         packageItem.info.files,
       );
     }
@@ -109,7 +109,7 @@ export async function installPackageArchive(
     const latestVersion = packageItem.info.isContinuous
       ? getDate()
       : packageItem.info.latestVersion;
-    const ledger = await Ledger.load(instPath);
+    const ledger = await inst.ledger();
     await ledger.addPackage(packageItem.id, latestVersion);
   }
 
@@ -129,9 +129,8 @@ export type InstallPackageResult =
  * installs the package.
  * 旧 src/renderer/main/package.ts の installPackage のアーカイブ解決部分と
  * 同一の挙動。UI(ボタン遷移・メッセージ表示)は renderer 側に残る。
- * @param {BrowserWindow} win - A browser window used for downloads and dialogs.
- * @param {Config} config - The config instance.
- * @param {string} instPath - An installation path.
+ * @param {ServiceContext} ctx - The service context.
+ * @param {Installation} inst - The target installation.
  * @param {Pick<PackageState, 'id' | 'info'>} packageItem - The package to install.
  * @param {object} [options] - Options.
  * @param {boolean} [options.direct] - Install from the direct link to the zip.
@@ -139,12 +138,12 @@ export type InstallPackageResult =
  * @returns {Promise<InstallPackageResult>} The result status.
  */
 export async function installPackageFlow(
-  win: BrowserWindow,
-  config: Config,
-  instPath: string,
+  ctx: ServiceContext,
+  inst: Installation,
   packageItem: Pick<PackageState, 'id' | 'info'>,
   { direct = false, archivePath }: { direct?: boolean; archivePath?: string },
 ): Promise<InstallPackageResult> {
+  const { win } = ctx;
   return await runInstallFlow<
     'downloadFailed' | 'canceled' | 'redownloadFailed'
   >(win, {
@@ -209,7 +208,7 @@ export async function installPackageFlow(
       return { archivePath: redownloadResult.savePath };
     },
     install: (resolvedArchivePath) =>
-      installPackageArchive(instPath, resolvedArchivePath, packageItem),
+      installPackageArchive(inst, resolvedArchivePath, packageItem),
   });
 }
 
