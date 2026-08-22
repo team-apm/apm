@@ -12,7 +12,7 @@
     "fix:eslint": "eslint --fix .",
     "fix:prettier": "prettier --write .",
     "lint": "run-s lint:prettier lint:eslint",
-    "lint:eslint": "eslint --fix-dry-run .",
+    "lint:eslint": "eslint .",
     "lint:prettier": "prettier --check .",
     "lint:ts": "tsc --noEmit",
     "make": "yarn run notices && electron-forge make",
