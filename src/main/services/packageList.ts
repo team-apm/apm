@@ -34,7 +34,7 @@ import { existsTempFile } from './tempFile';
  * @returns {string[]} Package data files URLs.
  */
 export function getPackagesDataUrl(config: Config, inst: Installation) {
-  return config.dataURL
+  return config.dataUrl
     .getPackages()
     .concat(
       inst.path && inst.path.length > 0

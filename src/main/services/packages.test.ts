@@ -136,7 +136,7 @@ describe('packages service', () => {
 
   describe('getPackagesDataUrl', () => {
     it('設定の取得先に、installationPath 直下の存在するローカル一覧だけを足す', async () => {
-      config.dataURL.setPackages(['https://example.com/packages.json']);
+      config.dataUrl.setPackages(['https://example.com/packages.json']);
       await writeJson(path.join(installationPath, 'packages.json'), {});
 
       expect(getPackagesDataUrl(config, inst)).toEqual([
@@ -146,7 +146,7 @@ describe('packages service', () => {
     });
 
     it('installationPath が空文字列なら設定の取得先のみを返す', () => {
-      config.dataURL.setPackages(['https://example.com/packages.json']);
+      config.dataUrl.setPackages(['https://example.com/packages.json']);
       expect(getPackagesDataUrl(config, openInstallation(''))).toEqual([
         'https://example.com/packages.json',
       ]);
@@ -156,7 +156,7 @@ describe('packages service', () => {
   describe('getPackages', () => {
     it('キャッシュ済みの一覧を読み、変換辞書で ID を差し替える', async () => {
       const repo = 'https://example.com/packages.json';
-      config.dataURL.setPackages([repo]);
+      config.dataUrl.setPackages([repo]);
       await writeCachedRepo(repo, {
         version: 3,
         packages: [
@@ -178,7 +178,7 @@ describe('packages service', () => {
 
     it('壊れた一覧はダイアログを出してスキップする', async () => {
       const repo = 'https://example.com/broken.json';
-      config.dataURL.setPackages([repo]);
+      config.dataUrl.setPackages([repo]);
       const file = path.join(
         mocks.userDataDir.value,
         'Data/package',
@@ -193,7 +193,7 @@ describe('packages service', () => {
     });
 
     it('キャッシュが無い取得先は黙ってスキップする', async () => {
-      config.dataURL.setPackages(['https://example.com/nocache.json']);
+      config.dataUrl.setPackages(['https://example.com/nocache.json']);
       expect(await getPackages(ctx, inst)).toEqual([]);
       expect(mocks.showMessageBox).not.toHaveBeenCalled();
     });
@@ -208,7 +208,7 @@ describe('packages service', () => {
     };
 
     beforeEach(async () => {
-      config.dataURL.setPackages([repo]);
+      config.dataUrl.setPackages([repo]);
       await writeCachedRepo(repo, { version: 3, packages: [packageInfo] });
     });
 
@@ -661,7 +661,7 @@ describe('packages service', () => {
   describe('buildShareString', () => {
     it('スラッシュ入り ID のインストール済みパッケージを整列して共有文字列にする', async () => {
       const repo = 'https://example.com/packages.json';
-      config.dataURL.setPackages([repo]);
+      config.dataUrl.setPackages([repo]);
       await writeCachedRepo(repo, {
         version: 3,
         packages: [

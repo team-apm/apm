@@ -19,24 +19,24 @@ export async function updateInfo(win: BrowserWindow, config: Config) {
   // クエリがここへ到達しうる。空のまま進めると 'list.json' がローカルパス
   // 扱いになり紛らわしい ENOENT で落ちるため、明示的に失敗させて
   // 呼び出し側(react-query)のリトライに任せる
-  if (config.dataURL.getMain() === '') {
+  if (config.dataUrl.getMain() === '') {
     throw new Error('The main data URL is not set yet.');
   }
-  await downloadFile(win, joinUrlOrPath(config.dataURL.getMain(), 'list.json'));
+  await downloadFile(win, joinUrlOrPath(config.dataUrl.getMain(), 'list.json'));
 
   const modFile = existsTempFile('list.json');
   const info = (await readJson(modFile.path)) as List;
-  const URLs = config.dataURL
+  const URLs = config.dataUrl
     .getExtra()
     .split(os.EOL)
     .filter((url) => url !== '');
   const packages = ([] as string[]).concat(
     info.packages.map((packageItem) =>
-      resolvePath(config.dataURL.getMain(), packageItem.path),
+      resolvePath(config.dataUrl.getMain(), packageItem.path),
     ),
     URLs,
   );
-  config.dataURL.setPackages(packages);
+  config.dataUrl.setPackages(packages);
 }
 
 /**
@@ -70,7 +70,7 @@ export async function getInfo(
  */
 export async function getCoreDataUrl(win: BrowserWindow, config: Config) {
   const info = await getInfo(win, config);
-  return resolvePath(config.dataURL.getMain(), info.core.path);
+  return resolvePath(config.dataUrl.getMain(), info.core.path);
 }
 
 /**
@@ -82,7 +82,7 @@ export async function getCoreDataUrl(win: BrowserWindow, config: Config) {
  */
 export async function getConvertDataUrl(win: BrowserWindow, config: Config) {
   const info = await getInfo(win, config);
-  return resolvePath(config.dataURL.getMain(), info.convert.path);
+  return resolvePath(config.dataUrl.getMain(), info.convert.path);
 }
 
 /**
@@ -95,6 +95,6 @@ export async function getConvertDataUrl(win: BrowserWindow, config: Config) {
 export async function getScriptsDataUrl(win: BrowserWindow, config: Config) {
   const info = await getInfo(win, config);
   return info.scripts.map((script) =>
-    resolvePath(config.dataURL.getMain(), script.path),
+    resolvePath(config.dataUrl.getMain(), script.path),
   );
 }

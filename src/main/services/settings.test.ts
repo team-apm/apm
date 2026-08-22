@@ -30,14 +30,14 @@ describe('settings service', () => {
 
       const result = ensureExtraDataUrl(config);
 
-      expect(config.dataURL.hasExtra()).toBe(true);
+      expect(config.dataUrl.hasExtra()).toBe(true);
       expect(result).toEqual({ hasMain: false, extra: '' });
     });
 
     it('設定済みの値は変更せず、メイン URL の有無を返す', async () => {
       const config = await makeConfig();
-      config.dataURL.setMain('https://example.com/data/');
-      config.dataURL.setExtra('https://example.com/x.json');
+      config.dataUrl.setMain('https://example.com/data/');
+      config.dataUrl.setExtra('https://example.com/x.json');
 
       const result = ensureExtraDataUrl(config);
 
@@ -62,8 +62,8 @@ describe('settings service', () => {
       );
 
       expect(result.errors).toEqual([]);
-      expect(config.dataURL.getMain()).toBe('https://example.com/data/');
-      expect(config.dataURL.getExtra()).toBe(
+      expect(config.dataUrl.getMain()).toBe('https://example.com/data/');
+      expect(config.dataUrl.getExtra()).toBe(
         ['https://a.example/x.json', 'https://b.example/y.json'].join(os.EOL),
       );
     });
@@ -75,14 +75,14 @@ describe('settings service', () => {
       const result = await setDataUrls(config, '', '', confirm);
 
       expect(result.mainUrl).toBe(DEFAULT_DATA_URL);
-      expect(config.dataURL.getMain()).toBe(DEFAULT_DATA_URL);
+      expect(config.dataUrl.getMain()).toBe(DEFAULT_DATA_URL);
       expect(confirm).not.toHaveBeenCalled();
     });
 
     it('検証エラー時は config を変更しない', async () => {
       const config = await makeConfig();
-      config.dataURL.setMain('https://example.com/data/');
-      config.dataURL.setExtra('https://example.com/x.json');
+      config.dataUrl.setMain('https://example.com/data/');
+      config.dataUrl.setExtra('https://example.com/x.json');
 
       const result = await setDataUrls(
         config,
@@ -92,8 +92,8 @@ describe('settings service', () => {
       );
 
       expect(result.errors.length).toBeGreaterThan(0);
-      expect(config.dataURL.getMain()).toBe('https://example.com/data/');
-      expect(config.dataURL.getExtra()).toBe('https://example.com/x.json');
+      expect(config.dataUrl.getMain()).toBe('https://example.com/data/');
+      expect(config.dataUrl.getExtra()).toBe('https://example.com/x.json');
     });
 
     it('未知オリジンは承認するとオリジンが記録され、次回は確認されない', async () => {
@@ -102,7 +102,7 @@ describe('settings service', () => {
 
       await setDataUrls(config, 'https://example.com/data/', '', confirm);
       expect(confirm).toHaveBeenCalledTimes(1);
-      expect(config.dataURL.getApprovedOrigins()).toEqual([
+      expect(config.dataUrl.getApprovedOrigins()).toEqual([
         'https://example.com',
       ]);
 
@@ -121,8 +121,8 @@ describe('settings service', () => {
       );
 
       expect(result.canceled).toBe(true);
-      expect(config.dataURL.hasMain()).toBe(false);
-      expect(config.dataURL.getApprovedOrigins()).toEqual([]);
+      expect(config.dataUrl.hasMain()).toBe(false);
+      expect(config.dataUrl.getApprovedOrigins()).toEqual([]);
     });
 
     it('平文 http は確認メッセージに警告として含まれる', async () => {
@@ -156,7 +156,7 @@ describe('settings service', () => {
 
       expect(result.canceled).toBe(false);
       expect(confirm).not.toHaveBeenCalled();
-      expect(config.dataURL.getMain()).toBe('http://localhost:3000/data/');
+      expect(config.dataUrl.getMain()).toBe('http://localhost:3000/data/');
     });
   });
 });

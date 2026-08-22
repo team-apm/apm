@@ -32,12 +32,12 @@ describe('Config', () => {
       expect(config.hasInstallationPath()).toBe(false);
       expect(config.getInstallationPath()).toBe('');
 
-      expect(config.dataURL.hasMain()).toBe(false);
-      expect(config.dataURL.getMain()).toBe('');
-      expect(config.dataURL.hasExtra()).toBe(false);
-      expect(config.dataURL.getExtra()).toBe('');
-      expect(config.dataURL.hasPackages()).toBe(false);
-      expect(config.dataURL.getPackages()).toEqual([]);
+      expect(config.dataUrl.hasMain()).toBe(false);
+      expect(config.dataUrl.getMain()).toBe('');
+      expect(config.dataUrl.hasExtra()).toBe(false);
+      expect(config.dataUrl.getExtra()).toBe('');
+      expect(config.dataUrl.hasPackages()).toBe(false);
+      expect(config.dataUrl.getPackages()).toEqual([]);
 
       expect(config.modDate.hasCore()).toBe(false);
       expect(config.modDate.getCore()).toBe(0);
@@ -77,12 +77,12 @@ describe('Config', () => {
       config.setZoomFactor('125');
       expect(config.getZoomFactor()).toBe('125');
 
-      config.dataURL.setMain('https://example.com/data/');
-      config.dataURL.setExtra('https://example.com/extra/');
-      config.dataURL.setPackages(['https://example.com/packages.json']);
-      expect(config.dataURL.getMain()).toBe('https://example.com/data/');
-      expect(config.dataURL.getExtra()).toBe('https://example.com/extra/');
-      expect(config.dataURL.getPackages()).toEqual([
+      config.dataUrl.setMain('https://example.com/data/');
+      config.dataUrl.setExtra('https://example.com/extra/');
+      config.dataUrl.setPackages(['https://example.com/packages.json']);
+      expect(config.dataUrl.getMain()).toBe('https://example.com/data/');
+      expect(config.dataUrl.getExtra()).toBe('https://example.com/extra/');
+      expect(config.dataUrl.getPackages()).toEqual([
         'https://example.com/packages.json',
       ]);
 
@@ -105,7 +105,7 @@ describe('Config', () => {
       const cwd = await makeCwd();
       const config = new Config({ cwd });
 
-      config.dataURL.setMain('https://example.com/data/');
+      config.dataUrl.setMain('https://example.com/data/');
       config.modDate.setCore(123);
 
       // ドット区切りのキーはフラットな 'dataURL.main' ではなく入れ子で保存される

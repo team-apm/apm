@@ -50,8 +50,8 @@ export const settingsRouter = t.router({
     }),
   getDataUrls: procedure.query(({ ctx }) => {
     return {
-      main: ctx.config.dataURL.getMain(),
-      extra: ctx.config.dataURL.getExtra(),
+      main: ctx.config.dataUrl.getMain(),
+      extra: ctx.config.dataUrl.getExtra(),
     };
   }),
   getAutoUpdate: procedure.query(({ ctx }) => ctx.config.getAutoUpdate()),

@@ -86,18 +86,18 @@ describe('migration service', () => {
     });
 
     it('dataVersion 3 済みなら何もしない', async () => {
-      config.dataURL.setMain('https://example.com/v3/');
+      config.dataUrl.setMain('https://example.com/v3/');
       config.setDataVersion('3');
 
       const result = await migrationGlobal(ctx);
 
       expect(result).toBe(true);
-      expect(config.dataURL.getMain()).toBe('https://example.com/v3/');
+      expect(config.dataUrl.getMain()).toBe('https://example.com/v3/');
       expect(mocks.showMessageBox).not.toHaveBeenCalled();
     });
 
     it('v2 からは dataURL・更新日時をリセットして 3 にし、案内ダイアログを出す', async () => {
-      config.dataURL.setMain('https://example.com/custom/');
+      config.dataUrl.setMain('https://example.com/custom/');
       config.setDataVersion('2');
       config.modDate.setCore(1000);
 
@@ -105,7 +105,7 @@ describe('migration service', () => {
 
       expect(result).toBe(true);
       expect(config.getDataVersion()).toBe('3');
-      expect(config.dataURL.hasMain()).toBe(false);
+      expect(config.dataUrl.hasMain()).toBe(false);
       expect(config.modDate.hasCore()).toBe(false);
       expect(mocks.showMessageBox).toHaveBeenCalledOnce();
     });
@@ -113,19 +113,19 @@ describe('migration service', () => {
     it('v1(旧デフォルト URL)からは確認なしで v2 を経由して 3 まで進む', async () => {
       // かつて setMain(undefined) が conf に拒否されクラッシュしていた経路
       // (#2397)。デフォルト利用者は dataURL.main が未設定へ戻る
-      config.dataURL.setMain(OLD_DEFAULT_DATA_URL);
+      config.dataUrl.setMain(OLD_DEFAULT_DATA_URL);
 
       const result = await migrationGlobal(ctx);
 
       expect(result).toBe(true);
       expect(config.getDataVersion()).toBe('3');
-      expect(config.dataURL.hasMain()).toBe(false);
+      expect(config.dataUrl.hasMain()).toBe(false);
       // v2→3 の案内ダイアログの 1 回だけ(v1→2 の確認は旧デフォルトなら出ない)
       expect(mocks.showMessageBox).toHaveBeenCalledOnce();
     });
 
     it('v1(カスタム URL)でキャンセルを選ぶと false(起動中止)', async () => {
-      config.dataURL.setMain('https://example.com/custom-v1/');
+      config.dataUrl.setMain('https://example.com/custom-v1/');
       mocks.showMessageBox.mockResolvedValueOnce({ response: 0 });
 
       const result = await migrationGlobal(ctx);
