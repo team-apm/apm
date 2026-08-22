@@ -19,5 +19,8 @@
       "preset": "angular",
       "infile": "CHANGELOG.md"
     }
+  },
+  "hooks": {
+    "after:bump": "node scripts/updateSiteDownloadUrls.mjs ${version}"
   }
 }
