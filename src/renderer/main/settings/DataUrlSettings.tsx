@@ -1,4 +1,5 @@
 import React, { type JSX, useEffect, useRef, useState } from 'react';
+import { Button, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { TRPCReact } from '../../trpc';
 
 type ButtonPhase = 'idle' | 'loading' | 'success' | 'danger';
@@ -61,22 +62,17 @@ function DataUrlSettings() {
     timer.current = setTimeout(() => setPhase('idle'), 3000);
   };
 
-  const buttonClass =
-    phase === 'success'
-      ? 'btn btn-success w-100'
-      : phase === 'danger'
-        ? 'btn btn-danger w-100'
-        : 'btn btn-primary w-100';
+  const variant =
+    phase === 'success' ? 'success' : phase === 'danger' ? 'danger' : 'primary';
 
   return (
     <>
-      <div className="row mb-3">
-        <label htmlFor="data-url" className="col-sm-3 col-form-label">
+      <Row className="mb-3">
+        <Form.Label htmlFor="data-url" column sm={3}>
           データ取得先
-        </label>
-        <div className="col-sm-6">
-          <input
-            className="form-control"
+        </Form.Label>
+        <Col sm={6}>
+          <Form.Control
             id="data-url"
             type="text"
             placeholder="空白でデフォルト"
@@ -84,22 +80,24 @@ function DataUrlSettings() {
             value={mainValue}
             onChange={(e) => setMainUrl(e.target.value)}
           />
-        </div>
-        <div className="col-sm-3">
-          <button
-            type="button"
-            className={buttonClass}
+        </Col>
+        <Col sm={3}>
+          <Button
+            variant={variant}
+            className="w-100"
             id="set-data-url"
             disabled={phase === 'loading'}
             onClick={onSet}
           >
             {phase === 'loading' ? (
               <>
-                <span
-                  className="spinner-border spinner-border-sm"
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
                   role="status"
                   aria-hidden="true"
-                ></span>
+                />
                 <span className="visually-hidden">Loading...</span>
               </>
             ) : phase === 'success' ? (
@@ -109,25 +107,25 @@ function DataUrlSettings() {
             ) : (
               '設定'
             )}
-          </button>
-        </div>
-      </div>
-      <div className="row mb-3">
-        <label htmlFor="extra-data-url" className="col-sm-3 col-form-label">
+          </Button>
+        </Col>
+      </Row>
+      <Row className="mb-3">
+        <Form.Label htmlFor="extra-data-url" column sm={3}>
           追加データ取得先
-        </label>
-        <div className="col-sm-6">
-          <textarea
-            className="form-control"
+        </Form.Label>
+        <Col sm={6}>
+          <Form.Control
+            as="textarea"
             id="extra-data-url"
             placeholder="例: https://example.com/packages.json"
             aria-label="Extra Data URL"
             value={extraValue}
             onChange={(e) => setExtraUrls(e.target.value)}
-          ></textarea>
-        </div>
-        <div className="col-sm-3"></div>
-      </div>
+          />
+        </Col>
+        <Col sm={3}></Col>
+      </Row>
     </>
   );
 }
