@@ -42,7 +42,7 @@ const scriptsListInput = (value: unknown): { update: boolean } => {
   return { update };
 };
 
-const packageItemInput = (
+const packageStateInput = (
   value: unknown,
 ): { id: string; info: Record<string, unknown> } => {
   if (typeof value !== 'object' || value === null)
@@ -58,13 +58,13 @@ const installPackageInput = (
   value: unknown,
 ): {
   installationPath: string;
-  packageItem: { id: string; info: Record<string, unknown> };
+  packageState: { id: string; info: Record<string, unknown> };
   direct: boolean;
   archivePath?: string;
 } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { installationPath, packageItem, direct, archivePath } =
+  const { installationPath, packageState, direct, archivePath } =
     value as Record<string, unknown>;
   if (typeof installationPath !== 'string')
     throw new TypeError('installationPath is expected to be a string.');
@@ -74,7 +74,7 @@ const installPackageInput = (
     throw new TypeError('archivePath is expected to be a string.');
   return {
     installationPath,
-    packageItem: packageItemInput(packageItem),
+    packageState: packageStateInput(packageState),
     direct,
     archivePath: archivePath as string | undefined,
   };
@@ -84,14 +84,14 @@ const uninstallPackageInput = (
   value: unknown,
 ): {
   installationPath: string;
-  packageItem: { id: string; info: Record<string, unknown> };
+  packageState: { id: string; info: Record<string, unknown> };
 } => {
   if (typeof value !== 'object' || value === null)
     throw new TypeError('An object is expected.');
-  const { installationPath, packageItem } = value as Record<string, unknown>;
+  const { installationPath, packageState } = value as Record<string, unknown>;
   if (typeof installationPath !== 'string')
     throw new TypeError('installationPath is expected to be a string.');
-  return { installationPath, packageItem: packageItemInput(packageItem) };
+  return { installationPath, packageState: packageStateInput(packageState) };
 };
 
 const installScriptFlowInput = (
@@ -211,7 +211,7 @@ export const packagesRouter = t.router({
       return await installPackageFlow(
         ctx,
         ctx.inst,
-        input.packageItem as Parameters<typeof installPackageFlow>[2],
+        input.packageState as Parameters<typeof installPackageFlow>[2],
         { direct: input.direct, archivePath: input.archivePath },
       );
     }),
@@ -221,7 +221,7 @@ export const packagesRouter = t.router({
       return await uninstallPackageFiles(
         ctx,
         ctx.inst,
-        input.packageItem as Parameters<typeof uninstallPackageFiles>[2],
+        input.packageState as Parameters<typeof uninstallPackageFiles>[2],
       );
     }),
   installScript: winInstProcedure

@@ -42,7 +42,7 @@ describe('convertV1LedgerPackages', () => {
     });
   });
 
-  it('変換判定はキーで行い、新 ID の解決は packageItem.id を辞書に引く(既存挙動の保存)', () => {
+  it('変換判定はキーで行い、新 ID の解決は ledgerEntry.id を辞書に引く(既存挙動の保存)', () => {
     // キーと id が食い違うデータでは id 側の変換結果が採用され、
     // id が辞書に無ければ undefined キーになる(旧 convertId と同一)
     const packages = { oldKey: { id: 'unknownId' } };

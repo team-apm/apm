@@ -248,8 +248,8 @@ export function parsePackagesXml(xmlData: string): PackagesList {
 
   // id はリモート由来のままキーになるため、releases と同じく継承なしにする
   const packages: PackagesList = Object.create(null) as PackagesList;
-  for (const packageItem of packagesInfo.packages[0].package) {
-    packages[packageItem.id[0]] = new PackageInfo(packageItem);
+  for (const parsedPackage of packagesInfo.packages[0].package) {
+    packages[parsedPackage.id[0]] = new PackageInfo(parsedPackage);
   }
   return packages;
 }

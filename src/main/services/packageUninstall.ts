@@ -18,16 +18,16 @@ export type UninstallPackageResult = 'success' | 'removeFailed' | 'filesRemain';
  * (削除失敗時のメッセージ表示は renderer 側の責務)。
  * @param {ServiceContext} ctx - The service context.
  * @param {Installation} inst - The target installation.
- * @param {object} packageItem - A package to uninstall.
+ * @param {object} packageState - A package to uninstall.
  * @returns {Promise<UninstallPackageResult>} The result of the uninstallation.
  */
 export async function uninstallPackageFiles(
   ctx: ServiceContext,
   inst: Installation,
-  packageItem: Pick<PackageState, 'id' | 'info'>,
+  packageState: Pick<PackageState, 'id' | 'info'>,
 ): Promise<UninstallPackageResult> {
   const filesToRemove = [];
-  for (const file of packageItem.info.files) {
+  for (const file of packageState.info.files) {
     if (!file.isInstallOnly)
       filesToRemove.push(path.join(inst.path, file.filename));
   }
@@ -43,7 +43,7 @@ export async function uninstallPackageFiles(
 
   let filesCount = 0;
   let notExistCount = 0;
-  for (const file of packageItem.info.files) {
+  for (const file of packageState.info.files) {
     if (!file.isInstallOnly) {
       filesCount++;
       if (!existsSync(path.join(inst.path, file.filename))) {
@@ -53,14 +53,14 @@ export async function uninstallPackageFiles(
   }
 
   const ledger = await inst.ledger();
-  await ledger.removePackage(packageItem.id);
+  await ledger.removePackage(packageState.id);
 
   const result: UninstallPackageResult =
     filesCount === notExistCount ? 'success' : 'filesRemain';
   // スクリプト由来のパッケージはローカル packages.json からも削除する
   // (旧 renderer 側 parseJson.removePackage の呼び出しと同一の挙動)
-  if (result === 'success' && packageItem.id.startsWith('script_')) {
-    await removeScriptPackage(ctx, inst, packageItem.id);
+  if (result === 'success' && packageState.id.startsWith('script_')) {
+    await removeScriptPackage(ctx, inst, packageState.id);
   }
   return result;
 }

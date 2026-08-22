@@ -80,7 +80,7 @@ export async function getIdDict(
 /**
  * Converts the package ids in the ledger using the conversion dictionary.
  * 旧 src/lib/convertId.ts の convertId と同一の挙動(新 ID の解決に
- * packageItem.id を引く点も含めて維持)。
+ * ledgerEntry.id を引く点も含めて維持)。
  * @param {ServiceContext} ctx - The service context.
  * @param {Installation} inst - The target installation.
  * @param {number} modTime - A mod time.

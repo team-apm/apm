@@ -258,7 +258,7 @@ describe('packages service', () => {
 
     it('非アーカイブのファイルを配置して apm.json に記録する', async () => {
       const archivePath = await makeArchive('test.auf');
-      const packageItem = {
+      const packageState = {
         id: 'author/plugin',
         info: {
           name: 'プラグイン',
@@ -270,7 +270,7 @@ describe('packages service', () => {
       const result = await installPackageArchive(
         inst,
         archivePath,
-        packageItem,
+        packageState,
       );
 
       expect(result).toBe(true);
@@ -283,7 +283,7 @@ describe('packages service', () => {
 
     it('isContinuous のパッケージはインストール日をバージョンとして記録する', async () => {
       const archivePath = await makeArchive('test2.auf');
-      const packageItem = {
+      const packageState = {
         id: 'author/continuous',
         info: {
           name: '継続',
@@ -293,7 +293,7 @@ describe('packages service', () => {
         },
       } as unknown as Parameters<typeof installPackageArchive>[2];
 
-      await installPackageArchive(inst, archivePath, packageItem);
+      await installPackageArchive(inst, archivePath, packageState);
 
       const ledger = await Ledger.load(installationPath);
       const version = (await ledger.get(
@@ -304,7 +304,7 @@ describe('packages service', () => {
 
     it('必要なファイルが配置できなければ false を返し apm.json に記録しない', async () => {
       const archivePath = await makeArchive('test3.auf');
-      const packageItem = {
+      const packageState = {
         id: 'author/missing',
         info: {
           name: '欠損',
@@ -316,7 +316,7 @@ describe('packages service', () => {
       const result = await installPackageArchive(
         inst,
         archivePath,
-        packageItem,
+        packageState,
       );
 
       expect(result).toBe(false);

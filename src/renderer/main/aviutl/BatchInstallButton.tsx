@@ -80,10 +80,10 @@ function BatchInstallButton(): JSX.Element {
             (status) => status === p.installationStatus,
           ),
       );
-      for (const packageItem of packagesToInstall) {
+      for (const packageState of packagesToInstall) {
         const result = await installPackageMutation.mutateAsync({
           installationPath,
-          packageItem: { id: packageItem.id, info: packageItem.info },
+          packageState: { id: packageState.id, info: packageState.info },
           direct: true,
         });
         // 旧 installPackage の direct ルート: 破損・ダウンロード失敗は throw

@@ -59,10 +59,10 @@ export function getManuallyInstalledFiles(
   packages: PackageState[],
 ) {
   let retFiles = [...files];
-  for (const packageItem of packages) {
+  for (const packageState of packages) {
     for (const installedId of Object.keys(installedPackages)) {
-      if (installedId === packageItem.id) {
-        for (const file of packageItem.info.files) {
+      if (installedId === packageState.id) {
+        for (const file of packageState.info.files) {
           if (!file.isDirectory) {
             retFiles = retFiles.filter((ef) => ef !== file.filename);
           } else {
@@ -77,7 +77,7 @@ export function getManuallyInstalledFiles(
 
 /**
  * Returns the installed version or installation status of the package.
- * @param {object} packageItem - A Package
+ * @param {object} packageState - A Package
  * @param {string[]} installedFiles - List of installed files
  * @param {string[]} manuallyInstalledFiles - List of manually installed files
  * @param {object[]} installedPackages - A list of object from ledger
@@ -85,7 +85,7 @@ export function getManuallyInstalledFiles(
  * @returns {object} Installed version or installation status of the package
  */
 export function getInstalledVersionOfPackage(
-  packageItem: PackageState,
+  packageState: PackageState,
   installedFiles: string[],
   manuallyInstalledFiles: string[],
   installedPackages: LedgerObject['packages'],
@@ -95,7 +95,7 @@ export function getInstalledVersionOfPackage(
   let version;
   let isInstalledPackage = false;
   let isManuallyInstalledPackage = false;
-  for (const file of packageItem.info.files) {
+  for (const file of packageState.info.files) {
     if (file.isInstallOnly) continue; // isInstallOnly is not used to determine installation status because the file is often shared by multiple packages.
     if (installedFiles.includes(file.filename)) isInstalledPackage = true;
     if (manuallyInstalledFiles.includes(file.filename))
@@ -110,14 +110,14 @@ export function getInstalledVersionOfPackage(
   for (const [installedId, installedPackage] of Object.entries(
     installedPackages,
   )) {
-    if (installedId === packageItem.id) {
-      if (packageItem.info.files.some((file) => file.isObsolete)) {
+    if (installedId === packageState.id) {
+      if (packageState.info.files.some((file) => file.isObsolete)) {
         // There is no way to determine if a package that contains obsolete files is corrupt.
         installationStatus = states.installed;
         version = installedPackage.version;
       } else {
         // Determine if the package has been installed properly.
-        if (verifyFilesByCount(installationPath, packageItem.info.files)) {
+        if (verifyFilesByCount(installationPath, packageState.info.files)) {
           installationStatus = states.installed;
           version = installedPackage.version;
         } else {

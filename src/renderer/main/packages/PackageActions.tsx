@@ -205,7 +205,7 @@ function PackageActions({
     try {
       result = await installPackageMutation.mutateAsync({
         installationPath,
-        packageItem: { id: installedPackage.id, info: installedPackage.info },
+        packageState: { id: installedPackage.id, info: installedPackage.info },
         direct: false,
       });
     } catch {
@@ -266,7 +266,7 @@ function PackageActions({
     try {
       result = await uninstallPackageMutation.mutateAsync({
         installationPath,
-        packageItem: {
+        packageState: {
           id: uninstalledPackage.id,
           info: uninstalledPackage.info,
         },

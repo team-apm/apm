@@ -31,8 +31,8 @@ export async function updateInfo(win: BrowserWindow, config: Config) {
     .split(os.EOL)
     .filter((url) => url !== '');
   const packages = ([] as string[]).concat(
-    info.packages.map((packageItem) =>
-      resolvePath(config.dataUrl.getMain(), packageItem.path),
+    info.packages.map((packagesFile) =>
+      resolvePath(config.dataUrl.getMain(), packagesFile.path),
     ),
     URLs,
   );
