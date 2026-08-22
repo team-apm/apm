@@ -4,6 +4,7 @@ import {
   ensureDir,
   mkdtemp,
   pathExists,
+  readFile,
   remove,
   writeFile,
   writeJson,
@@ -11,6 +12,7 @@ import {
 import { execFileSync } from 'node:child_process';
 import * as os from 'node:os';
 import path from 'node:path';
+import { fromData } from 'ssri';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ApmJson from '../ApmJson';
 import Config from '../Config';
@@ -267,6 +269,51 @@ describe('core service', () => {
       expect(
         await installCoreProgram(win, config, 'aviutl', '1.10', instPath),
       ).toBe('corrupt');
+    });
+
+    it('integrity 不一致の再ダウンロードに失敗すると redownloadFailed', async () => {
+      const withIntegrity = structuredClone(coreInfo);
+      withIntegrity.aviutl.releases[0].integrity.archive =
+        'sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+      await writeCachedCoreInfo(withIntegrity);
+      mocks.downloadFile.mockResolvedValueOnce(await makeCoreZip());
+      mocks.showMessageBox.mockResolvedValueOnce({ response: 0 });
+      mocks.downloadFile.mockResolvedValueOnce(undefined);
+
+      expect(
+        await installCoreProgram(win, config, 'aviutl', '1.10', instPath),
+      ).toBe('redownloadFailed');
+      expect(mocks.downloadFile).toHaveBeenLastCalledWith(
+        win,
+        'https://example.com/aviutl110.zip',
+        { subDir: 'core' },
+      );
+    });
+
+    it('integrity 不一致でも再ダウンロードで検証が通れば success', async () => {
+      const zipPath = await makeCoreZip();
+      const withIntegrity = structuredClone(coreInfo);
+      withIntegrity.aviutl.releases[0].integrity.archive = fromData(
+        await readFile(zipPath),
+        { algorithms: ['sha384'] },
+      ).toString();
+      await writeCachedCoreInfo(withIntegrity);
+      const corruptPath = path.join(
+        mocks.userDataDir.value,
+        'Data/core',
+        'corrupt.zip',
+      );
+      await writeFile(corruptPath, 'tampered');
+      mocks.downloadFile.mockResolvedValueOnce(corruptPath);
+      mocks.showMessageBox.mockResolvedValueOnce({ response: 0 });
+      mocks.downloadFile.mockResolvedValueOnce(zipPath);
+
+      expect(
+        await installCoreProgram(win, config, 'aviutl', '1.10', instPath),
+      ).toBe('success');
+      expect(await pathExists(path.join(instPath, 'aviutl.exe'))).toBe(true);
+      const apmJson = await ApmJson.load(instPath);
+      expect(await apmJson.get('core.aviutl')).toBe('1.10');
     });
   });
 
