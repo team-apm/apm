@@ -14,9 +14,10 @@ if (!isDevEnv) {
   pathTo7zip = pathTo7zip.replace('app.asar', 'app.asar.unpacked');
 }
 
-// パッケージ版では asset relocator が native_modules へコピーした 7za の
-// 実行ビットが落ちていて spawn が EACCES になる(macOS / Linux のみ。
-// dev の node_modules 直下は実行可能なので無症状)。spawn 前に付与する
+// 7za の実行ビットが落ちていて spawn が EACCES になることがある
+// (macOS / Linux のみ)。パッケージ版で asar からコピーされるときだけでなく、
+// yarn がキャッシュから node_modules へ展開する時点で落ちている例もあるため、
+// dev でも起こりうる。spawn 前に付与する
 if (process.platform !== 'win32') {
   try {
     chmodSync(pathTo7zip, 0o755);
