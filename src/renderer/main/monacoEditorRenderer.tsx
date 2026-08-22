@@ -49,7 +49,8 @@ class PlaceholderContentWidget {
   placeholder: string;
   editor: editor.IStandaloneCodeEditor;
   positionPreference: editor.ContentWidgetPositionPreference;
-  domNode: HTMLElement;
+  // getDomNode() で初めて生成する
+  domNode?: HTMLElement;
 
   /**
    * @param {string} placeholder - placeholder text
@@ -93,18 +94,19 @@ class PlaceholderContentWidget {
    */
   getDomNode(): HTMLElement {
     if (!this.domNode) {
-      this.domNode = document.createElement('div');
+      const domNode = document.createElement('div');
       this.placeholder.split('\n').map((s) => {
         const spanElm = document.createElement('div');
         spanElm.textContent = s;
-        this.domNode.appendChild(spanElm);
+        domNode.appendChild(spanElm);
       });
 
-      this.domNode.style.whiteSpace = 'pre-wrap';
-      this.domNode.style.width = 'max-content';
-      this.domNode.style.pointerEvents = 'none';
-      this.domNode.style.fontStyle = 'italic';
-      this.editor.applyFontInfo(this.domNode);
+      domNode.style.whiteSpace = 'pre-wrap';
+      domNode.style.width = 'max-content';
+      domNode.style.pointerEvents = 'none';
+      domNode.style.fontStyle = 'italic';
+      this.editor.applyFontInfo(domNode);
+      this.domNode = domNode;
     }
 
     return this.domNode;
@@ -132,7 +134,9 @@ class PlaceholderContentWidget {
   }
 }
 
-self.MonacoEnvironment = null;
+// null ではなく undefined なのは型に合わせるためで、Monaco 側は
+// `MonacoEnvironment?.…` と truthy 判定でしか見ないので両者は同値
+self.MonacoEnvironment = undefined;
 
 // Monaco は loader のデフォルト(cdn.jsdelivr.net)ではなく、monacoAssets
 // プラグインが index.html と同じ階層へ同梱する AMD ビルドから読み込む
@@ -166,7 +170,9 @@ export const MonacoEditorRenderer: React.FC = () => {
 
     save.start();
 
-    await editor.getAction('editor.action.formatDocument').run();
+    // getAction / getModel が null を返すのはエディタ破棄後。ここは
+    // 直前に editor の生存を確かめているので必ず取れる
+    await editor.getAction('editor.action.formatDocument')!.run();
     let error =
       monaco.editor
         .getModelMarkers({})
@@ -218,7 +224,7 @@ export const MonacoEditorRenderer: React.FC = () => {
   const editorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
-    editor.getModel().updateOptions({ tabSize: 2 });
+    editor.getModel()!.updateOptions({ tabSize: 2 });
     new PlaceholderContentWidget(
       placeholderStr,
       editor,
@@ -240,7 +246,7 @@ export const MonacoEditorRenderer: React.FC = () => {
         )) as Packages['packages'];
         if (packages.length === 0) return;
         editor.setValue(JSON.stringify(packages));
-        await editor.getAction('editor.action.formatDocument').run();
+        await editor.getAction('editor.action.formatDocument')!.run();
       } catch {
         // nop
       }
