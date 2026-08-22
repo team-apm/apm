@@ -73,10 +73,7 @@ export async function runStartupFlow(client: TrpcClient): Promise<void> {
   try {
     // *global*
     // migration(実装は main プロセス側 services/migration.ts)
-    if (!(await client.migration.global.mutate())) {
-      await client.quitApp.mutate();
-      return;
-    }
+    await client.migration.global.mutate();
 
     // init
     const isFirstLaunch = await initSettings(client);

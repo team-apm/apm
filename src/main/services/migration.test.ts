@@ -21,7 +21,6 @@ const OLD_DEFAULT_DATA_URL =
 const mocks = vi.hoisted(() => ({
   userDataDir: { value: '' },
   showMessageBox: vi.fn(async () => ({ response: 0 })),
-  prompt: vi.fn(),
   downloadFile: vi.fn(async () => '/backup/copy'),
 }));
 
@@ -38,15 +37,14 @@ vi.mock('electron', () => ({
 vi.mock('electron-log/main', () => ({
   default: { error: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
-vi.mock('electron-prompt', () => ({ default: mocks.prompt }));
 vi.mock('./download', () => ({ downloadFile: mocks.downloadFile }));
 
 const win = {} as BrowserWindow;
 
 /**
- * migration サービスの特性化テスト。
- * v1 → v2 → v3 の段階移行の決定表(どの状態から始めても最終的に
- * dataVersion '3' で揃う)を、リネーム・分割に先立って固定する。
+ * migration サービスのテスト。
+ * 契約は「入力の版(v1 = dataVersion キー無し / v2)が何であれ、出力は v3 の
+ * 正規形」。段(1→2→3)は踏まないので、中間状態ではなく最終状態を固定する。
  */
 describe('migration service', () => {
   const tempDirs: string[] = [];
@@ -78,9 +76,8 @@ describe('migration service', () => {
 
   describe('migrationGlobal', () => {
     it('初回起動(main 未設定)は dataVersion 3 を書いて終わる', async () => {
-      const result = await migrationGlobal(ctx);
+      await migrationGlobal(ctx);
 
-      expect(result).toBe(true);
       expect(config.getDataVersion()).toBe('3');
       expect(mocks.showMessageBox).not.toHaveBeenCalled();
     });
@@ -89,9 +86,8 @@ describe('migration service', () => {
       config.dataUrl.setMain('https://example.com/v3/');
       config.setDataVersion('3');
 
-      const result = await migrationGlobal(ctx);
+      await migrationGlobal(ctx);
 
-      expect(result).toBe(true);
       expect(config.dataUrl.getMain()).toBe('https://example.com/v3/');
       expect(mocks.showMessageBox).not.toHaveBeenCalled();
     });
@@ -101,37 +97,23 @@ describe('migration service', () => {
       config.setDataVersion('2');
       config.modDate.setCore(1000);
 
-      const result = await migrationGlobal(ctx);
+      await migrationGlobal(ctx);
 
-      expect(result).toBe(true);
       expect(config.getDataVersion()).toBe('3');
       expect(config.dataUrl.hasMain()).toBe(false);
       expect(config.modDate.hasCore()).toBe(false);
       expect(mocks.showMessageBox).toHaveBeenCalledOnce();
     });
 
-    it('v1(旧デフォルト URL)からは確認なしで v2 を経由して 3 まで進む', async () => {
-      // かつて setMain(undefined) が conf に拒否されクラッシュしていた経路
-      // (#2397)。デフォルト利用者は dataURL.main が未設定へ戻る
+    it('v1(dataVersion キー無し)からも確認なしで同じ最終状態になる', async () => {
       config.dataUrl.setMain(OLD_DEFAULT_DATA_URL);
 
-      const result = await migrationGlobal(ctx);
+      await migrationGlobal(ctx);
 
-      expect(result).toBe(true);
       expect(config.getDataVersion()).toBe('3');
       expect(config.dataUrl.hasMain()).toBe(false);
-      // v2→3 の案内ダイアログの 1 回だけ(v1→2 の確認は旧デフォルトなら出ない)
+      // 移行するかどうかを尋ねず、結果の案内を 1 回出すだけ
       expect(mocks.showMessageBox).toHaveBeenCalledOnce();
-    });
-
-    it('v1(カスタム URL)でキャンセルを選ぶと false(起動中止)', async () => {
-      config.dataUrl.setMain('https://example.com/custom-v1/');
-      mocks.showMessageBox.mockResolvedValueOnce({ response: 0 });
-
-      const result = await migrationGlobal(ctx);
-
-      expect(result).toBe(false);
-      expect(config.hasDataVersion()).toBe(false);
     });
   });
 

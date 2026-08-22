@@ -1,8 +1,8 @@
 import Store from 'electron-store';
 
-// キー名はディスク上の config.json の形式そのもの。dataURL / oldDataURL /
-// newDataURL を識別子規約(dataUrl)に合わせて改名すると既存ユーザーの設定を
-// 読めなくなるため、ここでは大文字 URL のまま維持する
+// キー名はディスク上の config.json の形式そのもの。dataURL を識別子規約
+// (dataUrl)に合わせて改名すると既存ユーザーの設定を読めなくなるため、
+// ここでは大文字 URL のまま維持する
 type StoreType = {
   dataVersion: '1' | '2' | '3';
   installationPath: string;
@@ -23,11 +23,6 @@ type StoreType = {
   };
   autoUpdate: 'download' | 'notify' | 'disable';
   zoomFactor: string;
-
-  migration1to2: {
-    oldDataURL: string;
-    newDataURL: string;
-  };
 };
 
 let instance: Config | undefined;
