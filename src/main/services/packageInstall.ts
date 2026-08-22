@@ -150,11 +150,18 @@ export async function installPackageFlow(
     resolveArchive: async () => {
       if (archivePath) return { archivePath };
       if (direct) {
-        const resolvedArchivePath = await downloadFile(
-          win,
-          packageState.info.directURL,
-          { loadCache: true, subDir: 'package' },
-        );
+        // direct 指定なのに directURL を持たないパッケージは、この先の
+        // ダウンロードで必ず失敗する
+        const directURL = packageState.info.directURL;
+        if (!directURL) {
+          throw new Error(
+            `The package has no direct URL. id:${packageState.id}`,
+          );
+        }
+        const resolvedArchivePath = await downloadFile(win, directURL, {
+          loadCache: true,
+          subDir: 'package',
+        });
         if (!resolvedArchivePath) {
           log.error('Failed downloading a file.');
           return { failure: 'downloadFailed' as const };
@@ -181,12 +188,16 @@ export async function installPackageFlow(
     corruptLogUrl: packageState.info.directURL,
     redownloadArchive: async () => {
       if (direct) {
+        const directURL = packageState.info.directURL;
+        if (!directURL) {
+          throw new Error(
+            `The package has no direct URL. id:${packageState.id}`,
+          );
+        }
         // 再ダウンロード先が subDir 'core' なのは旧実装のままの挙動
-        const resolvedArchivePath = await downloadFile(
-          win,
-          packageState.info.directURL,
-          { subDir: 'core' },
-        );
+        const resolvedArchivePath = await downloadFile(win, directURL, {
+          subDir: 'core',
+        });
         if (!resolvedArchivePath) {
           log.error(
             `Failed downloading the archive file. URL:${packageState.info.directURL}`,
