@@ -20,10 +20,10 @@ import Ledger from '../Ledger';
 import {
   changeInstallationPath,
   ensureInstallationPath,
-  getApmJsonCoreVersions,
   getCoreDates,
   getCoreInfo,
   getInstalledVersionTexts,
+  getLedgerCoreVersions,
   hasExeditInPluginsFolder,
   installCoreProgram,
 } from './core';
@@ -140,9 +140,9 @@ describe('core service', () => {
     });
   });
 
-  describe('getApmJsonCoreVersions', () => {
+  describe('getLedgerCoreVersions', () => {
     it('未記録なら undefined を返す', async () => {
-      expect(await getApmJsonCoreVersions(inst)).toEqual({
+      expect(await getLedgerCoreVersions(inst)).toEqual({
         aviutl: undefined,
         exedit: undefined,
       });
@@ -151,7 +151,7 @@ describe('core service', () => {
     it('記録済みのバージョンを返す', async () => {
       const ledger = await Ledger.load(instPath);
       await ledger.setCore('aviutl', '1.10');
-      expect(await getApmJsonCoreVersions(inst)).toEqual({
+      expect(await getLedgerCoreVersions(inst)).toEqual({
         aviutl: '1.10',
         exedit: undefined,
       });

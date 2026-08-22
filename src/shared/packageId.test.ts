@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { convertV1ApmJsonPackages, convertV1PackageIds } from './packageId';
+import { convertV1LedgerPackages, convertV1PackageIds } from './packageId';
 
 // services/packages.ts に重複していた ID 変換ループの特性化テスト。
 // ID 例は実在の変換辞書の形式(v1 の連結形 → v2 以降の developer/name 形)。
@@ -27,13 +27,13 @@ describe('convertV1PackageIds', () => {
   });
 });
 
-describe('convertV1ApmJsonPackages', () => {
+describe('convertV1LedgerPackages', () => {
   it('キーと id の両方を現行 ID へ書き換える(in place)', () => {
     const packages: { [key: string]: { id: string; version: string } } = {
       MrOjii_LSMASHWorks: { id: 'MrOjii_LSMASHWorks', version: 'v1' },
       'rigaya/NVEnc': { id: 'rigaya/NVEnc', version: 'v2' },
     };
-    convertV1ApmJsonPackages(packages, {
+    convertV1LedgerPackages(packages, {
       MrOjii_LSMASHWorks: 'MrOjii/LSMASHWorks',
     });
     expect(packages).toEqual({
@@ -46,7 +46,7 @@ describe('convertV1ApmJsonPackages', () => {
     // キーと id が食い違うデータでは id 側の変換結果が採用され、
     // id が辞書に無ければ undefined キーになる(旧 convertId と同一)
     const packages = { oldKey: { id: 'unknownId' } };
-    convertV1ApmJsonPackages(packages, { oldKey: 'new/key' });
+    convertV1LedgerPackages(packages, { oldKey: 'new/key' });
     expect(packages).toEqual({ undefined: { id: undefined } });
   });
 });

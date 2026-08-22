@@ -118,7 +118,7 @@ function NicommonsTab(): JSX.Element {
     () => packages.filter((p) => p.info.nicommons).map((p) => p.id),
     [packages],
   );
-  const installedIdsQuery = TRPCReact.packages.getApmJsonInstalledIds.useQuery(
+  const installedIdsQuery = TRPCReact.packages.getLedgerInstalledIds.useQuery(
     { instPath, ids: candidateIds },
     { refetchOnWindowFocus: false, enabled: packagesQuery.isSuccess },
   );
@@ -129,7 +129,7 @@ function NicommonsTab(): JSX.Element {
     };
     const onPackagesChanged = () => {
       void utils.packages.getPackages.invalidate();
-      void utils.packages.getApmJsonInstalledIds.invalidate();
+      void utils.packages.getLedgerInstalledIds.invalidate();
       // 旧実装は再描画のたびに全チェック済みへ戻していた
       setUncheckedIds(new Set());
     };

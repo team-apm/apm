@@ -29,7 +29,7 @@ export function convertV1PackageIds(
  * @param {{ [key: string]: { id: string } }} packages - The apm.json packages object.
  * @param {PackageIdDict} convDict - Dictionary of id relationships.
  */
-export function convertV1ApmJsonPackages(
+export function convertV1LedgerPackages(
   packages: { [key: string]: { id: string } },
   convDict: PackageIdDict,
 ) {

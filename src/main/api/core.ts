@@ -2,10 +2,10 @@ import {
   changeInstallationPath,
   checkCoreLatestVersion,
   ensureInstallationPath,
-  getApmJsonCoreVersions,
   getCoreDates,
   getCoreInfo,
   getInstalledVersionTexts,
+  getLedgerCoreVersions,
   hasExeditInPluginsFolder,
   installCoreProgram,
 } from '../services/core';
@@ -43,9 +43,9 @@ export const coreRouter = t.router({
   changeInstallationPath: winInstProcedure
     .input(stringInput)
     .mutation(async ({ ctx }) => await changeInstallationPath(ctx, ctx.inst)),
-  getApmJsonCoreVersions: instProcedure
+  getLedgerCoreVersions: instProcedure
     .input(stringInput)
-    .query(async ({ ctx }) => await getApmJsonCoreVersions(ctx.inst)),
+    .query(async ({ ctx }) => await getLedgerCoreVersions(ctx.inst)),
   getInstalledVersionTexts: winInstProcedure
     .input(stringInput)
     .query(async ({ ctx }) => await getInstalledVersionTexts(ctx, ctx.inst)),

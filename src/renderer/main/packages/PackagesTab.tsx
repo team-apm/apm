@@ -167,7 +167,7 @@ function PackagesTab(): JSX.Element {
     { update: false },
     { refetchOnWindowFocus: false },
   );
-  const coreVersionsQuery = TRPCReact.core.getApmJsonCoreVersions.useQuery(
+  const coreVersionsQuery = TRPCReact.core.getLedgerCoreVersions.useQuery(
     instPath,
     { refetchOnWindowFocus: false },
   );
@@ -180,7 +180,7 @@ function PackagesTab(): JSX.Element {
     const onPackagesChanged = () => {
       void utils.packages.getPackagesWithStatus.invalidate();
       void utils.packages.getScriptsList.invalidate();
-      void utils.core.getApmJsonCoreVersions.invalidate();
+      void utils.core.getLedgerCoreVersions.invalidate();
     };
     window.addEventListener('apm-core-changed', onCoreChanged);
     window.addEventListener('apm-packages-changed', onPackagesChanged);

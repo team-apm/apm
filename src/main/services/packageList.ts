@@ -6,7 +6,7 @@ import path from 'node:path';
 import { asyncFlatMap } from '../../shared/asyncFlatMap';
 import { checkIntegrity } from '../../shared/integrity';
 import {
-  convertV1ApmJsonPackages,
+  convertV1LedgerPackages,
   convertV1PackageIds,
 } from '../../shared/packageId';
 import {
@@ -97,7 +97,7 @@ export async function convertPackageIds(
   };
 
   const convDict = await getIdDict(ctx, true);
-  convertV1ApmJsonPackages(packages, convDict);
+  convertV1LedgerPackages(packages, convDict);
 
   await ledger.set('packages', packages);
   await ledger.set('convertMod', modTime);
@@ -368,10 +368,7 @@ export function getPackagesDates(
  * @param {string[]} ids - Package ids to check.
  * @returns {Promise<string[]>} The ids recorded in the ledger.
  */
-export async function getApmJsonInstalledIds(
-  inst: Installation,
-  ids: string[],
-) {
+export async function getLedgerInstalledIds(inst: Installation, ids: string[]) {
   const ledger = await inst.ledger();
   const result: string[] = [];
   for (const id of ids) {

@@ -22,7 +22,7 @@ import {
   openPackageFolder,
 } from './packageInstall';
 import {
-  getApmJsonInstalledIds,
+  getLedgerInstalledIds,
   getPackages,
   getPackagesDataUrl,
   getPackagesExtra,
@@ -490,8 +490,8 @@ describe('packages service', () => {
       expect(await pathExists(path.join(instPath, 'plugins/target.auf'))).toBe(
         false,
       );
-      const apmJson2 = await Ledger.load(instPath);
-      expect(await apmJson2.has('packages.a/b')).toBe(false);
+      const ledger2 = await Ledger.load(instPath);
+      expect(await ledger2.has('packages.a/b')).toBe(false);
     });
 
     it('isInstallOnly のファイルは削除しない', async () => {
@@ -527,8 +527,8 @@ describe('packages service', () => {
 
       expect(result).toBe('removeFailed');
       // 失敗時は apm.json に残る(削除処理まで到達しない)
-      const apmJson2 = await Ledger.load(instPath);
-      expect(await apmJson2.has('packages.a/evil')).toBe(true);
+      const ledger2 = await Ledger.load(instPath);
+      expect(await ledger2.has('packages.a/evil')).toBe(true);
     });
 
     it('script_ パッケージはローカル packages.json からも取り除く', async () => {
@@ -687,12 +687,12 @@ describe('packages service', () => {
     });
   });
 
-  describe('getApmJsonInstalledIds', () => {
+  describe('getLedgerInstalledIds', () => {
     it('apm.json に記録済みの ID だけを返す', async () => {
       const ledger = await Ledger.load(instPath);
       await ledger.addPackage('a/b', '1.0');
 
-      expect(await getApmJsonInstalledIds(inst, ['a/b', 'c/d'])).toEqual([
+      expect(await getLedgerInstalledIds(inst, ['a/b', 'c/d'])).toEqual([
         'a/b',
       ]);
     });

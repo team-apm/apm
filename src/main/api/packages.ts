@@ -8,7 +8,7 @@ import {
 } from '../services/packageInstall';
 import {
   convertPackageIds,
-  getApmJsonInstalledIds,
+  getLedgerInstalledIds,
   getPackages,
   getPackagesDates,
   getPackagesExtra,
@@ -175,11 +175,11 @@ export const packagesRouter = t.router({
   getPackagesExtra: winInstProcedure
     .input(stringInput)
     .query(async ({ ctx }) => await getPackagesExtra(ctx, ctx.inst)),
-  getApmJsonInstalledIds: instProcedure
+  getLedgerInstalledIds: instProcedure
     .input(installedIdsInput)
     .query(
       async ({ input, ctx }) =>
-        await getApmJsonInstalledIds(ctx.inst, input.ids),
+        await getLedgerInstalledIds(ctx.inst, input.ids),
     ),
   convertIds: winInstProcedure
     .input(convertIdsInput)
