@@ -45,13 +45,13 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 ### 却下した選択肢(再提案しない)
 
-| 選択肢                                 | 却下理由                                                                                                                                                                                                                                                                       |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| v4 全面リライト(#2169)                 | 機能喪失リスクが大きく、コンフリクトも解消不能に近い。Strangler Fig の段階移行で置き換えた                                                                                                                                                                                     |
-| AviUtl2(ExEdit2)対応(#2163)            | プラグインが完全新形式で v1 と非互換のため apm-data の資産(285 件)が流用できない。instPath 単一基準のパス解決がインストーラ版 AviUtl2(exe と ProgramData 分離・要管理者昇格)と構造的に不適合。専用マネージャの aviutl2-catalog が 1 年先行しており、後発参入の投資対効果がない |
-| dataURL の allowlist 化                | 自作パッケージ・サードパーティデータの検証というユースケースを壊す                                                                                                                                                                                                             |
-| semantic-release / changesets への移行 | release-it + conventional-changelog で十分。ツール入れ替えのコストに見合わない                                                                                                                                                                                                 |
-| React 移行と同時の i18n 導入           | 移行の変更量を最小に保つため分離                                                                                                                                                                                                                                               |
+| 選択肢                                 | 却下理由                                                                                                                                                                                                                                                                               |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v4 全面リライト(#2169)                 | 機能喪失リスクが大きく、コンフリクトも解消不能に近い。Strangler Fig の段階移行で置き換えた                                                                                                                                                                                             |
+| AviUtl2(ExEdit2)対応(#2163)            | プラグインが完全新形式で v1 と非互換のため apm-data の資産(285 件)が流用できない。installationPath 単一基準のパス解決がインストーラ版 AviUtl2(exe と ProgramData 分離・要管理者昇格)と構造的に不適合。専用マネージャの aviutl2-catalog が 1 年先行しており、後発参入の投資対効果がない |
+| dataURL の allowlist 化                | 自作パッケージ・サードパーティデータの検証というユースケースを壊す                                                                                                                                                                                                                     |
+| semantic-release / changesets への移行 | release-it + conventional-changelog で十分。ツール入れ替えのコストに見合わない                                                                                                                                                                                                         |
+| React 移行と同時の i18n 導入           | 移行の変更量を最小に保つため分離                                                                                                                                                                                                                                                       |
 
 ## 既知の固定と理由(上げる前に必ず読む)
 
@@ -67,6 +67,26 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 - 分からないこと・方針が割れることは質問してから進める
 - テストは意味のあるものだけ。過剰な抽象化・スコープ拡大は避ける
 - 書き分けの原則: **コードには How、テストコードには What、コミットログには Why、コードコメントには Why not**。コードコメントは「なぜこう書かないか(採らなかった選択肢・制約)」を残す場所で、コードを読めば分かることは書かない
+
+## ユビキタス言語(Phase 5 の設計しなおしで確定)
+
+ドメイン概念とコード上の名前の対応。新しい識別子はこの表に合わせる。
+
+| 概念                     | コード上の名前                                                                                                                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| インストール先(集約)     | `Installation` / `openInstallation`(`src/main/installation.ts`)。引数・変数の慣用略は `inst`、パス文字列は `installationPath`(Config キー・DOM id `#installation-path` と一致。`instPath` とは略さない) |
+| 導入記録                 | `Ledger`(`src/main/Ledger.ts`)。ディスク上の実体は `{installationPath}/apm.json`                                                                                                                        |
+| 状態付きパッケージ       | `PackageState`(`src/types/packageState.d.ts`)。変数も `packageState`                                                                                                                                    |
+| パッケージ ID とその変換 | `src/shared/packageId.ts` に一本化                                                                                                                                                                      |
+| ローカルリポジトリ       | `Installation.localRepoPath`(`{installationPath}/packages.json`)                                                                                                                                        |
+| データ取得先             | 概念・ドキュメント・UI 表記は **dataURL**、コード識別子は camelCase の **dataUrl** 系(`config.dataUrl` 等)                                                                                              |
+
+改名してはいけないもの(互換のための例外):
+
+- ディスク形式のキー・ファイル名: `config.json` のキー(`dataURL.main` / `migration1to2.oldDataURL` 等)、`apm.json`(ファイル名と `convertMod` 等のキー)
+- apm-schema 由来のフィールド(`pageURL` / `downloadURLs` 等)
+- インストーラ引数のプレースホルダ `$instpath`(ユーザーデータに書かれる書式)
+- JSDoc・コメントの「旧 〜 と同一の挙動」に現れる旧実装の識別子(歴史的記述)
 
 ## 言語規約
 
@@ -85,7 +105,7 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 機械化できる制約は ESLint で強制し、背景説明は該当コードのコメントに置く(ここには lint・型で守れない判断基準だけを残す)。lint 化済み: monaco-editor の型のみインポート、renderer / lib での fs 直接 import 禁止(いずれも `eslint.config.mjs` の `no-restricted-imports`)。コード側に説明があるもの: `compareVersion` の NaN 返却(JSDoc)、起動フローの順序(`src/renderer/main/startup.ts` のコメント)。
 
-- main 窓は単一 React ルートだが、複数箇所から共有する実行状態(一覧再取得の phase・instPath・firstLaunch)は `packages/packagesListCheck.ts` のようにモジュールシングルトン + `useSyncExternalStore` で持つ(起動元と表示側が別タブにまたがるため)。コンポーネント間の再取得通知は DOM イベント(`apm-packages-changed` / `apm-core-changed` / `apm-check-packages-list` / `apm-install-package-by-id`)が残っている(queryClient への一本化は Phase 5 の設計しなおしで検討)
+- main 窓は単一 React ルートだが、複数箇所から共有する実行状態(一覧再取得の phase・installationPath・firstLaunch)は `packages/packagesListCheck.ts` のようにモジュールシングルトン + `useSyncExternalStore` で持つ(起動元と表示側が別タブにまたがるため)。コンポーネント間の再取得通知は DOM イベント(`apm-packages-changed` / `apm-core-changed` / `apm-check-packages-list` / `apm-install-package-by-id`)が残っている(queryClient への一本化は Phase 5 の設計しなおしで検討)
 - 1 窓に tRPC クライアントを複数作らない(main 窓は `TrpcProvider`、about 窓は `App` の 1 個ずつ)。複数作るとリクエスト ID が衝突し、**他方のリクエストへの応答で resolve される**。かつて preload 側クライアントと共存させるため `shared/trpcIdNamespace.ts` で ID 空間を偶奇分離していた — 再び複数が必要になったら git 履歴から復元する
 - メインワールドの React から import する shared モジュールは electron だけでなく **fs にも依存不可**(renderer の webpack ビルドに Node ポリフィルが無いため、fs-extra が混入するとビルドが落ちる)。直接 import は lint が検出するが、**shared モジュール経由の推移的な fs 依存は lint で検出できない**(webpack のビルド失敗が検出線)。表示用の定数・純関数は `src/shared/packageDisplay.ts` のように fs 非依存モジュールへ分離する
 - trpc-electron(electron-trpc の tRPC 11 対応フォーク。0.7.1 までの本家は tRPC 11 非互換)は falsy なトップレベル入力(`false` / `0` / `''`)を `undefined` に変換する(main ハンドラが `input: g ? deserialize(g) : void 0` と真偽値評価しているため)。tRPC procedure の入力にプリミティブの boolean / number を直接渡さず、必ずオブジェクトで包む(`{ update: boolean }` 等)
