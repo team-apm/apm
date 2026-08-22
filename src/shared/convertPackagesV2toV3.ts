@@ -9,19 +9,31 @@ export interface PackagesJsonV3 {
 /**
  * Converts packages parsed from the v2 `packages.xml` into the v3
  * `packages.json` format.
- * 旧 migration2to3.byFolder のインライン実装の忠実な移植。
- * `isOptional` → `isUninstallOnly` の変換は JSON 文字列全体への
- * replaceAll であり、キー以外(説明文等)に isOptional という文字列が
- * 含まれていても置換されるという性質ごと維持している。
+ * 旧 migration2to3.byFolder のインライン実装の移植。ただし
+ * `isOptional` → `isUninstallOnly` の改名だけはファイル要素のキーに対して
+ * 行う(旧実装の JSON 文字列全体への replaceAll は、説明文に isOptional と
+ * いう文字列が含まれていると値まで書き換えてしまう)。
  * @param {PackageInfo[]} packages - Packages parsed from `packages.xml`.
  * @returns {PackagesJsonV3} The v3 `packages.json` data.
  */
 export function convertPackagesV2toV3(packages: PackageInfo[]): PackagesJsonV3 {
-  let v3Packages = JSON.parse(
-    JSON.stringify(packages).replaceAll('isOptional', 'isUninstallOnly'),
-  );
+  // 以降のステップが破壊的に書き換えるため、freeze された PackageInfo とは
+  // 別の可変オブジェクトへ複製する
+  let v3Packages = JSON.parse(JSON.stringify(packages));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   v3Packages = v3Packages.map((p: any) => {
+    // isOptional は <file> の属性由来のキー(parsePackagesXml の XmlFile)。
+    // 出現箇所が分かっているので文字列置換にはしない。entries を組み直すのは
+    // delete + 代入だと改名したキーが末尾へ移り、出力の並びが変わるため
+    if (Array.isArray(p.files)) {
+      p.files = p.files.map((file: Record<string, unknown>) =>
+        Object.fromEntries(
+          Object.entries(file).map(([key, value]) =>
+            key === 'isOptional' ? ['isUninstallOnly', value] : [key, value],
+          ),
+        ),
+      );
+    }
     if (p?.dependencies?.dependency) p.dependencies = p.dependencies.dependency;
     if (p?.releases)
       p.releases = Object.entries(p.releases).map(([k, v]) => {
