@@ -1,4 +1,10 @@
-import { app, BrowserWindow, clipboard, dialog } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  clipboard,
+  dialog,
+  type OpenDialogOptions,
+} from 'electron';
 import { openAboutWindow } from '../aboutWindow';
 import {
   checkUpdate as checkAppUpdate,
@@ -74,12 +80,17 @@ export const appProcedures = {
   }),
   // フォルダ選択ダイアログ(旧 OPEN_DIR_DIALOG チャンネルと同一の挙動)
   openDirDialog: procedure.input(dirDialogInput).mutation(async ({ input }) => {
-    const win = BrowserWindow.getFocusedWindow();
-    const dir = await dialog.showOpenDialog(win, {
+    const options: OpenDialogOptions = {
       title: input.title,
       defaultPath: input.defaultPath,
       properties: ['openDirectory'],
-    });
+    };
+    // フォーカス窓が無いときは窓なしのオーバーロードへ回す。null を親として
+    // 渡す書き方は型が許さず、すぐ上の openDialog も窓なしで呼んでいる
+    const win = BrowserWindow.getFocusedWindow();
+    const dir = await (win
+      ? dialog.showOpenDialog(win, options)
+      : dialog.showOpenDialog(options));
     return dir.filePaths;
   }),
   writeClipboardText: procedure.input(clipboardInput).mutation(({ input }) => {
