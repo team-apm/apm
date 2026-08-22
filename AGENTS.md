@@ -85,7 +85,7 @@ PR 前に上記 3 つ(lint / lint:ts / test)がすべて緑であること。
 
 改名してはいけないもの(互換のための例外):
 
-- ディスク形式のキー・ファイル名: `config.json` のキー(`dataURL.main` / `migration1to2.oldDataURL` 等)、`apm.json`(ファイル名と `convertMod` 等のキー)
+- ディスク形式のキー・ファイル名: `config.json` のキー(`dataURL.main` 等)、`apm.json`(ファイル名と `convertMod` 等のキー)
 - apm-schema 由来のフィールド(`pageURL` / `downloadURLs` 等)
 - インストーラ引数のプレースホルダ `$instpath`(ユーザーデータに書かれる書式)
 - JSDoc・コメントの「旧 〜 と同一の挙動」に現れる旧実装の識別子(歴史的記述)
