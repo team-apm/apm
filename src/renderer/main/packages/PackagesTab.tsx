@@ -684,6 +684,7 @@ function PackagesTab(): JSX.Element {
                                     {row.kind === 'package' &&
                                       row.p.installationStatus ===
                                         states.installed &&
+                                      row.p.version !== undefined &&
                                       compareVersion(
                                         row.p.info.latestVersion,
                                         row.p.version,

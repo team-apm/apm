@@ -51,6 +51,7 @@ function BatchInstallButton(): JSX.Element {
     try {
       // tRPC の Serialize 型はプロパティを optional 化するため元の型に戻す
       const coreInfo = (await utils.core.getCoreInfo.fetch()) as Core | null;
+      if (!coreInfo) throw new Error('The version data do not exist.');
       for (const program of programs) {
         const progInfo = coreInfo[program];
         const result = await installProgramMutation.mutateAsync({
