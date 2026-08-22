@@ -181,27 +181,34 @@ export const MonacoEditorRenderer: React.FC = () => {
 
     save.start();
 
-    // getAction / getModel が null を返すのはエディタ破棄後。ここは
-    // 直前に editor の生存を確かめているので必ず取れる
-    await editor.getAction('editor.action.formatDocument')!.run();
-    let error =
-      monaco.editor
-        .getModelMarkers({})
-        .filter(
-          (m) =>
-            m.severity === monaco.MarkerSeverity.Warning ||
-            m.severity === monaco.MarkerSeverity.Error,
-        ).length > 0;
-
-    let json;
+    // 全体を囲うのは、途中で投げると phase が loading のまま残り、
+    // 保存ボタンが二度と押せなくなるため(usePhase の復帰タイマーは
+    // finish 系でしか張られない)。JSON の構文エラーと同じ 'エラー' に
+    // 寄せるのは、ユーザーから見ればどちらも「保存できなかった」ため
     try {
-      json = JSON.parse(editor.getValue());
-    } catch {
-      error = true;
-    }
-    if (error) {
-      save.finish('エラー', 'danger');
-    } else {
+      // getAction / getModel が null を返すのはエディタ破棄後。ここは
+      // 直前に editor の生存を確かめているので必ず取れる
+      await editor.getAction('editor.action.formatDocument')!.run();
+      let error =
+        monaco.editor
+          .getModelMarkers({})
+          .filter(
+            (m) =>
+              m.severity === monaco.MarkerSeverity.Warning ||
+              m.severity === monaco.MarkerSeverity.Error,
+          ).length > 0;
+
+      let json;
+      try {
+        json = JSON.parse(editor.getValue());
+      } catch {
+        error = true;
+      }
+      if (error) {
+        save.finish('エラー', 'danger');
+        return;
+      }
+
       // editorPackages.json の読み書きは main プロセス側
       // (src/main/services/packages.ts)
       await setEditorPackagesMutation.mutateAsync({
@@ -212,6 +219,8 @@ export const MonacoEditorRenderer: React.FC = () => {
       // このイベントを購読して行う
       window.dispatchEvent(new Event('apm-check-packages-list'));
       save.finish('保存完了', 'success');
+    } catch {
+      save.finish('エラー', 'danger');
     }
   };
   // Ctrl+S のコマンド登録は onMount で 1 回だけ行うため、最新の実装を
