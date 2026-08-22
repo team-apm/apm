@@ -17,8 +17,8 @@ const IDLE_LABEL = 'AviUtl・拡張編集とおすすめプラグインのイン
 /**
  * The batch-install button of the AviUtl tab.
  * 旧 core.ts の batchInstall(+ installProgram の btn なしルート)に相当する。
- * プログラムのインストール失敗は旧実装どおり黙って次へ進み、
- * ダウンロード失敗・破損のみ全体をエラー表示にする。
+ * ダウンロード失敗・破損は旧実装どおり全体を中断し、それ以外の失敗は
+ * 次の対象へ進む。ただし進んだぶんは件数を数えて最後に伝える。
  * @returns {JSX.Element} The rendered component.
  */
 function BatchInstallButton(): JSX.Element {
@@ -49,6 +49,10 @@ function BatchInstallButton(): JSX.Element {
       return;
     }
 
+    // 失敗しても次へ進むが、進んだことを黙っていると 1 件も入らずに
+    // 「インストール完了」と出てしまう。件数だけは持ち回る
+    let failedCount = 0;
+
     try {
       // tRPC の Serialize 型はプロパティを optional 化するため元の型に戻す
       const coreInfo = (await utils.core.getCoreInfo.fetch()) as Core | null;
@@ -61,7 +65,7 @@ function BatchInstallButton(): JSX.Element {
           installationPath,
         });
         // 旧 installProgram の btn なしルート: ダウンロード失敗のみ全体を
-        // エラーにし、他の失敗は黙って次へ進む
+        // エラーにし、他の失敗は次へ進む
         if (result === 'redownloadFailed') {
           throw new Error('Failed downloading the archive file.');
         }
@@ -69,6 +73,10 @@ function BatchInstallButton(): JSX.Element {
           window.dispatchEvent(new Event('apm-core-changed'));
           // 一覧と日付表示の再取得(旧 setPackagesList 相当)
           window.dispatchEvent(new Event('apm-packages-changed'));
+        } else {
+          // installCoreProgram には「既に入っているので何もしない」経路が
+          // 無く、毎回取得して上書きする。success 以外は本当に失敗
+          failedCount++;
         }
       }
 
@@ -98,10 +106,18 @@ function BatchInstallButton(): JSX.Element {
         if (result === 'success') {
           // 一覧と日付表示の再取得(旧 setPackagesList 相当)
           window.dispatchEvent(new Event('apm-packages-changed'));
+        } else {
+          // 対象は notInstalled / installedButBroken に絞ってあるので、
+          // success 以外は本当に失敗
+          failedCount++;
         }
       }
 
-      finish('インストール完了', 'success');
+      if (failedCount > 0) {
+        finish(`${failedCount} 件のインストールに失敗しました。`, 'danger');
+      } else {
+        finish('インストール完了', 'success');
+      }
     } catch {
       finish('エラーが発生しました。', 'danger');
     }
