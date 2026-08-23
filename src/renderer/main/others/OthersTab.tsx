@@ -17,6 +17,7 @@ import { TRPCReact } from '../../trpc';
 function OthersTab() {
   const { data: appName } = TRPCReact.getAppName.useQuery();
   const openAboutWindow = TRPCReact.openAboutWindow.useMutation();
+  const openLogFolder = TRPCReact.openLogFolder.useMutation();
   const quitApp = TRPCReact.quitApp.useMutation();
 
   return (
@@ -89,6 +90,21 @@ function OthersTab() {
                 >
                   <i className="bi bi-github"></i> GitHub (要アカウント)
                   <i className="bi bi-box-arrow-up-right"></i>
+                </Button>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col as="p" sm={6} className="col-form-label">
+                バグ報告に添えるログ
+              </Col>
+              <Col sm={6}>
+                <Button
+                  variant="primary"
+                  className="w-100"
+                  id="open-log-folder"
+                  onClick={() => openLogFolder.mutate()}
+                >
+                  ログフォルダを開く <i className="bi bi-folder2-open"></i>
                 </Button>
               </Col>
             </Row>
