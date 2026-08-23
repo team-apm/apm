@@ -51,7 +51,7 @@ Release tags are always cut on top of `main`, so this is a fast-forward and need
 
 ### 4. CI publishes binaries
 
-Pushing a `v*` tag triggers [`.github/workflows/release.yml`](../.github/workflows/release.yml), which runs `electron-forge publish` on macOS, Ubuntu, and Windows and attaches installers to the GitHub Release.
+Pushing a `v*` tag triggers [`.github/workflows/release.yml`](./.github/workflows/release.yml), which runs `electron-forge publish` on macOS, Ubuntu, and Windows and attaches installers to the GitHub Release.
 
 ### 5. Publish the draft release
 

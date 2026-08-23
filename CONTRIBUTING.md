@@ -15,8 +15,8 @@ The languages and frameworks used include:
 - TypeScript
 - JavaScript (Node.js)
 - HTML / CSS
-- React (About window; main window migration in progress)
-- tRPC (partial)
+- React (all windows)
+- tRPC (all IPC except one preload-only channel)
 
 ## Issues
 
@@ -69,16 +69,19 @@ By running `yarn package`, the packaged app is output to `out/`, so run it.
 
 ```text
 src/
-├── common/          # Shared constants (IPC channel names)
-├── lib/             # Shared libraries (config, paths, integrity, etc.)
-├── main/            # Electron main process
-├── migration/       # Data version migrations
+├── shared/          # Pure modules with no Electron dependency (the main unit-test target)
+├── lib/             # Electron-dependent modules used from the renderer (preload only)
+├── common/          # Channel names of the preload-only IPC
+├── main/            # Electron main process (api/ = tRPC routers, services/ = business logic)
 ├── renderer/
 │   ├── about/       # About window (React)
-│   ├── main/        # Main window (legacy DOM; being migrated)
+│   ├── main/        # Main window (React; one root, one directory per tab)
 │   └── splash/      # Splash screen
 └── types/           # TypeScript declarations
 ```
+
+[ARCHITECTURE.md](./ARCHITECTURE.md) describes the process layout, the breakdown of the
+main process, and the data flow in detail (in Japanese).
 
 See [BRANCHING.md](./BRANCHING.md) for branch workflow.
 

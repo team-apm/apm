@@ -119,7 +119,8 @@ Also, I'm Japanese, so any pull requests related to English or i18n are most wel
   - TypeScript
   - HTML / CSS
   - JavaScript
-  - React (About window; main window migration in progress)
+  - React (all windows)
+  - tRPC
 
 ## License
 

@@ -114,7 +114,8 @@ yarn start
   - TypeScript
   - HTML / CSS
   - JavaScript
-  - React (About window; main window migration in progress)
+  - React (全窓)
+  - tRPC
 
 ## ライセンス
 
