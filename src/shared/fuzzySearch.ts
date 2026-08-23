@@ -6,6 +6,11 @@ export type FuzzyOptions = {
   location?: number;
   distance?: number;
   threshold?: number;
+  /**
+   * 1 誤字を許すのに必要な文字数。3 なら 3 文字で 0 誤字、4 文字で 1 誤字。
+   * 未指定なら list.js と同じく threshold だけで決まる。
+   */
+  charsPerError?: number;
 };
 
 /**
@@ -23,6 +28,12 @@ export function fuzzyMatch(
   const matchLocation = options.location ?? 0;
   const matchDistance = options.distance ?? 100;
   const matchThreshold = options.threshold ?? 0.4;
+  // 許容する誤字数の上限。threshold を下げる方法は採れない —
+  // scoreThreshold には proximity / distance が乗るので、0 にすると
+  // 位置 0 以外の完全一致まで落ちてしまう。bitap のループ上限を直接縛る
+  const maxErrors = options.charsPerError
+    ? Math.floor(pattern.length / options.charsPerError)
+    : pattern.length - 1;
 
   if (pattern === text) return true; // Exact match
   if (pattern.length > 32) return false; // This algorithm cannot be used
@@ -60,7 +71,7 @@ export function fuzzyMatch(
 
   let binMax = pattern.length + text.length;
   let lastRd: number[] = [];
-  for (let d = 0; d < pattern.length; d++) {
+  for (let d = 0; d < pattern.length && d <= maxErrors; d++) {
     let binMin = 0;
     let binMid = binMax;
     while (binMin < binMid) {
@@ -110,22 +121,30 @@ export function fuzzyMatch(
 }
 
 /**
- * Returns whether the search string fuzzy-matches any of the column values.
- * list.js の multiSearch と同一の挙動: 検索文字列を空白で分割し、すべての
- * 語がいずれかの列にマッチする行だけが残る。大文字小文字は区別しない。
- * @param {string[]} values - The column values of a row.
+ * Returns whether the search string matches a row.
+ * list.js の multiSearch と同じく、検索文字列を空白で分割してすべての語が
+ * どこかの列にマッチする行だけを残す。大文字小文字は区別しない。
+ * 列を 2 群に分けているのは、長くて情報密度の低い列(説明文・URL)を
+ * 誤字許容で引くと無関係な行まで一致してしまうため。語ごとに
+ * 「fuzzy 列のどれか、または部分一致列のどれか」で判定する。
+ * @param {string[]} fuzzyValues - Column values matched with typo tolerance.
+ * @param {string[]} substringValues - Column values matched by substring only.
  * @param {string} searchString - The search string.
- * @param {FuzzyOptions} [options] - Matching options (same as list.js).
+ * @param {FuzzyOptions} [options] - Matching options for the fuzzy columns.
  * @returns {boolean} `true` if every word matches at least one column.
  */
-export function matchesFuzzyFilter(
-  values: string[],
+export function matchesSearchFilter(
+  fuzzyValues: string[],
+  substringValues: string[],
   searchString: string,
   options: FuzzyOptions = {},
 ) {
   const words = searchString.toLowerCase().replace(/ +$/, '').split(/ +/);
-  const lowerValues = values.map((v) => String(v).toLowerCase());
-  return words.every((word) =>
-    lowerValues.some((value) => fuzzyMatch(value, word, options)),
+  const lowerFuzzy = fuzzyValues.map((v) => String(v).toLowerCase());
+  const lowerSubstring = substringValues.map((v) => String(v).toLowerCase());
+  return words.every(
+    (word) =>
+      lowerFuzzy.some((value) => fuzzyMatch(value, word, options)) ||
+      lowerSubstring.some((value) => value.includes(word)),
   );
 }
