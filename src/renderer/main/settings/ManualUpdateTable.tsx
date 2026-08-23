@@ -12,7 +12,7 @@ import { type ActionPhase, usePhase } from '../usePhase';
 /**
  * Renders one 更新 button of the manual-update table.
  * @param {object} props - Props.
- * @param {string} props.id - The button element id (kept from the legacy DOM).
+ * @param {string} props.id - The button element id. E2E のセレクタなので変更・削除しない(e2e/install.spec.ts ほか)。
  * @param {ActionPhase} props.phase - The current phase.
  * @param {() => void} props.onClick - The click handler.
  * @returns {JSX.Element} The rendered component.
@@ -100,8 +100,9 @@ function ManualUpdateTable(): JSX.Element {
     );
   };
 
-  // レガシー・他コンポーネントからの再描画通知と、データエディタ保存後の
-  // 更新要求(隔離ワールドの DOM イベントはメインワールドに届く)
+  // 他コンポーネントからの再描画通知と、データエディタ保存後の更新要求。
+  // データエディタ(monacoEditorRenderer)は SettingsTab から描画される
+  // メインワールドのコンポーネントで、同じ window に対して撃っている
   useEffect(() => {
     const onCoreChanged = () => {
       void utils.core.getDates.invalidate();

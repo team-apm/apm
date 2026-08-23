@@ -19,7 +19,7 @@ export type ProgramRowProps = {
  * dropdown of AviUtl / 拡張編集.
  * 旧 core.ts の displayInstalledVersion(表示部分)+ setCoreVersions +
  * installProgram(ボタン表示部分)に相当する。計算は tRPC 経由で main プロセス。
- * レガシー側の再描画通知(apm-core-changed イベント)で自動更新する。
+ * 他コンポーネントからの再描画通知(apm-core-changed イベント)で自動更新する。
  * @param {ProgramRowProps} props - Props.
  * @returns {JSX.Element} The rendered component.
  */
@@ -43,7 +43,10 @@ function ProgramRow({
     TRPCReact.core.getInstalledVersionTexts.useQuery(installationPath);
   const installProgram = TRPCReact.core.installProgram.useMutation();
 
-  // レガシー側(preload の core.ts)からの再描画通知を受けて最新化する
+  // 通知元(startup / SelectInstallationPathButton / BatchInstallButton /
+  // ManualUpdateTable)とは親子関係に無く、タブもまたぐため props でも
+  // Context でも届かない。window イベントで受ける
+  // (queryClient への一本化は未着手 — AGENTS.md 落とし穴)
   useEffect(() => {
     const listener = () => {
       setInstallationPath(getInstallationPath());

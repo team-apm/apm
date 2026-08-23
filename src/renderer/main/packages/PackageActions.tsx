@@ -17,7 +17,7 @@ export type SelectedEntry =
 /**
  * Renders one action button.
  * @param {object} props - Props.
- * @param {string} props.id - The button element id (kept from the legacy DOM).
+ * @param {string} props.id - The button element id. E2E のセレクタなので変更・削除しない(e2e/install.spec.ts ほか)。
  * @param {string} props.label - The label shown when idle.
  * @param {ActionPhase} props.phase - The current phase.
  * @param {() => void} props.onClick - The click handler.

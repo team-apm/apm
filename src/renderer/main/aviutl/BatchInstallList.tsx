@@ -33,7 +33,9 @@ function BatchInstallList(): JSX.Element {
   );
 
   // 他コンポーネント(BatchInstallButton / PackageActions / packagesListCheck)
-  // からの再取得通知。インストール先の変化はストアの購読で別に追う
+  // からの再取得通知。通知元とは親子関係に無くタブもまたぐため、props でも
+  // Context でもなく window イベントで受ける。インストール先の変化は
+  // ストアの購読で別に追う
   useEffect(() => {
     const listener = () => {
       void utils.packages.getPackagesWithStatus.invalidate();
