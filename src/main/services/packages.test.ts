@@ -422,6 +422,9 @@ describe('packages service', () => {
       );
 
       expect(result).toBe('corrupt');
+      // 破損したアーカイブは残さない(残すと downloadFile の loadCache が
+      // 次回もこのファイルを返し、毎回 corrupt になって復帰できない)
+      expect(await pathExists(file)).toBe(false);
     });
 
     it('integrity 不一致の再ダウンロードは旧実装どおり subDir core へ落ち、失敗すると redownloadFailed', async () => {

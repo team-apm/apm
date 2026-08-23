@@ -1,6 +1,8 @@
-import { type BrowserWindow, dialog } from 'electron';
+import { app, type BrowserWindow, dialog } from 'electron';
 import log from 'electron-log/main';
+import path from 'node:path';
 import { verifyFile } from '../../shared/integrity';
+import { safeRemove } from '../../shared/safeRemove';
 
 /**
  * アーカイブ取得の結果。取得できたらそのパス、できなければ呼び出し元固有の
@@ -40,6 +42,21 @@ export async function runInstallFlow<TFailure extends string>(
 
   if (flow.integrity) {
     while (!(await verifyFile(archivePath, flow.integrity))) {
+      // 検証に落ちたアーカイブは残さない。downloadFile の loadCache は
+      // 中身を見ずに既存ファイルを返すので、置いたままだと次回以降の
+      // インストールが毎回このファイルを掴んで破損ダイアログを出し続ける
+      // (再ダウンロードを断ったときは上書きも起きないため復帰できない)。
+      // archivePath は必ず downloadFile か openBrowser の保存先で
+      // userData/Data 配下にあり、ユーザーが指定したファイルではない
+      try {
+        await safeRemove(
+          archivePath,
+          path.join(app.getPath('userData'), 'Data'),
+        );
+      } catch (e) {
+        log.error(e);
+      }
+
       const dialogResult = await dialog.showMessageBox(win, {
         title: 'エラー',
         message:
