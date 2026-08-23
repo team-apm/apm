@@ -80,7 +80,15 @@ function App(): JSX.Element {
 
       <Tab.Content as="main" id="nav-tabContent">
         {TABS.map((tab) => (
-          <Tab.Pane key={tab.id} as="section" eventKey={tab.id} id={tab.id}>
+          // id は react-bootstrap が useId 由来のものへ実行時に差し替えるため
+          // CSS からは掴めない(react-aria…-tabpane-packages になる)。
+          // ペインを指すセレクタは className で持つ
+          <Tab.Pane
+            key={tab.id}
+            as="section"
+            eventKey={tab.id}
+            className={`pane-${tab.id}`}
+          >
             {tab.pane}
           </Tab.Pane>
         ))}

@@ -6,12 +6,12 @@ body,
 /* React のマウント先。body 直下に挟まるため高さの継承に加える */
 #root,
 section,
-section#packages .container-lg,
-section#packages .container-lg > .card,
-section#packages .container-lg > .card > .card-body,
-section#nicommons .container-lg,
-section#nicommons .container-lg > .card,
-section#nicommons .container-lg > .card > .card-body {
+.pane-packages .container-lg,
+.pane-packages .container-lg > .card,
+.pane-packages .container-lg > .card > .card-body,
+.pane-nicommons .container-lg,
+.pane-nicommons .container-lg > .card,
+.pane-nicommons .container-lg > .card > .card-body {
   height: 100%;
 }
 main {
@@ -91,11 +91,11 @@ img.emoji {
   vertical-align: -0.1em;
 }
 
-section#nicommons img {
+.pane-nicommons img {
   max-height: 64px;
 }
 @media screen and (min-width: 576px) {
-  section#nicommons img {
+  .pane-nicommons img {
     max-height: 96px;
   }
 }
