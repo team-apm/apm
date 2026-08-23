@@ -376,6 +376,19 @@ describe('core service', () => {
       expect(mocks.refreshPackagesList).not.toHaveBeenCalled();
     });
 
+    it('途中で失敗したら config のインストール先を書き換えない', async () => {
+      config.setInstallationPath('/old/aviutl');
+      mocks.updateInfo.mockRejectedValueOnce(new Error('offline'));
+
+      await expect(changeInstallationPath(ctx, inst)).rejects.toThrow(
+        'offline',
+      );
+
+      // 先に確定させると、移行も再取得も済んでいないパスが config に残り、
+      // 呼び出し側は失敗を受けて画面を更新しないので表示と食い違う
+      expect(config.getInstallationPath()).toBe('/old/aviutl');
+    });
+
     it('installationPath が存在しなければ migration も変換も行わない', async () => {
       mocks.getInfo.mockResolvedValue(
         modInfo({

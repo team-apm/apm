@@ -38,8 +38,20 @@ function SelectInstallationPathButton(): JSX.Element {
 
       const installationPath = selectedPath[0];
       // mod 情報の更新・migration・変換辞書の適用と、必要なデータの再取得は
-      // main プロセス側(services/core.ts の changeInstallationPath)が行う
-      await changeInstallationPathMutation.mutateAsync(installationPath);
+      // main プロセス側(services/core.ts の changeInstallationPath)が行う。
+      // catch しないと、失敗しても何のメッセージも出ないまま
+      // 「選んだのに変わらない」状態になる(このボタンは phase を持たず
+      // ラベルが変わらないので、押した結果が画面に一切現れない)
+      try {
+        await changeInstallationPathMutation.mutateAsync(installationPath);
+      } catch {
+        await openDialogMutation.mutateAsync({
+          title: 'エラー',
+          message: 'インストール先の変更に失敗しました。',
+          type: 'error',
+        });
+        return;
+      }
       // 再描画通知(旧 changeInstallationPath と同一)
       window.dispatchEvent(new Event('apm-core-changed'));
       window.dispatchEvent(new Event('apm-packages-changed'));
