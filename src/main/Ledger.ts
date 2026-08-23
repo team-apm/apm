@@ -217,12 +217,53 @@ class Ledger {
   }
 
   /**
+   * Returns the packages record, creating it when the loaded `apm.json`
+   * does not have one.
+   * dot-prop の setProperty は途中の階層を作るので、パス経由だったころは
+   * 暗黙に作られていた。キーを直接触るならここで面倒を見る。
+   * @returns {LedgerObject['packages']} The packages record.
+   */
+  private packagesRecord(): LedgerObject['packages'] {
+    this.object.packages ??= {};
+    return this.object.packages;
+  }
+
+  /**
+   * Records the change: defers the write inside a transaction, writes
+   * immediately otherwise.
+   * @param {boolean} changed - Whether the object actually changed.
+   */
+  private async recordChange(changed: boolean) {
+    if (this.inTransaction) {
+      if (changed) this.dirty = true;
+    } else {
+      await this.save();
+    }
+  }
+
+  /**
+   * Checks whether the package is recorded in `apm.json`.
+   * @param {string} id - The ID of the package
+   * @returns {Promise<boolean>} Whether the package is recorded.
+   */
+  public async hasPackage(id: string): Promise<boolean> {
+    return Object.hasOwn(this.packagesRecord(), id);
+  }
+
+  /**
    * Adds the information of the package to `apm.json`.
+   * パッケージ ID を dot-prop のパスとして渡さないのは、ID に '.' が
+   * 含まれると packages['a/b'].c のようにネストして書かれるため。
+   * 読み出し側(resolveInstallationStatus)は packages をフラットな
+   * Record として引くので、記録したのに未インストール判定になる。
+   * apm-schema の id は '.' を許さないが、dataURL は自由入力(確定方針)
+   * なので schema 非準拠の ID は到達しうる。
    * @param {string} id - The ID of the package
    * @param {string} version - The version of the package
    */
   public async addPackage(id: string, version: string) {
-    await this.set(`packages.${id}`, { id, version });
+    this.packagesRecord()[id] = { id, version };
+    await this.recordChange(true);
   }
 
   /**
@@ -230,7 +271,10 @@ class Ledger {
    * @param {string} id - The ID of the package
    */
   public async removePackage(id: string) {
-    await this.delete(`packages.${id}`);
+    const packages = this.packagesRecord();
+    const existed = Object.hasOwn(packages, id);
+    if (existed) delete packages[id];
+    await this.recordChange(existed);
   }
 }
 
