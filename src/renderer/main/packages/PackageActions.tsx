@@ -222,7 +222,7 @@ function PackageActions({
     } else if (result === 'downloadFailed') {
       install.finish('ダウンロード中にエラーが発生しました。', 'danger');
     } else if (result === 'corrupt') {
-      install.finish('ダウンロードされたファイルは破損しています。', 'danger');
+      install.finish('ファイルが一致しないため中止しました。', 'danger');
     } else if (result === 'redownloadFailed') {
       install.finish('ファイルのダウンロードに失敗しました。', 'danger');
     } else if (result === 'success') {

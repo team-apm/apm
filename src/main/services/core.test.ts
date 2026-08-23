@@ -56,7 +56,7 @@ vi.mock('electron', () => ({
   BrowserWindow: class {},
 }));
 vi.mock('electron-log/main', () => ({
-  default: { error: vi.fn(), info: vi.fn(), debug: vi.fn() },
+  default: { error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 vi.mock('../shortcut', () => ({
   addAviUtlShortcut: vi.fn(),
@@ -259,13 +259,14 @@ describe('core service', () => {
       expect(await ledger.get('core.aviutl')).toBe('1.10');
     });
 
-    it('integrity 不一致で再ダウンロードを断ると corrupt', async () => {
+    it('integrity 不一致で中止を選ぶと corrupt', async () => {
       const withIntegrity = structuredClone(coreInfo);
       withIntegrity.aviutl.releases[0].integrity.archive =
         'sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
       await writeCachedCoreInfo(withIntegrity);
       mocks.downloadFile.mockResolvedValueOnce(await makeCoreZip());
-      mocks.showMessageBox.mockResolvedValueOnce({ response: 1 });
+      // 0=再ダウンロード / 1=このままインストール / 2=中止
+      mocks.showMessageBox.mockResolvedValueOnce({ response: 2 });
 
       expect(await installCoreProgram(ctx, inst, 'aviutl', '1.10')).toBe(
         'corrupt',

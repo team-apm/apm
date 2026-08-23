@@ -96,9 +96,9 @@ function BatchInstallButton(): JSX.Element {
           packageState: { id: packageState.id, info: packageState.info },
           direct: true,
         });
-        // 旧 installPackage の direct ルート: 破損・ダウンロード失敗は throw
+        // 旧 installPackage の direct ルート: 中止・ダウンロード失敗は throw
         if (result === 'corrupt') {
-          throw new Error('The downloaded archive file is corrupt.');
+          throw new Error('The archive does not match the integrity.');
         }
         if (result === 'redownloadFailed') {
           throw new Error('Failed downloading the archive file.');
