@@ -5,7 +5,7 @@ import {
   setProperty,
 } from 'dot-prop';
 import log from 'electron-log';
-import { readJson, writeJson } from 'fs-extra';
+import { readJson, remove, rename, writeJson } from 'fs-extra';
 import path from 'node:path';
 import { type LedgerObject } from '../types/ledger';
 
@@ -88,9 +88,25 @@ class Ledger {
    * @returns {Promise<void>} A promise that resolves when the object is saved.
    */
   private save(): Promise<void> {
-    const queued = this.saveQueue.then(() =>
-      writeJson(this.path, this.object, { spaces: 2 }),
-    );
+    // 一時ファイルへ書いてから rename する。実ファイルへ直接 writeJson
+    // すると、書き込み中の電断・強制終了・ディスクフルで apm.json が
+    // 途中まで書かれた不正 JSON として残り、次回 load() が既定値へ
+    // フォールバックして導入記録が読めなくなる。同一ディレクトリなら
+    // rename は同じファイルシステム上の操作なので原子的に置き換わる
+    // (config.json 側は electron-store が同じことをしている)。
+    // 一時ファイル名を固定にできるのは saveQueue で直列化しているため
+    const queued = this.saveQueue.then(async () => {
+      const tempPath = this.path + '.tmp';
+      try {
+        await writeJson(tempPath, this.object, { spaces: 2 });
+        await rename(tempPath, this.path);
+      } catch (e) {
+        // 書き損じた一時ファイルを残さない(次回の rename が
+        // 中途半端な内容を本体へ持ち込まないようにする)
+        await remove(tempPath).catch(() => undefined);
+        throw e;
+      }
+    });
     // 失敗は呼び出し元へは queued で伝播させ、後続の書き込みは止めない
     this.saveQueue = queued.catch(() => {});
     return queued;
