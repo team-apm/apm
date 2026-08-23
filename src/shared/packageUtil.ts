@@ -66,7 +66,14 @@ export function getManuallyInstalledFiles(
           if (!file.isDirectory) {
             retFiles = retFiles.filter((ef) => ef !== file.filename);
           } else {
-            retFiles = retFiles.filter((ef) => !ef.startsWith(file.filename));
+            // 区切りを含めずに前方一致させると、名前が前方一致するだけの
+            // 別エントリまで巻き込む(実データでは oov/GCMZDrops の
+            // "GCMZDrops" が oov/PSDToolKit の "GCMZDrops.auf" を消す)。
+            // installedFiles は getInstalledFiles が組み立てる '/' 区切りの
+            // 相対パスなので、区切りは常に '/'。データ側に "script/ANM_ssd/"
+            // のような末尾スラッシュ付きの指定があるため一度落として付け直す。
+            const prefix = file.filename.replace(/\/+$/, '') + '/';
+            retFiles = retFiles.filter((ef) => !ef.startsWith(prefix));
           }
         }
       }
