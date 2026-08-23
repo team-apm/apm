@@ -18,7 +18,7 @@ import {
   Spinner,
 } from 'react-bootstrap';
 import { compareVersion } from '../../../shared/compareVersion';
-import { matchesFuzzyFilter } from '../../../shared/fuzzySearch';
+import { matchesSearchFilter } from '../../../shared/fuzzySearch';
 import { parsePackageType, states } from '../../../shared/packageDisplay';
 import {
   computeShareStringAlerts,
@@ -30,9 +30,20 @@ import { getInstallationPath } from '../installationPath';
 import PackageActions, { type SelectedEntry } from './PackageActions';
 import { getPhase, subscribePhase } from './packagesListCheck';
 
-// list.js(fuzzySearch)に合わせた検索オプション。
-// Ensure that searches are performed even on long strings.
-const fuzzyOptions = { distance: 10000 };
+// list.js から引き継いだ distance: 10000 は bitap のスコアから位置の項を
+// 実質消し、誤字率だけで判定させる(長文の末尾でも引けるようにするため)。
+// 抑制項が無くなるぶん短い語の誤字許容が効きすぎるので、誤字数の上限を
+// 語の長さから決めて釣り合わせる。4 文字で 1 誤字、3 文字なら 0 誤字
+const searchOptions = { distance: 10000, charsPerError: 4 };
+
+// 部分一致だけで引く列。長くて情報密度が低く、誤字許容で引くと無関係な
+// 行まで一致する。実測では "psd" が pageURL の "https:" に 1 誤字で当たり、
+// 285 件中 277 件(97%)がヒットしていた
+const SUBSTRING_ONLY_COLUMNS = new Set([
+  'description',
+  'pageURL',
+  'dependencyInformation',
+]);
 
 type WebpageItem = Scripts['webpage'][number];
 
@@ -270,9 +281,19 @@ function PackagesTab(): JSX.Element {
         parsedShareString.packages.includes(values.packageID.toLowerCase()),
       );
     } else if (searchString) {
-      result = result.filter(({ values }) =>
-        matchesFuzzyFilter(Object.values(values), searchString, fuzzyOptions),
-      );
+      result = result.filter(({ values }) => {
+        const fuzzy: string[] = [];
+        const substring: string[] = [];
+        for (const [column, value] of Object.entries(values)) {
+          (SUBSTRING_ONLY_COLUMNS.has(column) ? substring : fuzzy).push(value);
+        }
+        return matchesSearchFilter(
+          fuzzy,
+          substring,
+          searchString,
+          searchOptions,
+        );
+      });
     }
 
     const direction = sort.order === 'asc' ? 1 : -1;
