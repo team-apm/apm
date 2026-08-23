@@ -369,7 +369,8 @@ export function getPackagesDates(
 
 /**
  * Returns the subset of the given package ids recorded in the ledger.
- * 旧 displayNicommonsIdList の apmJson.has('packages.' + id) 判定と同一の挙動
+ * 旧 displayNicommonsIdList の apmJson.has('packages.' + id) 判定に相当する
+ * (ID をパスとして渡さないので '.' を含む ID でも正しく引ける)
  * (dot-prop のパス解釈に依存するため判定ごと main 側で行う)。
  * @param {Installation} inst - The target installation.
  * @param {string[]} ids - Package ids to check.
@@ -379,7 +380,7 @@ export async function getLedgerInstalledIds(inst: Installation, ids: string[]) {
   const ledger = await inst.ledger();
   const result: string[] = [];
   for (const id of ids) {
-    if (await ledger.has('packages.' + id)) result.push(id);
+    if (await ledger.hasPackage(id)) result.push(id);
   }
   return result;
 }

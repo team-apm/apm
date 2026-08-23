@@ -170,18 +170,47 @@ describe('Ledger', () => {
       expect((await readJson(jsonPath)).packages).toEqual({});
     });
 
-    it('ドットを含むパッケージ ID はネストしたキーとして解釈される(dot-prop 由来の現行仕様)', async () => {
+    it('ドットを含むパッケージ ID をそのままキーにする', async () => {
       const installationPath = await makeInstPath();
       const ledger = await Ledger.load(installationPath);
 
       await ledger.addPackage('author/plugin.en', 'v1.0.0');
 
-      // packages['author/plugin.en'] ではなく packages['author/plugin'].en になる
       expect(await ledger.get('packages')).toEqual({
-        'author/plugin': {
-          en: { id: 'author/plugin.en', version: 'v1.0.0' },
-        },
+        'author/plugin.en': { id: 'author/plugin.en', version: 'v1.0.0' },
       });
+      expect(await ledger.hasPackage('author/plugin.en')).toBe(true);
+      // 読み出し側は packages をフラットな Record として引く
+      expect(
+        ((await ledger.get('packages')) as Record<string, unknown>)[
+          'author/plugin.en'
+        ],
+      ).toBeDefined();
+    });
+
+    it('ドットを含む ID と含まない ID が同居しても互いを壊さない', async () => {
+      const installationPath = await makeInstPath();
+      const ledger = await Ledger.load(installationPath);
+
+      await ledger.addPackage('author/plugin.en', 'v1.0.0');
+      await ledger.addPackage('author/plugin', 'v2.0.0');
+
+      // パス経由だと addPackage('author/plugin') が
+      // packages['author/plugin'] を丸ごと置き換えて前者を消していた
+      expect(await ledger.get('packages')).toEqual({
+        'author/plugin.en': { id: 'author/plugin.en', version: 'v1.0.0' },
+        'author/plugin': { id: 'author/plugin', version: 'v2.0.0' },
+      });
+    });
+
+    it('ドットを含む ID を削除しても空オブジェクトのゴミを残さない', async () => {
+      const installationPath = await makeInstPath();
+      const ledger = await Ledger.load(installationPath);
+
+      await ledger.addPackage('author/plugin.en', 'v1.0.0');
+      await ledger.removePackage('author/plugin.en');
+
+      expect(await ledger.get('packages')).toEqual({});
     });
   });
 
