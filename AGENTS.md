@@ -18,7 +18,7 @@ AviUtl Package Manager (apm) — AviUtl のプラグイン・スクリプトを�
 ## コマンド
 
 ```
-yarn lint       # prettier + eslint(--check。自動修正は yarn fix)
+yarn lint       # prettier --check + eslint(報告のみ。自動修正は yarn fix)
 yarn lint:ts    # tsc --noEmit
 yarn test       # vitest run (src/**/*.test.ts)
 yarn package    # electron-forge package(ThirdPartyNotices 生成込み)
