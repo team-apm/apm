@@ -1,5 +1,6 @@
 import { initTRPC } from '@trpc/server';
 import { BrowserWindow, type IpcMainInvokeEvent } from 'electron';
+import log from 'electron-log/main';
 import type { CreateContextOptions } from 'trpc-electron/main';
 import type Config from '../Config';
 import { getConfig } from '../Config';
@@ -23,7 +24,21 @@ export async function createContext({
 
 export const t = initTRPC.context<Context>().create({ isServer: true });
 
-export const procedure = t.procedure;
+// procedure の throw は trpc-electron 経由で renderer へ返るだけで、main の
+// ログには何も残らない。trpc-electron の createIPCHandler は onError を
+// 受け取らないので、境界に置けるのはこの middleware だけ。
+// renderer 側は catch して「エラーが発生しました。」を出すため、これが無いと
+// 「UI にエラーが出ているのにログが空」になり、報告から原因に辿り着けない。
+// next() は throw せず ok:false を返すので、再 throw は要らない。
+// サービス層が既に log.error している経路とは重複するが、そちらには
+// どの procedure の失敗かが残らないため、path と type はここでしか出せない
+const logErrors = t.middleware(async ({ next, path, type }) => {
+  const result = await next();
+  if (!result.ok) log.error(`trpc ${type} ${path} failed:`, result.error);
+  return result;
+});
+
+export const procedure = t.procedure.use(logErrors);
 
 // 呼び出し元ウィンドウをダイアログ・進捗表示の親として使う procedure。
 // 窓が閉じられた直後などで解決できない場合はエラーにする(定型 19 箇所の集約)
