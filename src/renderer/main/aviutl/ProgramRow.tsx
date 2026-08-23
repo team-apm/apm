@@ -99,7 +99,7 @@ function ProgramRow({
       return;
     }
     if (result === 'corrupt') {
-      showError('ダウンロードされたファイルは破損しています。');
+      showError('ファイルが一致しないため中止しました。');
       return;
     }
     if (result === 'redownloadFailed') {

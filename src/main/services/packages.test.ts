@@ -59,7 +59,7 @@ vi.mock('electron', () => ({
   BrowserWindow: class {},
 }));
 vi.mock('electron-log/main', () => ({
-  default: { error: vi.fn(), info: vi.fn(), debug: vi.fn() },
+  default: { error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 vi.mock('./download', () => ({ downloadFile: mocks.downloadFile }));
 vi.mock('./browser', () => ({ openBrowser: mocks.openBrowser }));
@@ -389,12 +389,13 @@ describe('packages service', () => {
       expect(result).toBe('downloadFailed');
     });
 
-    it('integrity 不一致で再ダウンロードを断ると corrupt', async () => {
+    it('integrity 不一致で中止を選ぶと corrupt', async () => {
       const dir = path.join(mocks.userDataDir.value, 'Data/package');
       const file = path.join(dir, 'corrupt.auf');
       await writeFile(file, 'tampered');
       mocks.downloadFile.mockResolvedValueOnce(file);
-      mocks.showMessageBox.mockResolvedValueOnce({ response: 1 });
+      // 0=再ダウンロード / 1=このままインストール / 2=中止
+      mocks.showMessageBox.mockResolvedValueOnce({ response: 2 });
 
       const result = await installPackageFlow(
         ctx,
@@ -425,6 +426,48 @@ describe('packages service', () => {
       // 破損したアーカイブは残さない(残すと downloadFile の loadCache が
       // 次回もこのファイルを返し、毎回 corrupt になって復帰できない)
       expect(await pathExists(file)).toBe(false);
+    });
+
+    it('integrity 不一致でも「このままインストール」を選べば続行する', async () => {
+      const dir = path.join(mocks.userDataDir.value, 'Data/package');
+      const file = path.join(dir, 'mismatch.auf');
+      await writeFile(file, 'newer than apm-data');
+      mocks.downloadFile.mockResolvedValueOnce(file);
+      // 0=再ダウンロード / 1=このままインストール / 2=中止
+      mocks.showMessageBox.mockResolvedValueOnce({ response: 1 });
+
+      const result = await installPackageFlow(
+        ctx,
+        inst,
+        {
+          id: 'a/b',
+          info: {
+            name: 'x',
+            latestVersion: '1',
+            files: [],
+            directURL: 'u',
+            releases: [
+              {
+                version: '1',
+                integrity: {
+                  archive:
+                    'sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                  file: [],
+                },
+              },
+            ],
+          },
+        } as unknown as Parameters<typeof installPackageFlow>[2],
+        { direct: true },
+      );
+
+      expect(result).toBe('success');
+      // 続行を選んだアーカイブは削除しない(展開先へ移動される)
+      expect(await pathExists(path.join(dir, 'a/b', 'mismatch.auf'))).toBe(
+        true,
+      );
+      // 再ダウンロードもしていない
+      expect(mocks.downloadFile).toHaveBeenCalledOnce();
     });
 
     it('integrity 不一致の再ダウンロードは旧実装どおり subDir core へ落ち、失敗すると redownloadFailed', async () => {
