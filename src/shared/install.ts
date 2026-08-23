@@ -46,7 +46,22 @@ export async function install(
   isProgram = false,
 ) {
   if (isProgram) {
-    await copy(unzippedPath, installationPath);
+    // isUninstallOnly は apm-schema で "Overwriting prohibited"(設定ファイル等)
+    // と定義されているが、この分岐は files を見ずに展開結果を丸ごとコピーする
+    // ため守られていなかった。fs-extra の copy は既定で上書きするので、
+    // ユーザーが編集した設定が本体の更新のたびに初期化される。
+    // ファイル単位のコピーに作り替えないのは、プログラムのアーカイブには
+    // files に列挙されていない同梱物(script/ や exe_files/ 等)があり、
+    // 丸ごとコピーであることが配置の前提になっているため
+    const protectedPaths = new Set(
+      files
+        .filter((file) => file.isUninstallOnly)
+        .map((file) => path.resolve(installationPath, file.filename)),
+    );
+    await copy(unzippedPath, installationPath, {
+      filter: (_src, dest) =>
+        !(protectedPaths.has(path.resolve(dest)) && existsSync(dest)),
+    });
   } else {
     // Delete obsolete files
     for (const file of files) {
