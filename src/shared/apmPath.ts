@@ -12,16 +12,6 @@ export function isParent(parent: string, child: string) {
 }
 
 /**
- * Determine if two paths have a parent-child relationship.
- * @param {string} pathA - A path
- * @param {string} pathB - A path
- * @returns {boolean} - Boolean value
- */
-export function pathRelated(pathA: string, pathB: string) {
-  return isParent(pathA, pathB) || isParent(pathB, pathA);
-}
-
-/**
  * Resolves a path under {parent}, rejecting anything that escapes it.
  *
  * パッケージデータのファイル名・フォルダ名はリモート由来なので、結合結果が
