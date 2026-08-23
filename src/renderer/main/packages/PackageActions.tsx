@@ -302,7 +302,16 @@ function PackageActions({
       return;
     }
 
-    const exists = await openFolderMutation.mutateAsync(selectedEntry.p.id);
+    // catch しないと phase が loading のまま残り、ActionButton の
+    // disabled が外れずボタンが二度と押せなくなる(usePhase の復帰
+    // タイマーは finish 系でしか張られない)
+    let exists: boolean;
+    try {
+      exists = await openFolderMutation.mutateAsync(selectedEntry.p.id);
+    } catch {
+      folder.finish('エラーが発生しました。', 'danger');
+      return;
+    }
     if (!exists) {
       folder.finish('このパッケージはダウンロードされていません。', 'danger');
       return;
@@ -315,8 +324,15 @@ function PackageActions({
     if (share.phase.kind === 'loading') return;
     share.start();
 
-    const text = await utils.packages.getShareString.fetch(installationPath);
-    await writeClipboardMutation.mutateAsync({ text });
+    // getShareString は main 側で一覧の取得・状態判定まで辿るので、
+    // list.json 未取得や apm.json の読み込み失敗で普通に throw する
+    try {
+      const text = await utils.packages.getShareString.fetch(installationPath);
+      await writeClipboardMutation.mutateAsync({ text });
+    } catch {
+      share.finish('エラーが発生しました。', 'danger');
+      return;
+    }
     share.finish('コピーしました', 'info');
   };
 
