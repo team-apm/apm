@@ -343,7 +343,7 @@ describe('packages service', () => {
     });
 
     it('ブラウザ経由のキャンセルは canceled', async () => {
-      mocks.openBrowser.mockResolvedValueOnce(null);
+      mocks.openBrowser.mockResolvedValueOnce({ status: 'closed' });
 
       const result = await installPackageFlow(
         ctx,
@@ -366,6 +366,27 @@ describe('packages service', () => {
         'https://example.com/dl',
         'package',
       );
+    });
+
+    it('ブラウザ経由のダウンロードが完了しなければ downloadFailed', async () => {
+      mocks.openBrowser.mockResolvedValueOnce({ status: 'failed' });
+
+      const result = await installPackageFlow(
+        ctx,
+        inst,
+        {
+          id: 'a/b',
+          info: {
+            name: 'x',
+            latestVersion: '1',
+            files: [],
+            downloadURLs: ['https://example.com/dl'],
+          },
+        } as unknown as Parameters<typeof installPackageFlow>[2],
+        {},
+      );
+
+      expect(result).toBe('downloadFailed');
     });
 
     it('integrity 不一致で再ダウンロードを断ると corrupt', async () => {

@@ -258,7 +258,11 @@ export async function installScriptArchive(
 }
 
 export type InstallScriptFlowResult =
-  | { route: 'flow'; status: 'canceled' | 'notSupported' | 'redirectNotFound' }
+  | {
+      route: 'flow';
+      status:
+        'canceled' | 'downloadFailed' | 'notSupported' | 'redirectNotFound';
+    }
   | { route: 'script'; status: InstallScriptResult }
   | { route: 'redirect'; status: InstallPackageResult };
 
@@ -278,9 +282,13 @@ export async function installScriptFlow(
   url: string,
 ): Promise<InstallScriptFlowResult> {
   const downloadResult = await openBrowser(ctx.win, url, 'package');
-  if (!downloadResult) {
+  if (downloadResult.status === 'closed') {
     log.info('The installation was canceled.');
     return { route: 'flow', status: 'canceled' };
+  }
+  if (downloadResult.status === 'failed') {
+    log.error(`The download did not complete. URL:${url}`);
+    return { route: 'flow', status: 'downloadFailed' };
   }
 
   const archivePath = downloadResult.savePath;

@@ -7,19 +7,22 @@ const icon =
     ? path.join(__dirname, '../icon/apm1024.png')
     : undefined;
 
-export type OpenBrowserResult = {
-  savePath: string;
-  history: string[];
-} | null;
+/**
+ * ブラウザ窓での取得結果。
+ * completed = ダウンロードが完了した / closed = 取得せず窓を閉じた
+ * failed = ダウンロードが始まったが完了しなかった(中断・キャンセル)
+ */
+export type OpenBrowserResult =
+  | { status: 'completed'; savePath: string; history: string[] }
+  | { status: 'closed' }
+  | { status: 'failed' };
 
 /**
  * Opens a modal browser window and waits for the user to download a file.
- * 旧 windows.ts の OPEN_BROWSER ハンドラと同一の挙動。ウィンドウが閉じられたら
- * null(キャンセル)を返す。
  * @param {BrowserWindow} parent - The parent (main) window.
  * @param {string} url - The URL to open.
  * @param {'core' | 'package'} type - The subdirectory in the data folder to save the file.
- * @returns {Promise<OpenBrowserResult>} The download result, or null if canceled.
+ * @returns {Promise<OpenBrowserResult>} The download result.
  */
 export function openBrowser(
   parent: BrowserWindow,
@@ -81,9 +84,17 @@ export function openBrowser(
         : [type];
       item.setSavePath(resolveInside(dir, ...subDirs, filename));
 
-      item.once('done', () => {
+      item.once('done', (_event, state) => {
         history.push(...item.getURLChain(), item.getFilename());
-        resolve({ savePath: item.getSavePath(), history: history });
+        // Chromium は完了時に中間ファイル(.crdownload)を savePath へ
+        // リネームして確定する。state を見ずに resolve すると、中断時に
+        // 存在しないパス(あるいは前回の取得で残った古いファイル)を
+        // 「取得成功」として先へ渡してしまう。
+        resolve(
+          state === 'completed'
+            ? { status: 'completed', savePath: item.getSavePath(), history }
+            : { status: 'failed' },
+        );
         if (!browserWindow.isDestroyed()) browserWindow.close();
       });
     };
@@ -93,7 +104,7 @@ export function openBrowser(
       // partition は openBrowser 呼び出し間で共有される。DL せずに閉じた
       // とき once リスナーが残留して次回の DL を横取りしないよう外す
       ses.removeListener('will-download', onWillDownload);
-      resolve(null);
+      resolve({ status: 'closed' });
     });
   });
 }
