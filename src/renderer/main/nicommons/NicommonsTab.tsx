@@ -1,4 +1,10 @@
-import React, { type JSX, useEffect, useMemo, useState } from 'react';
+import React, {
+  type JSX,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import {
   Badge,
   Button,
@@ -12,7 +18,10 @@ import {
 import { parsePackageType } from '../../../shared/packageDisplay';
 import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
-import { getInstallationPath } from '../installationPath';
+import {
+  getInstallationPath,
+  subscribeInstallationPath,
+} from '../installationPath';
 
 type NicommonsItem = {
   name: string;
@@ -110,8 +119,12 @@ function NicommonsRow({
  * @returns {JSX.Element} The rendered component.
  */
 function NicommonsTab(): JSX.Element {
-  const [installationPath, setInstallationPath] = useState(() =>
-    getInstallationPath(),
+  // インストール先はストアを購読する。DOM イベント経由で読み直すと、
+  // 通知の発火とストア更新の順序に依存してしまう(起動フローも
+  // SelectInstallationPathButton も setInstallationPath の前後で撃つ)
+  const installationPath = useSyncExternalStore(
+    subscribeInstallationPath,
+    getInstallationPath,
   );
   // 除外したもの(チェックを外したもの)だけを持つ。一覧の再取得時に全部
   // チェック済みへ戻る旧挙動と同じにするため、checked の集合は持たない
@@ -142,19 +155,14 @@ function NicommonsTab(): JSX.Element {
   );
 
   useEffect(() => {
-    const onCoreChanged = () => {
-      setInstallationPath(getInstallationPath());
-    };
     const onPackagesChanged = () => {
       void utils.packages.getPackages.invalidate();
       void utils.packages.getLedgerInstalledIds.invalidate();
       // 旧実装は再描画のたびに全チェック済みへ戻していた
       setUncheckedIds(new Set());
     };
-    window.addEventListener('apm-core-changed', onCoreChanged);
     window.addEventListener('apm-packages-changed', onPackagesChanged);
     return () => {
-      window.removeEventListener('apm-core-changed', onCoreChanged);
       window.removeEventListener('apm-packages-changed', onPackagesChanged);
     };
   }, [utils]);

@@ -14,7 +14,10 @@ import type { editor } from 'monaco-editor';
 import React, { useRef } from 'react';
 import { Button, Col, Spinner } from 'react-bootstrap';
 import { TRPCReact } from '../trpc';
-import { getInstallationPath } from './installationPath';
+import {
+  getInstallationPath,
+  subscribeInstallationPath,
+} from './installationPath';
 import { usePhase } from './usePhase';
 
 // beforeMount / onMount が渡してくるのは window.monaco そのもの。一方
@@ -255,10 +258,12 @@ export const MonacoEditorRenderer: React.FC = () => {
       editor,
       monaco.editor.ContentWidgetPositionPreference.EXACT,
     );
-    // インストール先は起動フロー(startup.ts)が installationPath ストアに設定して
-    // apm-core-changed を発火するため、未確定なら確定を待って一度だけ読み込む
-    // (旧 EditorContextBridge の setOnload / setInstPath の両者待ち合わせ相当。
-    // 読み込み失敗を無視するのも旧実装と同じ)
+    // インストール先は起動フロー(startup.ts)が後から設定するため、未確定なら
+    // 確定を待って一度だけ読み込む(旧 EditorContextBridge の setOnload /
+    // setInstPath の両者待ち合わせ相当。読み込み失敗を無視するのも旧実装と同じ)。
+    // apm-core-changed ではなくストアを購読するのは、通知の発火とストア更新の
+    // 順序に依存しないため。あわせて解除経路も持てる — window へ登録していた
+    // 旧実装は解除しておらず、エディタが作り直されると多重登録になっていた
     let loaded = false;
     const loadEditorPackages = async () => {
       if (loaded) return;
@@ -277,10 +282,10 @@ export const MonacoEditorRenderer: React.FC = () => {
       }
     };
     void loadEditorPackages();
-    window.addEventListener(
-      'apm-core-changed',
+    const unsubscribe = subscribeInstallationPath(
       () => void loadEditorPackages(),
     );
+    editor.onDidDispose(() => unsubscribe());
 
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
       void saveEditorDataRef.current();
