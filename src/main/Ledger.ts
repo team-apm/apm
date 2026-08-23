@@ -65,9 +65,17 @@ class Ledger {
     this.path = path;
 
     try {
-      const value = await readJson(path);
-      if (typeof value === 'object') {
-        this.object = value;
+      const value: unknown = await readJson(path);
+      // typeof null === 'object' なので null と配列も通ってしまう。通すと
+      // dot-prop の setProperty が無言で何もせず(null)、あるいは
+      // JSON.stringify が付加プロパティを落として(配列)、以後の書き込みが
+      // 永久に捨てられる。壊れたファイルとして既定値へ倒す
+      if (
+        value !== null &&
+        typeof value === 'object' &&
+        !Array.isArray(value)
+      ) {
+        this.object = value as LedgerObject;
       } else {
         throw new Error('Invalid apm.json.');
       }
