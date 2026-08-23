@@ -1,4 +1,5 @@
 import type { Scripts } from 'apm-schema';
+import log from 'electron-log/renderer';
 import React, { type JSX, useEffect } from 'react';
 import { Button, Spinner } from 'react-bootstrap';
 import { states } from '../../../shared/packageDisplay';
@@ -131,7 +132,8 @@ function PackageActions({
         installationPath,
         url,
       });
-    } catch {
+    } catch (e) {
+      log.error(`Failed to install the script: ${url}`, e);
       result = null; // installFailed 相当
     }
 
@@ -213,7 +215,8 @@ function PackageActions({
         packageState: { id: installedPackage.id, info: installedPackage.info },
         direct: false,
       });
-    } catch {
+    } catch (e) {
+      log.error(`Failed to install ${installedPackage.id}.`, e);
       result = 'installFailed';
     }
 
@@ -276,7 +279,8 @@ function PackageActions({
           info: uninstalledPackage.info,
         },
       });
-    } catch {
+    } catch (e) {
+      log.error(`Failed to uninstall ${uninstalledPackage.id}.`, e);
       result = 'removeFailed';
     }
 
@@ -308,7 +312,8 @@ function PackageActions({
     let exists: boolean;
     try {
       exists = await openFolderMutation.mutateAsync(selectedEntry.p.id);
-    } catch {
+    } catch (e) {
+      log.error(`Failed to open the folder of ${selectedEntry.p.id}.`, e);
       folder.finish('エラーが発生しました。', 'danger');
       return;
     }
@@ -329,7 +334,8 @@ function PackageActions({
     try {
       const text = await utils.packages.getShareString.fetch(installationPath);
       await writeClipboardMutation.mutateAsync({ text });
-    } catch {
+    } catch (e) {
+      log.error('Failed to get the share string.', e);
       share.finish('エラーが発生しました。', 'danger');
       return;
     }

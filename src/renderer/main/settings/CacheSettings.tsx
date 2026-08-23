@@ -1,3 +1,4 @@
+import log from 'electron-log/renderer';
 import React, { type JSX } from 'react';
 import { Button, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { formatBytes } from '../../../shared/formatBytes';
@@ -24,7 +25,8 @@ function CacheSettings(): JSX.Element {
       }
       await cacheSize.refetch();
       clear.finish(`${formatBytes(freed)}を削除`, 'success');
-    } catch {
+    } catch (e) {
+      log.error('Failed to clear the download cache.', e);
       clear.finish('エラー', 'danger');
     }
   };

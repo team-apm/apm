@@ -1,3 +1,4 @@
+import log from 'electron-log/renderer';
 import React, { type JSX, useEffect, useRef, useState } from 'react';
 import { Button, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { TRPCReact } from '../../trpc';
@@ -56,7 +57,8 @@ function DataUrlSettings() {
       } else {
         setPhase('danger');
       }
-    } catch {
+    } catch (e) {
+      log.error('Failed to set the data URLs.', e);
       setPhase('danger');
     }
     timer.current = setTimeout(() => setPhase('idle'), 3000);

@@ -1,3 +1,4 @@
+import log from 'electron-log/renderer';
 import React, { type JSX } from 'react';
 import { Button } from 'react-bootstrap';
 import { TRPCReact } from '../../trpc';
@@ -44,7 +45,11 @@ function SelectInstallationPathButton(): JSX.Element {
       // ラベルが変わらないので、押した結果が画面に一切現れない)
       try {
         await changeInstallationPathMutation.mutateAsync(installationPath);
-      } catch {
+      } catch (e) {
+        log.error(
+          `Failed to change the installation path: ${installationPath}`,
+          e,
+        );
         await openDialogMutation.mutateAsync({
           title: 'エラー',
           message: 'インストール先の変更に失敗しました。',

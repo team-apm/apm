@@ -1,4 +1,5 @@
 import type { Core } from 'apm-schema';
+import log from 'electron-log/renderer';
 import React, {
   type JSX,
   useEffect,
@@ -107,7 +108,8 @@ function ProgramRow({
         version,
         installationPath,
       });
-    } catch {
+    } catch (e) {
+      log.error(`Failed to install ${program} ${version}.`, e);
       showError('エラーが発生しました。');
       return;
     }
