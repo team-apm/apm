@@ -37,6 +37,12 @@ function ProgramRow({
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
 
+  // 待機中のボタンはキャレットだけになり、読み上げ名が空になる。文字を出すと
+  // 列の幅が変わって行の整列が崩れるため、見た目は変えずに名前だけを与える。
+  // 状態メッセージを出している間は付けない — aria-label は要素の文字を上書きするので、
+  // 「インストール完了」が読み上げから消えてしまう
+  const idleName = phase === 'idle' ? `${label}をインストール` : undefined;
+
   const utils = TRPCReact.useUtils();
   const coreInfoQuery = TRPCReact.core.getCoreInfo.useQuery();
   const installedTextsQuery =
@@ -143,6 +149,8 @@ function ProgramRow({
             className={buttonRoundedClass}
             id={`install-${program}`}
             disabled={phase === 'loading'}
+            aria-label={idleName}
+            title={idleName}
           >
             {phase === 'loading' ? (
               <>
