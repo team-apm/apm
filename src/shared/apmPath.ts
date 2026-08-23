@@ -8,7 +8,14 @@ import path from 'node:path';
  */
 export function isParent(parent: string, child: string) {
   const relative = path.relative(parent, child);
-  return Boolean(relative && !relative.startsWith('..'));
+  // 絶対パスを弾くのは Windows のため。win32 の path.relative は別ドライブや
+  // UNC のように相対化できない相手に対して、相対パスではなく引数をそのまま
+  // 返す(path.win32.relative('C:\\aviutl', 'D:\\evil') === 'D:\\evil')。
+  // '..' で始まらないので、この検査が無いと「インストール先の内側」と
+  // 判定されてしまう。POSIX の path.relative は絶対パスを返さないので無影響
+  return Boolean(
+    relative && !relative.startsWith('..') && !path.isAbsolute(relative),
+  );
 }
 
 /**
