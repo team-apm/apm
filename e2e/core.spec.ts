@@ -46,15 +46,20 @@ test('AviUtl 本体のインストールができる', async ({ cleanup, launchA
     },
   );
 
+  // 待機中のボタンはキャレットだけで文字が無いので、読み上げ名で辿れること
+  await expect(
+    window.getByRole('button', { name: 'AviUtlをインストール' }),
+  ).toBeVisible();
+
   // バージョン選択ドロップダウンから最新版(1.10)をインストールする
   await window.locator('#install-aviutl').click();
   await window
     .locator('#aviutl-version-select .dropdown-item', { hasText: '1.10' })
     .click();
-  await expect(window.locator('#install-aviutl')).toHaveText(
-    'インストール完了',
-    { timeout: 120_000 },
-  );
+  // 完了メッセージがそのまま読み上げ名になる(待機中の aria-label が残っていない)
+  await expect(
+    window.getByRole('button', { name: 'インストール完了' }),
+  ).toBeVisible({ timeout: 120_000 });
 
   // 実ファイルが置かれ、インストール済みバージョンが表示される
   expect(existsSync(path.join(installationPath, 'aviutl.exe'))).toBe(true);
