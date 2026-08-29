@@ -69,6 +69,12 @@ async function unzip(zipPath: string, folderName?: string) {
     );
   };
   const targetPath = getTargetPath();
+  // 展開前に消す。overwrite: 'a' はアーカイブに在るものを上書きするだけで、
+  // 前回の展開物のうち新しいアーカイブに無いファイルは残る。targetPath は
+  // 同じパッケージ・同じアーカイブ名で再利用されるため、残骸が install() の
+  // ディレクトリコピー(isDirectory / isProgram)を通って新しいインストールに
+  // 混入する。resolveInside を通した後なので、消す対象は必ず基点の内側にある
+  await remove(targetPath);
   const zipStream = extractFull(zipPath, targetPath, {
     $bin: pathTo7zip,
     overwrite: 'a',

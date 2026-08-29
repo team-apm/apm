@@ -114,6 +114,25 @@ describe('unzip', () => {
     ).rejects.toThrow(/invalid path/);
     expect(await pathExists(path.join(root, 'escaped'))).toBe(false);
   }, 60000);
+
+  it('前回の展開物を残さない', async () => {
+    // 同じパッケージを更新すると targetPath が再利用される。overwrite だけだと
+    // 旧バージョンにしか無かったファイルが残り、install() のディレクトリコピーで
+    // 新しいインストールへ持ち込まれる
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'apm-unzip-'));
+    tempDirs.push(dir);
+    const zipPath = await createZipFixture(dir);
+    const targetPath = path.join(dir, 'fixture');
+    await ensureDir(path.join(targetPath, 'sub'));
+    await writeFile(path.join(targetPath, 'stale.txt'), 'old version');
+    await writeFile(path.join(targetPath, 'sub', 'nested.txt'), 'old version');
+
+    await unzip(zipPath);
+
+    expect(await pathExists(path.join(targetPath, 'hello.txt'))).toBe(true);
+    expect(await pathExists(path.join(targetPath, 'stale.txt'))).toBe(false);
+    expect(await pathExists(path.join(targetPath, 'sub'))).toBe(false);
+  }, 30000);
 });
 
 describe('removeSymlinks', () => {
