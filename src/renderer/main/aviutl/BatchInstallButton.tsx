@@ -1,4 +1,5 @@
 import type { Core } from 'apm-schema';
+import log from 'electron-log/renderer';
 import React, { type JSX, useEffect, useRef, useState } from 'react';
 import { Button, Spinner } from 'react-bootstrap';
 import { states } from '../../../shared/packageDisplay';
@@ -118,7 +119,8 @@ function BatchInstallButton(): JSX.Element {
       } else {
         finish('インストール完了', 'success');
       }
-    } catch {
+    } catch (e) {
+      log.error('Failed to run the batch install.', e);
       finish('エラーが発生しました。', 'danger');
     }
   };

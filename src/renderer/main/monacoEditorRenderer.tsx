@@ -5,6 +5,7 @@ import MonacoEditor, {
 } from '@monaco-editor/react';
 import { Packages } from 'apm-schema';
 import schema from 'apm-schema/v3/schema/packages.json';
+import log from 'electron-log/renderer';
 // Type-only import to avoid bundling the entire monaco-editor package
 // (enforced by @typescript-eslint/no-restricted-imports). The runtime editor
 // is NOT loaded from a CDN (the CSP does not allow it): @monaco-editor/loader
@@ -205,6 +206,9 @@ export const MonacoEditorRenderer: React.FC = () => {
       try {
         json = JSON.parse(editor.getValue());
       } catch {
+        // ここだけログしない。編集途中の不正な JSON は想定内の入力状態で、
+        // エディタが既にマーカーで指している。ログに出すと、保存を押すたびに
+        // 本物の失敗と同じ体裁の行が積まれて切り分けの邪魔になる
         error = true;
       }
       if (error) {
@@ -222,7 +226,8 @@ export const MonacoEditorRenderer: React.FC = () => {
       // このイベントを購読して行う
       window.dispatchEvent(new Event('apm-check-packages-list'));
       save.finish('保存完了', 'success');
-    } catch {
+    } catch (e) {
+      log.error('Failed to save the extra packages.', e);
       save.finish('エラー', 'danger');
     }
   };
@@ -278,7 +283,10 @@ export const MonacoEditorRenderer: React.FC = () => {
         editor.setValue(JSON.stringify(packages));
         await editor.getAction('editor.action.formatDocument')!.run();
       } catch {
-        // nop
+        // ここだけログしない。パッケージ一覧をまだ取得していないプロファイルでは
+        // getEditorPackages が必ず 'The version file does not exist.' で throw する
+        // (e2e/monaco.spec.ts が実測で押さえている)。本物の失敗と区別できないので、
+        // 区別できるようにしてからログする
       }
     };
     void loadEditorPackages();
