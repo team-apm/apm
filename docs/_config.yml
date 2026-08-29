@@ -60,5 +60,5 @@ show_downloads: true
 # リリースのたびに scripts/updateSiteDownloadUrls.mjs が書き換える
 # (.release-it.json の after:bump フック)。手で更新しないこと
 github:
-  exe_url: https://github.com/team-apm/apm/releases/download/v3.14.0/AviUtl.Package.Manager-3.14.0.Setup.exe
-  zip_url: https://github.com/team-apm/apm/releases/download/v3.14.0/AviUtl.Package.Manager-win32-x64-3.14.0.zip
+  exe_url: https://github.com/team-apm/apm/releases/download/v3.15.0/AviUtl.Package.Manager-3.15.0.Setup.exe
+  zip_url: https://github.com/team-apm/apm/releases/download/v3.15.0/AviUtl.Package.Manager-win32-x64-3.15.0.zip

@@ -1,5 +1,50 @@
 # Changelog
 
+# [3.15.0](https://github.com/team-apm/apm/compare/v3.14.0...v3.15.0) (2026-08-29)
+
+### Bug Fixes
+
+- **csp:** codicon フォント用に font-src data: を許可する ([57039f7](https://github.com/team-apm/apm/commit/57039f75c9ccb017f1d12094146e9d071304ebdf))
+- **docs:** サイトのダウンロードリンクをリリース時に自動更新する ([53bda26](https://github.com/team-apm/apm/commit/53bda2694b1e6896846a90f64eea4c31b88cdd31))
+- **main:** apm.json の書き込みを原子的にする ([6d1412d](https://github.com/team-apm/apm/commit/6d1412df351a1c61bf4cacb6c244d68b20bc64c3))
+- **main:** nicommons ID を URL に埋める前にエスケープする ([7d0ae6b](https://github.com/team-apm/apm/commit/7d0ae6bdcf2648715b7fd3c43821b84c64eaabee))
+- **main:** null や配列の apm.json を壊れているものとして扱う ([d7cf320](https://github.com/team-apm/apm/commit/d7cf32049607c1585be24a7c6a830723805a670d)), closes [#2463](https://github.com/team-apm/apm/issues/2463)
+- **main:** tRPC 境界で例外をログに残す ([c43a140](https://github.com/team-apm/apm/commit/c43a1400ca47baef25fcddb536f24c1b97302d91))
+- **main:** インストール先の変更を最後まで通ってから確定する ([fc79cf2](https://github.com/team-apm/apm/commit/fc79cf2d9314039cc1072b2953dcc2b5bb268ed0))
+- **main:** ドットを含むパッケージ ID の導入記録が壊れる問題を修正する ([b585cbc](https://github.com/team-apm/apm/commit/b585cbca3fe84ecc0184b9bd85d295a15f844824))
+- **main:** パッケージ ID を展開先パスに使う前に検証する ([3dba83a](https://github.com/team-apm/apm/commit/3dba83abcaedccfceef837d193aabc2e110d5eac))
+- **main:** ブラウザ経由のダウンロードが完了しなかったら失敗として扱う ([995d2a9](https://github.com/team-apm/apm/commit/995d2a926aad00d5fd4b4e2b819572da73236c54))
+- **main:** ローカルリポジトリの変換失敗で移行を止めない ([093b463](https://github.com/team-apm/apm/commit/093b463dcb30182cae74550f9ce4d32fcfae9798))
+- **main:** 移行前のバックアップに失敗したら apm.json を書き換えない ([f5591ce](https://github.com/team-apm/apm/commit/f5591ce3db22acf9d2014cc5aa11a9c1df1bea97))
+- **main:** 整合性の不一致を「破損」と決めつけない ([461111a](https://github.com/team-apm/apm/commit/461111ad30239e63da33f99c8202c3f38d66de0a)), closes [#2385](https://github.com/team-apm/apm/issues/2385)
+- **main:** 整合性検証に落ちたアーカイブを残さない ([ea42aa0](https://github.com/team-apm/apm/commit/ea42aa051c4f77a66aa6306d7fba9662e73194d8))
+- **main:** 廃止済みキャッシュの削除を直す ([3d3485b](https://github.com/team-apm/apm/commit/3d3485b4471e5c4813761edb0c3ae296b5be31ae))
+- **main:** 例外で Ledger のトランザクションが開いたままになる問題を修正する ([c9e17b9](https://github.com/team-apm/apm/commit/c9e17b9f8039c39b46ba58a3a2420a9db7aa254d))
+- **renderer:** monaco の型境界を実体に合わせる ([ca6fdc8](https://github.com/team-apm/apm/commit/ca6fdc8821e95fa88bd0a1f2b1b6399bc18ee635))
+- **renderer:** インストール先のパスをホバーで読めるようにする ([bd29f07](https://github.com/team-apm/apm/commit/bd29f073118cf0d250ddc0aee7f29ec5f1ecc85d))
+- **renderer:** インストール先の変更に失敗したことを画面に出す ([8d5cca1](https://github.com/team-apm/apm/commit/8d5cca1d8154b5efcf3edaf201fe2c985375f920))
+- **renderer:** おすすめプラグイン一覧が空のインストール先で問い合わせる問題を修正する ([c910c0c](https://github.com/team-apm/apm/commit/c910c0cf0f08f2b283127a69564ed82f8063aacd))
+- **renderer:** コアのインストールボタンに読み上げ名を戻す ([71d5229](https://github.com/team-apm/apm/commit/71d52299aaa41ee10836fc7483bbf66a8e281d98))
+- **renderer:** タブペインを指す CSS セレクタが効いていない問題を直す ([1a689dc](https://github.com/team-apm/apm/commit/1a689dc070271a71697bf224934526283b9f919e)), closes [section#packages](https://github.com/section/issues/packages) [section#nicommons](https://github.com/section/issues/nicommons)
+- **renderer:** 握りつぶしている例外をログに残す ([a439e93](https://github.com/team-apm/apm/commit/a439e93788d0bc4bb2522e308063146b85d24bf5))
+- **renderer:** 一括インストールが失敗を無視して「インストール完了」と出す問題を修正する ([cd64934](https://github.com/team-apm/apm/commit/cd6493446dc5fd8688cb8292d0e1f04d11d5e170))
+- **renderer:** 検索が短い語で無関係なパッケージを巻き込まないようにする ([7ed462a](https://github.com/team-apm/apm/commit/7ed462ab8d600102369dff952eabcf5569dc9f11))
+- **renderer:** 失敗しても操作ボタンが loading のまま固まらないようにする ([52fb3d1](https://github.com/team-apm/apm/commit/52fb3d1bab3fa40c1bb9894d153aa5ddd47fd44a))
+- **shared:** isOptional の改名で説明文まで書き換わる問題を修正する ([8046397](https://github.com/team-apm/apm/commit/8046397863cdd21bf5c982e038be8bcb1d394448))
+- **shared:** 依存が循環していてもパッケージ一覧が落ちないようにする ([80768c2](https://github.com/team-apm/apm/commit/80768c295643a20748051d83100ed2075501b74e))
+- **shared:** 前回の展開物を残したまま上書き展開しない ([bfce6d4](https://github.com/team-apm/apm/commit/bfce6d45eaeb4692346481aac6785dd01d0e7316)), closes [#2465](https://github.com/team-apm/apm/issues/2465)
+- **shared:** 別ドライブ・UNC を「インストール先の内側」と判定しないようにする ([e9d4321](https://github.com/team-apm/apm/commit/e9d4321ab01abefacda14b8c293e8cbe8313acee))
+- **shared:** 本体の更新で上書き禁止のファイルを潰さないようにする ([ec29080](https://github.com/team-apm/apm/commit/ec29080c94055f0324494de074b5b8d91c2a7c6c))
+- **shared:** 末尾スラッシュの無い dataURL でデータを解決できるようにする ([ac36636](https://github.com/team-apm/apm/commit/ac366367a653f0226699b63f46c4f7d5a1ee554d))
+- **shared:** 名前が前方一致するだけのファイルを手動導入判定から除外しない ([f081623](https://github.com/team-apm/apm/commit/f08162370309400c07a72159b353a0c931dbb708))
+
+### Features
+
+- **main:** config 側の移行から段と入力窓を外す ([16c5f39](https://github.com/team-apm/apm/commit/16c5f39ee561bf0f2b5351aa933e997d4ed3ccf3))
+- **main:** 移行前に config.json を退避し、旧データ取得先を知らせる ([aa3201f](https://github.com/team-apm/apm/commit/aa3201f1178a97cced976638d8d63063097d8667))
+- **renderer:** ログフォルダを開くボタンをその他タブに足す ([1a22584](https://github.com/team-apm/apm/commit/1a22584f3811ee0d4c10098fe317b21b7e022efa))
+- **settings:** ダウンロードキャッシュの使用量表示と削除を追加する ([a3b9ceb](https://github.com/team-apm/apm/commit/a3b9ceb93c7746afd27a9af8e23f93ecc45e3a17)), closes [#1787](https://github.com/team-apm/apm/issues/1787)
+
 # [3.14.0](https://github.com/team-apm/apm/compare/v3.13.0...v3.14.0) (2026-08-22)
 
 ### Bug Fixes
