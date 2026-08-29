@@ -268,6 +268,18 @@ function PackageActions({
 
     const uninstalledPackage = { ...selectedEntry.p };
 
+    // 未インストールのまま押せてしまい、しかも main 側は成功を返す。
+    // 実測すると「アンインストール完了」と出る — 何も消していないのに
+    // 完了と報告している(#2456 と同じ種類)。
+    // 無効化ではなく説明を出すのは、このボタン群が「押したら理由を言う」
+    // 方式で揃っているため(選択なし・インストール先未設定も同じ形)。
+    // notInstalled だけを弾く。手動インストール済みは記録に無いだけで
+    // ファイルは在るので、消す操作に意味がある
+    if (uninstalledPackage.installationStatus === states.notInstalled) {
+      uninstall.finish('インストールされていません。', 'danger');
+      return;
+    }
+
     let result: Awaited<
       ReturnType<typeof uninstallPackageMutation.mutateAsync>
     >;
