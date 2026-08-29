@@ -1,9 +1,18 @@
 import type { Core } from 'apm-schema';
-import React, { type JSX, useEffect, useRef, useState } from 'react';
+import React, {
+  type JSX,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { Dropdown, Spinner } from 'react-bootstrap';
 import { releaseLabel } from '../../../shared/coreVersionText';
 import { TRPCReact } from '../../trpc';
-import { getInstallationPath } from '../installationPath';
+import {
+  getInstallationPath,
+  subscribeInstallationPath,
+} from '../installationPath';
 
 type ButtonPhase = 'idle' | 'loading' | 'success' | 'danger';
 
@@ -29,8 +38,12 @@ function ProgramRow({
   iconClass,
   buttonRoundedClass,
 }: ProgramRowProps) {
-  const [installationPath, setInstallationPath] = useState(() =>
-    getInstallationPath(),
+  // インストール先はストアを購読する。DOM イベント経由で読み直すと、
+  // 通知の発火とストア更新の順序に依存してしまう(起動フローも
+  // SelectInstallationPathButton も setInstallationPath の前後で撃つ)
+  const installationPath = useSyncExternalStore(
+    subscribeInstallationPath,
+    getInstallationPath,
   );
   const [phase, setPhase] = useState<ButtonPhase>('idle');
   const [buttonMessage, setButtonMessage] = useState('');
@@ -46,10 +59,10 @@ function ProgramRow({
   // 通知元(startup / SelectInstallationPathButton / BatchInstallButton /
   // ManualUpdateTable)とは親子関係に無く、タブもまたぐため props でも
   // Context でも届かない。window イベントで受ける
-  // (queryClient への一本化は未着手 — AGENTS.md 落とし穴)
+  // (queryClient への一本化は未着手 — AGENTS.md 落とし穴)。
+  // インストール先そのものはストアの購読で別に追う
   useEffect(() => {
     const listener = () => {
-      setInstallationPath(getInstallationPath());
       void utils.core.getCoreInfo.invalidate();
       void utils.core.getInstalledVersionTexts.invalidate();
     };

@@ -26,7 +26,10 @@ import {
 } from '../../../shared/shareString';
 import type { PackageState } from '../../../types/packageState';
 import { TRPCReact } from '../../trpc';
-import { getInstallationPath } from '../installationPath';
+import {
+  getInstallationPath,
+  subscribeInstallationPath,
+} from '../installationPath';
 import PackageActions, { type SelectedEntry } from './PackageActions';
 import { getPhase, subscribePhase } from './packagesListCheck';
 
@@ -170,8 +173,12 @@ const naturalCompare = (a: string, b: string) => {
  * @returns {JSX.Element} The rendered component.
  */
 function PackagesTab(): JSX.Element {
-  const [installationPath, setInstallationPath] = useState(() =>
-    getInstallationPath(),
+  // インストール先はストアを購読する。DOM イベント経由で読み直すと、
+  // 通知の発火とストア更新の順序に依存してしまう(起動フローも
+  // SelectInstallationPathButton も setInstallationPath の前後で撃つ)
+  const installationPath = useSyncExternalStore(
+    subscribeInstallationPath,
+    getInstallationPath,
   );
   const [searchString, setSearchString] = useState('');
   const [alertDismissed, setAlertDismissed] = useState(false);
@@ -196,20 +203,15 @@ function PackagesTab(): JSX.Element {
     { refetchOnWindowFocus: false },
   );
 
-  // 他コンポーネントからの通知: インストール先変更と一覧の再取得要求
+  // 他コンポーネントからの一覧の再取得要求
   useEffect(() => {
-    const onCoreChanged = () => {
-      setInstallationPath(getInstallationPath());
-    };
     const onPackagesChanged = () => {
       void utils.packages.getPackagesWithStatus.invalidate();
       void utils.packages.getScriptsList.invalidate();
       void utils.core.getLedgerCoreVersions.invalidate();
     };
-    window.addEventListener('apm-core-changed', onCoreChanged);
     window.addEventListener('apm-packages-changed', onPackagesChanged);
     return () => {
-      window.removeEventListener('apm-core-changed', onCoreChanged);
       window.removeEventListener('apm-packages-changed', onPackagesChanged);
     };
   }, [utils]);
