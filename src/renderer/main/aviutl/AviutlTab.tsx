@@ -56,6 +56,10 @@ function AviutlTab(): JSX.Element {
                 placeholder="AviUtlフォルダ"
                 aria-label="Installation path"
                 readOnly
+                // 幅に収まらないパスはフォルダ選択ボタンの下に潜って読めなくなる。
+                // 省略記号も出ない(plaintext の input なので text-overflow が効かない)。
+                // 幅を広げるとボタンが押し出されるため、ホバーで全体を出す
+                title={installationPath}
                 value={installationPath}
               />
             </div>

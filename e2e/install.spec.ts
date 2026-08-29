@@ -91,6 +91,11 @@ test('dataURL の差し替えとパッケージのインストール・アンイ
       timeout: 120_000,
     },
   );
+  // 幅に収まらないパスはホバーで全体が読める
+  await expect(window.locator('#installation-path')).toHaveAttribute(
+    'title',
+    installationPath,
+  );
 
   // 差し替え前のデータにはダミープラグインが存在しない
   await window.getByRole('tab', { name: 'プラグイン&スクリプト' }).click();
