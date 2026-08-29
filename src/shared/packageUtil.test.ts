@@ -331,6 +331,81 @@ describe('computePackagesStatus', () => {
     expect(result[0].doNotInstall).toBe(false);
   });
 
+  it('未導入でも、満たせない依存が unmetDependencies に入る', () => {
+    const result = computePackagesStatus(
+      [
+        makePackage('author/a', {
+          installationStatus: states.notInstalled,
+          dependencies: ['exedit0.93rc1'],
+        }),
+      ],
+      '1.10',
+      '0.92',
+    );
+    // 導入前でも「何が足りないか」が分かる(detached は導入済みしか埋めない)
+    expect(result[0].doNotInstall).toBe(true);
+    expect(result[0].unmetDependencies).toEqual(['exedit0.93rc1']);
+    expect(result[0].detached).toEqual([]);
+  });
+
+  it('満たせている依存は unmetDependencies に入らない', () => {
+    const result = computePackagesStatus(
+      [
+        makePackage('author/a', {
+          installationStatus: states.notInstalled,
+          dependencies: ['exedit0.92', 'aviutl9.99'],
+        }),
+      ],
+      '1.10',
+      '0.92',
+    );
+    expect(result[0].unmetDependencies).toEqual(['aviutl9.99']);
+  });
+
+  it('競合が理由のときは unmetDependencies が空になる', () => {
+    const result = computePackagesStatus(
+      [makePackage('author/a', { installationStatus: states.otherInstalled })],
+      '1.10',
+      '0.92',
+    );
+    expect(result[0].doNotInstall).toBe(true);
+    expect(result[0].unmetDependencies).toEqual([]);
+  });
+
+  it('成立している競合が conflictingWith に入る', () => {
+    const result = computePackagesStatus(
+      [
+        makePackage('author/a', {
+          installationStatus: states.notInstalled,
+          conflicts: ['author/b'],
+        }),
+        makePackage('author/b', { installationStatus: states.installed }),
+      ],
+      '1.10',
+      '0.92',
+    );
+    expect(result[0].doNotInstall).toBe(true);
+    expect(result[0].conflictingWith).toEqual(['author/b']);
+    // 相手が入っていないほうは競合が成立しない
+    expect(result[1].conflictingWith).toEqual([]);
+  });
+
+  it('成立していない競合は conflictingWith に入らない', () => {
+    const result = computePackagesStatus(
+      [
+        makePackage('author/a', {
+          installationStatus: states.notInstalled,
+          conflicts: ['author/b'],
+        }),
+        makePackage('author/b', { installationStatus: states.notInstalled }),
+      ],
+      '1.10',
+      '0.92',
+    );
+    expect(result[0].doNotInstall).toBe(false);
+    expect(result[0].conflictingWith).toEqual([]);
+  });
+
   it('他バージョンがインストール済みのパッケージはインストール不可', () => {
     const result = computePackagesStatus(
       [makePackage('author/a', { installationStatus: states.otherInstalled })],
