@@ -18,12 +18,14 @@ class Ledger {
   // 全体書き戻しで消し合う(lost update)。操作単位のミューテックスで直列化
   // する案は全サービスの呼び出し境界の再定義が必要で差分が大きく、単一
   // プロセスなら共有オブジェクト化で同じ効果が得られるため採らない。
-  // apm の多重起動(プロセス間の競合)はこの方式では防げない(別課題)
+  // プロセス間の競合は index.ts の requestSingleInstanceLock で防ぐ(2 個目は
+  // 起動しない)。ただしロックは userData 単位なので、_Dev の開発起動と製品版が
+  // 同じインストール先を指す構成だけは防げない
   private static instances = new Map<string, Promise<Ledger>>();
 
-  // 生成は必ず静的ファクトリ(load / getInstance)経由で、どちらも
-  // new した直後に load() を呼ぶ。load() は成功・失敗のどちらの経路でも
-  // この 2 つを設定するが、コンストラクタからは追えないため明示する
+  // 生成は必ず静的ファクトリ(load)経由で、new した直後に load() を呼ぶ。
+  // load() は成功・失敗のどちらの経路でもこの 2 つを設定するが、
+  // コンストラクタからは追えないため明示する
   private path!: string;
   private object!: LedgerObject;
   private inTransaction = false;
