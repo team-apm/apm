@@ -3,7 +3,7 @@ import log from 'electron-log/main';
 import { existsSync, readdir as fsReaddir, mkdir, rename } from 'fs-extra';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
-import { isParent } from '../../shared/apmPath';
+import { isParent, resolveInside } from '../../shared/apmPath';
 import { install, verifyFilesByCount } from '../../shared/install';
 import { buildInstallerArgs } from '../../shared/installerArgs';
 import unzip from '../../shared/unzip';
@@ -50,7 +50,12 @@ export async function installPackageArchive(
         return await unzip(archivePath, packageState.id);
       } else {
         // In this line, path.dirname(archivePath) always refers to the 'Data/package' folder.
-        const newFolder = path.join(path.dirname(archivePath), packageState.id);
+        // packageState.id はリモート由来なので、展開経路(unzip)と同じく
+        // データフォルダの外を指していないか確かめてから作る
+        const newFolder = resolveInside(
+          path.dirname(archivePath),
+          packageState.id,
+        );
         await mkdir(newFolder, { recursive: true });
         await rename(
           archivePath,
