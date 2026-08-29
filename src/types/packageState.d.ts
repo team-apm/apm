@@ -14,4 +14,10 @@ export type PackageState = {
   installationStatus?: string;
   detached?: PackageState[];
   doNotInstall?: boolean;
+  /**
+   * doNotInstall の理由のうち「依存が満たせない」もの。dependencies の
+   * 要素(or は `a|b` のまま)で、満たせないグループだけが入る。
+   * 競合が理由のときは空になる。
+   */
+  unmetDependencies?: string[];
 };

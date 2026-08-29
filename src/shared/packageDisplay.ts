@@ -74,3 +74,44 @@ export function parsePackageType(packageType: string[]) {
   }
   return result;
 }
+
+// 依存 ID は `author/pkg` `aviutl1.10` `exedit0.92` のいずれかで、後ろに
+// `>=1.0` のようなバージョン指定が付きうる(packageUtil の isInstalled と
+// 同じ形)。表示では指定を落として名前だけを出す
+const DEPENDENCY_ID =
+  /^((?:[A-Za-z0-9]+\/[A-Za-z0-9]+)|(?:aviutl[A-Za-z0-9.]+)|(?:exedit[A-Za-z0-9.]+))(?:(?:<|<=|=|>=|>)(?:[^<=>&|\n]+))?$/u;
+
+/**
+ * Converts a dependency ID into a name shown to the user.
+ * @param {string} rawId - A dependency ID, optionally with a version specifier.
+ * @param {Function} nameOfPackage - Resolves a package ID to its display name.
+ * @returns {string} The name to show.
+ */
+export function dependencyDisplayName(
+  rawId: string,
+  nameOfPackage: (id: string) => string | undefined,
+): string {
+  const id = DEPENDENCY_ID.exec(rawId)?.[1] ?? rawId;
+  const name = nameOfPackage(id);
+  if (name) return name;
+  // aviutl / exedit はパッケージ一覧に無い擬似 ID なので手で組み立てる
+  if (id.startsWith('aviutl')) return `AviUtl ${id.slice('aviutl'.length)}`;
+  if (id.startsWith('exedit')) return `拡張編集 ${id.slice('exedit'.length)}`;
+  return id;
+}
+
+/**
+ * Converts one entry of `unmetDependencies` into a name shown to the user.
+ * @param {string} group - One dependency entry; `a|b` means either satisfies it.
+ * @param {Function} nameOfPackage - Resolves a package ID to its display name.
+ * @returns {string} The name to show.
+ */
+export function unmetDependencyLabel(
+  group: string,
+  nameOfPackage: (id: string) => string | undefined,
+): string {
+  return group
+    .split('|')
+    .map((id) => dependencyDisplayName(id, nameOfPackage))
+    .join(' または ');
+}

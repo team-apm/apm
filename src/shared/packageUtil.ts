@@ -253,8 +253,21 @@ export function computePackagesStatus(
     } else return [];
   };
 
+  // doNotInstall の理由のうち「依存が満たせない」ものを取り出す。
+  // computeInstallable の isDepsInstallable と同じ式で、false になった
+  // グループだけを残す。missingDeps と違って導入済みかどうかを問わないので、
+  // まだ入れていないパッケージでも「何が足りないか」が出せる
+  const unmetDeps = (id: string): string[] => {
+    const thisPackage = packages.filter((p) => p.id === id).find(() => true);
+    if (!thisPackage) return [];
+    return (thisPackage.info.dependencies ?? []).filter(
+      (orOfID) => !orOfID.split('|').some((id2) => isInstallable(id2)),
+    );
+  };
+
   packages.forEach((p) => {
     p.doNotInstall = !isInstallable(p.id);
+    p.unmetDependencies = p.doNotInstall ? unmetDeps(p.id) : [];
     p.detached = missingDeps(p.id).flatMap((depsID) => {
       const dep = packages.find((pp) => pp.id === depsID);
       return dep ? [dep] : [];
