@@ -19,7 +19,11 @@ import {
 } from 'react-bootstrap';
 import { compareVersion } from '../../../shared/compareVersion';
 import { matchesSearchFilter } from '../../../shared/fuzzySearch';
-import { parsePackageType, states } from '../../../shared/packageDisplay';
+import {
+  parsePackageType,
+  states,
+  unmetDependencyLabel,
+} from '../../../shared/packageDisplay';
 import {
   computeShareStringAlerts,
   parseShareString,
@@ -729,6 +733,23 @@ function PackagesTab(): JSX.Element {
                                       row.p.doNotInstall && (
                                         <div className="text-warning">
                                           インストール不可
+                                          {(row.p.unmetDependencies ?? [])
+                                            .length > 0 && (
+                                            <span className="d-block fw-normal">
+                                              要:{' '}
+                                              {(row.p.unmetDependencies ?? [])
+                                                .map((group) =>
+                                                  unmetDependencyLabel(
+                                                    group,
+                                                    (id) =>
+                                                      packages.find(
+                                                        (p) => p.id === id,
+                                                      )?.info.name,
+                                                  ),
+                                                )
+                                                .join('、')}
+                                            </span>
+                                          )}
                                         </div>
                                       )}
                                     {row.kind === 'package' &&
