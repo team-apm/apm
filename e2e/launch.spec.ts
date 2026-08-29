@@ -22,6 +22,21 @@ test('起動して main 窓が開き、パッケージ一覧が描画される',
     timeout: 240_000,
   });
 
+  // 検索欄や操作ボタンを載せたカードがペインに収まり、一覧だけが内側で
+  // スクロールする(収まらないと一覧と一緒に画面外へ流れていく)
+  const heights = await window.evaluate(() => {
+    const pane = document.querySelector('section[role="tabpanel"].active');
+    const container = pane?.querySelector('.container-lg');
+    return {
+      pane: pane ? Math.round(pane.getBoundingClientRect().height) : 0,
+      container: container
+        ? Math.round(container.getBoundingClientRect().height)
+        : 0,
+    };
+  });
+  expect(heights.pane).toBeGreaterThan(0);
+  expect(heights.container).toBeLessThanOrEqual(heights.pane);
+
   expect(
     pageErrors.map((e) => e.message),
     'renderer で uncaught exception が発生していない',
