@@ -73,6 +73,39 @@ describe('Ledger', () => {
         'not a json {{{',
       );
     });
+
+    it('中身が null の apm.json は壊れているものとして扱う', async () => {
+      // typeof null === 'object' なので素通りしていた。素通りすると
+      // dot-prop の setProperty が無言で何もせず、以後の書き込みが
+      // 永久に捨てられる
+      const installationPath = await makeInstPath();
+      await fsPromises.writeFile(Ledger.getPath(installationPath), 'null');
+
+      const ledger = await Ledger.load(installationPath);
+
+      expect(await ledger.get('dataVersion')).toBe('3');
+      // 既定値へ倒れていれば書き込みが効く
+      await ledger.addPackage('author/plugin', '1.0');
+      expect(await ledger.hasPackage('author/plugin')).toBe(true);
+      expect(
+        (await readJson(Ledger.getPath(installationPath))).packages,
+      ).toEqual({ 'author/plugin': { id: 'author/plugin', version: '1.0' } });
+    });
+
+    it('中身が配列の apm.json は壊れているものとして扱う', async () => {
+      // 配列だと setProperty は成功するが JSON.stringify が付加プロパティを
+      // 落とすので、やはり書き込みが毎回失われる
+      const installationPath = await makeInstPath();
+      await fsPromises.writeFile(Ledger.getPath(installationPath), '[]');
+
+      const ledger = await Ledger.load(installationPath);
+
+      expect(await ledger.get('dataVersion')).toBe('3');
+      await ledger.setCore('aviutl', '1.10');
+      expect((await readJson(Ledger.getPath(installationPath))).core).toEqual({
+        aviutl: '1.10',
+      });
+    });
   });
 
   describe('get / has', () => {
