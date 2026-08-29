@@ -115,3 +115,19 @@ export function unmetDependencyLabel(
     .map((id) => dependencyDisplayName(id, nameOfPackage))
     .join(' または ');
 }
+
+/**
+ * Converts one entry of `conflictingWith` into a name shown to the user.
+ * @param {string} group - One conflict entry; `a&b` means all of them conflict.
+ * @param {Function} nameOfPackage - Resolves a package ID to its display name.
+ * @returns {string} The name to show.
+ */
+export function conflictLabel(
+  group: string,
+  nameOfPackage: (id: string) => string | undefined,
+): string {
+  return group
+    .split('&')
+    .map((id) => dependencyDisplayName(id, nameOfPackage))
+    .join(' かつ ');
+}

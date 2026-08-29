@@ -265,9 +265,20 @@ export function computePackagesStatus(
     );
   };
 
+  // doNotInstall のもう 1 つの理由。computeInstallable の conflictsInstalled と
+  // 同じ式で、実際に成立している競合だけを残す
+  const activeConflicts = (id: string): string[] => {
+    const thisPackage = packages.filter((p) => p.id === id).find(() => true);
+    if (!thisPackage) return [];
+    return (thisPackage.info.conflicts ?? []).filter((andOfID) =>
+      andOfID.split('&').every((id2) => isInstalled(id2)),
+    );
+  };
+
   packages.forEach((p) => {
     p.doNotInstall = !isInstallable(p.id);
     p.unmetDependencies = p.doNotInstall ? unmetDeps(p.id) : [];
+    p.conflictingWith = p.doNotInstall ? activeConflicts(p.id) : [];
     p.detached = missingDeps(p.id).flatMap((depsID) => {
       const dep = packages.find((pp) => pp.id === depsID);
       return dep ? [dep] : [];

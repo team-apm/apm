@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { dependencyDisplayName, unmetDependencyLabel } from './packageDisplay';
+import {
+  conflictLabel,
+  dependencyDisplayName,
+  unmetDependencyLabel,
+} from './packageDisplay';
 
 const nameOf = (id: string) =>
   ({ 'author/a': 'すごいプラグイン' })[id] as string | undefined;
@@ -33,6 +37,14 @@ describe('unmetDependencyLabel', () => {
   it('or 指定は「または」で繋ぐ', () => {
     expect(unmetDependencyLabel('aviutl1.10|exedit0.92', nameOf)).toBe(
       'AviUtl 1.10 または 拡張編集 0.92',
+    );
+  });
+});
+
+describe('conflictLabel', () => {
+  it('and 指定は「かつ」で繋ぐ', () => {
+    expect(conflictLabel('author/a&aviutl1.10', nameOf)).toBe(
+      'すごいプラグイン かつ AviUtl 1.10',
     );
   });
 });

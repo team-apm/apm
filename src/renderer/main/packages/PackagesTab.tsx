@@ -20,6 +20,7 @@ import {
 import { compareVersion } from '../../../shared/compareVersion';
 import { matchesSearchFilter } from '../../../shared/fuzzySearch';
 import {
+  conflictLabel,
   parsePackageType,
   states,
   unmetDependencyLabel,
@@ -748,6 +749,33 @@ function PackagesTab(): JSX.Element {
                                                   ),
                                                 )
                                                 .join('、')}
+                                            </span>
+                                          )}
+                                          {(row.p.conflictingWith ?? [])
+                                            .length > 0 && (
+                                            <span className="d-block fw-normal">
+                                              競合:{' '}
+                                              {(row.p.conflictingWith ?? [])
+                                                .map((group) =>
+                                                  conflictLabel(
+                                                    group,
+                                                    (id) =>
+                                                      packages.find(
+                                                        (p) => p.id === id,
+                                                      )?.info.name,
+                                                  ),
+                                                )
+                                                .filter(
+                                                  (v, i, a) =>
+                                                    a.indexOf(v) === i,
+                                                )
+                                                .join('、')}
+                                            </span>
+                                          )}
+                                          {row.p.installationStatus ===
+                                            states.otherInstalled && (
+                                            <span className="d-block fw-normal">
+                                              別のバージョンが導入済み
                                             </span>
                                           )}
                                         </div>
