@@ -4,7 +4,11 @@ import {
   clipboard,
   dialog,
   type OpenDialogOptions,
+  shell,
 } from 'electron';
+import log from 'electron-log/main';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { openAboutWindow } from '../aboutWindow';
 import {
   checkUpdate as checkAppUpdate,
@@ -70,6 +74,19 @@ export const appProcedures = {
   }),
   openAboutWindow: procedure.mutation(() => {
     openAboutWindow();
+  }),
+  // バグ報告に添えるログへの導線。場所は app.getPath('logs') で組み立てず
+  // electron-log 自身に聞く(transports.file の設定を変えても追従する)
+  openLogFolder: procedure.mutation(async () => {
+    const logPath = log.transports.file.getFile().path;
+    // 添付するのはファイルなので、選択した状態でフォルダを開く。
+    // 起動時に必ず 1 行書くので通常は存在するが、書き込みに失敗している
+    // ときこそ開きたいので、無ければフォルダだけ開く
+    if (existsSync(logPath)) {
+      shell.showItemInFolder(logPath);
+      return;
+    }
+    await shell.openPath(path.dirname(logPath));
   }),
   openDialog: procedure.input(dialogInput).mutation(async ({ input }) => {
     await dialog.showMessageBox({
