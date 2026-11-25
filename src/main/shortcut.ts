@@ -31,15 +31,3 @@ export function removeAviUtlShortcut(appDataPath: string) {
     unlinkSync(getShortcutPath(appDataPath));
   }
 }
-
-/**
- * Uninstaller for shortcuts. This function must be executed before uninstalling apm. Therefore, it is placed before the interpretation of squirrelCommand.
- * @param {string} appDataPath - The path to AppData
- */
-export function uninstaller(appDataPath: string) {
-  if (process.platform === 'win32') {
-    const squirrelCommand = process.argv[1];
-    if (squirrelCommand === '--squirrel-uninstall')
-      removeAviUtlShortcut(appDataPath);
-  }
-}

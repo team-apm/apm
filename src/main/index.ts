@@ -6,7 +6,7 @@ import 'source-map-support/register';
 import { getConfig } from './Config';
 import { registerIpcHandlers } from './ipcHandlers';
 import { ensureAutoUpdateDefault } from './services/appUpdate';
-import * as shortcut from './shortcut';
+import { handleSquirrelEvent } from './squirrel';
 import { launch } from './windows';
 
 // preload: true(既定)のセッション preload 注入は使わない。注入パスの解決が
@@ -40,13 +40,9 @@ log.errorHandler.startCatching({
   },
 });
 
-shortcut.uninstaller(app.getPath('appData'));
-// 静的 import にしない: ESM の規則でこのファイルの本体より先に評価され、
-// 直前の shortcut.uninstaller より先に Squirrel のイベント処理が始まってしまう
-// (--squirrel-uninstall では Update.exe の完了で app.quit() が走るため、
-// AviUtl のショートカット削除が間に合わなくなりうる)。位置を保つために
-// require のまま残し、vite.base.config.ts で外部化して同梱する
-if (require('electron-squirrel-startup')) app.quit();
+// Squirrel のイベント(インストール / 更新 / アンインストール)。AviUtl の
+// ショートカット削除との順序は handleSquirrelEvent の中で文として書かれている
+if (handleSquirrelEvent(app.getPath('appData'))) app.quit();
 log.debug(process.versions);
 
 const isDevEnv = process.env.NODE_ENV === 'development';
@@ -66,7 +62,7 @@ debug({ showDevTools: false }); // Press F12 to open DevTools
 // ロックは userData 単位なので、setPath('userData') より後で取得すること
 // (--user-data-dir 隔離の E2E や _Dev プロファイルの開発起動と干渉させない)。
 // ロック失敗時に即 return せず後続のトップレベル初期化を素通しするのは
-// electron-squirrel-startup と同じ流儀 — quit 済みなら ready が発火せず
+// すぐ上の handleSquirrelEvent と同じ流儀 — quit 済みなら ready が発火せず
 // 窓生成(launch)には到達しない
 if (!app.requestSingleInstanceLock()) {
   app.quit();
