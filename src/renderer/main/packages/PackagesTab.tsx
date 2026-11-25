@@ -19,7 +19,12 @@ import {
 } from 'react-bootstrap';
 import { compareVersion } from '../../../shared/compareVersion';
 import { matchesSearchFilter } from '../../../shared/fuzzySearch';
-import { parsePackageType, states } from '../../../shared/packageDisplay';
+import {
+  conflictLabel,
+  parsePackageType,
+  states,
+  unmetDependencyLabel,
+} from '../../../shared/packageDisplay';
 import {
   computeShareStringAlerts,
   parseShareString,
@@ -729,6 +734,50 @@ function PackagesTab(): JSX.Element {
                                       row.p.doNotInstall && (
                                         <div className="text-warning">
                                           インストール不可
+                                          {(row.p.unmetDependencies ?? [])
+                                            .length > 0 && (
+                                            <span className="d-block fw-normal">
+                                              要:{' '}
+                                              {(row.p.unmetDependencies ?? [])
+                                                .map((group) =>
+                                                  unmetDependencyLabel(
+                                                    group,
+                                                    (id) =>
+                                                      packages.find(
+                                                        (p) => p.id === id,
+                                                      )?.info.name,
+                                                  ),
+                                                )
+                                                .join('、')}
+                                            </span>
+                                          )}
+                                          {(row.p.conflictingWith ?? [])
+                                            .length > 0 && (
+                                            <span className="d-block fw-normal">
+                                              競合:{' '}
+                                              {(row.p.conflictingWith ?? [])
+                                                .map((group) =>
+                                                  conflictLabel(
+                                                    group,
+                                                    (id) =>
+                                                      packages.find(
+                                                        (p) => p.id === id,
+                                                      )?.info.name,
+                                                  ),
+                                                )
+                                                .filter(
+                                                  (v, i, a) =>
+                                                    a.indexOf(v) === i,
+                                                )
+                                                .join('、')}
+                                            </span>
+                                          )}
+                                          {row.p.installationStatus ===
+                                            states.otherInstalled && (
+                                            <span className="d-block fw-normal">
+                                              別のバージョンが導入済み
+                                            </span>
+                                          )}
                                         </div>
                                       )}
                                     {row.kind === 'package' &&
