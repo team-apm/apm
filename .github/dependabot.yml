@@ -33,6 +33,10 @@ updates:
       - dependency-name: 'matcher'
         update-types: ['version-update:semver-major']
     groups:
+      # minor / patch は 1 本にまとめる。依存は最初に当たったグループに入るので先頭に置き、
+      # 下の名前つきグループには major だけが残るようにする
+      minor-and-patch:
+        update-types: ['minor', 'patch']
       commitizen:
         patterns:
           - 'commitizen'
