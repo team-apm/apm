@@ -140,4 +140,13 @@ test('dataURL の差し替えとパッケージのインストール・アンイ
   );
   expect(existsSync(path.join(installationPath, 'dummy.auf'))).toBe(false);
   await expect(row).not.toContainText('インストール済み');
+
+  // 未インストールのまま押しても、何が起きたのか分かる文言が出る
+  // (修正前は何も消していないのに「アンインストール完了」と出ていた)
+  await row.click();
+  await window.locator('#uninstall-package').click();
+  await expect(window.locator('#uninstall-package')).toHaveText(
+    'インストールされていません。',
+    { timeout: 30_000 },
+  );
 });
