@@ -101,7 +101,7 @@
     "cross-env": "^10.1.0",
     "cz-conventional-changelog": "3.3.0",
     "cz-conventional-changelog-ja": "^0.0.2",
-    "electron": "^43.4.1",
+    "electron": "^43.8.1",
     "eslint": "^9",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.5",
